@@ -467,7 +467,7 @@ def generate_split(days: int, goal: str):
 # PYDANTIC MODELLER
 # ═══════════════════════════════════════════════
 class AuthRequest(BaseModel):
-    username: str
+    username: str 
     password: str
 
 
@@ -539,7 +539,7 @@ class CustomProgramRequest(BaseModel):
 
 class NutritionLogSchema(BaseModel):
     username: str
-    calories: float
+    calories: float = 0
     protein: float
     carbs: float
     fat: float
@@ -552,17 +552,11 @@ app = FastAPI(title="Hypertrophy-X API", version="4.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["*"],  
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-def startup():
-    init_db()
-
 
 # ═══════════════════════════════════════════════
 # AUTH ENDPOINT'LERİ
@@ -942,10 +936,7 @@ def progress(username: str = Query(...)):
         "stats": calculate_stats(user)
     }
 
-
-# ═══════════════════════════════════════════════
-# YENİ: SPESİFİK HAREKET ZAMAN SERİSİ (ÇİZGİ GRAFİĞİ İÇİN)
-# ═══════════════════════════════════════════════
+# Egzersiz İlerleme Analizi
 @app.get("/api/progress/chart")
 def get_exercise_chart_data(username: str = Query(...), exercise: str = Query(...)):
     user = get_user_by_username(username)
@@ -981,7 +972,6 @@ def get_exercise_chart_data(username: str = Query(...), exercise: str = Query(..
                 parts = date_str.split("-")
                 formatted_date = f"{parts[2]}.{parts[1]}.{parts[0]}" if len(parts) == 3 else date_str
 
-                # 🚀 DEĞİŞİKLİK BURADA: Sadece MAX ağırlığı değil, GİRİLEN TÜM SETLERİ SIRAYLA EKLİYORUZ
                 for idx, s in enumerate(sets, 1):
                     try:
                         weight = float(s.get("weight_kg", 0))
@@ -1057,9 +1047,9 @@ def get_exercises():
         "muscle_groups": MUSCLE_GROUPS
     }
 
-# ---------------------------------------------------------
-# 🚀 BESLENME ENDPOINT'LERİ (GEÇMİŞ DESTEKLİ)
-# ---------------------------------------------------------
+# ═══════════════════════════════════════════════
+# BESLENME ENDPOINT'LERİ
+# ═══════════════════════════════════════════════
 
 @app.get("/api/nutrition/today")
 def get_today_nutrition(username: str = Query(...)):
@@ -1067,7 +1057,6 @@ def get_today_nutrition(username: str = Query(...)):
     if not user:
         raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
     
-    # Geçmiş verisini sözlük (dictionary) olarak al
     raw_nutri = user.get("daily_nutrition", "{}")
     try:
         history_dict = json.loads(raw_nutri) if isinstance(raw_nutri, str) else raw_nutri
@@ -1092,7 +1081,6 @@ def get_nutrition_history(username: str = Query(...)):
     except:
         history_dict = {}
         
-    # Sözlüğü listeye çevirip tarihe göre yeniden eskiye (desc) sıralıyoruz
     history_list = []
     for date_str, data in history_dict.items():
         item = {"date": date_str}
@@ -1116,10 +1104,18 @@ def save_nutrition_log(data: NutritionLogSchema):
         history_dict = {}
 
     target_date = data.log_date or str(date.today())
+    
+    # Gelecek gün kontrolü
+    if target_date > str(date.today()):
+        raise HTTPException(status_code=400, detail="Gelecek gün için kayıt yapılamaz")
 
-    # İlgili tarihe veriyi ekle veya güncelle
+    # Makrolardan kalori hesapla (eğer kalori 0 ise)
+    calories = data.calories
+    if calories <= 0:
+        calories = (data.protein * 4) + (data.carbs * 4) + (data.fat * 9)
+
     history_dict[target_date] = {
-        "calories": data.calories,
+        "calories": calories,
         "protein": data.protein,
         "carbs": data.carbs,
         "fat": data.fat,
@@ -1149,7 +1145,6 @@ def delete_nutrition_log(username: str = Query(...), log_date: str = Query(...))
     except:
         history_dict = {}
 
-    # O güne ait kaydı sil
     if log_date in history_dict:
         del history_dict[log_date]
         conn = get_db()
@@ -1161,92 +1156,6 @@ def delete_nutrition_log(username: str = Query(...), log_date: str = Query(...))
         conn.close()
 
     return {"success": True, "message": "Kayıt başarıyla silindi"}
-
-@app.get("/api/nutrition-history")
-def nutrition_history(username: str = Query(...), period: str = Query("all")):
-    """Beslenme sayfası için geçmiş veri.
-       period: 'weekly' | 'monthly' | 'all'
-    """
-    from datetime import timedelta
-
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
-
-    stats = calculate_stats(user)
-    workouts = get_workouts_by_user(user["id"])
-    now = datetime.now()
-
-    # Filtreleme
-    if period == "weekly":
-        cutoff = now - timedelta(days=7)
-    elif period == "monthly":
-        cutoff = now - timedelta(days=30)
-    else:
-        cutoff = datetime.min
-
-    filtered = []
-    for w in workouts:
-        w_date = datetime.strptime(w["date"], "%Y-%m-%d")
-        if w_date >= cutoff:
-            filtered.append(w)
-
-    # Günlük veri gruplama
-    daily = {}
-    for w in filtered:
-        d = w["date"]
-        if d not in daily:
-            daily[d] = {"date": d, "calories": 0, "protein": 0, "carbs": 0, "fat": 0, "volume": 0}
-
-        # Her egzersizden tahmini kalori/makro
-        total_protein = 0
-        total_carbs = 0
-        total_fat = 0
-        total_cal = 0
-
-        for ex in w.get("exercises", []):
-            for s in ex.get("sets_data", []):
-                reps = float(s.get("reps", 0))
-                weight = float(s.get("weight_kg", 0))
-                vol = reps * weight
-                daily[d]["volume"] += vol
-
-                # Tahmini kalori: her hareket ~8-12 kcal/kg*reps
-                est_cal = vol * 0.5
-                total_cal += est_cal
-                # Tahmini makro dağılımı (antrenman ağırlığına göre)
-                total_protein += weight * 0.03
-                total_carbs += weight * 0.08
-                total_fat += weight * 0.015
-
-        daily[d]["calories"] += total_cal
-        daily[d]["protein"] += total_protein
-        daily[d]["carbs"] += total_carbs
-        daily[d]["fat"] += total_fat
-
-    # Günlük değerleri kiloya göre ölçekle (gerçekçi makro tahmini)
-    weight = user.get("weight", 70)
-    goal = user.get("goal", "bulk")
-    for d_key, d_val in daily.items():
-        if d_val["volume"] > 0:
-            d_val["calories"] = stats["target_calories"] + (d_val["volume"] * 0.1)
-            d_val["protein"] = weight * 2.0 + (d_val["volume"] * 0.005)
-            d_val["carbs"] = weight * 5.0 if goal == "bulk" else weight * 2.5
-            d_val["fat"] = weight * 1.0
-
-    timeline = sorted(daily.values(), key=lambda x: x["date"])
-
-    return {
-        "current_stats": {
-            "target_calories": stats["target_calories"],
-            "macro": stats["macro"],
-            "goal": goal,
-            "bmi": stats["bmi"],
-            "weight": weight
-        },
-        "timeline": timeline
-    }
-
 
 # ═══════════════════════════════════════════════
 # STATIC DOSYALAR

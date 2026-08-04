@@ -1097,6 +1097,12 @@ tr:hover td { background: var(--bg-card-hover); }
   animation: pageSlideDown 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
+/* Beslenme İlerleme Barları İçin Akıcı Animasyon Geçişi */
+.progress-bar, [id$="ProgressBar"] {
+  transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+
 </style>
 </head>
 <body>
@@ -1212,7 +1218,7 @@ tr:hover td { background: var(--bg-card-hover); }
     <div class="page-content">
 
       <!-- ═══ DASHBOARD PAGE ═══ -->
-      <div class="page active" id="page-dashboard">
+      <div class="page active page-animated" id="page-dashboard">
         <div class="page-header">
           <div class="page-title">Dashboard</div>
           <div class="page-subtitle" id="dashSubtitle">Hoş geldin!</div>
@@ -1377,7 +1383,7 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
 
       <!-- ═══ GEÇMİŞ PAGE ═══ -->
-      <div class="page" id="page-history">
+      <div class="page page-animated" id="page-history">
         <div class="page-header" style="margin-bottom: 20px;">
           <div class="page-title">Geçmiş Kayıtlar</div>
           <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Antrenman ve beslenme loglarınızı buradan takip edebilirsiniz.</p>
@@ -1397,7 +1403,7 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
 
       <!-- ═══ UZMAN SİSTEMİ PAGE ═══ -->
-      <div class="page" id="page-analyze">
+      <div class="page page-animated" id="page-analyze">
         <div class="page-header">
           <div class="page-title">Uzman Sistemi</div>
           <div class="page-subtitle">Vücut analizi, beslenme ve antrenman önerileri</div>
@@ -1410,7 +1416,7 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
 
       <!-- ═══ İLERLEME PAGE ═══ -->
-      <div class="page" id="page-progress">
+      <div class="page page-animated" id="page-progress">
         <div class="page-header">
           <div class="page-title">İlerleme</div>
           <div class="page-subtitle">Hacim grafiği ve kişisel rekorlar</div>
@@ -1453,7 +1459,8 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
 
       <!-- ═══ BESLENME PAGE ═══ -->
-      <div class="page" id="page-nutrition">
+      <div class="page page-animated" id="page-nutrition">
+  
         <div class="page-header">
           <div class="page-title">Beslenme & Makro Takibi</div>
           <div class="page-subtitle">Günlük kalori ve makro hedeflerinizi takip edin ve güncelleyin</div>
@@ -1477,7 +1484,7 @@ tr:hover td { background: var(--bg-card-hover); }
                   <span id="calProgressText" style="color: var(--text-muted);">0 / 0 kcal</span>
                 </div>
                 <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
-                  <div id="calProgressBar" style="width: 0%; height: 100%; background: var(--accent, #6c63ff); transition: width 0.5s ease;"></div>
+                  <div id="calProgressBar" style="width: 0%; height: 100%; background: var(--accent, #6c63ff); transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);"></div>
                 </div>
               </div>
 
@@ -1487,7 +1494,7 @@ tr:hover td { background: var(--bg-card-hover); }
                   <span id="proteinProgressText" style="color: var(--text-muted);">0g / 0g</span>
                 </div>
                 <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
-                  <div id="proteinProgressBar" style="width: 0%; height: 100%; background: #22c55e; transition: width 0.5s ease;"></div>
+                  <div id="proteinProgressBar" style="width: 0%; height: 100%; background: #22c55e; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);"></div>
                 </div>
               </div>
 
@@ -1497,7 +1504,7 @@ tr:hover td { background: var(--bg-card-hover); }
                   <span id="carbProgressText" style="color: var(--text-muted);">0g / 0g</span>
                 </div>
                 <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
-                  <div id="carbProgressBar" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.5s ease;"></div>
+                  <div id="carbProgressBar" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);"></div>
                 </div>
               </div>
 
@@ -1507,7 +1514,7 @@ tr:hover td { background: var(--bg-card-hover); }
                   <span id="fatProgressText" style="color: var(--text-muted);">0g / 0g</span>
                 </div>
                 <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
-                  <div id="fatProgressBar" style="width: 0%; height: 100%; background: #3b82f6; transition: width 0.5s ease;"></div>
+                  <div id="fatProgressBar" style="width: 0%; height: 100%; background: #3b82f6; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);"></div>
                 </div>
               </div>
 
@@ -1519,15 +1526,17 @@ tr:hover td { background: var(--bg-card-hover); }
           </div>
 
           <div class="card" style="min-width: 0;">
-            <div class="card-title">Bugün Ne Yedin? (Veri Girişi)</div>
+            <div class="card-title">Bugün Ne Yedin?</div>
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Gün boyunca tükettiğiniz toplam makro değerlerini girip kaydedin.</p>
 
             <form id="nutritionLogForm" onsubmit="handleNutritionSubmit(event)" style="display: flex; flex-direction: column; gap: 14px;">
               
               <div>
                 <label style="display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">Toplam Kalori (kcal)</label>
-                <input type="number" id="inputCalories" placeholder="Örn: 2400" step="any" required
-                      style="width:100%; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; outline: none; font-size: 13px;">
+                <input type="number" id="inputCalories" placeholder="Makrolardan otomatik hesaplanır" step="any" readonly
+                  style="width:100%; padding: 10px 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; color: rgba(255,255,255,0.4); outline: none; font-size: 13px; cursor: default;"
+                  title="Kalori makrolardan otomatik hesaplanır"
+                >
               </div>
 
               <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
@@ -1552,16 +1561,65 @@ tr:hover td { background: var(--bg-card-hover); }
                       style="margin-top: 10px; padding: 12px; background: var(--accent, #6c63ff); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;">
                 Günlük Verileri Kaydet
               </button>
+              <button type="button" class="btn btn-secondary" onclick="clearNutritionInputs()" style="padding: 12px; font-weight: 600;">Girdileri Temizle</button>
               
               <div id="nutriSaveStatus" style="font-size: 12px; text-align: center; min-height: 16px;"></div>
             </form>
           </div>
+        </div> 
+        <div class="card" style="margin-top: 20px;">
+  
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+            <div>
+              <div style="font-size:16px; font-weight:700; color:var(--text);">Beslenme İstatistikleri & Analiz</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Karta tıklayarak ilgili besinin grafiğini inceleyebilirsiniz</div>
+            </div>
+            
+            <div class="timeframe-pills" style="display:inline-flex; gap:6px;">
+              <button id="nutriTime_weekly" class="tf-pill active" onclick="switchNutriStatsTimeframe('weekly')">Haftalık</button>
+              <button id="nutriTime_monthly" class="tf-pill" onclick="switchNutriStatsTimeframe('monthly')">Aylık</button>
+              <button id="nutriTime_all" class="tf-pill" onclick="switchNutriStatsTimeframe('all')">Genel</button>
+            </div>
+          </div>
+
+          <div class="stats-grid mb-20" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:20px;">
+            
+            <div id="nutriCard_calories" class="stat-card accent active-nutri-card" onclick="selectNutriMetric('calories')" 
+                style="padding:12px; border-radius:8px; background:rgba(108, 99, 255, 0.12); border:2px solid var(--accent, #6c63ff); cursor:pointer; transition:all 0.2s;">
+              <div id="avgCaloriesText" style="font-size:18px; font-weight:800; color:var(--accent, #6c63ff);">0 kcal</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Ort. Kalori 🔥</div>
+            </div>
+
+            <div id="nutriCard_protein" class="stat-card green" onclick="selectNutriMetric('protein')" 
+                style="padding:12px; border-radius:8px; background:rgba(34, 197, 94, 0.05); border:1px solid rgba(34, 197, 94, 0.2); cursor:pointer; transition:all 0.2s;">
+              <div id="avgProteinText" style="font-size:18px; font-weight:800; color:#22c55e;">0g</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Ort. Protein 🥩</div>
+            </div>
+
+            <div id="nutriCard_carbs" class="stat-card orange" onclick="selectNutriMetric('carbs')" 
+                style="padding:12px; border-radius:8px; background:rgba(245, 158, 11, 0.05); border:1px solid rgba(245, 158, 11, 0.2); cursor:pointer; transition:all 0.2s;">
+              <div id="avgCarbsText" style="font-size:18px; font-weight:800; color:#f59e0b;">0g</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Ort. Karbonhidrat 🍞</div>
+            </div>
+
+            <div id="nutriCard_fat" class="stat-card blue" onclick="selectNutriMetric('fat')" 
+                style="padding:12px; border-radius:8px; background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59, 130, 246, 0.2); cursor:pointer; transition:all 0.2s;">
+              <div id="avgFatText" style="font-size:18px; font-weight:800; color:#3b82f6;">0g</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Ort. Yağ 🥑</div>
+            </div>
+
+          </div>
+
+          <div style="position:relative; height:240px; width:100%;">
+            <canvas id="nutritionStatsChart"></canvas>
+          </div>
 
         </div>
+
       </div>
 
       <!-- ═══ ÖZEL PROGRAM PAGE ═══ -->
-      <div class="page" id="page-custom-program">
+      <div class="page page-animated" id="page-custom-program">
         <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
           <div>
             <h2 class="page-title" style="font-size:22px; font-weight:700;">Özel Antrenman Programı</h2>
@@ -1586,7 +1644,7 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
 
       <!-- ═══ PROFİL PAGE ═══ -->
-      <div class="page" id="page-profile">
+      <div class="page page-animated" id="page-profile">
         <div class="page-header">
           <div class="page-title">Profil</div>
           <div class="page-subtitle">Kişisel bilgilerinizi düzenleyin</div>
@@ -1673,7 +1731,7 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
 
       <!-- ═══ ADMIN PANEL PAGE ═══ -->
-      <div class="page" id="page-admin">
+      <div class="page page-animated" id="page-admin">
         <div class="page-header">
           <div class="page-title">Admin Paneli</div>
           <div class="page-subtitle">Kullanıcı yönetimi ve sistem kontrolü</div>
@@ -2778,7 +2836,7 @@ function renderMuscleChart(labels, data) {
       responsive: true, 
       maintainAspectRatio: false, 
       animation: {
-        animateRotate: true,   // 🔥 Tam daire çizerek açılmayı zorunlu kıldık
+        animateRotate: true,  
         animateScale: false,
         duration: 1200, 
         easing: 'easeOutQuart' 
@@ -2791,9 +2849,6 @@ function renderMuscleChart(labels, data) {
       } 
     }
   });
-
-  // 🔥 SİHİRLİ DOKUNUŞ: İlk yüklemede tarayıcının animasyonu yutmasını engelliyoruz
-  // Grafiği zorla sıfıra çekip 50 milisaniye sonra baştan başlatıyoruz
   window._muscleChart.reset();
   setTimeout(() => {
     window._muscleChart.update();
@@ -2814,7 +2869,7 @@ async function loadWorkoutPage() {
   const dateInput = document.getElementById('workoutDate');
   dateInput.value = localTodayStr;
   
-  // 🛡️ ÇİFTE ZIRH: Takvimde bugünden sonrasını (geleceği) KİLİTLE!
+  // Takvimde bugünden sonrasını (geleceği) KİLİTLE!
   dateInput.setAttribute('max', localTodayStr);
 
   // Load exercise pool
@@ -2824,7 +2879,7 @@ async function loadWorkoutPage() {
     _muscleGroups = data.muscle_groups;
   }
 
-  // --- EKLENEN KISIM: Dropdown değiştiğinde filtrelemeyi tetikler ---
+  // Dropdown değiştiğinde filtrelemeyi tetikler ---
   const workoutTypeEl = document.getElementById('workoutType');
   workoutTypeEl.removeEventListener('change', applySessionFilter);
   workoutTypeEl.addEventListener('change', applySessionFilter);
@@ -2833,7 +2888,7 @@ async function loadWorkoutPage() {
   applySessionFilter();
 }
 
-// ── YENİ EKLENEN FONKSİYON: Seçilen Seans Türüne Göre Kas Gruplarını Filtreler ──
+// Seçilen Seans Türüne Göre Kas Gruplarını Filtreler 
 function applySessionFilter() {
   const selectedType = document.getElementById('workoutType').value.toLowerCase();
 
@@ -2870,7 +2925,7 @@ function renderExerciseList(muscle) {
   const container = document.getElementById('exerciseListContainer');
   let filtered = [];
 
-  // --- GÜNCELLENEN KISIM: Sadece izin verilen kasların hareketlerini listele ---
+  // Sadece izin verilen kasların hareketlerini listele ---
   if (muscle === 'all') {
     const selectedType = document.getElementById('workoutType').value.toLowerCase();
     const SESSION_MUSCLE_MAP = {
@@ -3027,8 +3082,6 @@ function clearWorkout() {
 /* ═══════════════════════════════════════════════
    HISTORY (GEÇMİŞ) - ANA MOTOR VE SEKME YÖNETİMİ
 ═══════════════════════════════════════════════ */
-
-// 🚀 DÜZELTME 1: Zırhlı Tab Geçişi (Hata vermez)
 window.switchHistoryTab = function(tabName) {
   const workContainer = document.getElementById('historyContainer_workout');
   const nutContainer = document.getElementById('historyContainer_nutrition');
@@ -3061,7 +3114,6 @@ window.switchHistoryTab = function(tabName) {
 let globalHistoryWorkouts = []; 
 
 async function loadHistory(username) {
-  // 🚀 DÜZELTME 2: Kullanıcı adını tüm sistem için global kaydediyoruz!
   window._currentUsername = username; 
   
   const container = document.getElementById('historyContainer');
@@ -3108,7 +3160,7 @@ async function loadHistory(username) {
               <td>
                 <span class="view-mode-${index}"><strong>${s.reps || 0}</strong> Tekrar</span>
                 <input type="number" class="edit-mode-${index} edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="reps" value="${s.reps || 0}" style="display:none; width:50px;">
-                <span class="edit-mode-${index}" style="display:none; color:var(--text-muted); font-size:11px;">tkrar</span>
+                <span class="edit-mode-${index}" style="display:none; color:var(--text-muted); font-size:11px;">tekrar</span>
               </td>
             </tr>
           `;
@@ -3124,6 +3176,25 @@ async function loadHistory(username) {
           </div>
         `;
       });
+
+      /* ═══ NOT BÖLÜMÜ ═══ */
+      let notesSection = '';
+      if (w.notes && w.notes.trim() !== '') {
+        notesSection = `
+          <div style="margin-top: 8px; padding: 8px 10px; background: rgba(108,99,255,0.06); border-left: 3px solid var(--accent); border-radius: 6px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">📝 Not</div>
+            <span class="view-mode-${index}" style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">${w.notes}</span>
+            <textarea class="edit-mode-${index} edit-input" data-field="notes" style="display:none; width:100%; min-height:60px; padding:6px 8px; font-size:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:var(--text); resize:vertical; outline:none;" placeholder="Antrenman notunuz...">${w.notes || ''}</textarea>
+          </div>
+        `;
+      } else {
+        notesSection = `
+          <div style="margin-top: 8px; padding: 6px 10px; background: rgba(255,255,255,0.02); border-left: 3px solid rgba(255,255,255,0.1); border-radius: 6px; display:none;" class="edit-mode-${index}">
+            <textarea class="edit-input" data-field="notes" style="width:100%; min-height:60px; padding:6px 8px; font-size:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:var(--text); resize:vertical; outline:none;" placeholder="Antrenman notunuz..."></textarea>
+          </div>
+        `;
+      }
+      /* ═══ NOT BÖLÜMÜ SONU ═══ */
 
       html += `
         <div class="card history-card history-card-animated" id="card-${index}" style="--card-index: ${index};" onclick="handleCardClick(${index}, event)">
@@ -3141,10 +3212,12 @@ async function loadHistory(username) {
               <button onclick="deleteWorkout(${w.id}, event)" title="Sil" style="background:transparent; border:none; color:#ef4444; cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
             </div>
           </div>
+         
           <div id="hint-${index}" style="text-align:center; font-size:11px; color:var(--text-muted); margin-top:8px; font-weight:600;">Antrenman özetini görmek için tıkla</div>
           <div class="smooth-collapse" id="summary-wrapper-${index}">
             <div class="smooth-collapse-inner" style="margin-top:10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top:10px;">
               ${summaryExHTML}
+              ${notesSection}
               <button class="btn-more-details" id="btn-more-${index}" onclick="toggleFullDetails(${index}, event)">Daha Fazla (Set & Ağırlık Detayları)</button>
             </div>
           </div>
@@ -3165,7 +3238,7 @@ async function loadHistory(username) {
 }
 
 function handleCardClick(index, event) {
-  if (event.target.closest('button, input')) return; 
+  if (event.target.closest('button, input, textarea')) return; 
   const summaryWrap = document.getElementById(`summary-wrapper-${index}`);
   const fullWrap = document.getElementById(`full-wrapper-${index}`);
   const hint = document.getElementById(`hint-${index}`);
@@ -3187,7 +3260,7 @@ function handleCardClick(index, event) {
 }
 
 function handleDetailsClick(index, event) {
-  if (event.target.closest('button, input')) return; 
+  if (event.target.closest('button, input, textarea')) return; 
   event.stopPropagation(); 
   const hint = document.getElementById(`hint-${index}`);
   if(hint) hint.textContent = 'Özeti kapatmak için tıkla';
@@ -3251,7 +3324,7 @@ function toggleEditMode(index, event) {
 
 async function saveEdit(index, workoutId, event) {
   if (event) event.stopPropagation();
-  const username = window._currentUsername; // 🚀 ZIRHLI GLOBAL KULLANICI
+  const username = window._currentUsername; 
 
   const workout = globalHistoryWorkouts[index];
   let exercises = typeof workout.exercises === 'string' ? JSON.parse(workout.exercises) : workout.exercises;
@@ -3267,7 +3340,11 @@ async function saveEdit(index, workoutId, event) {
   });
 
   try {
-    await apiPut(`/api/workouts/${workoutId}?username=${username}`, { exercises: exercises });
+    const noteInput = document.querySelector(`textarea.edit-mode-${index}[data-field="notes"]`);
+    if (noteInput) {
+      workout.notes = noteInput.value;
+    }
+    await apiPut(`/api/workouts/${workoutId}?username=${username}`, { exercises: exercises, notes: workout.notes || '' });
     toast('Antrenman seti başarıyla güncellendi!', 'success');
     loadHistory(username); 
   } catch (err) {
@@ -3290,7 +3367,7 @@ async function deleteWorkout(id, event) {
 
 
 /* ═══════════════════════════════════════════════
-   2. BÖLÜM: BESLENME GEÇMİŞİ (API BAĞLANTILI & DÜZENLENEBİLİR)
+   2. BÖLÜM: BESLENME GEÇMİŞİ 
 ═══════════════════════════════════════════════ */
 
 let globalNutritionHistory = [];
@@ -3318,7 +3395,6 @@ async function loadNutritionHistory() {
     globalNutritionHistory.forEach((log, index) => {
       let calColor = log.calories >= targetCal ? 'var(--green, #22c55e)' : 'var(--orange, #f59e0b)';
 
-      // 🔥 ANİMASYON EKLENDİ: class içine "history-card-animated", style içine "--card-index"
       html += `
         <div class="card history-card history-card-animated" id="nutri-card-${index}" style="--card-index: ${index};" onclick="toggleNutritionDetails(${index}, event)" style="cursor:pointer; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
@@ -3329,7 +3405,6 @@ async function loadNutritionHistory() {
             <div style="display:flex; align-items:center; gap:8px;">
               <div style="text-align:right; margin-right:8px;">
                 <span class="nutri-view-${index}" style="font-size:18px; font-weight:800; color:${calColor};">${log.calories} <span style="font-size:12px; font-weight:600; color:var(--text-muted);">kcal</span></span>
-                <input type="number" class="nutri-edit-${index} edit-input" id="n-edit-cal-${index}" value="${log.calories}" style="display:none; width:70px; margin-bottom:4px;">
               </div>
               <button id="n-edit-btn-${index}" onclick="toggleNutritionEditMode(${index}, event)" title="Düzenle" style="background:transparent; border:none; color:var(--accent); cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
               <button id="n-save-btn-${index}" onclick="saveNutritionEdit(${index}, '${log.date}', event)" title="Kaydet" style="display:none; background:var(--green-bg); border:1px solid var(--green); color:var(--green); font-size:12px; font-weight:700; border-radius:6px; padding:4px 10px; cursor:pointer;">Kaydet</button>
@@ -3419,7 +3494,6 @@ window.saveNutritionEdit = async function(index, logDate, event) {
   const payload = {
     username: username,
     log_date: logDate,
-    calories: parseFloat(document.getElementById(`n-edit-cal-${index}`).value) || 0,
     protein: parseFloat(document.getElementById(`n-edit-pro-${index}`).value) || 0,
     carbs: parseFloat(document.getElementById(`n-edit-carb-${index}`).value) || 0,
     fat: parseFloat(document.getElementById(`n-edit-fat-${index}`).value) || 0
@@ -3724,7 +3798,7 @@ async function loadProgress(username) {
 
 
 /* ═══════════════════════════════════════════════
-   YENİ GRAFİK: ARAMA VE ÇİZİM FONKSİYONLARI (DEFINED HATASI KORUMALI)
+   YENİ GRAFİK: ARAMA VE ÇİZİM FONKSİYONLARI
 ═══════════════════════════════════════════════ */
 
 // 1. Egzersiz Seçim Fonksiyonu (Hem normal hem de window kapsamına tanımlıyoruz)
@@ -3799,207 +3873,326 @@ window.filterExerciseDropdown = function(value) {
   window.showExerciseDropdown();
 };
 
-// Chart.js Çizgi Grafiğini Oluşturma
-function renderExerciseProgressChart(exName, labels, data, details = []) {
-  if (typeof Chart === 'undefined') {
-    console.error("HATA: Chart.js kütüphanesi yüklenmedi!");
-    return;
-  }
-
-  const ctxEl = document.getElementById('exerciseProgressChart');
-  if (!ctxEl) return;
-  const ctx = ctxEl.getContext('2d');
-
-  if (_exerciseProgressChart) {
-    _exerciseProgressChart.destroy();
-  }
-
-  const hasData = data && data.length > 0;
-
-  // 1. 🔥 MÜKEMMEL MANTIK: X Ekseninde aynı günün 3 kez yazmasını engelle! (Benzersiz günleri bul)
-  const uniqueLabels = hasData ? [...new Set(labels)] : ['Veri Yok'];
-
-  // 2. 🔥 DİKEY TIRMANIŞ MANTIĞI: Verileri düz liste yerine {x: tarih, y: kilo} olarak eşleştir
-  const chartPoints = [];
-  if (hasData) {
-    for (let i = 0; i < labels.length; i++) {
-      chartPoints.push({
-        x: labels[i], // X ekseninde o günün üstüne git
-        y: data[i],   // Y ekseninde ağırlığa çık (Aynı günse dikey tırmanır)
-        setInfo: details[i] ? details[i].set : null,
-        repsInfo: details[i] ? details[i].reps : null
-      });
+  // Chart.js Çizgi Grafiğini Oluşturma
+  function renderExerciseProgressChart(exName, labels, data, details = []) {
+    if (typeof Chart === 'undefined') {
+      console.error("HATA: Chart.js kütüphanesi yüklenmedi!");
+      return;
     }
-  } else {
-    chartPoints.push({ x: 'Veri Yok', y: 0 });
-  }
 
-  const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-  gradient.addColorStop(0, 'rgba(108, 99, 255, 0.4)');
-  gradient.addColorStop(1, 'rgba(108, 99, 255, 0.0)');
+    const ctxEl = document.getElementById('exerciseProgressChart');
+    if (!ctxEl) return;
+    const ctx = ctxEl.getContext('2d');
 
-  _exerciseProgressChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: uniqueLabels, // SADECE benzersiz günler yatay eksene yazılır
-      datasets: [{
-        label: `${exName} (KG)`,
-        data: chartPoints, // Noktalar X eksenindeki yerine gider
-        borderColor: '#6c63ff',
-        borderWidth: 3,
-        backgroundColor: gradient,
-        fill: true,
-        tension: 0.1, // 🔥 Dikey çizgilerde iğrenç yuvarlak bükülmeler olmasın diye kıvrımı dikleştirdik
-        pointBackgroundColor: '#22c55e',
-        pointBorderColor: '#ffffff',
-        pointRadius: 6,
-        pointHoverRadius: 8
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { 
-          callbacks: { 
-            title: function(context) {
-              const pt = context[0].raw; // Kendi özel verimizi alıyoruz
-              return pt.setInfo ? `${pt.x} - Set ${pt.setInfo}` : pt.x;
-            },
-            label: function(context) { 
-              const pt = context.raw;
-              const repsText = pt.repsInfo ? ` (${pt.repsInfo} Tekrar)` : '';
-              return ` Ağırlık: ${pt.y} kg${repsText}`; 
-            } 
-          } 
-        }
-      },
-      scales: {
-        y: { beginAtZero: false, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3b4', callback: value => value + ' kg' } },
-        x: { grid: { display: false }, ticks: { color: '#9ca3b4' } }
+    if (_exerciseProgressChart) {
+      _exerciseProgressChart.destroy();
+    }
+
+    const hasData = data && data.length > 0;
+
+    const uniqueLabels = hasData ? [...new Set(labels)] : ['Veri Yok'];
+
+    const chartPoints = [];
+    if (hasData) {
+      for (let i = 0; i < labels.length; i++) {
+        chartPoints.push({
+          x: labels[i], // X ekseninde o günün üstüne git
+          y: data[i],   // Y ekseninde ağırlığa çık (Aynı günse dikey tırmanır)
+          setInfo: details[i] ? details[i].set : null,
+          repsInfo: details[i] ? details[i].reps : null
+        });
       }
+    } else {
+      chartPoints.push({ x: 'Veri Yok', y: 0 });
     }
-  });
-}
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(108, 99, 255, 0.4)');
+    gradient.addColorStop(1, 'rgba(108, 99, 255, 0.0)');
+
+    _exerciseProgressChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: uniqueLabels, // SADECE benzersiz günler yatay eksene yazılır
+        datasets: [{
+          label: `${exName} (KG)`,
+          data: chartPoints, // Noktalar X eksenindeki yerine gider
+          borderColor: '#6c63ff',
+          borderWidth: 3,
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0.1, 
+          pointBackgroundColor: '#22c55e',
+          pointBorderColor: '#ffffff',
+          pointRadius: 6,
+          pointHoverRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { 
+            callbacks: { 
+              title: function(context) {
+                const pt = context[0].raw; // Kendi özel verimizi alıyoruz
+                return pt.setInfo ? `${pt.x} - Set ${pt.setInfo}` : pt.x;
+              },
+              label: function(context) { 
+                const pt = context.raw;
+                const repsText = pt.repsInfo ? ` (${pt.repsInfo} Tekrar)` : '';
+                return ` Ağırlık: ${pt.y} kg${repsText}`; 
+              } 
+            } 
+          }
+        },
+        scales: {
+          y: { beginAtZero: false, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3b4', callback: value => value + ' kg' } },
+          x: { grid: { display: false }, ticks: { color: '#9ca3b4' } }
+        }
+      }
+    });
+  }
 }
 
 /* ═══════════════════════════════════════════════
-   BESLENME (NUTRITION) SAYFASI MOTORU
+   NUTRITION (Beslenme)
 ═══════════════════════════════════════════════ */
-let _currentNutritionTargets = { cal: 0, protein: 0, carbs: 0, fat: 0 };
 let _macroChart = null;
+let _nutritionStatsChart = null;
+let _nutriCurrentPeriod = 'weekly';
+let _nutriCurrentMetric = 'calories';
+let _nutriHistoryData = null;
 
+/* ---------- Sayfa Yükleme ---------- */
 async function loadNutrition(username) {
-  const statsHeader = document.getElementById('nutritionStatsHeader');
   try {
-    // 1. Kullanıcının Hedef Verilerini Çek
-    const data = await apiPost(`/api/analyze?username=${username}`, { stagnation_detected: false });
-    const goalLabel = { bulk: 'Bulk (Kütle Kazanımı)', cut: 'Cut (Yağ Kaybı)', maintain: 'Maintain (Koruma)' };
+    // 1) Kullanıcı hedefleri (analyze'den)
+    const stats = await apiPost(`/api/analyze?username=${username}`, { stagnation_detected: false });
 
-    _currentNutritionTargets = {
-      cal: data.target_calories || 0,
-      protein: data.macro?.protein || 0,
-      carbs: data.macro?.carbs || 0,
-      fat: data.macro?.fat || 0
-    };
-
-    // Status Kartlarını Çiz 
-    if (statsHeader) {
-      statsHeader.innerHTML = `
-        <div class="stats-grid mb-20">
-          <div class="stat-card accent">
-            <div class="stat-value">${data.target_calories}</div>
-            <div class="stat-label">Günlük Kalori Hedefi</div>
-            <div class="stat-detail">${goalLabel[data.user?.goal || 'bulk'] || 'bulk'}</div>
-          </div>
-          <div class="stat-card green">
-            <div class="stat-value">${data.macro.protein}g</div>
-            <div class="stat-label">Protein</div>
-            <div class="stat-detail">${Math.round(data.macro.protein * 4)} kcal</div>
-          </div>
-          <div class="stat-card orange">
-            <div class="stat-value">${data.macro.carbs}g</div>
-            <div class="stat-label">Karbonhidrat</div>
-            <div class="stat-detail">${Math.round(data.macro.carbs * 4)} kcal</div>
-          </div>
-          <div class="stat-card blue">
-            <div class="stat-value">${data.macro.fat}g</div>
-            <div class="stat-label">Yağ</div>
-            <div class="stat-detail">${Math.round(data.macro.fat * 9)} kcal</div>
-          </div>
-        </div>
-      `;
-    }
-
-    // 2. Kullanıcının Bugün Kaydettiği Veriyi Çek
+    // 2) Bugünün verisi
     const todayRes = await apiGet(`/api/nutrition/today?username=${username}`);
     const todayLog = todayRes.log || { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
-    // Inputları Doldur
-    document.getElementById('inputCalories').value = todayLog.calories || '';
-    document.getElementById('inputProtein').value = todayLog.protein || '';
-    document.getElementById('inputCarbs').value = todayLog.carbs || '';
-    document.getElementById('inputFat').value = todayLog.fat || '';
+    // 3) Eğer bugün veri yoksa, son girilen veriyi bul
+    const lastLog = await apiGet(`/api/nutrition/history?username=${username}`);
+    let lastEntry = null;
+    if (lastLog.history && lastLog.history.length > 0) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      lastEntry = lastLog.history.find(l => l.date === todayStr) || null;
+    }
 
-    // Barları ve Grafiği Güncelle
-    updateNutritionUI(todayLog);
+    // 4) Input'ları doldur (bugün varsa bugün, yoksa boş)
+    _fillTodayInputs(lastEntry || todayLog);
 
-  } catch(e) {
-    console.error("Beslenme sayfası yüklenirken hata:", e);
+    // 5) İstatistik kartları ve başlık
+    _renderNutritionHeader(stats);
+
+    // 6) Macro pie chart
+    _renderMacroPie(lastEntry || todayLog);
+
+    // 7) İstatistik grafiği
+    await _loadNutritionStats(username, _nutriCurrentPeriod, _nutriCurrentMetric);
+
+  } catch (e) {
+    console.error('Nutrition load error:', e);
+    toast('Beslenme sayfası yüklenemedi: ' + e.message, 'error');
   }
 }
 
-// Barları ve Grafiği Çizen / Güncelleyen Fonksiyon
-function updateNutritionUI(logData) {
-  const t = _currentNutritionTargets;
+/* ---------- Bugünkü Input Doldurma ---------- */
+function _fillTodayInputs(todayLog) {
+  const dateBadge = document.getElementById('nutriDateBadge');
+  if (dateBadge) {
+    const today = new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' });
+    dateBadge.textContent = today;
+  }
 
-  const calVal = logData.calories || 0;
-  const pVal = logData.protein || 0;
-  const cVal = logData.carbs || 0;
-  const fVal = logData.fat || 0;
+  //  Protein, Carb, Fat inputları doldur
+  const protInput = document.getElementById('inputProtein');
+  const carbInput = document.getElementById('inputCarbs');
+  const fatInput = document.getElementById('inputFat');
+  const calInput = document.getElementById('inputCalories');
 
-  // Yüzdeleri Hesapla
-  const calPct = t.cal ? Math.min(100, roundPct((calVal / t.cal) * 100)) : 0;
-  const pPct = t.protein ? Math.min(100, roundPct((pVal / t.protein) * 100)) : 0;
-  const cPct = t.carbs ? Math.min(100, roundPct((cVal / t.carbs) * 100)) : 0;
-  const fPct = t.fat ? Math.min(100, roundPct((fVal / t.fat) * 100)) : 0;
+  if (protInput) protInput.value = todayLog.protein || '';
+  if (carbInput) carbInput.value = todayLog.carbs || '';
+  if (fatInput) fatInput.value = todayLog.fat || '';
 
-  // Text Metinlerini Güncelle
-  document.getElementById('calProgressText').textContent = `${calVal} / ${t.cal} kcal (%${calPct})`;
-  document.getElementById('proteinProgressText').textContent = `${pVal}g / ${t.protein}g (%${pPct})`;
-  document.getElementById('carbProgressText').textContent = `${cVal}g / ${t.carbs}g (%${cPct})`;
-  document.getElementById('fatProgressText').textContent = `${fVal}g / ${t.fat}g (%${fPct})`;
+  // Kalori: makrolardan hesapla
+  const cal = (todayLog.protein || 0) * 4 + (todayLog.carbs || 0) * 4 + (todayLog.fat || 0) * 9;
+  if (calInput) calInput.value = cal || '';
 
-  // Barları Uzat
-  document.getElementById('calProgressBar').style.width = calPct + '%';
-  document.getElementById('proteinProgressBar').style.width = pPct + '%';
-  document.getElementById('carbProgressBar').style.width = cPct + '%';
-  document.getElementById('fatProgressBar').style.width = fPct + '%';
+  // Anlık hesaplama event listener'ları
+  _attachCalorieAutoCalc();
 
-  // Chart.js Pasta Grafiği Çiz / Güncelle
-  //renderMacroPieChart(pVal, cVal, fVal);
+  // Progress barları güncelle (sadece makrolar)
+  _updateProgressBars(todayLog);
 }
 
-function roundPct(val) {
-  return Math.round(val);
+/* ---------- Anlık Kalori Hesaplama ---------- */
+function _attachCalorieAutoCalc() {
+  const ids = ['inputProtein', 'inputCarbs', 'inputFat'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.dataset._autoCalcAttached) {
+      el.addEventListener('input', _autoCalcCalories);
+      el.dataset._autoCalcAttached = '1';
+    }
+  });
 }
 
-/* Pasta Grafik Çizme
-function renderMacroPieChart(p, c, f) {
-  const ctx = document.getElementById('macroChart')?.getContext('2d');
+function _autoCalcCalories() {
+  const prot = parseFloat(document.getElementById('inputProtein')?.value) || 0;
+  const carb = parseFloat(document.getElementById('inputCarbs')?.value) || 0;
+  const fat = parseFloat(document.getElementById('inputFat')?.value) || 0;
+  const total = (prot * 4) + (carb * 4) + (fat * 9);
+
+  const calInput = document.getElementById('inputCalories');
+  if (calInput) calInput.value = total || '';
+}
+
+/* ---------- Progress Barlar (Sadece Makro) ---------- */
+function _updateProgressBars(data) {
+  const stats = null; // İstatistik kartlarında gösterilecek, bar için hedef yok
+  // Calories bar
+  _setProgress('caloriesProgressBar', 'caloriesProgressText', 0, data.calories || 0, 0, 'kcal');
+  // Protein bar
+  _setProgress('proteinProgressBar', 'proteinProgressText', 0, data.protein || 0, 0, 'g');
+  // Carb bar
+  _setProgress('carbProgressBar', 'carbProgressText', 0, data.carbs || 0, 0, 'g');
+  // Fat bar
+  _setProgress('fatProgressBar', 'fatProgressText', 0, data.fat || 0, 0, 'g');
+
+  // Bar'ları hedefe göre ölçekle (158g protein, 395g carb, 79g fat — ekran görüntüsünden)
+  // Ama bu hedefler kullanıcıya özel olmalı — stats'tan al
+  if (data._targets) {
+    const calPct = Math.min(100, ((data.calories || 0) / data._targets.calories) * 100);
+    const protPct = Math.min(100, ((data.protein || 0) / data._targets.protein) * 100);
+    const carbPct = Math.min(100, ((data.carbs || 0) / data._targets.carbs) * 100);
+    const fatPct = Math.min(100, ((data.fat || 0) / data._targets.fat) * 100);
+
+    document.getElementById('caloriesProgresBar') && 
+      (document.getElementId('caloriesProgresBar').style.width = calPct + '%');
+    document.getElementById('proteinProgressBar') && 
+      (document.getElementById('proteinProgressBar').style.width = protPct + '%');
+    document.getElementById('carbProgressBar') && 
+      (document.getElementById('carbProgressBar').style.width = carbPct + '%');
+    document.getElementById('fatProgressBar') && 
+      (document.getElementById('fatProgressBar').style.width = fatPct + '%');
+
+    document.getElementById('caloriesProgressText') && 
+      (document.getElementById('caloriesProgressText').textContent = `${data.calories || 0} / ${data._targets.calories} kcal`);
+    document.getElementById('proteinProgressText') && 
+      (document.getElementById('proteinProgressText').textContent = `${data.protein || 0} / ${data._targets.protein} g`);
+    document.getElementById('carbProgressText') && 
+      (document.getElementById('carbProgressText').textContent = `${data.carbs || 0} / ${data._targets.carbs} g`);
+    document.getElementById('fatProgressText') && 
+      (document.getElementById('fatProgressText').textContent = `${data.fat || 0} / ${data._targets.fat} g`);
+  }
+}
+
+function _setProgress(barId, textId, pct, current, target, unit) {
+  const bar = document.getElementById(barId);
+  const text = document.getElementById(textId);
+  if (bar) bar.style.width = pct + '%';
+  if (text && target > 0) text.textContent = `${Math.round(current)} / ${Math.round(target)} ${unit}`;
+}
+
+/* ---------- Header İstatistik Kartları ---------- */
+function _renderNutritionHeader(stats) {
+  const header = document.getElementById('nutritionStatsHeader');
+  if (!header) return;
+
+  const macro = stats.macro || { protein: 160, carbs: 250, fat: 70 };
+  const targetCal = stats.target_calories || 2400;
+
+  // Hedef değerleri bar target'larına kaydet
+  window._nutriTargets = {
+    protein: macro.protein,
+    carbs: macro.carbs,
+    fat: macro.fat,
+    calories: targetCal
+  };
+
+  // Header'ı güncelle — stats kartları göster
+  header.innerHTML = `
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div style="padding: 14px; background: rgba(108,99,255,0.08); border: 1px solid rgba(108,99,255,0.2); border-radius: 10px;">
+        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Hedef Kalori</div>
+        <div style="font-size: 22px; font-weight: 800; color: var(--accent);">${targetCal} <span style="font-size:12px;">kcal</span></div>
+      </div>
+      <div style="padding: 14px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 10px;">
+        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Protein Hedefi</div>
+        <div style="font-size: 22px; font-weight: 800; color: #22c55e;">${macro.protein} <span style="font-size:12px;">g</span></div>
+      </div>
+      <div style="padding: 14px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 10px;">
+        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Karb Hedefi</div>
+        <div style="font-size: 22px; font-weight: 800; color: #f59e0b;">${macro.carbs} <span style="font-size:12px;">g</span></div>
+      </div>
+      <div style="padding: 14px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); border-radius: 10px;">
+        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Yağ Hedefi</div>
+        <div style="font-size: 22px; font-weight: 800; color: #3b82f6;">${macro.fat} <span style="font-size:12px;">g</span></div>
+      </div>
+    </div>
+  `;
+
+  // Progress barları hedefle güncelle
+  const todayLog = {
+    calories: parseFloat(document.getElementById('inputCalories')?.value) || 0,
+    protein: parseFloat(document.getElementById('inputProtein')?.value) || 0,
+    carbs: parseFloat(document.getElementById('inputCarbs')?.value) || 0,
+    fat: parseFloat(document.getElementById('inputFat')?.value) || 0,
+    _targets: window._nutriTargets
+  };
+  _updateProgressBars(todayLog);
+}
+
+/* ---------- Macro Pie Chart ---------- */
+function _renderMacroPie(data) {
+  const ctx = document.getElementById('macroChart');
   if (!ctx) return;
-
   if (_macroChart) _macroChart.destroy();
 
-  const hasData = (p + c + f) > 0;
+  const prot = data.protein || 0;
+  const carb = data.carbs || 0;
+  const fat = data.fat || 0;
+  const total = prot + carb + fat;
+
+  // Hepsi 0 ise boş göster
+  if (total === 0) {
+    _macroChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Protein', 'Karbonhidrat', 'Yağ'],
+        datasets: [{
+          data: [33, 34, 33],
+          backgroundColor: ['rgba(34,197,94,0.15)', 'rgba(245,158,11,0.15)', 'rgba(59,130,246,0.15)'],
+          borderWidth: 1,
+          borderColor: ['rgba(34,197,94,0.3)', 'rgba(245,158,11,0.3)', 'rgba(59,130,246,0.3)']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: '#9ca3b4', font: { size: 11 }, padding: 10 }
+          }
+        }
+      }
+    });
+    return;
+  }
 
   _macroChart = new Chart(ctx, {
-    type: 'pie',
+    type: 'doughnut',
     data: {
-      labels: ['Protein (kcal)', 'Karbonhidrat (kcal)', 'Yağ (kcal)'],
+      labels: ['Protein', 'Karbonhidrat', 'Yağ'],
       datasets: [{
-        data: hasData ? [p * 4, c * 4, f * 9] : [1, 1, 1],
+        data: [prot, carb, fat],
         backgroundColor: ['#22c55e', '#f59e0b', '#3b82f6'],
         borderWidth: 0
       }]
@@ -4007,56 +4200,410 @@ function renderMacroPieChart(p, c, f) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      cutout: '65%',
       plugins: {
         legend: {
           position: 'right',
-          labels: { color: '#9ca3b4', font: { size: 11 } }
+          labels: { color: '#9ca3b4', font: { size: 11 }, padding: 10 }
         }
       }
     }
   });
-}*/
+}
 
-// Form Gönderildiğinde Çalışacak Fonksiyon
+/* ---------- Form Submit ---------- */
 async function handleNutritionSubmit(e) {
   e.preventDefault();
-  const statusEl = document.getElementById('nutriSaveStatus');
-  const username = _currentUser?.username;
+  const btn = document.getElementById('btnSaveNutrition');
+  const status = document.getElementById('nutriSaveStatus');
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = 'Kaydediliyor...';
+  if (status) status.style.color = '#9ca3b4';
 
-  if (!username) return;
+  const protein = parseFloat(document.getElementById('inputProtein').value) || 0;
+  const carbs = parseFloat(document.getElementById('inputCarbs').value) || 0;
+  const fat = parseFloat(document.getElementById('inputFat').value) || 0;
+  const calories = (protein * 4) + (carbs * 4) + (fat * 9);
+  const today = new Date().toISOString().split('T')[0];
 
-  const payload = {
-    username: username,
-    calories: floatVal('inputCalories'),
-    protein: floatVal('inputProtein'),
-    carbs: floatVal('inputCarbs'),
-    fat: floatVal('inputFat')
-  };
+  // Tüm makro değerleri 0 ise uyarı
+  if (protein === 0 && carbs === 0 && fat === 0) {
+    if (status) { status.textContent = 'En az bir makro değeri girmelisiniz'; status.style.color = '#f59e0b'; }
+    if (btn) btn.disabled = false;
+    return;
+  }
 
   try {
-    statusEl.style.color = 'var(--text-muted)';
-    statusEl.textContent = 'Kaydediliyor...';
-
-    const res = await apiPost('/api/nutrition/log', payload);
+    const res = await apiPost('/api/nutrition/log', {
+      username: _currentUser.username,
+      log_date: today,
+      calories: calories,
+      protein: protein,
+      carbs: carbs,
+      fat: fat
+    });
 
     if (res.success) {
-      statusEl.style.color = '#22c55e';
-      statusEl.textContent = '✓ Bugünün beslenme verileri başarıyla kaydedildi!';
-      
-      // UI Barlarını ve Grafiği Anında Güncelle
-      updateNutritionUI(payload);
-
-      setTimeout(() => { statusEl.textContent = ''; }, 3000);
+      if (status) { status.textContent = 'Kaydedildi!'; status.style.color = '#22c55e'; }
+      // Sayfayı yenile
+      await loadNutrition(_currentUser.username);
     }
-  } catch(err) {
-    statusEl.style.color = 'var(--red, #ef4444)';
-    statusEl.textContent = 'Hata: ' + err.message;
+
+    setTimeout(() => {
+      if (btn) btn.disabled = false;
+      if (status) status.textContent = '';
+    }, 1500);
+  } catch (err) {
+    if (status) { status.textContent = 'Hata: ' + err.message; status.style.color = '#ef4444'; }
+    if (btn) btn.disabled = false;
   }
 }
 
-function floatVal(id) {
-  return parseFloat(document.getElementById(id)?.value) || 0;
+function clearNutritionInputs() {
+  document.getElementById('inputCalories').value = '';
+  document.getElementById('inputProtein').value = '';
+  document.getElementById('inputCarbs').value = '';
+  document.getElementById('inputFat').value = '';
 }
+
+/* ---------- İstatistik Kartı Seçimi ---------- */
+function selectNutriMetric(metric) {
+  _nutriCurrentMetric = metric;
+
+  // Kart aktiflik
+  ['calories', 'protein', 'carbs', 'fat'].forEach(m => {
+    const card = document.getElementById('nutriCard_' + m);
+    if (!card) return;
+    const isActive = m === metric;
+    const colors = {
+      calories: { bg: 'rgba(108,99,255,0.12)', border: 'var(--accent,#6c63ff)' },
+      protein: { bg: 'rgba(34,197,94,0.12)', border: '#22c55e' },
+      carbs: { bg: 'rgba(245,158,11,0.12)', border: '#f59e0b' },
+      fat: { bg: 'rgba(59,130,246,0.12)', border: '#3b82f6' }
+    };
+    card.style.background = isActive ? colors[m].bg : 'rgba(255,255,255,0.02)';
+    card.style.border = isActive ? `2px solid ${colors[m].border}` : '1px solid rgba(255,255,255,0.06)';
+  });
+
+  // Grafiği güncelle
+  if (_nutriHistoryData) {
+    _renderNutritionStatsChart(_nutriHistoryData.timeline, _nutriCurrentMetric);
+  }
+}
+
+/* ---------- Zaman Dilimi Değişimi ---------- */
+async function switchNutriStatsTimeframe(period) {
+  _nutriCurrentPeriod = period;
+
+  // Pill aktiflik
+  ['weekly', 'monthly', 'all'].forEach(p => {
+    const pill = document.getElementById('nutriTime_' + p);
+    if (pill) pill.classList.toggle('active', p === period);
+  });
+
+  await _loadNutritionStats(_currentUser.username, period, _nutriCurrentMetric);
+}
+
+/* ---------- İstatistik Verileri Yükleme ---------- */
+async function _loadNutritionStats(username, period, metric) {
+  try {
+    const data = await apiGet(`/api/nutrition/history?username=${username}`);
+    const history = data.history || [];
+
+    // Filtreleme
+    let filtered = history;
+    if (period === 'weekly') {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 7);
+      const cutoffStr = cutoff.toISOString().split('T')[0];
+      filtered = history.filter(h => h.date >= cutoffStr);
+    } else if (period === 'monthly') {
+      const cutoff = new Date();
+      cutoff.setMonth(cutoff.getMonth() - 1);
+      const cutoffStr = cutoff.toISOString().split('T')[0];
+      filtered = history.filter(h => h.date >= cutoffStr);
+    }
+
+    // Tarihe göre sırala (en eski -> en yeni)
+    filtered.sort((a, b) => a.date.localeCompare(b.date));
+
+    // Veriyi sakla
+    _nutriHistoryData = {
+      timeline: filtered,
+      period: period
+    };
+
+    // Ortalama değerleri hesapla
+    if (filtered.length > 0) {
+      const avgCal = filtered.reduce((s, d) => s + (d.calories || 0), 0) / filtered.length;
+      const avgProt = filtered.reduce((s, d) => s + (d.protein || 0), 0) / filtered.length;
+      const avgCarb = filtered.reduce((s, d) => s + (d.carbs || 0), 0) / filtered.length;
+      const avgFat = filtered.reduce((s, d) => s + (d.fat || 0), 0) / filtered.length;
+
+      _setText('avgCaloriesText', `${Math.round(avgCal)} kcal`);
+      _setText('avgProteinText', `${Math.round(avgProt)}g`);
+      _setText('avgCarbsText', `${Math.round(avgCarb)}g`);
+      _setText('avgFatText', `${Math.round(avgFat)}g`);
+    } else {
+      _setText('avgCaloriesText', '0 kcal');
+      _setText('avgProteinText', '0g');
+      _setText('avgCarbsText', '0g');
+      _setText('avgFatText', '0g');
+    }
+
+    // Grafiği çiz
+    _renderNutritionStatsChart(filtered, metric);
+  } catch (e) {
+    console.error('Stats load error:', e);
+    toast('İstatistik yüklenemedi: ' + e.message, 'error');
+  }
+}
+
+/* ---------- İstatistik Grafiği ---------- */
+function _renderNutritionStatsChart(timeline, metric) {
+  const ctx = document.getElementById('nutritionStatsChart');
+  if (!ctx) return;
+  if (_nutritionStatsChart) _nutritionStatsChart.destroy();
+
+  const isLight = document.body.classList.contains('light-mode');
+  const gridColor = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.06)';
+  const textColor = isLight ? '#6b7280' : '#9ca3b4';
+
+  if (timeline.length === 0) {
+    _nutritionStatsChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels: ['Veri yok'], datasets: [{ data: [0], borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+    return;
+  }
+
+  // Tek metrik seçili ise
+  if (metric !== 'all') {
+    const config = {
+      calories: { label: 'Kalori (kcal)', color: '#6c63ff', bg: 'rgba(108,99,255,0.15)', key: 'calories', unit: 'kcal' },
+      protein: { label: 'Protein (g)', color: '#22c55e', bg: 'rgba(34,197,94,0.15)', key: 'protein', unit: 'g' },
+      carbs: { label: 'Karbonhidrat (g)', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)', key: 'carbs', unit: 'g' },
+      fat: { label: 'Yağ (g)', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)', key: 'fat', unit: 'g' }
+    };
+    const c = config[metric];
+    const values = timeline.map(d => d[c.key] || 0);
+
+    _nutritionStatsChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: timeline.map(d => {
+          const dt = new Date(d.date);
+          return dt.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+        }),
+        datasets: [{
+          label: c.label,
+          data: values,
+          borderColor: c.color,
+          backgroundColor: c.bg,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 5,
+          pointBackgroundColor: c.color,
+          pointBorderColor: c.color,
+          pointHoverRadius: 7,
+          borderWidth: 2.5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: isLight ? '#fff' : '#1e2231',
+            titleColor: isLight ? '#1a1d27' : '#e8eaf0',
+            bodyColor: isLight ? '#6b7280' : '#9ca3b4',
+            borderColor: isLight ? '#e2e5ec' : '#2a2f3e',
+            borderWidth: 1,
+            cornerRadius: 8,
+            padding: 10,
+            callbacks: {
+              label: function(ctx) {
+                return ` ${ctx.parsed.y} ${c.unit}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: gridColor },
+            ticks: { color: textColor, font: { size: 11 }, maxRotation: 45 }
+          },
+          y: {
+            grid: { color: gridColor },
+            ticks: { color: textColor, font: { size: 11 } },
+            title: { display: true, text: c.unit, color: textColor },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  } else {
+    // Tüm metrikler (kalori ayrı axis, makrolar aynı axis)
+    _nutritionStatsChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: timeline.map(d => {
+          const dt = new Date(d.date);
+          return dt.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+        }),
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Kalori (kcal)',
+            data: timeline.map(d => d.calories || 0),
+            backgroundColor: 'rgba(108,99,255,0.3)',
+            borderColor: '#6c63ff',
+            borderWidth: 1,
+            borderRadius: 4,
+            yAxisID: 'y'
+          },
+          {
+            type: 'line',
+            label: 'Protein (g)',
+            data: timeline.map(d => d.protein || 0),
+            borderColor: '#22c55e',
+            backgroundColor: 'rgba(34,197,94,0.1)',
+            fill: false,
+            tension: 0.4,
+            pointRadius: 3,
+            borderWidth: 2,
+            yAxisID: 'y1'
+          },
+          {
+            type: 'line',
+            label: 'Karbonhidrat (g)',
+            data: timeline.map(d => d.carbs || 0),
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245,158,11,0.1)',
+            fill: false,
+            tension: 0.4,
+            pointRadius: 3,
+            borderWidth: 2,
+            yAxisID: 'y1'
+          },
+          {
+            type: 'line',
+            label: 'Yağ (g)',
+            data: timeline.map(d => d.fat || 0),
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.1)',
+            fill: false,
+            tension: 0.4,
+            pointRadius: 3,
+            borderWidth: 2,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            labels: { color: textColor, font: { size: 11 }, padding: 12 }
+          },
+          tooltip: {
+            backgroundColor: isLight ? '#fff' : '#1e2231',
+            titleColor: isLight ? '#1a1d27' : '#e8eaf0',
+            bodyColor: isLight ? '#6b7280' : '#9ca3b4',
+            borderColor: isLight ? '#e2e5ec' : '#2a2f3e',
+            borderWidth: 1,
+            cornerRadius: 8,
+            padding: 10
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: gridColor },
+            ticks: { color: textColor, font: { size: 11 }, maxRotation: 45 }
+          },
+          y: {
+            position: 'left',
+            grid: { color: gridColor },
+            ticks: { color: textColor, font: { size: 11 } },
+            title: { display: true, text: 'Kalori (kcal)', color: textColor },
+            beginAtZero: true
+          },
+          y1: {
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { color: textColor, font: { size: 11 } },
+            title: { display: true, text: 'Makro (g)', color: textColor },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+}
+
+/* ---------- Geriye Dönük Kayıt Kontrolü ---------- */
+// Beslenme sayfasında "Bugün Ne Yedin?" formunda
+// log_date olarak tarihi gönderirken, geçmişte kayıt varsa uyarı ver
+
+async function checkPastLogExists(username, logDate) {
+  try {
+    const res = await apiGet(`/api/nutrition/history?username=${username}`);
+    const found = (res.history || []).find(l => l.date === logDate);
+    return found;
+  } catch(e) {
+    return null;
+  }
+}
+
+// handleNutritionSubmit içinde geriye dönük kontrol
+// Eğer tarih bugün değilse:
+// const existing = await checkPastLogExists(_currentUser.username, targetDate);
+// if (existing) {
+//   // Uyarı göster + "Düzenle" button → geçmiş sayfasına yönlendir
+//   showPastLogWarning(targetDate);
+// }
+
+function showPastLogWarning(logDate) {
+  const formatted = new Date(logDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+  
+  // Modal veya overlay göster
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="background:var(--card-bg,#1a1d27);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:24px;max-width:400px;width:90%;text-align:center;">
+      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">
+        ⚠️ ${formatted} tarihine ait kayıt bulunuyor
+      </div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">
+        Bu tarihte zaten beslenme verisi kaydınız var. Düzenlemek ister misiniz?
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button onclick="this.closest('div').parentElement.remove()" 
+                style="padding:10px 20px;background:transparent;border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:var(--text);font-size:13px;cursor:pointer;">
+          İptal
+        </button>
+        <button onclick="window.location.hash='page-history';switchHistoryTab('nutrition');this.closest('div').parentElement.remove()" 
+                style="padding:10px 20px;background:var(--accent,#6c63ff);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">
+          Düzenle
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+}
+
+
+/* ---------- Yardımcı ---------- */
+function _setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
 
 // ═══════════════════════════════════════════════
 // ÖZEL PROGRAM OLUŞTURUCU 
@@ -4244,7 +4791,15 @@ async function saveCustomProgram() {
   // Sistemde giriş yapmış olan kullanıcının adını al (Dashboard'da kullandığın değişkenden çekebilirsin)
   // Örnek olarak localStorage'dan veya mevcut fonksiyondan username'i bulmalısın. 
   // Şimdilik test için statik yazıyorum, kendi sistemindeki currentUser değişkenine eşitle:
-  const username = "Turan"; // TODO: Buraya dinamik username değişkenini yaz!
+  const username = window._currentUsername || 
+                   (typeof _currentUser !== 'undefined' ? _currentUser?.username : null) || 
+                   localStorage.getItem('username');
+
+  // Oturum kontrolü: Eğer kullanıcı adı bulunamazsa işlemi durdur ve uyar
+  if (!username) {
+    alert("❌ Oturum açmış kullanıcı bulunamadı! Lütfen giriş yapıp tekrar deneyin.");
+    return;
+  }
 
   const requestBody = {
     username: username,
@@ -4272,6 +4827,131 @@ async function saveCustomProgram() {
   } catch (err) {
     console.error("Sunucuya gönderilirken hata oluştu:", err);
     alert("❌ Sunucu bağlantı hatası!");
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   BESLENME İSTATİSTİKLERİ VE GRAFİK MOTORU
+═══════════════════════════════════════════════ */
+
+let _nutriStatsTimeframe = 'weekly';
+let _nutriStatsChart = null;
+
+// Sekmeler Arası Geçiş (Haftalık, Aylık, Genel)
+window.switchNutriStatsTimeframe = function(timeframe) {
+  _nutriStatsTimeframe = timeframe;
+  
+  ['weekly', 'monthly', 'all'].forEach(tf => {
+    const btn = document.getElementById(`nutriTime_${tf}`);
+    if (btn) {
+      if (tf === timeframe) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
+  
+  renderNutritionStats();
+};
+
+// İstatistikleri ve Grafiği Çizen Fonksiyon
+async function renderNutritionStats() {
+  const username = window._currentUsername || _currentUser?.username;
+  if (!username) return;
+
+  try {
+    const res = await apiGet(`/api/nutrition/history?username=${username}`);
+    let history = res.history || [];
+
+    if (history.length === 0) {
+      document.getElementById('avgCaloriesText').textContent = '0 kcal';
+      document.getElementById('avgProteinText').textContent = '0g';
+      document.getElementById('avgCarbsText').textContent = '0g';
+      document.getElementById('avgFatText').textContent = '0g';
+      if (_nutriStatsChart) { _nutriStatsChart.destroy(); _nutriStatsChart = null; }
+      return;
+    }
+
+    // Tarihe göre filtreleme (Haftalık: 7 Gün, Aylık: 30 Gün, Genel: Tüm Günler)
+    const now = new Date();
+    let filtered = history.filter(item => {
+      if (_nutriStatsTimeframe === 'all') return true;
+      const itemDate = new Date(item.date);
+      const diffTime = Math.abs(now - itemDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (_nutriStatsTimeframe === 'weekly') return diffDays <= 7;
+      if (_nutriStatsTimeframe === 'monthly') return diffDays <= 30;
+      return true;
+    });
+
+    // Grafikte kronolojik görmek için tarihe göre eskiden yeniye sıralayalım
+    filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Ortalamaları Hesapla
+    const count = filtered.length || 1;
+    const totalCal = filtered.reduce((acc, curr) => acc + (curr.calories || 0), 0);
+    const totalPro = filtered.reduce((acc, curr) => acc + (curr.protein || 0), 0);
+    const totalCarb = filtered.reduce((acc, curr) => acc + (curr.carbs || 0), 0);
+    const totalFat = filtered.reduce((acc, curr) => acc + (curr.fat || 0), 0);
+
+    document.getElementById('avgCaloriesText').textContent = `${Math.round(totalCal / count)} kcal`;
+    document.getElementById('avgProteinText').textContent = `${Math.round(totalPro / count)}g`;
+    document.getElementById('avgCarbsText').textContent = `${Math.round(totalCarb / count)}g`;
+    document.getElementById('avgFatText').textContent = `${Math.round(totalFat / count)}g`;
+
+    // Chart.js Grafiğini Çiz
+    const ctxEl = document.getElementById('nutritionStatsChart');
+    if (!ctxEl) return;
+    const ctx = ctxEl.getContext('2d');
+
+    const labels = filtered.map(item => formatDateTR(item.date));
+    const caloriesData = filtered.map(item => item.calories || 0);
+
+    if (_nutriStatsChart) {
+      _nutriStatsChart.destroy();
+    }
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(108, 99, 255, 0.35)');
+    gradient.addColorStop(1, 'rgba(108, 99, 255, 0.0)');
+
+    _nutriStatsChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Kalori (kcal)',
+          data: caloriesData,
+          borderColor: '#6c63ff',
+          backgroundColor: gradient,
+          borderWidth: 3,
+          fill: true,
+          tension: 0.3,
+          pointBackgroundColor: '#22c55e',
+          pointBorderColor: '#ffffff',
+          pointRadius: 5,
+          pointHoverRadius: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => ` Kalori: ${context.raw} kcal`
+            }
+          }
+        },
+        scales: {
+          y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3b4' } },
+          x: { grid: { display: false }, ticks: { color: '#9ca3b4' } }
+        }
+      }
+    });
+
+  } catch(e) {
+    console.error("Beslenme istatistikleri yüklenirken hata:", e);
   }
 }
 
