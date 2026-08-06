@@ -51,14 +51,19 @@ EXERCISE_POOL = [
     {"id": "seated_row", "name": "Seated Cable Row", "muscle": "Sırt", "bw": False, "weighted": False},
     {"id": "t_bar_row", "name": "T-Bar Row", "muscle": "Sırt", "bw": False, "weighted": False},
     {"id": "face_pull", "name": "Face Pull", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "pull_up", "name": "Pull-Up (Vücut Ağırlıklı)", "muscle": "Sırt", "bw": True, "weighted": True},
-    {"id": "weighted_pull_up", "name": "Weighted Pull-Up", "muscle": "Sırt", "bw": False, "weighted": True},
+    {"id": "pull_up", "name": "Pull-Up", "muscle": "Sırt", "bw": True, "weighted": True},
+    {"id": "weighted_pull_up", "name": "Pull-Up", "muscle": "Sırt", "bw": False, "weighted": True},
     {"id": "chin_up", "name": "Chin-Up", "muscle": "Sırt", "bw": True, "weighted": True},
-    {"id": "weighted_chin_up", "name": "Weighted Chin-Up", "muscle": "Sırt", "bw": False, "weighted": True},
+    {"id": "weighted_chin_up", "name": "Chin-Up", "muscle": "Sırt", "bw": False, "weighted": True},
     {"id": "hyperextension", "name": "Back Hyperextension", "muscle": "Sırt", "bw": True, "weighted": False},
-    {"id": "weighted_hyperextension", "name": "Weighted Back Hyperextension", "muscle": "Sırt", "bw": False, "weighted": True},
+    {"id": "weighted_hyperextension", "name": "Back Hyperextension", "muscle": "Sırt", "bw": False, "weighted": True},
     {"id": "single_arm_low_row", "name": "Single-Arm Low Row", "muscle": "Sırt", "bw": False, "weighted": False},
     {"id": "low_row", "name": "Low Row", "muscle": "Sırt", "bw": False, "weighted": False},
+    {"id": "dumbbell_low_row", "name": "Dumbbell Low Row", "muscle": "Sırt", "bw": False, "weighted": False},
+    {"id": "dumbbell_shruge", "name": "Dumbbell Shruge", "muscle": "Sırt", "bw": False, "weighted": False},
+    {"id": "barbell_shruge", "name": "Barbell Shruge", "muscle": "Sırt", "bw": False, "weighted": False},
+    {"id": "reverse_fly", "name": "Reverse Fly", "muscle": "Sırt", "bw": False, "weighted": False},
+
 
     # ─── OMUZ ───
     {"id": "overhead_press", "name": "Barbell Overhead Press", "muscle": "Omuz", "bw": False, "weighted": False},
@@ -539,11 +544,13 @@ class CustomProgramRequest(BaseModel):
 
 class NutritionLogSchema(BaseModel):
     username: str
+    log_date: str = ""
     calories: float = 0
-    protein: float
-    carbs: float
-    fat: float
-    log_date: str = None
+    protein: float = 0
+    carbs: float = 0
+    fat: float = 0
+    notes: str = ""    
+
     
 # ═══════════════════════════════════════════════
 # FASTAPI APP
@@ -1119,8 +1126,10 @@ def save_nutrition_log(data: NutritionLogSchema):
         "protein": data.protein,
         "carbs": data.carbs,
         "fat": data.fat,
+        "notes": data.notes or "",
         "updated_at": str(datetime.now())
     }
+
 
     conn = get_db()
     conn.execute(

@@ -51,14 +51,19 @@ EXERCISE_POOL = [
     {"id": "seated_row", "name": "Seated Cable Row", "muscle": "Sırt", "bw": False, "weighted": False},
     {"id": "t_bar_row", "name": "T-Bar Row", "muscle": "Sırt", "bw": False, "weighted": False},
     {"id": "face_pull", "name": "Face Pull", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "pull_up", "name": "Pull-Up (Vücut Ağırlıklı)", "muscle": "Sırt", "bw": True, "weighted": True},
-    {"id": "weighted_pull_up", "name": "Weighted Pull-Up", "muscle": "Sırt", "bw": False, "weighted": True},
+    {"id": "pull_up", "name": "Pull-Up", "muscle": "Sırt", "bw": True, "weighted": True},
+    {"id": "weighted_pull_up", "name": "Pull-Up", "muscle": "Sırt", "bw": False, "weighted": True},
     {"id": "chin_up", "name": "Chin-Up", "muscle": "Sırt", "bw": True, "weighted": True},
-    {"id": "weighted_chin_up", "name": "Weighted Chin-Up", "muscle": "Sırt", "bw": False, "weighted": True},
+    {"id": "weighted_chin_up", "name": "Chin-Up", "muscle": "Sırt", "bw": False, "weighted": True},
     {"id": "hyperextension", "name": "Back Hyperextension", "muscle": "Sırt", "bw": True, "weighted": False},
-    {"id": "weighted_hyperextension", "name": "Weighted Back Hyperextension", "muscle": "Sırt", "bw": False, "weighted": True},
+    {"id": "weighted_hyperextension", "name": "Back Hyperextension", "muscle": "Sırt", "bw": False, "weighted": True},
     {"id": "single_arm_low_row", "name": "Single-Arm Low Row", "muscle": "Sırt", "bw": False, "weighted": False},
     {"id": "low_row", "name": "Low Row", "muscle": "Sırt", "bw": False, "weighted": False},
+    {"id": "dumbbell_low_row", "name": "Dumbbell Low Row", "muscle": "Sırt", "bw": False, "weighted": False},
+    {"id": "dumbbell_shruge", "name": "Dumbbell Shruge", "muscle": "Sırt", "bw": False, "weighted": False},
+    {"id": "barbell_shruge", "name": "Barbell Shruge", "muscle": "Sırt", "bw": False, "weighted": False},
+    {"id": "reverse_fly", "name": "Reverse Fly", "muscle": "Sırt", "bw": False, "weighted": False},
+
 
     # ─── OMUZ ───
     {"id": "overhead_press", "name": "Barbell Overhead Press", "muscle": "Omuz", "bw": False, "weighted": False},
@@ -199,15 +204,21 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
     """)
+    
+    # Custom Split Sütunu Kontrolü
     try:
         cur.execute("ALTER TABLE users ADD COLUMN custom_split TEXT NOT NULL DEFAULT '[]'")
     except Exception:
-        # Eğer sütun zaten eklendiyse hata verir, biz de 'pass' ile sessizce geçeriz.
+        pass
+
+    # daily_nutrition sütunu kontrolü
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN daily_nutrition TEXT NOT NULL DEFAULT '{}'")
+    except Exception:
         pass
 
     conn.commit()
     conn.close()
-
 
 # ═══════════════════════════════════════════════
 # ŞİFRE İŞLEMLERİ
@@ -461,7 +472,7 @@ def generate_split(days: int, goal: str):
 # PYDANTIC MODELLER
 # ═══════════════════════════════════════════════
 class AuthRequest(BaseModel):
-    username: str
+    username: str 
     password: str
 
 
@@ -531,6 +542,16 @@ class CustomProgramRequest(BaseModel):
     username: str
     program: List[List[CustomDay]]
 
+class NutritionLogSchema(BaseModel):
+    username: str
+    log_date: str = ""
+    calories: float = 0
+    protein: float = 0
+    carbs: float = 0
+    fat: float = 0
+    notes: str = ""    
+
+    
 # ═══════════════════════════════════════════════
 # FASTAPI APP
 # ═══════════════════════════════════════════════
@@ -538,17 +559,11 @@ app = FastAPI(title="Hypertrophy-X API", version="4.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["*"],  
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-def startup():
-    init_db()
-
 
 # ═══════════════════════════════════════════════
 # AUTH ENDPOINT'LERİ
@@ -773,7 +788,7 @@ def admin_delete_user(user_id: int):
 
 
 # ═══════════════════════════════════════════════
-# ANALİZ + DASHBOARD + İLERLEME
+# ANALİZ
 # ═══════════════════════════════════════════════
 @app.post("/api/analyze")
 def analyze(data: AnalyzeRequest = Body(...), username: str = Query(...)):
@@ -800,7 +815,9 @@ def analyze(data: AnalyzeRequest = Body(...), username: str = Query(...)):
 
     return stats
 
-
+# ═══════════════════════════════════════════════
+# DAHSBOARD
+# ═══════════════════════════════════════════════
 @app.get("/api/dashboard")
 def dashboard(username: str = Query(...)):
     user = get_user_by_username(username)
@@ -840,20 +857,34 @@ def dashboard(username: str = Query(...)):
             m = ex.get("muscle_group", "Bilinmiyor")
             muscle_count[m] = muscle_count.get(m, 0) + 1
 
-    # Haftalık hacim grafiği
-    weekly_volume = {}
-    for w in workouts:
-        week_label = w["date"][:7]  # YYYY-MM
-        weekly_volume[week_label] = weekly_volume.get(week_label, 0) + w["total_volume"]
+    # Kas dağılımını hesaplayan pratik bir alt fonksiyon
+    def get_muscle_distribution(workout_list):
+        dist = {}
+        for w in workout_list:
+            exercises_raw = w.get("exercises", [])
+            # Eğer exercises string (JSON) olarak kayıtlıysa listeye çevir
+            if isinstance(exercises_raw, str):
+                try:
+                    exercises_list = json.loads(exercises_raw)
+                except:
+                    exercises_list = []
+            else:
+                exercises_list = exercises_raw
+                
+            for ex in exercises_list:
+                m = ex.get("muscle_group", ex.get("muscle", "Bilinmiyor"))
+                dist[m] = dist.get(m, 0) + 1
+        return dist
+
+    # Her 3 zaman dilimi için ayrı ayrı dağılımı çıkarıyoruz
+    muscle_dist_all = get_muscle_distribution(workouts)
+    muscle_dist_weekly = get_muscle_distribution(weekly)
+    muscle_dist_monthly = get_muscle_distribution(monthly)
 
     stats = calculate_stats(user)
-
-    # ---------------------------------------------------------
-    # TAKVİM (YEŞİL KUTULAR) İÇİN BİRLEŞTİRİLEN SESSIONS VERİSİ
-    # ---------------------------------------------------------
     sessions_data = [{"date": w["date"], "type": w.get("session_type", "Workout")} for w in workouts]
 
-    # Frontend'in beklediği TAAAM ve EKSİKSİZ yapı:
+    # Return kısmını güncelliyoruz (muscle_distribution artık 3 parçalı bir obje)
     return {
         "success": True,
         "user": user,
@@ -867,12 +898,18 @@ def dashboard(username: str = Query(...)):
         },
         "split_info": split_info,
         "rest_days": rest_days,
-        "muscle_distribution": muscle_count,
-        "weekly_volume": weekly_volume,
-        "sessions": sessions_data  # Takvim renkleri için burası kritik
+        "muscle_distribution": {
+            "all": muscle_dist_all,
+            "weekly": muscle_dist_weekly,
+            "monthly": muscle_dist_monthly
+        },
+        "sessions": sessions_data
     }
 
 
+# ═══════════════════════════════════════════════
+# İLERLEME
+# ═══════════════════════════════════════════════
 @app.get("/api/progress")
 def progress(username: str = Query(...)):
     user = get_user_by_username(username)
@@ -906,10 +943,7 @@ def progress(username: str = Query(...)):
         "stats": calculate_stats(user)
     }
 
-
-# ═══════════════════════════════════════════════
-# YENİ: SPESİFİK HAREKET ZAMAN SERİSİ (ÇİZGİ GRAFİĞİ İÇİN)
-# ═══════════════════════════════════════════════
+# Egzersiz İlerleme Analizi
 @app.get("/api/progress/chart")
 def get_exercise_chart_data(username: str = Query(...), exercise: str = Query(...)):
     user = get_user_by_username(username)
@@ -945,7 +979,6 @@ def get_exercise_chart_data(username: str = Query(...), exercise: str = Query(..
                 parts = date_str.split("-")
                 formatted_date = f"{parts[2]}.{parts[1]}.{parts[0]}" if len(parts) == 3 else date_str
 
-                # 🚀 DEĞİŞİKLİK BURADA: Sadece MAX ağırlığı değil, GİRİLEN TÜM SETLERİ SIRAYLA EKLİYORUZ
                 for idx, s in enumerate(sets, 1):
                     try:
                         weight = float(s.get("weight_kg", 0))
@@ -1021,6 +1054,117 @@ def get_exercises():
         "muscle_groups": MUSCLE_GROUPS
     }
 
+# ═══════════════════════════════════════════════
+# BESLENME ENDPOINT'LERİ
+# ═══════════════════════════════════════════════
+
+@app.get("/api/nutrition/today")
+def get_today_nutrition(username: str = Query(...)):
+    user = get_user_by_username(username)
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+    
+    raw_nutri = user.get("daily_nutrition", "{}")
+    try:
+        history_dict = json.loads(raw_nutri) if isinstance(raw_nutri, str) else raw_nutri
+    except:
+        history_dict = {}
+        
+    today_str = str(date.today())
+    today_log = history_dict.get(today_str, {"calories": 0, "protein": 0, "carbs": 0, "fat": 0})
+        
+    return {"success": True, "log": today_log}
+
+
+@app.get("/api/nutrition/history")
+def get_nutrition_history(username: str = Query(...)):
+    user = get_user_by_username(username)
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+    
+    raw_nutri = user.get("daily_nutrition", "{}")
+    try:
+        history_dict = json.loads(raw_nutri) if isinstance(raw_nutri, str) else raw_nutri
+    except:
+        history_dict = {}
+        
+    history_list = []
+    for date_str, data in history_dict.items():
+        item = {"date": date_str}
+        item.update(data)
+        history_list.append(item)
+        
+    history_list.sort(key=lambda x: x["date"], reverse=True)
+    return {"success": True, "history": history_list}
+
+
+@app.post("/api/nutrition/log")
+def save_nutrition_log(data: NutritionLogSchema):
+    user = get_user_by_username(data.username)
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+
+    raw_nutri = user.get("daily_nutrition", "{}")
+    try:
+        history_dict = json.loads(raw_nutri) if isinstance(raw_nutri, str) else raw_nutri
+    except:
+        history_dict = {}
+
+    target_date = data.log_date or str(date.today())
+    
+    # Gelecek gün kontrolü
+    if target_date > str(date.today()):
+        raise HTTPException(status_code=400, detail="Gelecek gün için kayıt yapılamaz")
+
+    # Makrolardan kalori hesapla (eğer kalori 0 ise)
+    calories = data.calories
+    if calories <= 0:
+        calories = (data.protein * 4) + (data.carbs * 4) + (data.fat * 9)
+
+    history_dict[target_date] = {
+        "calories": calories,
+        "protein": data.protein,
+        "carbs": data.carbs,
+        "fat": data.fat,
+        "notes": data.notes or "",
+        "updated_at": str(datetime.now())
+    }
+
+
+    conn = get_db()
+    conn.execute(
+        "UPDATE users SET daily_nutrition = ?, updated_at = datetime('now') WHERE username = ?",
+        (json.dumps(history_dict, ensure_ascii=False), data.username)
+    )
+    conn.commit()
+    conn.close()
+
+    return {"success": True, "message": "Beslenme verisi kaydedildi"}
+
+
+@app.delete("/api/nutrition/log")
+def delete_nutrition_log(username: str = Query(...), log_date: str = Query(...)):
+    user = get_user_by_username(username)
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+
+    raw_nutri = user.get("daily_nutrition", "{}")
+    try:
+        history_dict = json.loads(raw_nutri) if isinstance(raw_nutri, str) else raw_nutri
+    except:
+        history_dict = {}
+
+    if log_date in history_dict:
+        del history_dict[log_date]
+        conn = get_db()
+        conn.execute(
+            "UPDATE users SET daily_nutrition = ?, updated_at = datetime('now') WHERE username = ?",
+            (json.dumps(history_dict, ensure_ascii=False), username)
+        )
+        conn.commit()
+        conn.close()
+
+    return {"success": True, "message": "Kayıt başarıyla silindi"}
 
 # ═══════════════════════════════════════════════
 # STATIC DOSYALAR
