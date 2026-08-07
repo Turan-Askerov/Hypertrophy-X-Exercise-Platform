@@ -1175,3 +1175,24 @@ app.mount("/", StaticFiles(directory="static", html=True), name="static")
 @app.get("/app")
 def serve_app():
     return FileResponse("static/index.html")
+
+# ═══════════════════════════════════════════════
+# SPA CATCH-ALL — /dashboard, /nutrition vb. tüm SPA sayfalarını
+# index.html'e yönlendirir (geri butonu ve F5 yenileme için)
+# BU ROUTE MUTLAKA main.py dosyasının EN SONUNA YAZILMALIDIR
+# ═══════════════════════════════════════════════
+SPA_PAGES = {"dashboard", "workout", "history", "analyze", "progress",
+             "nutrition", "profile", "admin", "custom-program", "app", ""}
+
+
+@app.get("/{path:path}")
+def serve_spa(path: str):
+    # API istekleri ve statik dosyalar (css/js/img vb.) yakalanmasın
+    if path.startswith("api/") or path.startswith("favicon") or "." in path:
+        raise HTTPException(status_code=404, detail="Not Found")
+    first = path.split("/")[0]
+    if first in SPA_PAGES:
+        return FileResponse("static/index.html")
+    raise HTTPException(status_code=404, detail="Not Found")
+
+
