@@ -1,5 +1,33 @@
-__pycache__/
-*.db
-venv/
+# Ortam değişkenleri (SECRET ve şifreler ASLA git'e gitmez)
 .env
+.env.local
+admin.env
+
+# Veritabanı (kullanıcı verileri sunucuya özgü)
+*.db
+backend/hypertrophy.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Sanal ortam
+venv/
+.venv/
+
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Log ve test dosyaları
+*.log
+nohup.out

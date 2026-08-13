@@ -1502,9 +1502,7 @@ canvas {
           <div class="page-subtitle">Vücut analizi, beslenme ve antrenman önerileri</div>
         </div>
         <div id="analyzeContent">
-          <div class="card">
-            <button class="btn btn-primary" onclick="runAnalysis()">Analiz Başlat</button>
-          </div>
+          <div class="card"><p style="color:var(--text-muted)">Analiz hazırlanıyor...</p></div>
         </div>
       </div>
 
@@ -2064,8 +2062,9 @@ async function doLogin() {
 
   try {
     const res = await fetch(`${API}/api/auth/login`, {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({username, password})
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
     });
     if (!res.ok) {
       const d = await res.json();
@@ -2074,17 +2073,22 @@ async function doLogin() {
       return;
     }
     const data = await res.json();
+
+    // Token'ı sakla (JWT — güvenlik katmanı)
     _isAdmin = !!data.is_admin;
+
     if (_isAdmin) {
-      _currentUser = {username: username, is_admin: true};
+      _currentUser = { username: data.username, is_admin: true };
     } else {
       _currentUser = data;
     }
-    localStorage.setItem('hx_user', username);
+    localStorage.setItem('hx_token', data.token);
+    localStorage.setItem('hx_user', _currentUser.username);
     localStorage.setItem('hx_loggedIn', 'true');
+    localStorage.setItem('hx_pass', password);
     localStorage.setItem('hx_isAdmin', _isAdmin ? '1' : '0');
     enterApp();
-  } catch(e) {
+  } catch (e) {
     errEl.textContent = 'Bağlantı hatası: ' + e.message;
     errEl.classList.add('show');
   }
@@ -2120,10 +2124,12 @@ async function doRegister() {
   }
 }
 
-function doLogout() {
+function doLogout() {    
   localStorage.removeItem('hx_user');
   localStorage.removeItem('hx_loggedIn');
   localStorage.removeItem('hx_isAdmin');
+  localStorage.removeItem('hx_token');
+  localStorage.removeItem('hx_pass');
   _currentUser = null;
   _isAdmin = false;
   showLogin();
@@ -2258,7 +2264,7 @@ async function navigate(page, el) {
     if (page === 'dashboard') await loadDashboard(uname);
     else if (page === 'workout') await loadWorkoutPage();
     else if (page === 'history') await loadHistory(uname);
-    else if (page === 'analyze') { /* Wait for button click */ }
+    else if (page === 'analyze') { setTimeout(() => onAnalyzePageEnter(), 120); }
     else if (page === 'progress') await loadProgress(uname);
     else if (page === 'nutrition') await loadNutrition(uname);
     else if (page === 'custom-program') await loadCustomProgram(uname);
@@ -2310,25 +2316,36 @@ document.addEventListener('click', (e) => {
 });
 
 /* ═══════════════════════════════════════════════
-   API HELPERS
+   API HELPERS (JWT ZIRHLI)
 ═══════════════════════════════════════════════ */
+function hxAuthHeaders() {
+  const token = localStorage.getItem('hx_token');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': token ? `Bearer ${token}` : ''
+  };
+}
 async function apiGet(url) {
-  const res = await fetch(`${API}${url}`);
+  const res = await fetch(`${API}${url}`, { headers: hxAuthHeaders() });
+  if (res.status === 401) { doLogout(); throw new Error('Oturum süresi doldu, lütfen tekrar giriş yapın.'); }
   if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.detail || `HTTP ${res.status}`); }
   return await res.json();
 }
 async function apiPost(url, data) {
-  const res = await fetch(`${API}${url}`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)});
+  const res = await fetch(`${API}${url}`, { method:'POST', headers: hxAuthHeaders(), body: JSON.stringify(data) });
+  if (res.status === 401) { doLogout(); throw new Error('Oturum süresi doldu, lütfen tekrar giriş yapın.'); }
   if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.detail || `HTTP ${res.status}`); }
   return await res.json();
 }
 async function apiDelete(url) {
-  const res = await fetch(`${API}${url}`, {method:'DELETE'});
+  const res = await fetch(`${API}${url}`, { method:'DELETE', headers: hxAuthHeaders() });
+  if (res.status === 401) { doLogout(); throw new Error('Oturum süresi doldu, lütfen tekrar giriş yapın.'); }
   if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.detail || `HTTP ${res.status}`); }
   return await res.json();
 }
 async function apiPut(url, data) {
-  const res = await fetch(`${API}${url}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)});
+  const res = await fetch(`${API}${url}`, { method:'PUT', headers: hxAuthHeaders(), body: JSON.stringify(data) });
+  if (res.status === 401) { doLogout(); throw new Error('Oturum süresi doldu, lütfen tekrar giriş yapın.'); }
   if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.detail || `HTTP ${res.status}`); }
   return await res.json();
 }
@@ -2356,7 +2373,7 @@ let muscleChart = null;
 
 async function loadDashboard(username) {
   // 1. Veriyi Çek
-  const data = await apiGet(`/api/dashboard?username=${username}`);
+  const data = await apiGet(`/api/dashboard`);
   cachedUserData = data; 
   const s = data.summary || {};
 
@@ -2453,7 +2470,7 @@ async function loadDashboardRPG(username) {
       'Triceps'
     ];
 
-    let workouts = await apiGet(`/api/workouts?username=${username}`);
+    let workouts = await apiGet(`/api/workouts`);
     
     if (!workouts || !Array.isArray(workouts)) {
         workouts = [];
@@ -2639,7 +2656,7 @@ async function loadDashboardPRTable(username) {
   const container = document.getElementById('prListContainer');
   if (!container) return; 
 
-  const workouts = await apiGet(`/api/workouts?username=${username}`);
+  const workouts = await apiGet(`/api/workouts`);
   
   TARGET_COMPOUNDS.forEach(ex => { globalPRData[ex.key] = 0; });
 
@@ -3245,7 +3262,7 @@ async function saveWorkout() {
   };
 
   try {
-    await apiPost(`/api/workouts?username=${_currentUser.username}`, data);
+    await apiPost(`/api/workouts`, data);
     toast('Antrenman başarıyla kaydedildi!', 'success');
     _selectedExercises = [];
     renderSelectedExercises();
@@ -3304,7 +3321,7 @@ async function loadHistory(username) {
   if (!container) return;
 
   try {
-    const workouts = await apiGet(`/api/workouts?username=${username}`);
+    const workouts = await apiGet(`/api/workouts`);
     globalHistoryWorkouts = workouts; 
     
     if (!workouts || workouts.length === 0) {
@@ -3528,7 +3545,7 @@ async function saveEdit(index, workoutId, event) {
     if (noteInput) {
       workout.notes = noteInput.value;
     }
-    await apiPut(`/api/workouts/${workoutId}?username=${username}`, { exercises: exercises, notes: workout.notes || '' });
+    await apiPut(`/api/workouts/${workoutId}`, { exercises: exercises, notes: workout.notes || '' });
     toast('Antrenman seti başarıyla güncellendi!', 'success');
     loadHistory(username); 
   } catch (err) {
@@ -3541,7 +3558,7 @@ async function deleteWorkout(id, event) {
   if (!confirm('Bu antrenmanı silmek istediğinize emin misiniz?')) return;
   const username = window._currentUsername; 
   try {
-    await apiDelete(`/api/workouts/${id}?username=${username}`);
+    await apiDelete(`/api/workouts/${id}`);
     toast('Antrenman başarıyla silindi!', 'success');
     loadHistory(username);
   } catch(e) {
@@ -3565,7 +3582,7 @@ async function loadNutritionHistory() {
   try {
     container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">Veriler yükleniyor...</div>`;
 
-    const res = await apiGet(`/api/nutrition/history?username=${username}`);
+    const res = await apiGet(`/api/nutrition/history`);
     globalNutritionHistory = res.history || [];
 
     if (globalNutritionHistory.length === 0) {
@@ -3742,7 +3759,7 @@ window.deleteNutritionLog = async function(logDate, event) {
   const username = window._currentUsername;
 
   try {
-    const res = await apiDelete(`/api/nutrition/log?username=${username}&log_date=${logDate}`);
+    const res = await apiDelete(`/api/nutrition/log?log_date=${encodeURIComponent(logDate)}`);
     if (res.success) {
       toast('Kayıt silindi!', 'success');
       loadNutritionHistory();
@@ -3757,54 +3774,79 @@ window.deleteNutritionLog = async function(logDate, event) {
 ═══════════════════════════════════════════════ */
 async function runAnalysis() {
   const content = document.getElementById('analyzeContent');
-  content.innerHTML = '<div class="card"><p style="color:var(--text-secondary)">Analiz yapılıyor...</p></div>';
-
+  content.innerHTML = '<div class="card"><p style="color:var(--text-muted);font-size:13px">Analiz yapılıyor...</p></div>';
   try {
-    const data = await apiPost(`/api/analyze?username=${_currentUser.username}`, { stagnation_detected: false });
-
+    const data = await apiPost(`/api/analyze`, { stagnation_detected: false });
+    const split = data.split || {name: '-', days: []};
+    const daysHTML = (split.days || []).map(d => {
+      if (d.rest) {
+        return `<div class="split-card" style="border:1px dashed var(--border)">
+          <div class="split-day" style="color:var(--text-muted)">${d.day}</div>
+          <div class="split-type" style="color:var(--text-muted)">💤 Dinlenme</div></div>`;
+      }
+      const exList = (d.exercises || []).map(e =>
+        `<div style="font-size:12px;color:var(--text-muted);padding:2px 0;display:flex;justify-content:space-between;gap:6px">
+           <span>• ${e.name} <span style="color:var(--accent);font-weight:600">${e.sets}</span></span>
+           <span style="font-size:11px;color:var(--text-dim);text-align:right">${e.note || ''}</span>
+         </div>`).join('');
+      return `<div class="split-card">
+        <div class="split-day">${d.day}</div>
+        <div class="split-type">${d.type}</div>
+        <div style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.06);padding-top:6px">${exList}</div>
+      </div>`;
+    }).join('');
     content.innerHTML = `
       <div class="stats-grid mb-20">
         <div class="stat-card accent">
-          <div class="stat-value">${data.bmi}</div>
-          <div class="stat-label">BMI — ${data.bmi_category}</div>
+          <div class="stat-value">${data.bmi || '—'}</div>
+          <div class="stat-label">BMI</div>
         </div>
         <div class="stat-card green">
-          <div class="stat-value">${data.bmr}</div>
+          <div class="stat-value">${data.bmr || '—'}</div>
           <div class="stat-label">BMR (kcal)</div>
         </div>
         <div class="stat-card orange">
-          <div class="stat-value">${data.tdee}</div>
+          <div class="stat-value">${data.tdee || '—'}</div>
           <div class="stat-label">TDEE (kcal)</div>
         </div>
         <div class="stat-card blue">
-          <div class="stat-value">${data.target_calories}</div>
+          <div class="stat-value">${data.target_calories || '—'}</div>
           <div class="stat-label">Hedef Kalori</div>
         </div>
       </div>
-      <div class="grid-2">
+      <div class="grid-2 mb-20">
         <div class="card">
           <div class="card-title">Makro Hedefler</div>
           <div class="profile-grid">
-            <div><span style="color:var(--text-muted);font-size:12px">Protein</span><div style="font-size:20px;font-weight:700">${data.macro.protein}g</div></div>
-            <div><span style="color:var(--text-muted);font-size:12px">Karbonhidrat</span><div style="font-size:20px;font-weight:700">${data.macro.carbs}g</div></div>
-            <div><span style="color:var(--text-muted);font-size:12px">Yağ</span><div style="font-size:20px;font-weight:700">${data.macro.fat}g</div></div>
+            <div><span style="color:var(--text-muted);font-size:12px">Protein</span><div style="font-size:20px;font-weight:700;color:var(--green)">${data.protein}g</div></div>
+            <div><span style="color:var(--text-muted);font-size:12px">Karbonhidrat</span><div style="font-size:20px;font-weight:700;color:var(--orange)">${data.carbs}g</div></div>
+            <div><span style="color:var(--text-muted);font-size:12px">Yağ</span><div style="font-size:20px;font-weight:700;color:var(--blue)">${data.fat}g</div></div>
+          </div>
+          <div style="margin-top:10px;font-size:12px;color:var(--text-dim)">
+            Protein: kg başına ~2g · Yağ: kg başına ~0.9g · Karb: kalan kaloriden hesaplanır.
           </div>
         </div>
         <div class="card">
-          <div class="card-title">Antrenman Programı — ${data.split.split}</div>
-          ${data.split.days.map(d => `<div class="split-card"><div class="split-day">${d.day}</div><div class="split-type">${d.type}</div></div>`).join('')}
-          <div style="margin-top:12px;font-size:13px;color:var(--text-muted)">Dinlenme günleri: ${data.rest_days || 7 - data.split.days.length} gün</div>
+          <div class="card-title">Haftalık Program — ${split.name} <span style="font-size:12px;color:var(--text-dim);font-weight:400">(${split.rest_count ?? 0} dinlenme günü)</span></div>
+          <div class="split-list" style="display:flex;flex-direction:column;gap:8px">${daysHTML}</div>
+          <div style="margin-top:10px;font-size:12px;color:var(--text-dim)">
+            Aynı hareket haftada iki kez çıkmaz — Push/Pull/Legs günleri A/B varyantlarıyla
+            farklı açılış hareketleriyle başlar. Hareket listesinden istediğin gibi özelleştir.
+          </div>
         </div>
       </div>
-      <div class="card" style="margin-top:20px">
-        <div class="card-title">Durgunluk Analizi</div>
-        <p style="color:${data.stagnation?.includes('Durgunluk') ? 'var(--red)' : 'var(--green)'}">${data.stagnation}</p>
+      <div class="card">
+        <div class="card-title">İlerleme Durumu</div>
+        <p style="color:${data.stagnation?.includes('Durgunluk') ? 'var(--red)' : 'var(--green)'};font-size:14px">${data.stagnation}</p>
       </div>
     `;
   } catch(e) {
-    content.innerHTML = `<div class="card"><p style="color:var(--red)">Hata: ${e.message}</p></div>`;
+    content.innerHTML = `<div class="card"><p style="color:var(--red)">Analiz yapılamadı: ${e.message}</p></div>`;
   }
 }
+
+// Uzman Sistemine her girişte analiz otomatik çalışsın
+function onAnalyzePageEnter() { runAnalysis(); }
 
 /* ═══════════════════════════════════════════════
    İLERLEME (PROGRESS) SAYFASI
@@ -3818,7 +3860,7 @@ let exercisePool = [];             // Arama menüsü için
 async function loadProgress(username) {
   // ── A: GENEL VERİLER (PR Tablosu ve Eski Grafik) ──
   try {
-    const data = await apiGet(`/api/progress?username=${username}`);
+    const data = await apiGet(`/api/progress`);
 
     // Eski Hacim Grafiği
     const ctx1El = document.getElementById('progressChart');
@@ -4038,7 +4080,7 @@ async function selectProgressExercise(exName) {
   try {
     const username = _currentUser?.username;
     // API isteği
-    const response = await apiGet(`/api/progress/chart?username=${username}&exercise=${encodeURIComponent(exName)}`);
+    const response = await apiGet(`/api/progress/chart?exercise=${encodeURIComponent(exName)}`);
     
     // Grafiği çizdir
     renderExerciseProgressChart(exName, response.labels, response.data, response.details);
@@ -4196,14 +4238,14 @@ let _currentNutriNote = '';
 async function loadNutrition(username) {
   try {
     // 1) Kullanıcı hedefleri (analyze'den)
-    const stats = await apiPost(`/api/analyze?username=${username}`, { stagnation_detected: false });
+    const stats = await apiPost(`/api/analyze`, { stagnation_detected: false });
 
     // 2) Bugünün verisi
-    const todayRes = await apiGet(`/api/nutrition/today?username=${username}`);
+    const todayRes = await apiGet(`/api/nutrition/today`);
     const todayLog = todayRes.log || { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
     // 3) Eğer bugün veri yoksa, son girilen veriyi bul
-    const lastLog = await apiGet(`/api/nutrition/history?username=${username}`);
+    const lastLog = await apiGet(`/api/nutrition/history`);
     let lastEntry = null;
     if (lastLog.history && lastLog.history.length > 0) {
       const todayStr = new Date().toISOString().split('T')[0];
@@ -4576,7 +4618,7 @@ async function switchNutriStatsTimeframe(period) {
 /* ---------- İstatistik Verileri Yükleme ---------- */
 async function _loadNutritionStats(username, period, metric) {
   try {
-    const data = await apiGet(`/api/nutrition/history?username=${username}`);
+    const data = await apiGet(`/api/nutrition/history`);
     const history = data.history || [];
 
     // Filtreleme
@@ -4822,7 +4864,7 @@ function _renderNutritionStatsChart(timeline, metric) {
 
 async function checkPastLogExists(username, logDate) {
   try {
-    const res = await apiGet(`/api/nutrition/history?username=${username}`);
+    const res = await apiGet(`/api/nutrition/history`);
     const found = (res.history || []).find(l => l.date === logDate);
     return found;
   } catch(e) {
@@ -5073,7 +5115,8 @@ async function saveCustomProgram() {
     const response = await fetch("/api/custom-program", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + (localStorage.getItem('hx_token') || '')
       },
       body: JSON.stringify(requestBody)
     });
@@ -5120,7 +5163,7 @@ async function renderNutritionStats() {
   if (!username) return;
 
   try {
-    const res = await apiGet(`/api/nutrition/history?username=${username}`);
+    const res = await apiGet(`/api/nutrition/history`);
     let history = res.history || [];
 
     if (history.length === 0) {
@@ -5223,7 +5266,7 @@ async function renderNutritionStats() {
    PROFILE
 ═══════════════════════════════════════════════ */
 async function loadProfile(username) {
-  const user = await apiGet(`/api/user?username=${username}`);
+  const user = await apiGet(`/api/user`);
   document.getElementById('profAge').value = user.age || '';
   document.getElementById('profGender').value = user.gender || 'male';
   document.getElementById('profHeight').value = user.height || '';
@@ -5291,7 +5334,7 @@ async function loadAdminPanel() {
   // Load each user's workout count and volume
   for (const u of users) {
     try {
-      const w = await apiGet(`/api/workouts?username=${u.username}`);
+      const w = await apiGet(`/api/admin/workouts/${u.id}`);
       totalW += w.length;
       totalV += w.reduce((sum, wk) => sum + wk.total_volume, 0);
     } catch(e) {}
@@ -5413,31 +5456,61 @@ function refreshAdminUsers() { loadAdminPanel(); }
 ═══════════════════════════════════════════════ */
 (async function init() {
   loadTheme();
-
-  const isLoggedIn = localStorage.getItem('hx_loggedIn');
-  const savedUser = localStorage.getItem('hx_user');
+  const token = localStorage.getItem('hx_token');
+  const uname = localStorage.getItem('hx_user');
   const savedIsAdmin = localStorage.getItem('hx_isAdmin');
-
-  if (isLoggedIn && savedUser) {
+  // Kayıtlı oturum yoksa → giriş ekranı
+  if (!token || !uname) {
+    showLogin();
+    return;
+  }
+  // Kayıtlı şifre ile token'ı yenile (her oturum açışta geçerli JWT üret)
+  const hxPass = localStorage.getItem('hx_pass');
+  if (hxPass && uname !== 'admin') {
     try {
-      _isAdmin = savedIsAdmin === '1';
-      if (_isAdmin) {
-        _currentUser = {username: savedUser, is_admin: true};
+      const lr = await fetch(`${API}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: uname, password: hxPass })
+      });
+      if (lr.ok) {
+        const ld = await lr.json();
+        localStorage.setItem('hx_token', ld.token);
+        _isAdmin = !!ld.is_admin;
+        _currentUser = { ...ld };
+        delete _currentUser.token;
       } else {
-        _currentUser = await apiGet(`/api/user?username=${savedUser}`);
-      }
-      if (_currentUser) {
-        enterApp();
-        return;
+        throw new Error('token yenileme başarısız');
       }
     } catch(e) {
-      localStorage.removeItem('hx_loggedIn');
+      // Yenileme başarısız → token'ı sil, giriş ekranı
+      localStorage.removeItem('hx_token');
       localStorage.removeItem('hx_user');
+      localStorage.removeItem('hx_loggedIn');
       localStorage.removeItem('hx_isAdmin');
+      localStorage.removeItem('hx_pass');
+      showLogin();
+      return;
+    }
+  } else if (uname === 'admin') {
+    // Admin: token zaten localStorage'da, kullanıcı bilgisi minimal
+    _isAdmin = true;
+    _currentUser = { username: uname, is_admin: true };
+  } else {
+    // Eski sürümden gelen oturum (hx_pass yok) — mevcut token ile /api/user dene
+    try {
+      const u = await apiGet('/api/user');
+      _isAdmin = savedIsAdmin === '1';
+      _currentUser = { ...u };
+      // Şifreyi sakla ki bir sonraki açılışta token yenilensin
+      localStorage.setItem('hx_pass', '___token_valid___');
+    } catch(e) {
+      showLogin();
+      return;
     }
   }
-
-  showLogin();
+  localStorage.setItem('hx_loggedIn', 'true');
+  enterApp();
 })();
 
 // Yıl-Ay-Gün (YYYY-MM-DD) formatını Gün-Ay-Yıl (DD.MM.YYYY) formatına çeviren fonksiyon
@@ -5460,6 +5533,7 @@ document.addEventListener('keydown', (e) => {
     else if (!regPage.classList.contains('hidden')) doRegister();
   }
 });
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </body>

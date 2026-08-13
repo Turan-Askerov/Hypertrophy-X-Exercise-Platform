@@ -1,0 +1,24 @@
+# Hypertrophy-X v5.0 — Render deployment şablonu
+# Kullanım:
+#   1. Render'da "Blueprint" oluştur ve bu dosyayı seç
+#   2. Ortam değişkenlerini Render panelinden gir (JWT_SECRET, ADMIN_PASSWORD)
+#   3. Deploy butonuna bas
+services:
+  - type: web
+    name: hypertrophy-x
+    runtime: python
+    plan: free
+    buildCommand: "cd backend && pip install -r requirements.txt && mkdir -p static && cp ../frontend/index.html static/"
+    startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: JWT_SECRET
+        sync: false   # Render panelinden gir
+      - key: ADMIN_PASSWORD
+        sync: false   # Render panelinden gir
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: PORT
+        value: 8000
+    healthCheckPath: /api/health

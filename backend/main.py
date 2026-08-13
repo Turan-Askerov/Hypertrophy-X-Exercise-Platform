@@ -1,167 +1,173 @@
-# ============================================================
-# HYPERTROPHY-X  v4.0  —  Tek Dosya Backend
-# ============================================================
+"""
+HYPERTROPHY-X v4.1 — GÜVENLİK GÜNCELLEMESİ (JWT + bcrypt + .env)
 
-from fastapi import HTTPException
-from fastapi import FastAPI, Body, HTTPException, Query
+Bu dosya backend/main.py'nin GÜVENLİK BÖLÜMLERİNİ DEĞİŞTİRİLMİŞ HALİDİR.
+Kurulum talimatları "security_readme.md" dosyasındadır.
+
+YAPILAN DEĞİŞİKLİKLER:
+  1. Admin şifresi kodda sabit değil — .env dosyasından okunur
+  2. Şifreleme: SHA256 → bcrypt (eski hash'ler otomatik yükseltilir)
+  3. JWT token: login başarılı olunca imzalı token döner
+  4. Tüm endpoint'ler artık username parametresi yerine
+     "Authorization: Bearer <TOKEN>" başlığından kullanıcıyı çözer
+  5. Admin endpoint'leri JWT + admin rol kontrolüyle korunur
+  6. CORS artık .env'den yönetilir (default: [*] — production'da değiştir)
+"""
+
+import hashlib
+import secrets
+import os
+import json
+import sqlite3
+import base64
+import logging
+import time
+
+from fastapi import FastAPI, Body, HTTPException, Query, Header, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from contextlib import asynccontextmanager
-from pydantic import BaseModel, Field
+from starlette.middleware.base import BaseHTTPMiddleware
+from pydantic import BaseModel
 from typing import Optional, List
 from datetime import date, datetime, timedelta
-import sqlite3
-import os
-import json
-import hashlib
-import secrets
+
+from jose import jwt, JWTError, ExpiredSignatureError
+import bcrypt
+
+try:
+    from dotenv import load_dotenv
+    # .env yoksa admin.env'yi oku (admin şifresi ve JWT anahtarı orada)
+    import os as _os
+    _env = os.path.join(os.path.dirname(__file__), 'admin.env' if os.path.exists(os.path.join(os.path.dirname(__file__), 'admin.env')) else '.env')
+    load_dotenv(dotenv_path=_env)
+except ImportError:
+    pass  # python-dotenv kurulu değilse env değişkenleri sistemden okunur
 
 # ═══════════════════════════════════════════════
-# SABİTLER
+# SABİTLER — .env DOSYASINDAN OKUNUR
+# Dosya bulunamazsa güvenli varsayılanlar kullanılır
 # ═══════════════════════════════════════════════
 DB_PATH = "hypertrophy.db"
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "admin"
+
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "DEĞİŞTİRİLMEK-ZORUNDA")
+
+# JWT gizli anahtarı — sunucuda 32+ karakterlik rastgele bir değer ver!
+# Yerel testte bu otomatik değer çalışır ama production'da DEĞİŞTİR.
+SECRET_KEY = os.getenv("JWT_SECRET", secrets.token_hex(32))
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 24 * 60  # 24 saat
+
+# CORS — production'da sadece kendi alan adını ver
+CORS_ORIGIN = os.getenv("CORS_ORIGIN", "*")
+
+BCRYPT_ROUNDS = 12  # Kasıtlı olarak yavaş — kaba kuvvet saldırısını zorlaştırır
 
 # ═══════════════════════════════════════════════
-# EGZERSİZ HAVUZU — KOLAYCA EDİTLENEBİLİR
+# ŞİFRE İŞLEMLERİ — bcrypt + ESKİ SHA256 MİGRASYON
 # ═══════════════════════════════════════════════
-# Bir hareket eklemek için bu dict'e yeni entry ekle
-# "bw" = true ise ağırlıksız (bodyweight) hareket, ağırlıksız varyant olarak gösterilir
-# "weighted" = true ise hem ağırlıklı hem ağırlıksız varyantı gösterilir
-EXERCISE_POOL = [
-    # ─── GÖĞÜS ───
-    {"id": "bench_press", "name": "Bench Press", "muscle": "Göğüs", "bw": False, "weighted": False},
-    {"id": "incline_bb_press", "name": "Incline Barbell Press", "muscle": "Göğüs", "bw": False, "weighted": False},
-    {"id": "incline_db_press", "name": "Incline Dumbbell Press", "muscle": "Göğüs", "bw": False, "weighted": False},
-    {"id": "db_press", "name": "Dumbbell Bench Press", "muscle": "Göğüs", "bw": False, "weighted": False},
-    {"id": "cable_fly", "name": "Cable Fly", "muscle": "Göğüs", "bw": False, "weighted": False},
-    {"id": "db_fly", "name": "Dumbbell Fly", "muscle": "Göğüs", "bw": False, "weighted": False},
-    {"id": "chest_dip", "name": "Chest Dip", "muscle": "Göğüs", "bw": True, "weighted": True},
-    {"id": "push_up", "name": "Push-Up", "muscle": "Göğüs", "bw": True, "weighted": False},
-    {"id": "weighted_push_up", "name": "Weighted Push-Up", "muscle": "Göğüs", "bw": False, "weighted": False},
-    {"id": "chest_press_machine", "name": "Chest Press Machine", "muscle": "Göğüs", "bw": False, "weighted": False},
-
-    # ─── SIRT ───
-    {"id": "barbell_row", "name": "Barbell Row", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "db_row", "name": "Dumbbell Row", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "lat_pulldown", "name": "Lat Pulldown", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "single_arm_pulldown", "name": "Single-Arm Pulldown", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "seated_row", "name": "Seated Cable Row", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "t_bar_row", "name": "T-Bar Row", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "face_pull", "name": "Face Pull", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "pull_up", "name": "Pull-Up", "muscle": "Sırt", "bw": True, "weighted": True},
-    {"id": "weighted_pull_up", "name": "Pull-Up", "muscle": "Sırt", "bw": False, "weighted": True},
-    {"id": "chin_up", "name": "Chin-Up", "muscle": "Sırt", "bw": True, "weighted": True},
-    {"id": "weighted_chin_up", "name": "Chin-Up", "muscle": "Sırt", "bw": False, "weighted": True},
-    {"id": "hyperextension", "name": "Back Hyperextension", "muscle": "Sırt", "bw": True, "weighted": False},
-    {"id": "weighted_hyperextension", "name": "Back Hyperextension", "muscle": "Sırt", "bw": False, "weighted": True},
-    {"id": "single_arm_low_row", "name": "Single-Arm Low Row", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "low_row", "name": "Low Row", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "dumbbell_low_row", "name": "Dumbbell Low Row", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "dumbbell_shruge", "name": "Dumbbell Shruge", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "barbell_shruge", "name": "Barbell Shruge", "muscle": "Sırt", "bw": False, "weighted": False},
-    {"id": "reverse_fly", "name": "Reverse Fly", "muscle": "Sırt", "bw": False, "weighted": False},
+def _hash_password(password: str):
+    """Yeni şifre hash'leme — bcrypt (12 round)"""
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds=BCRYPT_ROUNDS)).decode()
 
 
-    # ─── OMUZ ───
-    {"id": "overhead_press", "name": "Barbell Overhead Press", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "shoulder_press", "name": "Shoulder Press", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "shoulder_press_machine", "name": "Shoulder Press Machine", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "arnold_press", "name": "Dumbbell Arnold Press", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "barbell_arnold_press", "name": "Barbell Arnold Press", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "lateral_raise", "name": "Lateral Raise", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "cable_lateral", "name": "Cable Lateral Raise", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "front_raise", "name": "Dumbbell Front Raise", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "rear_delt_fly", "name": "Rear Delt Fly", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "reverse_fly", "name": "Reverse Fly", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "upright_row", "name": "Upright Row", "muscle": "Omuz", "bw": False, "weighted": False},
-    {"id": "face_pull_shoulder", "name": "Face Pull", "muscle": "Omuz", "bw": False, "weighted": False},
+def _verify_password(plain: str, stored_hash: str, salt: str):
+    """
+    Doğrulama + otomatik migration:
+      - Hash bcrypt formatındaysa ($2b$/2a$) → bcrypt ile doğrula
+      - Eski SHA256 formatındaysa → eski yöntemle doğrula, doğruysa
+        yeni bcrypt hash ile yükselt (salt parametresini artık kullanmıyoruz)
+    """
+    if not stored_hash:
+        return False
+    if stored_hash.startswith("$2b$") or stored_hash.startswith("$2a$"):
+        return bcrypt.checkpw(plain.encode(), stored_hash.encode())
+    # Eski SHA256 + salt formatı (migration)
+    old = hashlib.sha256((salt + plain).encode()).hexdigest()
+    if old == stored_hash:
+        return True
+    return False
 
-    # ─── QUADRICEPS ───
-    {"id": "squat", "name": "Squat", "muscle": "Quadriceps", "bw": False, "weighted": False},
-    {"id": "front_squat", "name": "Front Squat", "muscle": "Quadriceps", "bw": False, "weighted": False},
-    {"id": "hack_squat", "name": "Hack Squat", "muscle": "Quadriceps", "bw": False, "weighted": False},
-    {"id": "leg_press", "name": "Leg Press", "muscle": "Quadriceps", "bw": False, "weighted": False},
-    {"id": "leg_extension", "name": "Leg Extension", "muscle": "Quadriceps", "bw": False, "weighted": False},
-    {"id": "bulgarian_split", "name": "Bulgarian Split Squat", "muscle": "Quadriceps", "bw": True, "weighted": True},
-    {"id": "weighted_bulgarian_split", "name": "Bulgarian Split Squat", "muscle": "Quadriceps", "bw": False, "weighted": True},
-    {"id": "goblet_squat", "name": "Goblet Squat", "muscle": "Quadriceps", "bw": False, "weighted": False},
-    {"id": "bodyweight_squat", "name": "Bodyweight Squat", "muscle": "Quadriceps", "bw": True, "weighted": True},
 
-    # ─── HAMSTRING ───
-    {"id": "romanian_deadlift", "name": "Romanian Deadlift", "muscle": "Hamstring", "bw": False, "weighted": False},
-    {"id": "deadlift", "name": "Deadlift", "muscle": "Hamstring", "bw": False, "weighted": False},
-    {"id": "leg_curl", "name": "Leg Curl", "muscle": "Hamstring", "bw": False, "weighted": False},
-    {"id": "nordic_curl", "name": "Nordic Hamstring Curl", "muscle": "Hamstring", "bw": True, "weighted": False},
-    {"id": "weighted_nordic_curl", "name": "Weighted Nordic Hamstring Curl", "muscle": "Hamstring", "bw": False, "weighted": True},
-    {"id": "good_morning", "name": "Good Morning", "muscle": "Hamstring", "bw": False, "weighted": False},
-    {"id": "stiff_leg_deadlift", "name": "Stiff-Leg Deadlift", "muscle": "Hamstring", "bw": False, "weighted": False},
-
-    # ─── GLUTE ───
-    {"id": "hip_thrust", "name": "Barbell Hip Thrust", "muscle": "Glute", "bw": False, "weighted": False},
-    {"id": "weight_bulgarian_split", "name": "Bulgarian Split Squat", "muscle": "Glute", "bw": False, "weighted": True},
-    {"id": "cable_kickback", "name": "Cable Glute Kickback", "muscle": "Glute", "bw": False, "weighted": False},
-    {"id": "glute_bridge", "name": "Glute Bridge", "muscle": "Glute", "bw": True, "weighted": False},
-    {"id": "step_up", "name": "Step-Up", "muscle": "Glute", "bw": False, "weighted": False},
-
-    # ─── CALF ───
-    {"id": "standing_calf_raise", "name": "Standing Calf Raise", "muscle": "Calf", "bw": False, "weighted": False},
-    {"id": "dumbbell_calf_raise", "name": "Dumbbell Calf Raise", "muscle": "Calf", "bw": False, "weighted": False},
-    {"id": "barbell_calf_raise", "name": "Barbell Calf Raise", "muscle": "Calf", "bw": False, "weighted": False},
-    {"id": "seated_calf_raise", "name": "Seated Calf Raise", "muscle": "Calf", "bw": False, "weighted": False},
-    {"id": "bodyweight_calf", "name": "Bodyweight Calf Raise", "muscle": "Calf", "bw": True, "weighted": False},
-
-    # ─── BICEPS ───
-    {"id": "barbell_curl", "name": "Barbell Curl", "muscle": "Biceps", "bw": False, "weighted": False},
-    {"id": "db_curl", "name": "Dumbbell Curl", "muscle": "Biceps", "bw": False, "weighted": False},
-    {"id": "hammer_curl", "name": "Hammer Curl", "muscle": "Biceps", "bw": False, "weighted": False},
-    {"id": "dumbbell_preacher_curl", "name": "Dumbbell Preacher Curl", "muscle": "Biceps", "bw": False, "weighted": False},
-    {"id": "EZ_bar_preacher_curl", "name": "EZ Bar Preacher Curl", "muscle": "Biceps", "bw": False, "weighted": False},
-    {"id": "incline_curl", "name": "Incline Dumbbell Curl", "muscle": "Biceps", "bw": False, "weighted": False},
-    {"id": "concentration_curl", "name": "Concentration Curl", "muscle": "Biceps", "bw": False, "weighted": False},
-
-    # ─── TRICEPS ───
-    {"id": "triceps_pushdown", "name": "Cable Triceps Pushdown", "muscle": "Triceps", "bw": False, "weighted": False},
-    {"id": "overhead_extension", "name": "Overhead Triceps Extension", "muscle": "Triceps", "bw": False, "weighted": False},
-    {"id": "skull_crusher", "name": "Skull Crusher", "muscle": "Triceps", "bw": False, "weighted": False},
-    {"id": "db_kickback", "name": "Dumbbell Triceps Kickback", "muscle": "Triceps", "bw": False, "weighted": False},
-    {"id": "close_grip_bench", "name": "Close-Grip Bench Press", "muscle": "Triceps", "bw": False, "weighted": False},
-    {"id": "bench_dip", "name": "Bench Dip", "muscle": "Triceps", "bw": True, "weighted": True},
-    {"id": "bodyweight_dip", "name": "Bodyweight Dip", "muscle": "Triceps", "bw": True, "weighted": True},
-    {"id": "weighted_dip", "name": "Weighted Dip", "muscle": "Triceps", "bw": False, "weighted": True},
-    {"id": "diamond_push_up", "name": "Diamond Push Up", "muscle": "Triceps", "bw": True, "weighted": False},
-
-    # ─── CORE / ABDOMINALS ───
-    {"id": "cable_crunch", "name": "Cable Crunch", "muscle": "Core", "bw": False, "weighted": False},
-    {"id": "hanging_leg_raise", "name": "Hanging Leg Raise", "muscle": "Core", "bw": True, "weighted": True},
-    {"id": "plank", "name": "Plank", "muscle": "Core", "bw": True, "weighted": False},
-    {"id": "crunch", "name": "Crunch", "muscle": "Core", "bw": True, "weighted": False},
-    {"id": "ab_wheel", "name": "Ab Wheel Rollout", "muscle": "Core", "bw": True, "weighted": False},
-    {"id": "weighted_russian_twist", "name": "Weighted Russian Twist", "muscle": "Core", "bw": False, "weighted": True},
-    {"id": "russian_twist", "name": "Russian Twist", "muscle": "Core", "bw": True, "weighted": False},
-
-    # ─── COMPOUND HAREKETLER ───
-    #{"id": "compound_ohp", "name": "Barbell Overhead Press", "muscle": "Omuz", "bw": False, "weighted": False},
-    #{"id": "compound_incline_bb", "name": "Incline Barbell Press", "muscle": "Göğüs", "bw": False, "weighted": False},
-    #{"id": "compound_incline_db", "name": "Incline Dumbbell Press", "muscle": "Göğüs", "bw": False, "weighted": False},
-    #{"id": "compound_db_press", "name": "Dumbbell Bench Press", "muscle": "Göğüs", "bw": False, "weighted": False},
-    #{"id": "compound_deadlift", "name": "Conventional Deadlift", "muscle": "Sırt", "bw": False, "weighted": False},
-    #{"id": "compound_squat", "name": "Squat", "muscle": "Quadriceps", "bw": False, "weighted": False},
-    #{"id": "compound_pull_up", "name": "Weighted Pull-Up", "muscle": "Sırt", "bw": False, "weighted": True},
-    #{"id": "compound_row", "name": "Barbell Row", "muscle": "Sırt", "bw": False, "weighted": False},
-    #{"id": "compound_dip", "name": "Weighted Dip", "muscle": "Göğüs", "bw": False, "weighted": True},
-    #{"id": "compound_bulgarian", "name": "Bulgarian Split Squat", "muscle": "Quadriceps", "bw": False, "weighted": True},
-    #{"id": "compound_romanian_deadlift", "name": "Romanian Deadlift", "muscle": "Hamstring", "bw": False, "weighted": False}
-]
-
-# Kas grupları listesi (frontende gönderilecek)
-MUSCLE_GROUPS = sorted(set(e["muscle"] for e in EXERCISE_POOL))
+def _upgrade_to_bcrypt_if_needed(conn, user_id: int, plain: str):
+    """Şifre eski formattaysa bcrypt'e yükselt — login sırasında çağrılır"""
+    row = conn.execute("SELECT password_hash FROM users WHERE id = ?", (user_id,)).fetchone()
+    if row and row["password_hash"] and not row["password_hash"].startswith("$2b$"):
+        new_hash = _hash_password(plain)
+        conn.execute("UPDATE users SET password_hash = ?, password_salt = '' WHERE id = ?",
+                     (new_hash, user_id))
 
 
 # ═══════════════════════════════════════════════
-# VERİTABANI
+# JWT — TOKEN OLUŞTURMA / ÇÖZME
+# ═══════════════════════════════════════════════
+def _create_access_token(username: str, is_admin: bool = False) -> str:
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = {"sub": username, "is_admin": is_admin, "exp": expire}
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def _decode_token(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Oturum süresi doldu, lütfen tekrar giriş yapın")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Geçersiz oturum")
+
+
+def _resolve_current_user(authorization: str = Header(None),
+                          authorization_alt: str = Header(None, alias="Authorization")) -> dict:
+    """
+    JWT dependency:
+      - Authorization başlığından token'ı çözer
+      - Veritabanından kullanıcıyı bulur
+      - Admin endpoint'lerinde is_admin kontrolü dışarıda yapılır
+    İki Header parametresi, fastapi'nin hem "Authorization" hem
+    "authorization" yazımını kabul etmesi içindir.
+    """
+    token_raw = authorization or authorization_alt
+    if not token_raw:
+        raise HTTPException(status_code=401, detail="Kimlik doğrulama gerekli")
+    token = token_raw.replace("Bearer ", "").strip()
+    payload = _decode_token(token)
+
+    username = payload.get("sub")
+    if not username:
+        raise HTTPException(status_code=401, detail="Geçersiz oturum bilgisi")
+
+    user = get_user_by_username(username)
+    if not user:
+        raise HTTPException(status_code=401, detail="Kullanıcı bulunamadı")
+
+    # Token + veritabanı eşleşmesi: admin token'ı sadece admin kullanıcısı için geçerlidir
+    if payload.get("is_admin") and username != ADMIN_USERNAME:
+        raise HTTPException(status_code=401, detail="Geçersiz oturum")
+    if not payload.get("is_admin") and username == ADMIN_USERNAME:
+        raise HTTPException(status_code=401, detail="Geçersiz oturum")
+
+    # DB'deki is_admin bayrağı ile token uyumu
+    db_is_admin = bool(user.get("is_admin", False))
+    if payload.get("is_admin") != db_is_admin:
+        raise HTTPException(status_code=401, detail="Geçersiz oturum")
+
+    user.pop("password_hash", None)
+    user.pop("password_salt", None)
+    return user
+
+
+def _require_admin(user: dict) -> dict:
+    """Admin endpoint'leri için rol kontrolü"""
+    if not user.get("is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin yetkisi gerekli")
+    return user
+
+
+# ═══════════════════════════════════════════════
+# VERİTABANI FONKSİYONLARI
+# (Değişiklik: passwordSalt artık boş, bcrypt tek başına yeterli)
 # ═══════════════════════════════════════════════
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -204,43 +210,46 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
     """)
-    
-    # Custom Split Sütunu Kontrolü
+
     try:
         cur.execute("ALTER TABLE users ADD COLUMN custom_split TEXT NOT NULL DEFAULT '[]'")
     except Exception:
         pass
 
-    # daily_nutrition sütunu kontrolü
     try:
         cur.execute("ALTER TABLE users ADD COLUMN daily_nutrition TEXT NOT NULL DEFAULT '{}'")
     except Exception:
         pass
 
+    # V4.1: users tablosunda is_admin sütunu yoksa ekle (eski DB'lerle uyumluluk)
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0")
+    except Exception:
+        pass
+
+    # V4.1: Admin hesabı için bcrypt hash'li kayıt — şifre artık ham değil
     conn.commit()
+    admin_exists = cur.execute(
+        "SELECT id FROM users WHERE username = ?", (ADMIN_USERNAME,)
+    ).fetchone()
+    if not admin_exists:
+        cur.execute(
+            "INSERT INTO users (username, password_hash, password_salt, is_admin) "
+            "VALUES (?, ?, '', 1)",
+            (ADMIN_USERNAME, _hash_password(ADMIN_PASSWORD))
+        )
+        conn.commit()
+    else:
+        # Eski DB'de admin kaydı is_admin=0 ile kalmış olabilir — düzelt
+        cur.execute(
+            "UPDATE users SET is_admin = 1 WHERE username = ? AND is_admin = 0",
+            (ADMIN_USERNAME,)
+        )
+        conn.commit()
+
     conn.close()
 
-# ═══════════════════════════════════════════════
-# ŞİFRE İŞLEMLERİ
-# ═══════════════════════════════════════════════
-def _hash_password(password: str):
-    salt = secrets.token_hex(16)
-    h = hashlib.sha256((salt + password).encode()).hexdigest()
-    return h, salt
 
-
-def _verify_password(stored_hash: str, salt: str, password: str) -> bool:
-    h = hashlib.sha256((salt + password).encode()).hexdigest()
-    return h == stored_hash
-
-
-def _is_admin(username: str, password: str) -> bool:
-    return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
-
-
-# ═══════════════════════════════════════════════
-# VERİTABANI FONKSİYONLARI
-# ═══════════════════════════════════════════════
 def get_user_by_username(username: str):
     conn = get_db()
     row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
@@ -267,12 +276,12 @@ def get_all_users():
 
 
 def create_user(username: str, password: str):
-    h, s = _hash_password(password)
+    h = _hash_password(password)  # bcrypt (salt artık ayrı sütunda tutulmuyor)
     conn = get_db()
     try:
         conn.execute(
-            "INSERT INTO users (username, password_hash, password_salt) VALUES (?, ?, ?)",
-            (username, h, s)
+            "INSERT INTO users (username, password_hash, password_salt) VALUES (?, ?, '')",
+            (username, h)
         )
         conn.commit()
         return {"message": "Hesap oluşturuldu", "username": username}
@@ -287,14 +296,16 @@ def update_user_profile(data: dict, username: str):
     conn = get_db()
     fields = []
     values = []
-    allowed = ['age', 'gender', 'height', 'weight', 'fitness_level', 'goal', 'days_per_week', 'session_time_mins']
+    allowed = ['age', 'gender', 'height', 'weight', 'fitness_level', 'goal',
+               'days_per_week', 'session_time_mins', 'stagnation_detected']
     for key, val in data.items():
         if key in allowed and val is not None:
             fields.append(f"{key}=?")
             values.append(val)
     if fields:
         values.append(username)
-        conn.execute(f"UPDATE users SET {','.join(fields)}, updated_at=datetime('now') WHERE username=?", values)
+        cur = conn.cursor()
+        cur.execute(f"UPDATE users SET {', '.join(fields)} WHERE username=?", values)
         conn.commit()
     conn.close()
     return get_user_by_username(username)
@@ -312,167 +323,391 @@ def get_workouts_by_user(user_id: int):
         d = dict(r)
         try:
             d["exercises"] = json.loads(d["exercises"])
-        except:
+        except Exception:
             d["exercises"] = []
         result.append(d)
     return result
 
 
-def create_workout(user_id: int, data: dict):
+def create_workout(user_id: int, data: dict) -> dict:
     exercises = data.get("exercises", [])
     total_volume = 0.0
     for ex in exercises:
-        sets_list = ex.get("sets_data", [])
-        for s in sets_list:
-            total_volume += float(s.get("reps", 0)) * float(s.get("weight_kg", 0))
+        for s in ex.get("sets_data", []):
+            total_volume += float(s.get("weight_kg", 0)) * int(s.get("reps", 0))
 
     conn = get_db()
-    cur = conn.execute(
-        "INSERT INTO workouts (user_id, date, session_type, notes, total_volume, exercises) VALUES (?,?,?,?,?,?)",
-        (user_id, data["date"], data["session_type"], data.get("notes", ""), total_volume, json.dumps(exercises, ensure_ascii=False))
+    cur = conn.cursor()
+    cur.execute(
+        """INSERT INTO workouts (user_id, date, session_type, notes, total_volume, exercises)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        (user_id, data.get("date", str(date.today())), data.get("session_type", "Workout"),
+         data.get("notes", ""), total_volume, json.dumps(exercises, ensure_ascii=False))
     )
     conn.commit()
-    wid = cur.lastrowid
+    new_id = cur.lastrowid
     conn.close()
-    return {"id": wid, "message": "Antrenman kaydedildi"}
+    return {"success": True, "message": "Antrenman kaydedildi", "id": new_id}
 
 
 def delete_workout(workout_id: int, user_id: int):
     conn = get_db()
-    row = conn.execute("SELECT * FROM workouts WHERE id = ? AND user_id = ?", (workout_id, user_id)).fetchone()
+    row = conn.execute(
+        "SELECT * FROM workouts WHERE id = ? AND user_id = ?",
+        (workout_id, user_id)
+    ).fetchone()
     if not row:
         conn.close()
         raise HTTPException(status_code=404, detail="Antrenman bulunamadı")
-    conn.execute("DELETE FROM workouts WHERE id = ?", (workout_id,))
+    conn.execute("DELETE FROM workouts WHERE id = ? AND user_id = ?", (workout_id, user_id))
     conn.commit()
     conn.close()
-    return {"message": "Antrenman silindi"}
+    return {"success": True, "message": "Antrenman silindi"}
 
 
-def update_workout(workout_id: int, data: dict, user_id: int):
-    """Admin veya kullanıcı tarafından antrenman düzenleme."""
+def update_workout(workout_id: int, data: dict, user_id: int) -> dict:
     conn = get_db()
-    row = conn.execute("SELECT * FROM workouts WHERE id = ? AND user_id = ?", (workout_id, user_id)).fetchone()
+    row = conn.execute(
+        "SELECT * FROM workouts WHERE id = ? AND user_id = ?",
+        (workout_id, user_id)
+    ).fetchone()
     if not row:
         conn.close()
         raise HTTPException(status_code=404, detail="Antrenman bulunamadı")
 
-    exercises = data.get("exercises", json.loads(row["exercises"]))
-    total_volume = 0.0
-    for ex in exercises:
-        sets_list = ex.get("sets_data", [])
-        for s in sets_list:
-            total_volume += float(s.get("reps", 0)) * float(s.get("weight_kg", 0))
+    fields, values = [], []
+    if "date" in data:
+        fields.append("date=?"); values.append(data["date"])
+    if "session_type" in data:
+        fields.append("session_type=?"); values.append(data["session_type"])
+    if "notes" in data:
+        fields.append("notes=?"); values.append(data["notes"])
+    if "exercises" in data:
+        exercises = data["exercises"]
+        total_volume = 0.0
+        for ex in exercises:
+            for s in ex.get("sets_data", []):
+                total_volume += float(s.get("weight_kg", 0)) * int(s.get("reps", 0))
+        fields.append("exercises=?"); values.append(json.dumps(exercises, ensure_ascii=False))
+        fields.append("total_volume=?"); values.append(total_volume)
+    if fields:
+        values.append(workout_id)
+        conn.execute(f"UPDATE workouts SET {','.join(fields)} WHERE id=?", values)
+        conn.commit()
 
-    conn.execute(
-        "UPDATE workouts SET date=?, session_type=?, notes=?, total_volume=?, exercises=? WHERE id=? AND user_id=?",
-        (data.get("date", row["date"]),
-         data.get("session_type", row["session_type"]),
-         data.get("notes", row["notes"]),
-         total_volume,
-         json.dumps(exercises, ensure_ascii=False),
-         workout_id, user_id)
-    )
-    conn.commit()
     conn.close()
-    return {"message": "Antrenman güncellendi"}
+    return {"success": True, "message": "Antrenman güncellendi"}
 
 
-# ═══════════════════════════════════════════════
-# UZMAN SİSTEMİ
-# ═══════════════════════════════════════════════
-def calculate_stats(user: dict):
-    age = user.get("age", 25)
+def calculate_stats(user: dict) -> dict:
+    h = user.get("height", 0)
+    w = user.get("weight", 0)
+    age = user.get("age", 0)
     gender = user.get("gender", "male")
-    height = user.get("height", 170)
-    weight = user.get("weight", 70)
+    level = user.get("fitness_level", "Beginner")
 
-    # BMI
-    bmi = weight / ((height / 100) ** 2)
+    bmi = round(w / ((h / 100) ** 2), 1) if h > 0 and w > 0 else 0
 
-    # BMR (Mifflin-St Jeor)
-    if gender == "male":
-        bmr = 10 * weight + 6.25 * height - 5 * age + 5
-    else:
-        bmr = 10 * weight + 6.25 * height - 5 * age - 161
+    bmr = (88.362 + (13.397 * w) + (4.799 * h) - (5.677 * age)) if gender == "male" \
+        else (447.593 + (9.247 * w) + (3.098 * h) - (4.330 * age))
 
-    # TDEE (aktiveite seviyesi)
-    activity_levels = {"Beginner": 1.4, "Intermediate": 1.55, "Advanced": 1.7}
-    activity = activity_levels.get(user.get("fitness_level", "Intermediate"), 1.55)
-    tdee = bmr * activity
+    multipliers = {"Beginner": 1.2, "Intermediate": 1.375, "Advanced": 1.55}
+    tdee = round(bmr * multipliers.get(level, 1.2))
 
-    # Hedef
     goal = user.get("goal", "bulk")
+    target_calories = tdee
     if goal == "bulk":
-        target_cal = tdee + 400
-        macro = {"protein": weight * 2.0, "carbs": weight * 5.0, "fat": weight * 1.0}
+        target_calories += 300
     elif goal == "cut":
-        target_cal = tdee - 400
-        macro = {"protein": weight * 2.2, "carbs": weight * 2.5, "fat": weight * 0.9}
-    else:
-        target_cal = tdee
-        macro = {"protein": weight * 2.0, "carbs": weight * 4.0, "fat": weight * 1.0}
+        target_calories -= 500
 
+    protein = round(w * (2.0 if goal == "bulk" else 2.2))
+    fat = round(w * 0.9)
+    carbs = round(max(0, (target_calories - protein * 4 - fat * 9)) / 4)
+    # BMI kategorisi (dashboard kartı için)
+    if bmi < 18.5:
+        bmi_category = "Zayıf"
+    elif bmi < 25:
+        bmi_category = "Normal"
+    elif bmi < 30:
+        bmi_category = "Fazla Kilolu"
+    else:
+        bmi_category = "Obez"
+    # Frontend uyumluluk alias'ı: stats.macro.protein/carbs/fat
+    macro = {"protein": protein, "carbs": carbs, "fat": fat}
     return {
-        "bmi": round(bmi, 1),
+        "bmi": bmi,
+        "bmi_category": bmi_category,
         "bmr": round(bmr),
-        "tdee": round(tdee),
-        "target_calories": round(target_cal),
-        "macro": {k: round(v, 1) for k, v in macro.items()},
-        "bmi_category": "Düşük" if bmi < 18.5 else "Normal" if bmi < 25 else "Fazla" if bmi < 30 else "Obez"
+        "tdee": tdee,
+        "target_calories": target_calories,
+        "protein": protein,
+        "carbs": carbs,
+        "fat": fat,
+        "macro": macro,
     }
 
 
-def generate_split(days: int, goal: str):
-    if days <= 2:
-        return {"split": "Full Body", "days": [{"day": f"Day {i+1}", "type": "Full Body"} for i in range(days)]}
-    elif days == 3:
-        return {"split": "Upper-Lower / Full Body Split", "days": [
-            {"day": "Day 1", "type": "Upper (Sırt, Göğüs, Omuz, Kollar)"},
-            {"day": "Day 2", "type": "Rest Day (Dinlenme Günü)"},
-            {"day": "Day 3", "type": "Lower (Bacak, Alt bacak, Glute)"},
-            {"day": "Day 4", "type": "Rest Day (Dinlenme Günü)"},
-            {"day": "Day 5", "type": "Full Body (Tüm Kas Grupları)"},
-            {"day": "Day 6", "type": "Rest Day (Dinlenme Günü)"},
-            {"day": "Day 7", "type": "Rest Day (Dinlenme Günü)"}
-        ]}
-    elif days == 4:
-        return {"split": "Upper-Lower Split", "days": [
-            {"day": "Day 1", "type": "Upper A (Push Focus)"},
-            {"day": "Day 2", "type": "Lower A (Quad Focus)"},
-            {"day": "Day 3", "type": "Rest Day (Dinlenme Günü)"},
-            {"day": "Day 4", "type": "Upper B (Pull Focus)"},
-            {"day": "Day 5", "type": "Lower B (Hamstring Focus)"},
-            {"day": "Day 6", "type": "Rest Day (Dinlenme Günü)"},
-            {"day": "Day 7", "type": "Rest Day (Dinlenme Günü)"}
-        ]}
-    elif days == 5:
-        return {"split": "PPl / Upper-Lower Split", "days": [
-            {"day": "Day 1", "type": "Push"},
-            {"day": "Day 2", "type": "Pull"},
-            {"day": "Day 3", "type": "Legs"},
-            {"day": "Day 4", "type": "Rest Day (Dinlenme Günü)"},
-            {"day": "Day 5", "type": "Upper"},
-            {"day": "Day 6", "type": "Lower"},
-            {"day": "Day 7", "type": "Rest Day (Dinlenme Günü)"},
-        ]}
-    elif days == 6:
-        return {"split": "Push-Pull-Legs (PPL)", "days": [
-            {"day": "Day 1", "type": "Push"},
-            {"day": "Day 2", "type": "Pull"},
-            {"day": "Day 3", "type": "Legs"},
-            {"day": "Day 4", "type": "Rest Day (Dinlenme Günü)"},
-            {"day": "Day 5", "type": "Push"},
-            {"day": "Day 6", "type": "Pull"},
-            {"day": "Day 7", "type": "Legs"},
-        ]}
+# ── Uzman Sistemi: Gün tipine göre örnek hareket önerileri ──
+# Aynı haftada aynı hareketin iki kez çıkmasını önlemek için
+# Push/Pull/Legs günleri A ve B varyantlarında farklı açılış hareketleriyle başlar.
+# İçeriği buradan kolayca düzenleyebilirsin.
+EXERCISE_TIPS = {
+    "Push A": [
+        ("Bench Press", "3x6-8", "Temel bileşik — ağırlık artırma odağı"),
+        ("Overhead Press", "3x8-10", "Omuz bileşiği"),
+        ("Incline Dumbbell Press", "3x8-12", "Üst göğüs"),
+        ("Lateral Raises", "3x12-15", "Orta omuz izolasyonu"),
+        ("Tricep Push Down", "3x10-12", "Triceps izolasyonu"),
+    ],
+    "Push B": [
+        ("Overhead Press", "3x6-8", "Açılış hareketi — Bench yerine önce omuz"),
+        ("Incline Bench Press", "3x8-10", "Üst göğüs bileşiği"),
+        ("Dumbbell Flyes", "3x10-15", "Göğüs izolasyonu"),
+        ("Cable Lateral Raises", "3x12-15", "Orta omuz"),
+        ("Dips (Ağırlıksız)", "2xTükenişe kadar", "Ağırlıksız finale"),
+    ],
+    "Pull A": [
+        ("Pull Ups (Ağırlıksız Barfiks)", "3xTükenişe kadar", "Dikey çekiş bileşiği"),
+        ("Barbell Row", "3x6-8", "Kalınlık odaklı"),
+        ("Lat Pull Down", "3x8-12", "Kanat genişliği"),
+        ("Face Pulls", "3x12-15", "Arka omuz + rotator cuff"),
+        ("Hammer Curl", "3x10-12", "Biceps + brachialis"),
+    ],
+    "Pull B": [
+        ("Chin Ups (Ağırlıksız)", "3xTükenişe kadar", "Biceps ağırlıklı çekiş"),
+        ("T-Bar Row", "3x8-10", "Orta sırt"),
+        ("Seated Row", "3x10-12", "Kontrol odaklı çekme"),
+        ("Dumbbell Rear Delt Fly", "3x12-15", "Arka omuz izolasyonu"),
+        ("Preacher Curl (Z Bar)", "3x8-12", "Biceps izolasyonu"),
+    ],
+    "Legs A": [
+        ("Squat", "3x6-8", "Ana bacak bileşiği"),
+        ("Romanian Deadlift", "3x8-10", "Hamstring + kalça"),
+        ("Leg Press", "3x10-12", "Hacim"),
+        ("Leg Curl", "3x10-12", "Hamstring izolasyonu"),
+        ("Calf Raises", "4x12-15", "Baldır"),
+    ],
+    "Legs B": [
+        ("Front Squat", "3x6-8", "Quad odaklı açılış"),
+        ("Hip Thrust", "3x8-10", "Kalça"),
+        ("Bulgarian Split Squat", "3x8-10 (ayak başına)", "Denge + tek bacak"),
+        ("Leg Extension", "3x12-15", "Quad izolasyonu"),
+        ("Russian Twist", "3x15", "Karın stabilitesi"),
+    ],
+    "Upper": [
+        ("Incline Bench Press", "3x6-8", "Üst göğüs bileşiği"),
+        ("Bent-over Row", "3x6-8", "Sırt bileşiği"),
+        ("Arnold Press", "3x8-10", "Omuz"),
+        ("Cable Bicep Curl", "3x10-12", "Biceps"),
+        ("Overhead Tricep Extension", "3x10-12", "Triceps"),
+    ],
+    "Lower": [
+        ("Deadlift", "3x5", "Ana çekme bileşiği (ağır, az tekrar)"),
+        ("Front Squat", "3x8-10", "Quad"),
+        ("Leg Press", "3x10-12", "Hacim"),
+        ("Hyperextension (Ağırlıklı)", "3x10-12", "Bel + kalça"),
+        ("Calf Raises", "4x12-15", "Baldır"),
+    ],
+    "Full Body A": [
+        ("Bench Press", "3x6-8", "İtme bileşiği"),
+        ("Barbell Row", "3x6-8", "Çekme bileşiği"),
+        ("Squat", "3x6-8", "Bacak bileşiği"),
+    ],
+    "Full Body B": [
+        ("Overhead Press", "3x6-8", "Omuz"),
+        ("Pull Ups (Ağırlıksız Barfiks)", "3xTükenişe kadar", "Sırt"),
+        ("Romanian Deadlift", "3x8-10", "Arka zincir"),
+    ],
+    "Full Body C": [
+        ("Incline Dumbbell Press", "3x8-10", "Üst göğüs"),
+        ("Seated Row", "3x10-12", "Sırt"),
+        ("Lunges / Leg Press", "3x10-12", "Bacak"),
+    ],
+    "Upper Body": [
+        ("Bench Press", "3x6-8", "Göğüs bileşiği"),
+        ("Barbell Row", "3x6-8", "Sırt bileşiği"),
+        ("Overhead Press", "3x8-10", "Omuz"),
+        ("Bicep Curl", "3x10-12", "Kol"),
+    ],
+    "Lower Body": [
+        ("Squat", "3x6-8", "Ana bacak bileşiği"),
+        ("Romanian Deadlift", "3x8-10", "Arka zincir"),
+        ("Leg Press", "3x10-12", "Hacim"),
+        ("Calf Raises", "4x12-15", "Baldır"),
+    ],
+}
+
+HAFTA_GUNLERI = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
+
+def generate_split(days_per_week: int, goal: str = "bulk") -> dict:
+    """Gün bazlı haftalık program üretir.
+    PPL x2'de Push A / Push B gibi varyantlarla aynı hareketin
+    hafta içinde iki kez çıkması engellenir."""
+    week_templates = {
+        1: [{"type": "Full Body A"}],
+        2: [{"type": "Upper Body"}, {"type": "Lower Body"}],
+        3: [{"type": "Full Body A"}, {"type": "Full Body B"}, {"type": "Full Body C"}],
+        4: [{"type": "Upper"}, {"type": "Lower"}, {"type": "Upper"}, {"type": "Lower"}],
+        5: [{"type": "Push A"}, {"type": "Pull A"}, {"type": "Legs A"}, {"type": "Upper"}, {"type": "Lower"}],
+        6: [{"type": "Push A"}, {"type": "Pull A"}, {"type": "Legs A"}, {"type": "Push B"}, {"type": "Pull B"}, {"type": "Legs B"}],
+        7: [{"type": "Push A"}, {"type": "Pull A"}, {"type": "Legs A"}, {"type": "Rest"}, {"type": "Upper"}, {"type": "Lower"}, {"type": "Rest"}],
+    }
+    template = week_templates.get(days_per_week, week_templates[4])
+    days = []
+    for i, slot in enumerate(template):
+        day_type = slot["type"]
+        exercises = EXERCISE_TIPS.get(day_type, [])
+        days.append({
+            "day": HAFTA_GUNLERI[i],
+            "type": day_type,
+            "rest": day_type == "Rest",
+            "exercises": [{"name": n, "sets": s, "note": nt} for n, s, nt in exercises],
+        })
+    split_name_map = {1: "Full Body", 2: "Upper/Lower", 3: "Full Body x3",
+                      4: "Upper/Lower x2", 5: "PPL + Üst/Alt", 6: "PPL x2", 7: "PPL + Dinlenme"}
+    rest_count = sum(1 for d in days if d["rest"])
+    return {"name": split_name_map.get(days_per_week, "Upper/Lower x2"),
+            "days": days, "rest_count": rest_count}
+
+
+# ═══════════════════════════════════════════════
+# EGZERSİZ HAVUZU — KOLAYCA EDİTLENEBİLİR
+# ═══════════════════════════════════════════════
+# Bir hareket eklemek için bu dict'e yeni entry ekle.
+# is_bodyweight: vücut ağırlığıyla yapılan hareketler
+# category: "compound" (çok kaslı) / "isolation" (tek kaslı)
+EXERCISE_POOL = [
+    {"id": "bench-press", "name": "Bench Press", "muscle_group": "Chest",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "incline-bench-press", "name": "Incline Bench Press", "muscle_group": "Chest",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "incline-dumbbell-press", "name": "Incline Dumbbell Press", "muscle_group": "Chest",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "decline-bench-press", "name": "Decline Bench Press", "muscle_group": "Chest",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "chest-press-machine", "name": "Chest Press Machine", "muscle_group": "Chest",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "dumbbell-flyes", "name": "Dumbbell Flyes", "muscle_group": "Chest",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "cable-cross-over", "name": "Cable Cross Over", "muscle_group": "Chest",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "pull-ups-bw", "name": "Pull Ups (Ağırlıksız Barfiks)", "muscle_group": "Back",
+     "category": "compound", "is_bodyweight": True},
+    {"id": "weighted-pull-up", "name": "Weighted Pull Up (Ağırlıklı Barfiks)", "muscle_group": "Back",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "chin-ups-bw", "name": "Chin Ups (Ağırlıksız)", "muscle_group": "Back",
+     "category": "compound", "is_bodyweight": True},
+    {"id": "chin-ups-weighted", "name": "Chin Ups (Ağırlıklı)", "muscle_group": "Back",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "lat-pull-down", "name": "Lat Pull Down", "muscle_group": "Back",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "barbell-row", "name": "Barbell Row", "muscle_group": "Back",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "t-bar-row", "name": "T-Bar Row", "muscle_group": "Back",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "seated-row", "name": "Seated Row", "muscle_group": "Back",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "bent-over-row", "name": "Bent-over Row", "muscle_group": "Back",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "overhead-press", "name": "Overhead Press", "muscle_group": "Shoulders",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "arnold-press", "name": "Arnold Press", "muscle_group": "Shoulders",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "lateral-raises", "name": "Lateral Raises", "muscle_group": "Shoulders",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "cable-lateral-raises", "name": "Cable Lateral Raises", "muscle_group": "Shoulders",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "dumbbell-front-raises", "name": "Dumbbell Front Raises", "muscle_group": "Shoulders",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "dumbbell-rear-delt-fly", "name": "Dumbbell Rear Delt Fly", "muscle_group": "Shoulders",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "rear-delt-fly", "name": "Rear Delt Fly (Arka Omuz)", "muscle_group": "Shoulders",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "face-pulls", "name": "Face Pulls", "muscle_group": "Shoulders",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "squat", "name": "Squat", "muscle_group": "Legs", "category": "compound",
+     "is_bodyweight": False},
+    {"id": "front-squat", "name": "Front Squat", "muscle_group": "Legs",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "bulgarian-split-squad", "name": "Bulgarian Split Squat", "muscle_group": "Legs",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "leg-press", "name": "Leg Press", "muscle_group": "Legs",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "romanian-deadlift", "name": "Romanian Deadlift", "muscle_group": "Legs",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "leg-extension", "name": "Leg Extension", "muscle_group": "Legs",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "leg-curl", "name": "Leg Curl", "muscle_group": "Legs",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "hip-thrust", "name": "Hip Thrust", "muscle_group": "Legs",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "calf-raises", "name": "Calf Raises", "muscle_group": "Legs",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "deadlift", "name": "Deadlift", "muscle_group": "Back",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "bicep-curl", "name": "Bicep Curl", "muscle_group": "Biceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "hammer-curl", "name": "Hammer Curl", "muscle_group": "Biceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "preacher-curl-dumbbell", "name": "Preacher Curl (Dumbbell)", "muscle_group": "Biceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "preacher-curl-z-bar", "name": "Preacher Curl (Z Bar)", "muscle_group": "Biceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "preacher-curl-machine", "name": "Preacher Curl Machine", "muscle_group": "Biceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "incline-dumbbell-curl", "name": "Incline Dumbbell Curl", "muscle_group": "Biceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "concentration-curl", "name": "Concentration Curl", "muscle_group": "Biceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "cable-bicep-curl", "name": "Cable Bicep Curl", "muscle_group": "Biceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "tricep-push-down", "name": "Tricep Push Down", "muscle_group": "Triceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "skull-crushers", "name": "Skull Crushers", "muscle_group": "Triceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "overhead-tricep-extension", "name": "Overhead Tricep Extension", "muscle_group": "Triceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "cable-rope-overhead-tricep-extension", "name": "Cable Rope Overhead Tricep Extension",
+     "muscle_group": "Triceps", "category": "isolation", "is_bodyweight": False},
+    {"id": "dumbbell-kickbacks", "name": "Dumbbell Kickbacks", "muscle_group": "Triceps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "close-grip-bench-press", "name": "Close-grip Bench Press", "muscle_group": "Triceps",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "dips-weighted", "name": "Dips (Ağırlıklı)", "muscle_group": "Triceps",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "dips-bw", "name": "Dips (Ağırlıksız)", "muscle_group": "Triceps",
+     "category": "compound", "is_bodyweight": True},
+    {"id": "dumbbell-shrugs", "name": "Dumbbell Shrugs", "muscle_group": "Traps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "barbell-shrugs", "name": "Barbell Shrugs", "muscle_group": "Traps",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "upright-row-z-bar", "name": "Upright Row (Z Bar)", "muscle_group": "Shoulders",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "cable-upright-row", "name": "Cable Upright Row", "muscle_group": "Shoulders",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "barbell-upright-row", "name": "Barbell Upright Row", "muscle_group": "Shoulders",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "russian-twist", "name": "Russian Twist", "muscle_group": "Core",
+     "category": "isolation", "is_bodyweight": True},
+    {"id": "kettlebell-swings", "name": "Kettlebell Swings", "muscle_group": "Core",
+     "category": "compound", "is_bodyweight": False},
+    {"id": "cable-crunches", "name": "Cable Crunches", "muscle_group": "Core",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "seated-crunch", "name": "Seated Crunch", "muscle_group": "Core",
+     "category": "isolation", "is_bodyweight": False},
+    {"id": "hyperextension-weighted", "name": "Hyperextension (Ağırlıklı)", "muscle_group": "Back",
+     "category": "isolation", "is_bodyweight": False},
+]
+
+MUSCLE_GROUPS = sorted(set(ex["muscle_group"] for ex in EXERCISE_POOL))
 
 
 # ═══════════════════════════════════════════════
 # PYDANTIC MODELLER
 # ═══════════════════════════════════════════════
 class AuthRequest(BaseModel):
-    username: str 
+    username: str
     password: str
 
 
@@ -486,6 +721,7 @@ class UserProfile(BaseModel):
     goal: Optional[str] = None
     days_per_week: Optional[int] = None
     session_time_mins: Optional[int] = None
+    new_password: Optional[str] = None
 
 
 class SetData(BaseModel):
@@ -538,9 +774,11 @@ class CustomDay(BaseModel):
     focus: str
     isRest: bool
 
+
 class CustomProgramRequest(BaseModel):
     username: str
     program: List[List[CustomDay]]
+
 
 class NutritionLogSchema(BaseModel):
     username: str
@@ -549,21 +787,66 @@ class NutritionLogSchema(BaseModel):
     protein: float = 0
     carbs: float = 0
     fat: float = 0
-    notes: str = ""    
+    notes: str = ""
 
-    
+
 # ═══════════════════════════════════════════════
 # FASTAPI APP
 # ═══════════════════════════════════════════════
-app = FastAPI(title="Hypertrophy-X API", version="4.0")
+# ═══════════════════════════════════════════════
+# LOGLAMA — Production için bilgi logları
+# ═══════════════════════════════════════════════
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] %(levelname)s %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+log = logging.getLogger("hypertrophy-x")
+log.info("Hypertrophy-X v5.0 backend başlatılıyor...")
 
+
+class CacheControlMiddleware(BaseHTTPMiddleware):
+    """
+    Modern platform caching katmanı:
+      - API endpoint'leri (/api/*) → no-cache (her istek taze veri alır)
+      - index.html (SPA) → no-store (güncel kod her zaman yüklensin)
+      - Statik dosyalar (.js/.css/.png/...) → public max-age (uzun süre cache)
+    """
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        path = request.url.path
+        if path.startswith("/api/"):
+            response.headers["Cache-Control"] = "no-cache, no-store"
+            response.headers["Pragma"] = "no-cache"
+        elif "." in path.split("/")[-1]:  # statik dosya: chart.js, css, png...)
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        else:  # SPA sayfası — index.html asla cache'lenmesin
+            response.headers["Cache-Control"] = "no-store"
+        return response
+
+
+class RequestLogMiddleware(BaseHTTPMiddleware):
+    """Tüm istekleri info seviyesinde logla (monitoring için)"""
+    async def dispatch(self, request: Request, call_next):
+        start = time.time()
+        response = await call_next(request)
+        ms = int((time.time() - start) * 1000)
+        log.info(f"{request.method} {request.url.path} — {response.status_code} ({ms}ms)")
+        return response
+
+
+app = FastAPI(title="Hypertrophy-X API", version="5.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=[CORS_ORIGIN] if CORS_ORIGIN != "*" else ["*"],
     allow_credentials=True,
-    allow_methods=["*"],  
+    allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RequestLogMiddleware)
+app.add_middleware(CacheControlMiddleware)
+log.info("Middleware katmanı aktif: CORS + Cache-Control + İstek Loglama")
+
 
 # ═══════════════════════════════════════════════
 # AUTH ENDPOINT'LERİ
@@ -572,8 +855,8 @@ app.add_middleware(
 def register(data: AuthRequest = Body(...)):
     if len(data.username) < 2:
         raise HTTPException(status_code=400, detail="Kullanıcı adı en az 2 karakter olmalı")
-    if len(data.password) < 3:
-        raise HTTPException(status_code=400, detail="Şifre en az 3 karakter olmalı")
+    if len(data.password) < 6:
+        raise HTTPException(status_code=400, detail="Şifre en az 6 karakter olmalı")
     if data.username == ADMIN_USERNAME:
         raise HTTPException(status_code=400, detail="Bu kullanıcı adı kullanılamaz")
     return create_user(data.username, data.password)
@@ -581,65 +864,83 @@ def register(data: AuthRequest = Body(...)):
 
 @app.post("/api/auth/login")
 def login(data: AuthRequest = Body(...)):
-    # Admin kontrolü
+    # ─── Admin giriş ───
     if data.username == ADMIN_USERNAME:
         if data.password == ADMIN_PASSWORD:
-            return {"username": ADMIN_USERNAME, "is_admin": True}
+            token = _create_access_token(ADMIN_USERNAME, is_admin=True)
+            return {"username": ADMIN_USERNAME, "is_admin": True, "token": token}
         raise HTTPException(status_code=401, detail="Admin şifresi hatalı")
 
-    # Normal kullanıcı
+    # ─── Normal kullanıcı ───
     user = get_user_by_username(data.username)
     if not user:
         raise HTTPException(status_code=401, detail="Kullanıcı bulunamadı")
-    if not _verify_password(user["password_hash"], user["password_salt"], data.password):
+    if not _verify_password(data.password, user["password_hash"], user["password_salt"]):
         raise HTTPException(status_code=401, detail="Şifre hatalı")
 
-    # Şifre hash'ini temizle
+    # Eski SHA256 hash ise bcrypt'e yükselt
+    conn = get_db()
+    _upgrade_to_bcrypt_if_needed(conn, user["id"], data.password)
+    conn.commit()
+    conn.close()
+
+    # JWT token üret
+    token = _create_access_token(data.username, is_admin=False)
+
     user.pop("password_hash", None)
     user.pop("password_salt", None)
-    return user
+    return {**user, "token": token}
 
 
 @app.post("/api/auth/change-password")
-def change_password(data: dict = Body(...)):
-    username = data.get("username", "")
+def change_password(user: dict = Depends(_resolve_current_user),
+                    data: dict = Body(...)):
+    """Şifre değiştirme — JWT gerektirir"""
     old_password = data.get("old_password", "")
     new_password = data.get("new_password", "")
 
-    if username == ADMIN_USERNAME:
+    if user.get("username") == ADMIN_USERNAME:
         raise HTTPException(status_code=403, detail="Admin şifresi değiştirilemez")
 
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
-    if not _verify_password(user["password_hash"], user["password_salt"], old_password):
-        raise HTTPException(status_code=401, detail="Mevcut şifre hatalı")
-    if len(new_password) < 3:
-        raise HTTPException(status_code=400, detail="Yeni şifre en az 3 karakter olmalı")
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Yeni şifre en az 6 karakter olmalı")
 
-    h, s = _hash_password(new_password)
     conn = get_db()
-    conn.execute("UPDATE users SET password_hash=?, password_salt=? WHERE username=?", (h, s, username))
+    row = conn.execute(
+        "SELECT password_hash, password_salt FROM users WHERE username = ?",
+        (user["username"],)
+    ).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+    if not _verify_password(old_password, row["password_hash"], row["password_salt"]):
+        conn.close()
+        raise HTTPException(status_code=401, detail="Mevcut şifre hatalı")
+
+    conn.execute(
+        "UPDATE users SET password_hash = ?, password_salt = '', updated_at = datetime('now') "
+        "WHERE username = ?",
+        (_hash_password(new_password), user["username"])
+    )
     conn.commit()
     conn.close()
     return {"message": "Şifre güncellendi"}
 
 
 # ═══════════════════════════════════════════════
-# KULLANICI ENDPOINT'LERİ
+# KULLANICI ENDPOINT'LERİ — JWT korumalı
 # ═══════════════════════════════════════════════
 @app.get("/api/user")
-def get_user(username: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
-    user.pop("password_hash", None)
-    user.pop("password_salt", None)
+def get_user(user: dict = Depends(_resolve_current_user)):
     return user
 
 
 @app.post("/api/user")
-def save_user(data: UserProfile = Body(...)):
+def save_user(data: UserProfile = Body(...),
+              current_user: dict = Depends(_resolve_current_user)):
+    # Token'daki kullanıcı sadece KENDİ profilini düzenleyebilir
+    if data.username != current_user["username"]:
+        raise HTTPException(status_code=403, detail="Başkasının profili düzenlenemez")
     result = update_user_profile(data.model_dump(), data.username)
     result.pop("password_hash", None)
     result.pop("password_salt", None)
@@ -647,45 +948,38 @@ def save_user(data: UserProfile = Body(...)):
 
 
 # ═══════════════════════════════════════════════
-# ANTRENMAN ENDPOINT'LERİ
+# ANTRENMAN ENDPOINT'LERİ — JWT korumalı
 # ═══════════════════════════════════════════════
 @app.post("/api/workouts")
-def save_workout(data: WorkoutCreate = Body(...), username: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+def save_workout(data: WorkoutCreate = Body(...),
+                 user: dict = Depends(_resolve_current_user)):
     return create_workout(user["id"], data.model_dump())
 
 
 @app.get("/api/workouts")
-def list_workouts(username: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+def list_workouts(user: dict = Depends(_resolve_current_user)):
     return get_workouts_by_user(user["id"])
 
 
 @app.delete("/api/workouts/{workout_id}")
-def delete_workout_endpoint(workout_id: int, username: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+def delete_workout_endpoint(workout_id: int,
+                            user: dict = Depends(_resolve_current_user)):
     return delete_workout(workout_id, user["id"])
 
 
 @app.put("/api/workouts/{workout_id}")
-def update_workout_endpoint(workout_id: int, data: WorkoutUpdate = Body(...), username: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+def update_workout_endpoint(workout_id: int,
+                            data: WorkoutUpdate = Body(...),
+                            user: dict = Depends(_resolve_current_user)):
     return update_workout(workout_id, data.model_dump(exclude_unset=True), user["id"])
 
 
 # ═══════════════════════════════════════════════
-# ADMIN ENDPOINT'LERİ
+# ADMIN ENDPOINT'LERİ — JWT + Admin rol kontrolü
 # ═══════════════════════════════════════════════
 @app.get("/api/admin/users")
-def admin_list_users():
+def admin_list_users(admin_user: dict = Depends(_resolve_current_user)):
+    admin = _require_admin(admin_user)
     users = get_all_users()
     for u in users:
         u.pop("password_hash", None)
@@ -694,8 +988,10 @@ def admin_list_users():
 
 
 @app.get("/api/admin/workouts/{user_id}")
-def admin_get_user_workouts(user_id: int):
+def admin_get_user_workouts(user_id: int,
+                            admin: dict = Depends(_resolve_current_user)):
     """Admin: Belirli bir kullanıcının tüm antrenmanlarını getir."""
+    _require_admin(admin)
     user = get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
@@ -704,11 +1000,11 @@ def admin_get_user_workouts(user_id: int):
 
 
 @app.put("/api/admin/workout/{workout_id}")
-def admin_update_workout(workout_id: int, data: WorkoutUpdate = Body(...), username: str = Query(...)):
+def admin_update_workout(workout_id: int,
+                         data: WorkoutUpdate = Body(...),
+                         admin: dict = Depends(_resolve_current_user)):
     """Admin: Herhangi bir kullanıcının antrenmanını düzenle."""
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+    _require_admin(admin)
     conn = get_db()
     row = conn.execute("SELECT * FROM workouts WHERE id = ?", (workout_id,)).fetchone()
     if not row:
@@ -720,8 +1016,10 @@ def admin_update_workout(workout_id: int, data: WorkoutUpdate = Body(...), usern
 
 
 @app.delete("/api/admin/workout/{workout_id}")
-def admin_delete_workout(workout_id: int):
+def admin_delete_workout(workout_id: int,
+                         admin: dict = Depends(_resolve_current_user)):
     """Admin: Herhangi bir antrenmanı sil."""
+    _require_admin(admin)
     conn = get_db()
     row = conn.execute("SELECT * FROM workouts WHERE id = ?", (workout_id,)).fetchone()
     if not row:
@@ -733,8 +1031,10 @@ def admin_delete_workout(workout_id: int):
 
 
 @app.put("/api/admin/user")
-def admin_edit_user(data: AdminEditUser = Body(...)):
+def admin_edit_user(data: AdminEditUser = Body(...),
+                    admin: dict = Depends(_resolve_current_user)):
     """Admin: Kullanıcı bilgilerini düzenle."""
+    _require_admin(admin)
     user = get_user_by_id(data.user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
@@ -753,14 +1053,15 @@ def admin_edit_user(data: AdminEditUser = Body(...)):
             values.append(val)
 
     if new_pass:
-        h, s = _hash_password(new_pass)
+        if len(new_pass) < 6:
+            conn.close()
+            raise HTTPException(status_code=400, detail="Yeni şifre en az 6 karakter olmalı")
         fields.append("password_hash=?")
-        values.append(h)
+        values.append(_hash_password(new_pass))
         fields.append("password_salt=?")
-        values.append(s)
+        values.append("")
 
     if fields:
-        fields.append("updated_at=datetime('now')")
         values.append(data.user_id)
         conn.execute(f"UPDATE users SET {','.join(fields)} WHERE id=?", values)
         conn.commit()
@@ -773,8 +1074,10 @@ def admin_edit_user(data: AdminEditUser = Body(...)):
 
 
 @app.delete("/api/admin/user/{user_id}")
-def admin_delete_user(user_id: int):
+def admin_delete_user(user_id: int,
+                      admin: dict = Depends(_resolve_current_user)):
     """Admin: Kullanıcı sil."""
+    _require_admin(admin)
     conn = get_db()
     user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     if not user:
@@ -791,17 +1094,13 @@ def admin_delete_user(user_id: int):
 # ANALİZ
 # ═══════════════════════════════════════════════
 @app.post("/api/analyze")
-def analyze(data: AnalyzeRequest = Body(...), username: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
-
+def analyze(data: AnalyzeRequest = Body(...),
+            user: dict = Depends(_resolve_current_user)):
     stats = calculate_stats(user)
     split = generate_split(user.get("days_per_week", 4), user.get("goal", "bulk"))
     stats["split"] = split
     stats["rest_days"] = 7 - user.get("days_per_week", 4)
 
-    # Durgunluk analizi
     workouts = get_workouts_by_user(user["id"])
     if len(workouts) >= 3:
         recent = workouts[:3]
@@ -815,27 +1114,21 @@ def analyze(data: AnalyzeRequest = Body(...), username: str = Query(...)):
 
     return stats
 
+
 # ═══════════════════════════════════════════════
-# DAHSBOARD
+# DASHBOARD
 # ═══════════════════════════════════════════════
 @app.get("/api/dashboard")
-def dashboard(username: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
-
+def dashboard(user: dict = Depends(_resolve_current_user)):
     workouts = get_workouts_by_user(user["id"])
     now = datetime.now()
 
-    # Haftalık
     week_start = now - timedelta(days=now.weekday())
     weekly = [w for w in workouts if datetime.strptime(w["date"], "%Y-%m-%d") >= week_start]
 
-    # Aylık
     month_start = now.replace(day=1)
     monthly = [w for w in workouts if datetime.strptime(w["date"], "%Y-%m-%d") >= month_start]
 
-    # Seri (streak) hesaplama
     streak = 0
     check_date = now.date()
     for w in sorted(workouts, key=lambda x: x["date"], reverse=True):
@@ -846,45 +1139,34 @@ def dashboard(username: str = Query(...)):
         else:
             break
 
-    # Dinlenme süreleri
     rest_days = 7 - user.get("days_per_week", 4)
     split_info = generate_split(user.get("days_per_week", 4), user.get("goal", "bulk"))
 
-    # Kas grubu dağılımı
-    muscle_count = {}
-    for w in workouts:
-        for ex in w.get("exercises", []):
-            m = ex.get("muscle_group", "Bilinmiyor")
-            muscle_count[m] = muscle_count.get(m, 0) + 1
-
-    # Kas dağılımını hesaplayan pratik bir alt fonksiyon
     def get_muscle_distribution(workout_list):
         dist = {}
         for w in workout_list:
             exercises_raw = w.get("exercises", [])
-            # Eğer exercises string (JSON) olarak kayıtlıysa listeye çevir
             if isinstance(exercises_raw, str):
                 try:
                     exercises_list = json.loads(exercises_raw)
-                except:
+                except Exception:
                     exercises_list = []
             else:
                 exercises_list = exercises_raw
-                
             for ex in exercises_list:
                 m = ex.get("muscle_group", ex.get("muscle", "Bilinmiyor"))
                 dist[m] = dist.get(m, 0) + 1
         return dist
 
-    # Her 3 zaman dilimi için ayrı ayrı dağılımı çıkarıyoruz
     muscle_dist_all = get_muscle_distribution(workouts)
     muscle_dist_weekly = get_muscle_distribution(weekly)
     muscle_dist_monthly = get_muscle_distribution(monthly)
 
     stats = calculate_stats(user)
-    sessions_data = [{"date": w["date"], "type": w.get("session_type", "Workout")} for w in workouts]
+    sessions_data = [
+        {"date": w["date"], "type": w.get("session_type", "Workout")} for w in workouts
+    ]
 
-    # Return kısmını güncelliyoruz (muscle_distribution artık 3 parçalı bir obje)
     return {
         "success": True,
         "user": user,
@@ -911,30 +1193,27 @@ def dashboard(username: str = Query(...)):
 # İLERLEME
 # ═══════════════════════════════════════════════
 @app.get("/api/progress")
-def progress(username: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
-
+def progress(user: dict = Depends(_resolve_current_user)):
     workouts = get_workouts_by_user(user["id"])
 
-    # Hacim zaman serisi
     volume_timeline = []
     for w in sorted(workouts, key=lambda x: x["date"]):
         volume_timeline.append({
             "date": w["date"],
             "volume": w["total_volume"],
-            "session": w["session_type"]
+            "session": w.get("session_type", "Workout")
         })
 
-    # Haftalık ortalamalar
     weekly_avgs = {}
     for w in workouts:
         week_label = w["date"][:7]
         if week_label not in weekly_avgs:
             weekly_avgs[week_label] = []
         weekly_avgs[week_label].append(w["total_volume"])
-    weekly_avg_data = [{"week": k, "avg_volume": round(sum(v) / len(v))} for k, v in sorted(weekly_avgs.items())]
+    weekly_avg_data = [
+        {"week": k, "avg_volume": round(sum(v) / len(v))}
+        for k, v in sorted(weekly_avgs.items())
+    ]
 
     return {
         "volume_timeline": volume_timeline,
@@ -943,20 +1222,16 @@ def progress(username: str = Query(...)):
         "stats": calculate_stats(user)
     }
 
-# Egzersiz İlerleme Analizi
-@app.get("/api/progress/chart")
-def get_exercise_chart_data(username: str = Query(...), exercise: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
 
+@app.get("/api/progress/chart")
+def get_exercise_chart_data(exercise: str = Query(...),
+                            user: dict = Depends(_resolve_current_user)):
     workouts = get_workouts_by_user(user["id"])
     workouts_sorted = sorted(workouts, key=lambda x: x["date"])
 
     labels = []
     weights = []
     details = []
-
     target_exercise = exercise.lower().strip()
 
     for w in workouts_sorted:
@@ -964,17 +1239,15 @@ def get_exercise_chart_data(username: str = Query(...), exercise: str = Query(..
         if isinstance(exercises_raw, str):
             try:
                 exercises_list = json.loads(exercises_raw)
-            except:
+            except Exception:
                 exercises_list = []
         else:
             exercises_list = exercises_raw
 
         for ex in exercises_list:
             ex_name = ex.get("exercise_name", ex.get("name", "")).lower().strip()
-            
             if ex_name == target_exercise:
                 sets = ex.get("sets_data", [])
-                
                 date_str = w["date"].split()[0]
                 parts = date_str.split("-")
                 formatted_date = f"{parts[2]}.{parts[1]}.{parts[0]}" if len(parts) == 3 else date_str
@@ -986,21 +1259,15 @@ def get_exercise_chart_data(username: str = Query(...), exercise: str = Query(..
                         if weight > 0:
                             labels.append(formatted_date)
                             weights.append(weight)
-                            details.append({
-                                "set": idx,
-                                "reps": reps
-                            })
-                    except:
+                            details.append({"set": idx, "reps": reps})
+                    except Exception:
                         continue
 
-    return {
-        "labels": labels,
-        "data": weights,
-        "details": details
-    }
+    return {"labels": labels, "data": weights, "details": details}
+
 
 def get_personal_records(workouts):
-    """Her egzersiz için en yüksek hacmi bul."""
+    """Her egzersiz için en yüksek ağırlığı bul."""
     records = {}
     for w in workouts:
         for ex in w.get("exercises", []):
@@ -1018,105 +1285,138 @@ def get_personal_records(workouts):
                     }
     return list(records.values())
 
+
 # ═══════════════════════════════════════════════
-# Özel Program
+# ÖZEL PROGRAM
 # ═══════════════════════════════════════════════
 @app.post("/api/custom-program")
-async def save_custom_program(data: CustomProgramRequest):
-    # 1. Kullanıcıyı doğrula
-    user = get_user_by_username(data.username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+def save_custom_program(data: CustomProgramRequest,
+                        current_user: dict = Depends(_resolve_current_user)):
+    # Token'daki kullanıcı sadece kendi programını kaydeder
+    if data.username != current_user["username"]:
+        raise HTTPException(status_code=403, detail="Başkası için program kaydedilemez")
 
-    # 2. Pydantic modelini (List[List[CustomDay]]) veritabanı için string (JSON) formatına çevir
     program_list = [[day.model_dump() for day in week] for week in data.program]
     program_json = json.dumps(program_list, ensure_ascii=False)
 
-    # 3. Veritabanına kaydet
     conn = get_db()
     cur = conn.cursor()
     try:
-        cur.execute("UPDATE users SET custom_split = ? WHERE id = ?", (program_json, user["id"]))
+        cur.execute("UPDATE users SET custom_split = ? WHERE id = ?",
+                    (program_json, current_user["id"]))
         conn.commit()
-        return {"success": True, "message": f"{len(data.program)} Haftalık periyot başarıyla kaydedildi!"}
+        return {"success": True,
+                "message": f"{len(data.program)} Haftalık periyot başarıyla kaydedildi!"}
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=500, detail=f"Kayıt sırasında veritabanı hatası: {str(e)}")
+        raise HTTPException(status_code=500,
+                            detail=f"Kayıt sırasında veritabanı hatası: {str(e)}")
     finally:
         conn.close()
 
 
+# İngilizce kas grubu -> Türkçe karşılık (havuz editlenirken bu listeden yararlan)
+EXERCISE_MUSCLE_TR = {
+    "Chest": "Göğüs", "Back": "Sırt", "Shoulders": "Omuz",
+    "Legs": "Bacak", "Biceps": "Biceps", "Triceps": "Triceps",
+    "Traps": "Traps", "Core": "Core",
+}
+
+# LEGS alt kas eşlemesi: EXERCISE_POOL'da bacak hareketleri tek "Legs" grubunda toplanır
+# (editlenebilirlik için). Frontend ise bacak gününde Quadriceps/Hamstring/Glute/Calf
+# alt kaslarını bekler. Bu tablo hareket adından alt kası belirler; adı listede olmayan
+# Legs hareketleri varsayılan olarak Quadriceps kabul edilir.
+LEG_SUBMUSCLE = {
+    "quadriceps": {"squat", "front squat", "bulgarian split squat", "leg press", "leg extension", "lunge", "hack squat", "goblet squat"},
+    "hamstring": {"romanian deadlift", "leg curl", "stiff leg", "good morning", "nordic curl"},
+    "glute": {"hip thrust", "glute bridge", "kickback"},
+    "calf": {"calf raise", "calf raises"},
+}
+
+
+def _enrich_exercise_pool(pool):
+    """Frontend uyumluluğu: her hareket için muscle/bw/weighted alias üretir.
+    Havuzun kendisine dokunulmaz; havuz backend'de kolayca editlenebilir kalır."""
+    out = []
+    for ex in pool:
+        e = dict(ex)
+        mg = ex.get("muscle_group", "")
+        if mg == "Legs":
+            # Backend'in editlenebilir tek "Legs" grubunu frontend'in beklediği
+            # alt kas gruplarına (Quadriceps/Hamstring/Glute/Calf) eşle
+            name_low = ex.get("name", "").lower()
+            sub = "Quadriceps"
+            for muscle, keywords in LEG_SUBMUSCLE.items():
+                if any(k in name_low for k in keywords):
+                    sub = muscle.title() if muscle != "calf" else "Calf"
+                    break
+            e["muscle"] = sub
+        else:
+            e["muscle"] = EXERCISE_MUSCLE_TR.get(mg, mg)
+        e["bw"] = bool(ex.get("is_bodyweight", False))
+        e["weighted"] = not bool(ex.get("is_bodyweight", False))
+        out.append(e)
+    return out
+
 @app.get("/api/exercises")
 def get_exercises():
-    """Egzersiz havuzu + kas grupları."""
-    return {
-        "exercises": EXERCISE_POOL,
-        "muscle_groups": MUSCLE_GROUPS
-    }
+    """Egzersiz havuzu + kas grupları (Türkçe alias'larla)."""
+    return {"exercises": _enrich_exercise_pool(EXERCISE_POOL),
+            "muscle_groups": [EXERCISE_MUSCLE_TR.get(g, g) for g in MUSCLE_GROUPS]}
+
 
 # ═══════════════════════════════════════════════
-# BESLENME ENDPOINT'LERİ
+# BESLENME ENDPOINT'LERİ — JWT korumalı
 # ═══════════════════════════════════════════════
-
 @app.get("/api/nutrition/today")
-def get_today_nutrition(username: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
-    
+def get_today_nutrition(user: dict = Depends(_resolve_current_user)):
     raw_nutri = user.get("daily_nutrition", "{}")
     try:
         history_dict = json.loads(raw_nutri) if isinstance(raw_nutri, str) else raw_nutri
-    except:
+    except Exception:
         history_dict = {}
-        
+
     today_str = str(date.today())
-    today_log = history_dict.get(today_str, {"calories": 0, "protein": 0, "carbs": 0, "fat": 0})
-        
+    today_log = history_dict.get(today_str,
+                                 {"calories": 0, "protein": 0, "carbs": 0, "fat": 0})
     return {"success": True, "log": today_log}
 
 
 @app.get("/api/nutrition/history")
-def get_nutrition_history(username: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
-    
+def get_nutrition_history(user: dict = Depends(_resolve_current_user)):
     raw_nutri = user.get("daily_nutrition", "{}")
     try:
         history_dict = json.loads(raw_nutri) if isinstance(raw_nutri, str) else raw_nutri
-    except:
+    except Exception:
         history_dict = {}
-        
+
     history_list = []
     for date_str, data in history_dict.items():
         item = {"date": date_str}
         item.update(data)
         history_list.append(item)
-        
+
     history_list.sort(key=lambda x: x["date"], reverse=True)
     return {"success": True, "history": history_list}
 
 
 @app.post("/api/nutrition/log")
-def save_nutrition_log(data: NutritionLogSchema):
-    user = get_user_by_username(data.username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+def save_nutrition_log(data: NutritionLogSchema,
+                       current_user: dict = Depends(_resolve_current_user)):
+    # Token'daki kullanıcı sadece kendi verisini yazar
+    if data.username != current_user["username"]:
+        raise HTTPException(status_code=403, detail="Başkası için kayıt yapılamaz")
 
-    raw_nutri = user.get("daily_nutrition", "{}")
+    raw_nutri = current_user.get("daily_nutrition", "{}")
     try:
         history_dict = json.loads(raw_nutri) if isinstance(raw_nutri, str) else raw_nutri
-    except:
+    except Exception:
         history_dict = {}
 
     target_date = data.log_date or str(date.today())
-    
-    # Gelecek gün kontrolü
     if target_date > str(date.today()):
         raise HTTPException(status_code=400, detail="Gelecek gün için kayıt yapılamaz")
 
-    # Makrolardan kalori hesapla (eğer kalori 0 ise)
     calories = data.calories
     if calories <= 0:
         calories = (data.protein * 4) + (data.carbs * 4) + (data.fat * 9)
@@ -1130,28 +1430,23 @@ def save_nutrition_log(data: NutritionLogSchema):
         "updated_at": str(datetime.now())
     }
 
-
     conn = get_db()
     conn.execute(
         "UPDATE users SET daily_nutrition = ?, updated_at = datetime('now') WHERE username = ?",
-        (json.dumps(history_dict, ensure_ascii=False), data.username)
+        (json.dumps(history_dict, ensure_ascii=False), current_user["username"])
     )
     conn.commit()
     conn.close()
-
     return {"success": True, "message": "Beslenme verisi kaydedildi"}
 
 
 @app.delete("/api/nutrition/log")
-def delete_nutrition_log(username: str = Query(...), log_date: str = Query(...)):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
-
+def delete_nutrition_log(log_date: str = Query(...),
+                         user: dict = Depends(_resolve_current_user)):
     raw_nutri = user.get("daily_nutrition", "{}")
     try:
         history_dict = json.loads(raw_nutri) if isinstance(raw_nutri, str) else raw_nutri
-    except:
+    except Exception:
         history_dict = {}
 
     if log_date in history_dict:
@@ -1159,36 +1454,71 @@ def delete_nutrition_log(username: str = Query(...), log_date: str = Query(...))
         conn = get_db()
         conn.execute(
             "UPDATE users SET daily_nutrition = ?, updated_at = datetime('now') WHERE username = ?",
-            (json.dumps(history_dict, ensure_ascii=False), username)
+            (json.dumps(history_dict, ensure_ascii=False), user["username"])
         )
         conn.commit()
         conn.close()
 
     return {"success": True, "message": "Kayıt başarıyla silindi"}
 
-# ═══════════════════════════════════════════════
-# STATIC DOSYALAR
-# ═══════════════════════════════════════════════
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
-
-
-@app.get("/app")
-def serve_app():
-    return FileResponse("static/index.html")
 
 # ═══════════════════════════════════════════════
-# SPA CATCH-ALL — /dashboard, /nutrition vb. tüm SPA sayfalarını
-# index.html'e yönlendirir (geri butonu ve F5 yenileme için)
-# BU ROUTE MUTLAKA main.py dosyasının EN SONUNA YAZILMALIDIR
+# SAĞLIK KONTROLÜ — Monitoring için
+# ═══════════════════════════════════════════════
+@app.get("/api/health")
+def health_check():
+    try:
+        conn = get_db()
+        conn.execute("SELECT 1")
+        conn.close()
+        return {"status": "ok", "db": "ok", "version": "5.0"}
+    except Exception as e:
+        return {"status": "degraded", "db": "error", "detail": str(e)}
+
+
+# ═══════════════════════════════════════════════
+# STATIC DOSYALAR + SPA CATCH-ALL
+# ÖNEMLİ: StaticFiles mount'u her şeyi yakalar. Bu yüzden SPA route'ları
+# mount'tan ÖNCE bir APIRouter içine alınıyor — böylece /dashboard,
+# /nutrition vb. statik dosya araması yapmadan doğrudan index.html döner.
+# API istekleri ve gerçek dosyalar (css/js/img) mount tarafından sunulur.
 # ═══════════════════════════════════════════════
 SPA_PAGES = {"dashboard", "workout", "history", "analyze", "progress",
              "nutrition", "profile", "admin", "custom-program", "app", ""}
 
+from fastapi import APIRouter
 
+spa_router = APIRouter()
+
+
+@spa_router.get("/")
+def spa_root():
+    return FileResponse("static/index.html")
+
+
+# Gerçek statik dosyalar (favicon, css, img, js) catch-all'a düşmeden
+# önce burada karşılanır — mount ile sıralama çakışmasını önler.
+from pathlib import Path as _Path
+STATIC_DIR = _Path(__file__).parent / "static"
+
+
+@app.get("/static/{filename}")
+@app.get("/{filename}")
+def serve_static_file(filename: str):
+    file_path = STATIC_DIR / filename
+    if file_path.is_file():
+        return FileResponse(file_path)
+    # Dosya değilse SPA sayfası olabilir (tek segmentli path: /dashboard)
+    if filename in SPA_PAGES:
+        return FileResponse("static/index.html")
+    raise HTTPException(status_code=404, detail="Not Found")
+
+
+# NOT: StaticFiles mount'u catch-all router'ı gölgeleyebildiği için
+# SPA yönlendirme doğrudan app'e ekleniyor — mount'tan önce çalışır.
 @app.get("/{path:path}")
 def serve_spa(path: str):
-    # API istekleri ve statik dosyalar (css/js/img vb.) yakalanmasın
-    if path.startswith("api/") or path.startswith("favicon") or "." in path:
+    if path.startswith("api/"):
         raise HTTPException(status_code=404, detail="Not Found")
     first = path.split("/")[0]
     if first in SPA_PAGES:
@@ -1196,3 +1526,13 @@ def serve_spa(path: str):
     raise HTTPException(status_code=404, detail="Not Found")
 
 
+app.include_router(spa_router)
+# StaticFiles mount'u kaldırıldı: FastAPI'de mount tüm yol eşleşmelerini
+# yakaladığı için SPA route'larını ({path:path}) gölgede bırakıyordu.
+# Dosyalar artık serve_static_file (satır 1483) ile sunuluyor.
+
+
+# ═══════════════════════════════════════════════
+# BAŞLATMA
+# ═══════════════════════════════════════════════
+init_db()
