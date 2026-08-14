@@ -8,3 +8,6 @@ bcrypt==4.2.1
 passlib==1.7.4
 python-dotenv==1.0.1
 cryptography>=41.0.0
+
+# PostgreSQL uygulama bağlantısı ve SQLite veri aktarımı
+psycopg[binary]==3.2.6

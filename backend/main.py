@@ -20,13 +20,24 @@ import os
 import json
 import sqlite3
 import base64
+
+try:
+    import psycopg
+    from psycopg import IntegrityError as PostgreSQLIntegrityError
+    from psycopg.rows import dict_row
+except ImportError:
+    psycopg = None
+    dict_row = None
+    PostgreSQLIntegrityError = RuntimeError
 import logging
 import time
+from collections import defaultdict, deque
+from threading import Lock
 
 from fastapi import FastAPI, Body, HTTPException, Query, Header, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
@@ -34,35 +45,96 @@ from datetime import date, datetime, timedelta
 
 from jose import jwt, JWTError, ExpiredSignatureError
 import bcrypt
+from postgres_schema import POSTGRES_SCHEMA_STATEMENTS
 
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Ortam değişkenlerinde sistemin verdiği değerler her zaman önceliklidir.
+# Yerelde .env dosyası tercih edilir. Eski admin.env yalnızca development
+# kolaylığı için fallback olarak okunur; production'da asla otomatik yüklenmez.
 try:
     from dotenv import load_dotenv
-    # .env yoksa admin.env'yi oku (admin şifresi ve JWT anahtarı orada)
-    import os as _os
-    _env = os.path.join(os.path.dirname(__file__), 'admin.env' if os.path.exists(os.path.join(os.path.dirname(__file__), 'admin.env')) else '.env')
-    load_dotenv(dotenv_path=_env)
+
+    env_path = os.path.join(BACKEND_DIR, ".env")
+    legacy_env_path = os.path.join(BACKEND_DIR, "admin.env")
+    requested_env = os.getenv("APP_ENV", "").strip().lower()
+    if os.path.isfile(env_path):
+        load_dotenv(dotenv_path=env_path, override=False)
+    elif requested_env != "production" and os.path.isfile(legacy_env_path):
+        load_dotenv(dotenv_path=legacy_env_path, override=False)
 except ImportError:
-    pass  # python-dotenv kurulu değilse env değişkenleri sistemden okunur
+    pass  # python-dotenv yoksa platformun ortam değişkenleri kullanılır
 
 # ═══════════════════════════════════════════════
-# SABİTLER — .env DOSYASINDAN OKUNUR
-# Dosya bulunamazsa güvenli varsayılanlar kullanılır
+# SABİTLER — ORTAM DEĞİŞKENLERİNDEN OKUNUR
 # ═══════════════════════════════════════════════
-DB_PATH = "hypertrophy.db"
+APP_ENV = os.getenv("APP_ENV", "development").strip().lower()
+if APP_ENV not in {"development", "test", "production"}:
+    raise RuntimeError("APP_ENV yalnızca development, test veya production olabilir.")
+IS_PRODUCTION = APP_ENV == "production"
 
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "DEĞİŞTİRİLMEK-ZORUNDA")
+# Veritabanı seçimi:
+# - DATABASE_URL tanımlıysa PostgreSQL kullanılır.
+# - Tanımlı değilse mevcut SQLite dosyasıyla yerel geliştirme devam eder.
+# Bu fallback, eski veritabanını korur; production modunda ise PostgreSQL zorunludur.
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+DATABASE_BACKEND = "postgresql" if DATABASE_URL else "sqlite"
+DB_PATH = os.getenv("DB_PATH", os.path.join(BACKEND_DIR, "hypertrophy.db"))
 
-# JWT gizli anahtarı — sunucuda 32+ karakterlik rastgele bir değer ver!
-# Yerel testte bu otomatik değer çalışır ama production'da DEĞİŞTİR.
-SECRET_KEY = os.getenv("JWT_SECRET", secrets.token_hex(32))
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin").strip()
+# Şifre yalnızca ortam değişkeninden gelir; production kontrolü startup'ta yapılır.
+ADMIN_PASSWORD_PLAIN = os.getenv("ADMIN_PASSWORD", "")
+ADMIN_PASSWORD_HASH = None
+
+# Development'ta eksik secret geçici olarak üretilir; production'da bu yasaktır.
+SECRET_KEY = os.getenv("JWT_SECRET", "").strip()
+if not SECRET_KEY and not IS_PRODUCTION:
+    SECRET_KEY = secrets.token_urlsafe(48)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 24 * 60  # 24 saat
 
-# CORS — production'da sadece kendi alan adını ver
-CORS_ORIGIN = os.getenv("CORS_ORIGIN", "*")
+# Birden çok izinli origin virgülle ayrılabilir.
+CORS_ORIGIN = os.getenv("CORS_ORIGIN", "*").strip()
+CORS_ORIGINS = [origin.strip().rstrip("/") for origin in CORS_ORIGIN.split(",") if origin.strip()]
+if not CORS_ORIGINS:
+    CORS_ORIGINS = ["*"]
 
+ENABLE_HSTS = os.getenv("ENABLE_HSTS", "false").strip().lower() in {"1", "true", "yes"}
+# Aynı istemciden kısa süreli çoklu giriş/kayıt denemesini sınırlar.
+LOGIN_RATE_LIMIT_MAX = max(1, int(os.getenv("LOGIN_RATE_LIMIT_MAX", "10")))
+LOGIN_RATE_LIMIT_WINDOW_SECONDS = max(60, int(os.getenv("LOGIN_RATE_LIMIT_WINDOW_SECONDS", "900")))
+TRUST_PROXY_HEADERS = os.getenv("TRUST_PROXY_HEADERS", "false").strip().lower() in {"1", "true", "yes"}
 BCRYPT_ROUNDS = 12  # Kasıtlı olarak yavaş — kaba kuvvet saldırısını zorlaştırır
+
+
+# Üretimde yanlış veya örnek ayarlarla sunucuyu başlatmak veri güvenliği riskidir.
+# Kontrol startup'ta çalışır; geliştirme/test çalışma akışı değişmez.
+def validate_runtime_configuration() -> None:
+    if not IS_PRODUCTION:
+        return
+
+    errors = []
+    insecure_secrets = {"", "change-me", "changeme", "secret", "jwt_secret", "example", "test"}
+    insecure_admin_passwords = {
+        "", "admin", "admin123", "password", "password123", "123456",
+        "12345678", "değiştirilmek-zorunda", "degistirilmek-zorunda",
+    }
+
+    if len(SECRET_KEY) < 32 or SECRET_KEY.lower() in insecure_secrets:
+        errors.append("JWT_SECRET production için en az 32 karakterlik rastgele bir değer olmalıdır.")
+    if len(ADMIN_PASSWORD_PLAIN) < 12 or ADMIN_PASSWORD_PLAIN.strip().lower() in insecure_admin_passwords:
+        errors.append("ADMIN_PASSWORD production için varsayılan olmayan, en az 12 karakterlik güçlü bir değer olmalıdır.")
+    if "*" in CORS_ORIGINS:
+        errors.append("CORS_ORIGIN=*, production ortamında kullanılamaz.")
+    if any(not origin.startswith("https://") for origin in CORS_ORIGINS):
+        errors.append("CORS_ORIGIN production ortamında yalnızca https:// ile başlayan alan adları içermelidir.")
+    if not DATABASE_URL:
+        errors.append("DATABASE_URL production ortamında PostgreSQL bağlantısı için zorunludur.")
+    if DATABASE_URL and psycopg is None:
+        errors.append("psycopg paketi yüklü değil; PostgreSQL bağlantısı kurulamaz.")
+
+    if errors:
+        raise RuntimeError("Güvensiz production yapılandırması: " + " ".join(errors))
 
 # ═══════════════════════════════════════════════
 # ŞİFRE İŞLEMLERİ — bcrypt + ESKİ SHA256 MİGRASYON
@@ -70,6 +142,26 @@ BCRYPT_ROUNDS = 12  # Kasıtlı olarak yavaş — kaba kuvvet saldırısını zo
 def _hash_password(password: str):
     """Yeni şifre hash'leme — bcrypt (12 round)"""
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds=BCRYPT_ROUNDS)).decode()
+
+
+def _verify_admin_password(plain: str, stored_hash: str) -> bool:
+    """Admin şifresini bcrypt hash ile doğrular."""
+    try:
+        return bcrypt.checkpw(plain.encode(), stored_hash.encode())
+    except Exception:
+        return False
+
+
+def _init_admin_password_hash():
+    """Admin şifresini ilk başlatmada bcrypt ile hash'ler. Düz metin
+    karşılaştırma kalmaması için login her zaman hash üzerinden doğrulanır."""
+    global ADMIN_PASSWORD_HASH
+    ADMIN_PASSWORD_HASH = bcrypt.hashpw(
+        ADMIN_PASSWORD_PLAIN.encode(), bcrypt.gensalt(rounds=BCRYPT_ROUNDS)
+    ).decode()
+
+
+_init_admin_password_hash()
 
 
 def _verify_password(plain: str, stored_hash: str, salt: str):
@@ -169,7 +261,51 @@ def _require_admin(user: dict) -> dict:
 # VERİTABANI FONKSİYONLARI
 # (Değişiklik: passwordSalt artık boş, bcrypt tek başına yeterli)
 # ═══════════════════════════════════════════════
+class PostgreSQLCursor:
+    """Mevcut SQLite tarzı ? placeholder kullanan sorguları PostgreSQL'e uyarlar."""
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    def execute(self, query: str, params=None):
+        self._cursor.execute(query.replace("?", "%s"), params or ())
+        return self
+
+    def fetchone(self):
+        return self._cursor.fetchone()
+
+    def fetchall(self):
+        return self._cursor.fetchall()
+
+
+class PostgreSQLConnection:
+    """Uygulamadaki mevcut get_db() sözleşmesini PostgreSQL için korur."""
+    def __init__(self, connection):
+        self._connection = connection
+
+    def execute(self, query: str, params=None):
+        return self._connection.execute(query.replace("?", "%s"), params or ())
+
+    def cursor(self):
+        return PostgreSQLCursor(self._connection.cursor())
+
+    def commit(self):
+        self._connection.commit()
+
+    def rollback(self):
+        self._connection.rollback()
+
+    def close(self):
+        self._connection.close()
+
+
 def get_db():
+    if DATABASE_BACKEND == "postgresql":
+        if psycopg is None:
+            raise RuntimeError("PostgreSQL için psycopg paketi yüklü olmalıdır.")
+        return PostgreSQLConnection(
+            psycopg.connect(DATABASE_URL, row_factory=dict_row, connect_timeout=8)
+        )
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
@@ -178,75 +314,75 @@ def get_db():
 def init_db():
     conn = get_db()
     cur = conn.cursor()
-    cur.executescript("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL DEFAULT '',
-            password_salt TEXT NOT NULL DEFAULT '',
-            age INTEGER NOT NULL DEFAULT 0,
-            gender TEXT NOT NULL DEFAULT 'male',
-            height REAL NOT NULL DEFAULT 170.0,
-            weight REAL NOT NULL DEFAULT 70.0,
-            fitness_level TEXT NOT NULL DEFAULT 'Beginner',
-            goal TEXT NOT NULL DEFAULT 'bulk',
-            days_per_week INTEGER NOT NULL DEFAULT 4,
-            session_time_mins INTEGER NOT NULL DEFAULT 60,
-            stagnation_detected INTEGER NOT NULL DEFAULT 0,
-            custom_split TEXT NOT NULL DEFAULT '[]',
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
-            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-        );
 
-        CREATE TABLE IF NOT EXISTS workouts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            date TEXT NOT NULL,
-            session_type TEXT NOT NULL,
-            notes TEXT DEFAULT '',
-            total_volume REAL NOT NULL DEFAULT 0,
-            exercises TEXT NOT NULL DEFAULT '[]',
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        );
-    """)
+    if DATABASE_BACKEND == "postgresql":
+        # Şema ve aktarım aracı aynı merkezi tanımı kullanır.
+        for statement in POSTGRES_SCHEMA_STATEMENTS:
+            cur.execute(statement)
+    else:
+        cur.executescript("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL DEFAULT '',
+                password_salt TEXT NOT NULL DEFAULT '',
+                age INTEGER NOT NULL DEFAULT 0,
+                gender TEXT NOT NULL DEFAULT 'male',
+                height REAL NOT NULL DEFAULT 170.0,
+                weight REAL NOT NULL DEFAULT 70.0,
+                fitness_level TEXT NOT NULL DEFAULT 'Beginner',
+                goal TEXT NOT NULL DEFAULT 'bulk',
+                days_per_week INTEGER NOT NULL DEFAULT 4,
+                session_time_mins INTEGER NOT NULL DEFAULT 60,
+                stagnation_detected INTEGER NOT NULL DEFAULT 0,
+                custom_split TEXT NOT NULL DEFAULT '[]',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+            );
 
-    try:
-        cur.execute("ALTER TABLE users ADD COLUMN custom_split TEXT NOT NULL DEFAULT '[]'")
-    except Exception:
-        pass
+            CREATE TABLE IF NOT EXISTS workouts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                date TEXT NOT NULL,
+                session_type TEXT NOT NULL,
+                notes TEXT DEFAULT '',
+                total_volume REAL NOT NULL DEFAULT 0,
+                exercises TEXT NOT NULL DEFAULT '[]',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            );
+        """)
 
-    try:
-        cur.execute("ALTER TABLE users ADD COLUMN daily_nutrition TEXT NOT NULL DEFAULT '{}'")
-    except Exception:
-        pass
+        # Eski SQLite dosyaları için geriye dönük şema uyumluluğu.
+        for statement in (
+            "ALTER TABLE users ADD COLUMN custom_split TEXT NOT NULL DEFAULT '[]'",
+            "ALTER TABLE users ADD COLUMN daily_nutrition TEXT NOT NULL DEFAULT '{}'",
+            "ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0",
+        ):
+            try:
+                cur.execute(statement)
+            except sqlite3.OperationalError:
+                pass
 
-    # V4.1: users tablosunda is_admin sütunu yoksa ekle (eski DB'lerle uyumluluk)
-    try:
-        cur.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0")
-    except Exception:
-        pass
-
-    # V4.1: Admin hesabı için bcrypt hash'li kayıt — şifre artık ham değil
+    # Admin hesabı env parolasını otorite kabul eder. Böylece PostgreSQL'e taşınan
+    # eski hash, yeni production parolasıyla çelişmez.
     conn.commit()
     admin_exists = cur.execute(
         "SELECT id FROM users WHERE username = ?", (ADMIN_USERNAME,)
     ).fetchone()
+    admin_hash = _hash_password(ADMIN_PASSWORD_PLAIN)
     if not admin_exists:
         cur.execute(
             "INSERT INTO users (username, password_hash, password_salt, is_admin) "
             "VALUES (?, ?, '', 1)",
-            (ADMIN_USERNAME, _hash_password(ADMIN_PASSWORD))
+            (ADMIN_USERNAME, admin_hash)
         )
-        conn.commit()
     else:
-        # Eski DB'de admin kaydı is_admin=0 ile kalmış olabilir — düzelt
         cur.execute(
-            "UPDATE users SET is_admin = 1 WHERE username = ? AND is_admin = 0",
-            (ADMIN_USERNAME,)
+            "UPDATE users SET is_admin = 1, password_hash = ?, password_salt = '' WHERE username = ?",
+            (admin_hash, ADMIN_USERNAME)
         )
-        conn.commit()
-
+    conn.commit()
     conn.close()
 
 
@@ -285,7 +421,7 @@ def create_user(username: str, password: str):
         )
         conn.commit()
         return {"message": "Hesap oluşturuldu", "username": username}
-    except sqlite3.IntegrityError:
+    except (sqlite3.IntegrityError, PostgreSQLIntegrityError):
         conn.close()
         raise HTTPException(status_code=409, detail="Bu kullanıcı adı zaten kullanılıyor")
     finally:
@@ -336,16 +472,27 @@ def create_workout(user_id: int, data: dict) -> dict:
         for s in ex.get("sets_data", []):
             total_volume += float(s.get("weight_kg", 0)) * int(s.get("reps", 0))
 
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        """INSERT INTO workouts (user_id, date, session_type, notes, total_volume, exercises)
-           VALUES (?, ?, ?, ?, ?, ?)""",
-        (user_id, data.get("date", str(date.today())), data.get("session_type", "Workout"),
-         data.get("notes", ""), total_volume, json.dumps(exercises, ensure_ascii=False))
+    values = (
+        user_id, data.get("date", str(date.today())), data.get("session_type", "Workout"),
+        data.get("notes", ""), total_volume, json.dumps(exercises, ensure_ascii=False),
     )
+    conn = get_db()
+    if DATABASE_BACKEND == "postgresql":
+        row = conn.execute(
+            """INSERT INTO workouts (user_id, date, session_type, notes, total_volume, exercises)
+               VALUES (?, ?, ?, ?, ?, ?) RETURNING id""",
+            values,
+        ).fetchone()
+        new_id = row["id"]
+    else:
+        cur = conn.cursor()
+        cur.execute(
+            """INSERT INTO workouts (user_id, date, session_type, notes, total_volume, exercises)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            values,
+        )
+        new_id = cur.lastrowid
     conn.commit()
-    new_id = cur.lastrowid
     conn.close()
     return {"success": True, "message": "Antrenman kaydedildi", "id": new_id}
 
@@ -642,10 +789,8 @@ EXERCISE_POOL = [
      "category": "isolation", "is_bodyweight": False},
     {"id": "hip-thrust", "name": "Hip Thrust", "muscle_group": "Legs",
      "category": "compound", "is_bodyweight": False},
-    {"id": "dumbbell-calf-raises", "name": "Dumbbell Calf Raise", "muscle_group": "Legs",
+    {"id": "calf-raises", "name": "Calf Raises", "muscle_group": "Legs",
      "category": "isolation", "is_bodyweight": False},
-    {"id": "barbell-calf-raises", "name": "Barbell Calf Raise", "muscle_group": "Legs",
-        "category": "isolation", "is_bodyweight": False},
     {"id": "deadlift", "name": "Deadlift", "muscle_group": "Back",
      "category": "compound", "is_bodyweight": False},
     {"id": "bicep-curl", "name": "Bicep Curl", "muscle_group": "Biceps",
@@ -837,17 +982,78 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
         return response
 
 
+class AuthRateLimitMiddleware(BaseHTTPMiddleware):
+    """Giriş ve kayıt endpoint'leri için bellek içi kayan pencere limiti uygular.
+
+    Tek instance PaaS dağıtımlarında temel koruma sağlar. Çoklu instance'a
+    geçildiğinde aynı mantık Redis gibi merkezi bir store'a taşınmalıdır.
+    """
+    protected_paths = {"/api/auth/login", "/api/auth/register"}
+    _attempts = defaultdict(deque)
+    _lock = Lock()
+
+    @staticmethod
+    def _client_identifier(request: Request) -> str:
+        if TRUST_PROXY_HEADERS:
+            forwarded_for = request.headers.get("x-forwarded-for", "")
+            if forwarded_for:
+                return forwarded_for.split(",")[0].strip()
+        return request.client.host if request.client else "unknown"
+
+    async def dispatch(self, request: Request, call_next):
+        if request.method == "POST" and request.url.path in self.protected_paths:
+            identifier = self._client_identifier(request)
+            key = f"{request.url.path}:{identifier}"
+            now = time.monotonic()
+            with self._lock:
+                attempts = self._attempts[key]
+                while attempts and now - attempts[0] >= LOGIN_RATE_LIMIT_WINDOW_SECONDS:
+                    attempts.popleft()
+                if len(attempts) >= LOGIN_RATE_LIMIT_MAX:
+                    retry_after = max(1, int(LOGIN_RATE_LIMIT_WINDOW_SECONDS - (now - attempts[0])))
+                    return JSONResponse(
+                        status_code=429,
+                        content={"detail": "Çok fazla deneme yapıldı. Lütfen daha sonra tekrar deneyin."},
+                        headers={"Retry-After": str(retry_after)},
+                    )
+                attempts.append(now)
+
+            response = await call_next(request)
+            # Başarılı giriş/kayıt, ilgili istemcinin eski başarısız denemelerini sıfırlar.
+            if 200 <= response.status_code < 300:
+                with self._lock:
+                    self._attempts.pop(key, None)
+            return response
+        return await call_next(request)
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Tarayıcı tabanlı yaygın saldırılara karşı güvenli varsayılan başlıklar ekler."""
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        # HSTS yalnızca HTTPS domaini doğrulandıktan sonra ENABLE_HSTS=true ile açılır.
+        if IS_PRODUCTION and ENABLE_HSTS:
+            response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        return response
+
+
 app = FastAPI(title="Hypertrophy-X API", version="5.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[CORS_ORIGIN] if CORS_ORIGIN != "*" else ["*"],
-    allow_credentials=True,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials="*" not in CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 app.add_middleware(RequestLogMiddleware)
 app.add_middleware(CacheControlMiddleware)
-log.info("Middleware katmanı aktif: CORS + Cache-Control + İstek Loglama")
+app.add_middleware(AuthRateLimitMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
+log.info("Middleware katmanı aktif: CORS + Cache-Control + İstek Loglama + Güvenlik Başlıkları + Giriş Limiti")
 
 
 # ═══════════════════════════════════════════════
@@ -868,7 +1074,7 @@ def register(data: AuthRequest = Body(...)):
 def login(data: AuthRequest = Body(...)):
     # ─── Admin giriş ───
     if data.username == ADMIN_USERNAME:
-        if data.password == ADMIN_PASSWORD:
+        if ADMIN_PASSWORD_HASH and _verify_admin_password(data.password, ADMIN_PASSWORD_HASH):
             token = _create_access_token(ADMIN_USERNAME, is_admin=True)
             return {"username": ADMIN_USERNAME, "is_admin": True, "token": token}
         raise HTTPException(status_code=401, detail="Admin şifresi hatalı")
@@ -920,7 +1126,7 @@ def change_password(user: dict = Depends(_resolve_current_user),
         raise HTTPException(status_code=401, detail="Mevcut şifre hatalı")
 
     conn.execute(
-        "UPDATE users SET password_hash = ?, password_salt = '', updated_at = datetime('now') "
+        "UPDATE users SET password_hash = ?, password_salt = '', updated_at = CURRENT_TIMESTAMP "
         "WHERE username = ?",
         (_hash_password(new_password), user["username"])
     )
@@ -1434,7 +1640,7 @@ def save_nutrition_log(data: NutritionLogSchema,
 
     conn = get_db()
     conn.execute(
-        "UPDATE users SET daily_nutrition = ?, updated_at = datetime('now') WHERE username = ?",
+        "UPDATE users SET daily_nutrition = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?",
         (json.dumps(history_dict, ensure_ascii=False), current_user["username"])
     )
     conn.commit()
@@ -1455,7 +1661,7 @@ def delete_nutrition_log(log_date: str = Query(...),
         del history_dict[log_date]
         conn = get_db()
         conn.execute(
-            "UPDATE users SET daily_nutrition = ?, updated_at = datetime('now') WHERE username = ?",
+            "UPDATE users SET daily_nutrition = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?",
             (json.dumps(history_dict, ensure_ascii=False), user["username"])
         )
         conn.commit()
@@ -1537,4 +1743,8 @@ app.include_router(spa_router)
 # ═══════════════════════════════════════════════
 # BAŞLATMA
 # ═══════════════════════════════════════════════
-init_db()
+@app.on_event("startup")
+async def on_startup():
+    validate_runtime_configuration()
+    init_db()
+    log.info("Hypertrophy-X v5.0 hazır. Ortam: %s", APP_ENV)

@@ -270,7 +270,7 @@ Hypertrophy-X/
     └── deploy.sh         # Sunucu güncelleme scripti
 ```
 
-Özellikle `.gitignore` — zip dosyasında `venv/` klasörünün (93 MB) yer alması, sürüm kontrolünün ne kadar önemli olduğunun göstergesi. Bundan sonra `git add .` yapmadan önce bu dosyanın hazır olması lazım.
+Özellikle `.gitignore` — zip dosyasında `venv/` klasörünün (94 MB) yer alması, sürüm kontrolünün ne kadar önemli olduğunun göstergesi. Bundan sonra `git add .` yapmadan önce bu dosyanın hazır olması lazım.
 
 ### ADIM 6 — Monitoring ve Sağlık Kontrolü (birkaç saatlik iş)
 

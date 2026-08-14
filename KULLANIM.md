@@ -1,4 +1,4 @@
-# Hypertrophy-X v4.0 — Antrenman Platformu
+# Hypertrophy-X v4.1 — Antrenman Platformu
 
 ## Hızlı Başlangıç
 
@@ -6,7 +6,7 @@
 
 ```bash
 # 1. Backend klasörüne gir
-cd Hypertrophy-X-v4.0/backend
+cd Hypertrophy-X-v4.1/backend
 
 # 2. Start script'ini çalıştır
 chmod +x start.sh

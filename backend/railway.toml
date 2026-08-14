@@ -1,9 +1,11 @@
+# Bu manifest yalnızca Railway'de Root Directory=backend seçilirse kullanılmalıdır.
+# Varsayılan tercih proje kökündeki ../railway.toml dosyasıdır.
 [build]
 builder = "nixpacks"
-buildCommand = "cp /app/backend/static/index.html /app/backend/static/index.html 2>/dev/null || true"
+buildCommand = "pip install -r requirements.txt"
 
 [deploy]
-startCommand = "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+startCommand = "uvicorn main:app --host 0.0.0.0 --port $PORT"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
