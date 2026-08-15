@@ -338,6 +338,7 @@ def init_db():
                 session_time_mins INTEGER NOT NULL DEFAULT 60,
                 stagnation_detected INTEGER NOT NULL DEFAULT 0,
                 custom_split TEXT NOT NULL DEFAULT '[]',
+                dashboard_preferences TEXT NOT NULL DEFAULT '{}',
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
                 updated_at TEXT NOT NULL DEFAULT (datetime('now'))
             );
@@ -358,6 +359,7 @@ def init_db():
         # Eski SQLite dosyaları için geriye dönük şema uyumluluğu.
         for statement in (
             "ALTER TABLE users ADD COLUMN custom_split TEXT NOT NULL DEFAULT '[]'",
+            "ALTER TABLE users ADD COLUMN dashboard_preferences TEXT NOT NULL DEFAULT '{}'",
             "ALTER TABLE users ADD COLUMN daily_nutrition TEXT NOT NULL DEFAULT '{}'",
             "ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0",
         ):
@@ -447,6 +449,24 @@ def update_user_profile(data: dict, username: str):
         conn.commit()
     conn.close()
     return get_user_by_username(username)
+
+
+def _parse_dashboard_preferences(raw_preferences) -> dict:
+    """Bozuk/eski tercih kayıtlarında dashboard’un çalışmaya devam etmesini sağlar."""
+    if isinstance(raw_preferences, dict):
+        preferences = dict(raw_preferences)
+    else:
+        try:
+            preferences = json.loads(raw_preferences or "{}")
+        except (TypeError, ValueError, json.JSONDecodeError):
+            preferences = {}
+
+    if not isinstance(preferences, dict):
+        preferences = {}
+    if not isinstance(preferences.get("pr_targets"), dict):
+        preferences["pr_targets"] = {}
+    preferences.setdefault("schema_version", 1)
+    return preferences
 
 
 def get_workouts_by_user(user_id: int):
@@ -1276,6 +1296,11 @@ class CustomProgramRequest(BaseModel):
     program: List[List[CustomDay]]
 
 
+class DashboardPreferencesRequest(BaseModel):
+    """Tarayıcı yerine kullanıcı hesabında saklanan dashboard tercihleri."""
+    pr_targets: dict[str, float]
+
+
 class NutritionLogSchema(BaseModel):
     username: str
     log_date: str = ""
@@ -1727,6 +1752,9 @@ def dashboard(user: dict = Depends(_resolve_current_user)):
     return {
         "success": True,
         "user": user,
+        "dashboard_preferences": _parse_dashboard_preferences(
+            user.get("dashboard_preferences", "{}")
+        ),
         "stats": stats,
         "summary": {
             "total": len(workouts),
@@ -1879,6 +1907,52 @@ def get_personal_records(workouts):
 # ═══════════════════════════════════════════════
 # ÖZEL PROGRAM
 # ═══════════════════════════════════════════════
+@app.post("/api/dashboard/preferences/pr-targets")
+def save_pr_targets(data: DashboardPreferencesRequest,
+                    current_user: dict = Depends(_resolve_current_user)):
+    """PR hedeflerini giriş yapan kullanıcıya bağlı biçimde kaydeder.
+
+    Kullanıcı adı istemciden alınmaz; JWT ile çözülen kullanıcı tek otoritedir.
+    Bu sayede aynı hesabın tüm cihazları ortak Neon/SQLite kaydını kullanır.
+    """
+    if len(data.pr_targets) > 48:
+        raise HTTPException(status_code=400, detail="En fazla 48 PR hedefi kaydedilebilir")
+
+    clean_targets = {}
+    for exercise_name, target in data.pr_targets.items():
+        clean_name = str(exercise_name).strip()
+        try:
+            clean_target = float(target)
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="PR hedefi sayısal olmalıdır")
+        if not clean_name or len(clean_name) > 160:
+            raise HTTPException(status_code=400, detail="Geçersiz egzersiz adı")
+        if clean_target < 0 or clean_target > 2000:
+            raise HTTPException(status_code=400, detail="PR hedefi 0 ile 2000 kg arasında olmalıdır")
+        clean_targets[clean_name] = round(clean_target, 2)
+
+    preferences = _parse_dashboard_preferences(
+        current_user.get("dashboard_preferences", "{}")
+    )
+    preferences["pr_targets"] = clean_targets
+    preferences["schema_version"] = 1
+
+    conn = get_db()
+    try:
+        conn.execute(
+            "UPDATE users SET dashboard_preferences = ? WHERE id = ?",
+            (json.dumps(preferences, ensure_ascii=False), current_user["id"]),
+        )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail="PR hedefleri kaydedilemedi")
+    finally:
+        conn.close()
+
+    return {"success": True, "dashboard_preferences": preferences}
+
+
 @app.post("/api/custom-program")
 def save_custom_program(data: CustomProgramRequest,
                         current_user: dict = Depends(_resolve_current_user)):
@@ -1896,7 +1970,8 @@ def save_custom_program(data: CustomProgramRequest,
                     (program_json, current_user["id"]))
         conn.commit()
         return {"success": True,
-                "message": f"{len(data.program)} Haftalık periyot başarıyla kaydedildi!"}
+                "message": f"{len(data.program)} Haftalık periyot başarıyla kaydedildi!",
+                "program": program_list}
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=500,
