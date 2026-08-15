@@ -21,6 +21,7 @@ POSTGRES_SCHEMA_STATEMENTS = (
         session_time_mins INTEGER NOT NULL DEFAULT 60,
         stagnation_detected INTEGER NOT NULL DEFAULT 0,
         custom_split TEXT NOT NULL DEFAULT '[]',
+        dashboard_preferences TEXT NOT NULL DEFAULT '{}',
         daily_nutrition TEXT NOT NULL DEFAULT '{}',
         is_admin INTEGER NOT NULL DEFAULT 0,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -39,5 +40,6 @@ POSTGRES_SCHEMA_STATEMENTS = (
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
     """,
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS dashboard_preferences TEXT NOT NULL DEFAULT '{}'",
     "CREATE INDEX IF NOT EXISTS idx_workouts_user_date ON workouts (user_id, date DESC)",
 )
