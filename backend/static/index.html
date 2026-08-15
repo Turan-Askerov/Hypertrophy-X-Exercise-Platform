@@ -621,6 +621,30 @@ tr:hover td { background: var(--bg-card-hover); }
   color: var(--green);
 }
 
+/* ═══ WORKOUT UI MOTION ═══
+   Seans türü değiştiğinde filtre ve hareket listesini; hareket silindiğinde
+   ilgili kartı yumuşak biçimde geçişe sokar. */
+.workout-filter-enter {
+  animation: workoutFilterReveal 300ms cubic-bezier(.22, .8, .25, 1) both;
+}
+@keyframes workoutFilterReveal {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.selected-exercise-card.is-removing {
+  pointer-events: none;
+  overflow: hidden;
+  animation: workoutCardRemove 240ms ease-in forwards;
+}
+@keyframes workoutCardRemove {
+  from { opacity: 1; transform: translateY(0) scale(1); max-height: 420px; margin-bottom: 12px; }
+  to { opacity: 0; transform: translateY(-8px) scale(.985); max-height: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workout-filter-enter,
+  .selected-exercise-card.is-removing { animation-duration: 1ms; }
+}
+
 /* ═══ SETS TABLE ═══ */
 .sets-table {
   width: 100%;
@@ -1593,6 +1617,7 @@ canvas {
                 <option value="Full Body">Full Body (Tüm Vücut)</option>
                 <option value="Arms">Arms (Kol)</option>
                 <option value="Core">Core (Karın)</option>
+                <option value="Custom">Özel Seans (Tüm Hareketler)</option>
               </select>
             </div>
           </div>
@@ -3294,31 +3319,62 @@ async function loadWorkoutPage() {
   applySessionFilter();
 }
 
-// Seçilen Seans Türüne Göre Kas Gruplarını Filtreler 
+// Seans türü yalnızca görünür hareket listesini filtreler.
+// Özel Seans (custom) seçildiğinde havuzdaki tüm kaslar ve hareketler açılır.
+// Bacak alt kasları analiz meta verisinde kalır; kullanıcıya tek bir Bacak filtresi görünür.
+const SESSION_MUSCLE_MAP = Object.freeze({
+  push: ["Göğüs", "Omuz", "Triceps"],
+  pull: ["Sırt", "Biceps"],
+  legs: ["Bacak"],
+  lower: ["Bacak"],
+  upper: ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps"],
+  arms: ["Biceps", "Triceps"],
+  core: ["Core"]
+});
+
+function getSelectedSessionType() {
+  return String(document.getElementById('workoutType')?.value || '').trim().toLowerCase();
+}
+
+function getAllowedMusclesForSession() {
+  const selectedType = getSelectedSessionType();
+  return selectedType === 'custom'
+    ? _muscleGroups
+    : (SESSION_MUSCLE_MAP[selectedType] || _muscleGroups);
+}
+
+// Yeni API'de arka omuz gibi hareketler birden fazla sade filtreye ait olabilir.
+// Eski API yanıtları için tekil `muscle` alanına geri düşerek uyumluluk korunur.
+function getExerciseDisplayMuscleGroups(exercise) {
+  const groups = Array.isArray(exercise?.display_muscle_groups)
+    ? exercise.display_muscle_groups.filter(Boolean)
+    : [];
+  return groups.length ? groups : [String(exercise?.muscle || '').trim()].filter(Boolean);
+}
+
+function exerciseMatchesAnyMuscle(exercise, muscles) {
+  const allowed = new Set(muscles || []);
+  return getExerciseDisplayMuscleGroups(exercise).some(group => allowed.has(group));
+}
+
+function replayWorkoutFilterAnimation(...elements) {
+  elements.filter(Boolean).forEach(element => {
+    element.classList.remove('workout-filter-enter');
+    void element.offsetWidth; // Aynı sınıfın tekrar animasyon başlatmasını sağlar.
+    element.classList.add('workout-filter-enter');
+  });
+}
+
+// Seçilen Seans Türüne Göre Kas Gruplarını Filtreler
 function applySessionFilter() {
-  const selectedType = document.getElementById('workoutType').value.toLowerCase();
-
-  // Veritabanındaki kas isimleriyle tam eşleşen haritalama
-  const SESSION_MUSCLE_MAP = {
-      "push": ["Göğüs", "Omuz", "Triceps"],
-      "pull": ["Sırt", "Biceps"],
-      "legs": ["Quadriceps", "Hamstring", "Glute", "Calf"],
-      "lower": ["Quadriceps", "Hamstring", "Glute", "Calf"],
-      "upper": ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps"],
-      "arms": ["Biceps", "Triceps"],
-      "core": ["Core"]
-  };
-
-  // Eğer eşleşme varsa o kasları, yoksa (örn: Full Body) hepsini göster
-  const allowedMuscles = SESSION_MUSCLE_MAP[selectedType] || _muscleGroups;
-
-  // Sadece izin verilen kasları rozet (KAS BÖLGESİ) olarak HTML'e bas
+  const allowedMuscles = getAllowedMusclesForSession();
   const filterList = document.getElementById('muscleFilterList');
+
   filterList.innerHTML = '<div class="muscle-filter active" data-muscle="all" onclick="filterExercises(\'all\',this)">Tümü</div>' +
     allowedMuscles.map(m => `<div class="muscle-filter" data-muscle="${m}" onclick="filterExercises('${m}',this)">${m}</div>`).join('');
 
-  // Hareket listesini de bu yeni kurala göre çiz
   renderExerciseList('all');
+  replayWorkoutFilterAnimation(filterList, document.getElementById('exerciseListContainer'));
 }
 
 function filterExercises(muscle, el) {
@@ -3329,56 +3385,54 @@ function filterExercises(muscle, el) {
 
 function renderExerciseList(muscle) {
   const container = document.getElementById('exerciseListContainer');
+  const selectedType = getSelectedSessionType();
   let filtered = [];
 
-  // Sadece izin verilen kasların hareketlerini listele ---
   if (muscle === 'all') {
-    const selectedType = document.getElementById('workoutType').value.toLowerCase();
-    const SESSION_MUSCLE_MAP = {
-        "push": ["Göğüs", "Omuz", "Triceps"],
-        "pull": ["Sırt", "Biceps"],
-        "legs": ["Quadriceps", "Hamstring", "Glute", "Calf"],
-        "lower": ["Quadriceps", "Hamstring", "Glute", "Calf"],
-        "upper": ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps"],
-        "arms": ["Biceps", "Triceps"],
-        "core": ["Core"]
-    };
-    const allowedMuscles = SESSION_MUSCLE_MAP[selectedType] || _muscleGroups;
-
-    filtered = _exercisePool.filter(e => {
-        if (allowedMuscles.includes(e.muscle)) return true;
-        // Deadlift Jokeri: Bacak veya Lower gününde Sırt'a kayıtlı deadlift de listede görünsün
-        if (e.name.toLowerCase().includes('deadlift') && (selectedType === 'legs' || selectedType === 'lower')) return true;
-        return false;
+    const allowedMuscles = getAllowedMusclesForSession();
+    filtered = _exercisePool.filter(exercise => {
+      if (exerciseMatchesAnyMuscle(exercise, allowedMuscles)) return true;
+      // Deadlift, Legs/Lower seçiliyken Sırt ana grubunda olsa da listede görünür.
+      return exercise.name.toLowerCase().includes('deadlift') &&
+        (selectedType === 'legs' || selectedType === 'lower');
     });
   } else {
-    // Belirli bir kas rozetine tıklandıysa (örn: Sadece Göğüs)
-    filtered = _exercisePool.filter(e => e.muscle === muscle);
+    filtered = _exercisePool.filter(exercise =>
+      getExerciseDisplayMuscleGroups(exercise).includes(muscle)
+    );
   }
-  // -------------------------------------------------------------------------
 
   container.innerHTML = filtered.map(ex => {
     const bwLabel = ex.bw ? '<span class="bw-badge">Vücut Ağırlığı</span>' : '';
-    const wtLabel = ex.weighted && !ex.bw ? '<span class="bw-badge" style="background:var(--blue-bg);color:var(--blue)">Ağırlıklı</span>' : '';
+    const wtLabel = ex.weighted && !ex.bw
+      ? '<span class="bw-badge" style="background:var(--blue-bg);color:var(--blue)">Ağırlıklı</span>'
+      : '';
     return `<div class="exercise-option" onclick="addExercise('${ex.id}')">${ex.name} ${bwLabel}${wtLabel}</div>`;
   }).join('');
+
+  replayWorkoutFilterAnimation(container);
 }
 
 function addExercise(exId) {
-  const ex = _exercisePool.find(e => e.id === exId);
+  const ex = _exercisePool.find(item => item.id === exId);
   if (!ex) return;
 
-  if (_selectedExercises.find(e => e.exercise_id === exId)) {
+  if (_selectedExercises.find(item => item.canonical_exercise_id === ex.id || item.exercise_id === ex.id)) {
     toast('Bu hareket zaten eklendi', 'info');
     return;
   }
 
+  const loadMode = ex.analysis?.load_mode || (ex.bw ? 'bodyweight' : 'external_load');
   _selectedExercises.push({
+    // Kullanıcı sadece ismi seçer. Kimlik, yükleme türü ve meta veri arka planda taşınır.
     exercise_id: ex.id,
+    canonical_exercise_id: ex.id,
     exercise_name: ex.name,
-    muscle_group: ex.muscle,
-    is_bodyweight: ex.bw,
-    sets_data: [{ reps: 0, weight_kg: ex.bw ? 0 : 0 }]
+    muscle_group: ex.muscle_group || ex.muscle,
+    display_muscle: ex.muscle,
+    is_bodyweight: Boolean(ex.bw),
+    load_mode: loadMode,
+    sets_data: [{ reps: 0, weight_kg: 0 }]
   });
 
   renderSelectedExercises();
@@ -3386,31 +3440,41 @@ function addExercise(exId) {
 
 function renderSelectedExercises() {
   const container = document.getElementById('selectedExercises');
-  container.innerHTML = _selectedExercises.map((ex, idx) => `
-    <div class="card history-card-animated" style="margin-bottom:12px; padding:16px; --card-index: ${idx};">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px">
-        <div>
-          <strong>${ex.exercise_name}</strong>
-          <span class="badge ${ex.is_bodyweight ? 'badge-green' : 'badge-accent'}" style="margin-left:8px">${ex.muscle_group}</span>
-          ${ex.is_bodyweight ? '<span class="badge badge-green" style="margin-left:4px">Vücut Ağırlığı</span>' : ''}
+  container.innerHTML = _selectedExercises.map((ex, idx) => {
+    const bodyweightOnly = ex.load_mode === 'bodyweight' || ex.is_bodyweight;
+    const extraLoad = ex.load_mode === 'bodyweight_plus_external';
+    const loadLabel = extraLoad ? 'Ek yük (kg)' : 'Ağırlık (kg)';
+    const muscleLabel = ex.display_muscle || ex.muscle_group;
+    return `
+      <div class="card history-card-animated selected-exercise-card" data-exercise-index="${idx}" style="margin-bottom:12px; padding:16px; --card-index: ${idx};">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px">
+          <div>
+            <strong>${ex.exercise_name}</strong>
+            <span class="badge ${bodyweightOnly ? 'badge-green' : 'badge-accent'}" style="margin-left:8px">${muscleLabel}</span>
+            ${bodyweightOnly ? '<span class="badge badge-green" style="margin-left:4px">Vücut Ağırlığı</span>' : ''}
+            ${extraLoad ? '<span class="badge badge-accent" style="margin-left:4px">Vücut Ağırlığı + Ek Yük</span>' : ''}
+          </div>
+          <button class="btn btn-sm btn-danger" onclick="removeExercise(${idx})">Sil</button>
         </div>
-        <button class="btn btn-sm btn-danger" onclick="removeExercise(${idx})">Sil</button>
+        <table class="sets-table">
+          <thead><tr><th>Set</th><th>Tekrar</th><th>${bodyweightOnly ? 'Yük' : loadLabel}</th><th></th></tr></thead>
+          <tbody>
+            ${ex.sets_data.map((s, si) => `
+              <tr>
+                <td><strong>${si + 1}</strong></td>
+                <td><input type="number" value="${s.reps}" min="1" max="100" onchange="updateSet(${idx},${si},'reps',this.value)" style="width:70px" /></td>
+                <td>${bodyweightOnly
+                  ? '<span style="opacity:.58;font-size:12px">Otomatik</span>'
+                  : `<input type="number" value="${s.weight_kg}" min="0" max="500" step="0.5" style="width:80px" onchange="updateSet(${idx},${si},'weight_kg',this.value)" />`
+                }</td>
+                <td>${si === 0 ? `<button class="btn btn-sm btn-secondary" onclick="addSet(${idx})">+ Set</button>` : `<button class="btn btn-sm btn-danger" onclick="removeSet(${idx},${si})">X</button>`}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
       </div>
-      <table class="sets-table">
-        <thead><tr><th>Set</th><th>Tekrar</th><th>Ağırlık (kg)</th><th>${ex.is_bodyweight ? '' : ''}</th></tr></thead>
-        <tbody>
-          ${ex.sets_data.map((s, si) => `
-            <tr>
-              <td><strong>${si + 1}</strong></td>
-              <td><input type="number" value="${s.reps}" min="1" max="10" onchange="updateSet(${idx},${si},'reps',this.value)" style="width:70px" /></td>
-              <td><input type="number" value="${s.weight_kg}" min="1" max="200" step="0.5" ${ex.is_bodyweight ? 'disabled style="opacity:0.3;width:70px;background:var(--bg-card-hover)"' : 'style="width:70px"'} onchange="updateSet(${idx},${si},'weight_kg',this.value)" /></td>
-              <td>${si === 0 ? `<button class="btn btn-sm btn-secondary" onclick="addSet(${idx})">+ Set</button>` : `<button class="btn btn-sm btn-danger" onclick="removeSet(${idx},${si})">X</button>`}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function addSet(exIdx) {
@@ -3426,8 +3490,20 @@ function updateSet(exIdx, setIdx, field, value) {
   _selectedExercises[exIdx].sets_data[setIdx][field] = parseFloat(value) || 0;
 }
 function removeExercise(idx) {
-  _selectedExercises.splice(idx, 1);
-  renderSelectedExercises();
+  const card = document.querySelector(`#selectedExercises [data-exercise-index="${idx}"]`);
+  const finalizeRemoval = () => {
+    _selectedExercises.splice(idx, 1);
+    renderSelectedExercises();
+  };
+
+  // Animasyon desteklenmiyorsa veya kart bulunamazsa veri akışı yine sorunsuz sürer.
+  if (!card || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    finalizeRemoval();
+    return;
+  }
+
+  card.classList.add('is-removing');
+  card.addEventListener('animationend', finalizeRemoval, { once: true });
 }
 
 // ── YENİ VE TERTEMİZ KAYDETME FONKSİYONU ──
@@ -3458,9 +3534,11 @@ async function saveWorkout() {
     notes: document.getElementById('workoutNotes').value,
     exercises: _selectedExercises.map(ex => ({
       exercise_id: ex.exercise_id,
+      canonical_exercise_id: ex.canonical_exercise_id || ex.exercise_id,
       exercise_name: ex.exercise_name,
       muscle_group: ex.muscle_group,
       is_bodyweight: ex.is_bodyweight,
+      exercise_meta_version: 1,
       sets_data: ex.sets_data
     }))
   };
@@ -4087,7 +4165,7 @@ async function loadProgress(username) {
     // Yeni Egzersiz İlerleme Grafiği — varsayılan hareket: en üstteki PR, yoksa havuzdan ilk
     let defaultExercise = null;
     if (data.personal_records && data.personal_records.length > 0) {
-      defaultExercise = data.personal_records[0].exercise;
+      defaultExercise = data.personal_records[0].exercise_id || data.personal_records[0].exercise;
     } else if (_exercisePool && _exercisePool.length > 0) {
       defaultExercise = _exercisePool[0].name;
     }
@@ -4291,18 +4369,20 @@ async function loadProgress(username) {
 ═══════════════════════════════════════════════ */
 
 // 1. Egzersiz Seçim Fonksiyonu (Hem normal hem de window kapsamına tanımlıyoruz)
-async function selectProgressExercise(exName) {
+async function selectProgressExercise(exerciseRef, displayName = '') {
+  const selected = (_exercisePool || []).find(item => item.id === exerciseRef || item.name === exerciseRef);
+  const exerciseId = selected?.id || exerciseRef;
+  const exerciseName = displayName || selected?.name || String(exerciseRef || '');
   const inputEl = document.getElementById('exerciseSearchInput');
-  if (inputEl) inputEl.value = exName;
+  if (inputEl) inputEl.value = exerciseName;
   const dropdownEl = document.getElementById('exerciseDropdownList');
   if (dropdownEl) dropdownEl.style.display = 'none';
   try {
-    const username = _currentUser?.username;
-    const response = await apiGet('/api/progress/chart?exercise=' + encodeURIComponent(exName));
-    renderExerciseProgressChart(exName, response);
-  } catch(e) {
-    console.error('Grafik verisi çekilirken API hatası:', e);
-    renderExerciseProgressChart(exName, { labels: [], data: [], details: [] });
+    const response = await apiGet('/api/progress/chart?exercise_id=' + encodeURIComponent(exerciseId));
+    renderExerciseProgressChart(response.exercise_name || exerciseName, response);
+  } catch (error) {
+    console.error('Grafik verisi çekilirken API hatası:', error);
+    renderExerciseProgressChart(exerciseName, { labels: [], data: [], details: [], metric_type: 'weight_kg', metric_label: 'PR ağırlık (kg)' });
   }
 }
 
@@ -4355,8 +4435,9 @@ function buildExerciseDropdown(filterText = '') {
     const exercises = grouped.get(group).sort((a, b) => String(a.name).localeCompare(String(b.name), 'tr-TR'));
     html += `<div class="dropdown-group-header">${_escapeProgressHtml(group)}</div>`;
     exercises.forEach(exercise => {
+      const encodedId = encodeURIComponent(String(exercise.id));
       const encodedName = encodeURIComponent(String(exercise.name));
-      html += `<button type="button" class="dropdown-item-option" onmousedown="event.preventDefault(); window.selectProgressExercise(decodeURIComponent('${encodedName}'))">${_escapeProgressHtml(exercise.name)}</button>`;
+      html += `<button type="button" class="dropdown-item-option" onmousedown="event.preventDefault(); window.selectProgressExercise(decodeURIComponent('${encodedId}'), decodeURIComponent('${encodedName}'))">${_escapeProgressHtml(exercise.name)}</button>`;
     });
   });
 
@@ -4514,14 +4595,17 @@ function renderExerciseProgressChart(exName, raw) {
     _exerciseProgressChart.destroy();
   }
   if (raw) {
-    _progRawData = { labels: raw.labels || [], data: raw.data || [], details: raw.details || [] };
+    _progRawData = { labels: raw.labels || [], data: raw.data || [], details: raw.details || [], metric_type: raw.metric_type || 'weight_kg', metric_label: raw.metric_label || 'PR ağırlık (kg)' };
     _progExercise = exName;
   }
   const hasData = _progRawData && _progRawData.labels.length > 0;
+  const metricType = _progRawData?.metric_type || 'weight_kg';
+  const metricLabel = _progRawData?.metric_label || 'PR ağırlık (kg)';
+  const metricSuffix = metricType === 'reps' ? ' tekrar' : ' kg';
   let labels = [], data = [];
   if (hasData) {
     const now = new Date();
-    const valid = _progRawData.labels.map((l, i) => ({ label: l, iso: _progParseDate(l), weight: _progRawData.data[i], reps: (_progRawData.details[i] && _progRawData.details[i].reps != null) ? _progRawData.details[i].reps : null })).filter(o => o.iso);
+    const valid = _progRawData.labels.map((l, i) => ({ label: l, iso: _progParseDate(l), value: _progRawData.data[i], reps: (_progRawData.details[i] && _progRawData.details[i].reps != null) ? _progRawData.details[i].reps : null, weightKg: (_progRawData.details[i] && _progRawData.details[i].weight_kg != null) ? _progRawData.details[i].weight_kg : 0 })).filter(o => o.iso);
     let cutoff = null;
     if (_progTimeframe === 'monthly') { const d = new Date(now); d.setMonth(d.getMonth() - 1); cutoff = d; }
     else if (_progTimeframe === 'yearly')  { const d = new Date(now); d.setFullYear(d.getFullYear() - 1); cutoff = d; }
@@ -4532,12 +4616,12 @@ function renderExerciseProgressChart(exName, raw) {
       for (const o of filtered) {
         const key = o.iso.toISOString().split('T')[0];
         if (!groups.has(key)) groups.set(key, { dateIso: key, tr: o.label, sets: [] });
-        groups.get(key).sets.push({ weight: o.weight, reps: o.reps });
+        groups.get(key).sets.push({ value: o.value, reps: o.reps, weightKg: o.weightKg });
       }
       for (const g of [...groups.values()].sort((a, b) => a.dateIso.localeCompare(b.dateIso))) {
-        const maxSet = g.sets.reduce((m, s) => (s.weight > m.weight ? s : m), g.sets[0]);
+        const maxSet = g.sets.reduce((m, s) => (s.value > m.value ? s : m), g.sets[0]);
         labels.push(g.tr);
-        data.push({ y: maxSet.weight, daySets: g.sets });
+        data.push({ y: maxSet.value, daySets: g.sets });
       }
     }
   } else {
@@ -4551,7 +4635,7 @@ function renderExerciseProgressChart(exName, raw) {
     data: {
       labels: labels,
       datasets: [{
-        label: exName ? exName + ' — PR Ağırlık (kg)' : 'PR Ağırlık (kg)',
+        label: exName ? exName + ' — ' + metricLabel : metricLabel,
         data: data.length ? data.map(p => p.y) : [0],
         borderColor: '#6c63ff',
         borderWidth: 3,
@@ -4585,12 +4669,14 @@ function renderExerciseProgressChart(exName, raw) {
             label: function(context) {
               const pt = data[context.dataIndex];
               if (!pt) return '';
-              const sets = pt.daySets || [{ weight: context.parsed.y, reps: null }];
-              const lines = sets.map(s => '  ' + s.weight + ' kg' + (s.reps ? ' × ' + s.reps + ' tekrar' : ''));
+              const sets = pt.daySets || [{ value: context.parsed.y, reps: null, weightKg: 0 }];
+              const lines = sets.map(s => metricType === 'reps'
+                ? '  ' + s.reps + ' tekrar'
+                : '  ' + s.weightKg + ' kg' + (s.reps ? ' × ' + s.reps + ' tekrar' : ''));
               const out = lines;
               if (sets.length > 1) {
-                const prMax = sets.reduce((m, s) => Math.max(m, s.weight), 0);
-                out.push('───────', '  ' + sets.length + ' set oynatıldı', '  PR: ' + prMax + ' kg');
+                const prMax = sets.reduce((m, s) => Math.max(m, s.value), 0);
+                out.push('───────', '  ' + sets.length + ' set oynatıldı', '  PR: ' + prMax + metricSuffix);
               }
               return out;
             }
@@ -4598,7 +4684,7 @@ function renderExerciseProgressChart(exName, raw) {
         }
       },
       scales: {
-        y: { beginAtZero: false, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3b4', callback: function(value) { return value + ' kg'; } } },
+        y: { beginAtZero: false, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3b4', callback: function(value) { return value + metricSuffix; } } },
         x: { grid: { display: false }, ticks: { color: '#9ca3b4', maxRotation: 45, maxTicksLimit: 12 } }
       }
     }
