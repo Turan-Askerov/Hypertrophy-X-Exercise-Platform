@@ -757,12 +757,162 @@ tr:hover td { background: var(--bg-card-hover); }
   .grid-3 { grid-template-columns: 1fr; }
   .profile-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ═══ MOBILE NAVIGATION & PHONE LAYOUT ═══ */
+.mobile-menu-backdrop {
+  display: none;
+}
+
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.mobile-open { transform: translateX(0); }
-  .main-content { margin-left: 0 !important; }
-  .stats-grid { grid-template-columns: 1fr; }
-  .exercise-selector { grid-template-columns: 1fr; }
+  body {
+    overflow-x: hidden;
+  }
+  body.mobile-menu-open {
+    overflow: hidden;
+  }
+  .sidebar {
+    width: min(82vw, 320px);
+    max-width: 320px;
+    transform: translateX(-105%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 16px 0 36px rgba(0, 0, 0, 0.38);
+    z-index: 300;
+  }
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .sidebar.collapsed {
+    width: min(82vw, 320px);
+  }
+  .sidebar.collapsed .sidebar-brand {
+    display: flex;
+  }
+  .sidebar.collapsed .nav-section-title {
+    text-align: left;
+    padding: 16px 12px 8px;
+  }
+  .sidebar.collapsed .nav-item {
+    justify-content: flex-start;
+    padding: 12px;
+  }
+  .sidebar.collapsed .nav-item span {
+    display: inline;
+  }
+  .mobile-menu-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 7, 12, 0.58);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+    z-index: 250;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-menu-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .main-content {
+    margin-left: 0 !important;
+    min-width: 0;
+  }
+  .topbar {
+    height: 58px;
+    padding: 0 14px;
+  }
+  .topbar-left,
+  .topbar-right {
+    gap: 8px;
+  }
+  .hamburger-btn,
+  .theme-toggle {
+    width: 42px;
+    height: 42px;
+  }
+  .user-dropdown-btn {
+    padding: 4px;
+  }
+  #userDropdownName,
+  .user-dropdown-btn > svg {
+    display: none;
+  }
+  .dropdown-menu {
+    position: fixed;
+    top: 66px;
+    right: 12px;
+    width: min(280px, calc(100vw - 24px));
+  }
+  .page-content {
+    padding: 16px 14px 28px;
+  }
+  .page-header {
+    margin-bottom: 18px;
+  }
+  .page-title {
+    font-size: 22px;
+  }
+  .page-subtitle {
+    font-size: 13px;
+  }
+  .card,
+  .stat-card {
+    padding: 16px;
+  }
+  .stats-grid,
+  .grid-2,
+  .grid-3,
+  .profile-grid,
+  .exercise-selector {
+    grid-template-columns: 1fr;
+  }
+  .stats-grid {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .grid-2,
+  .grid-3 {
+    gap: 14px;
+  }
+  .chart-container {
+    height: 250px;
+  }
+  .chart-container-sm {
+    height: 210px;
+  }
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .btn,
+  .auth-btn {
+    min-height: 44px;
+  }
+  .auth-overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 20px 14px;
+  }
+  .auth-card {
+    margin: auto 0;
+    padding: 28px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-content {
+    padding: 14px 12px 24px;
+  }
+  .card-title {
+    gap: 10px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .table-wrap {
+    margin: 0 -4px;
+  }
 }
 
 /* Sürüklenen Kart Efekti */
@@ -1274,12 +1424,15 @@ canvas {
     </nav>
   </aside>
 
+  <!-- MOBILE MENU BACKDROP -->
+  <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="closeMobileSidebar()" aria-hidden="true"></div>
+
   <!-- MAIN -->
   <div class="main-content">
     <!-- TOPBAR -->
     <header class="topbar">
       <div class="topbar-left">
-        <button class="hamburger-btn" onclick="toggleSidebar()" title="Menüyü daralt/genişlet">
+        <button class="hamburger-btn" onclick="toggleSidebar()" title="Menüyü aç veya kapat" aria-label="Menüyü aç veya kapat" aria-expanded="false">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
       </div>
@@ -2261,8 +2414,8 @@ async function navigate(page, el) {
     return;
   }
 
-  // Close mobile sidebar
-  document.getElementById('sidebar').classList.remove('mobile-open');
+  // Close mobile sidebar after selecting a page
+  closeMobileSidebar();
 
   // URL'yi güncelle (her zaman — menüden ve popstate'ten de)
   // popstate'te tarayıcı URL'yi zaten değiştirdi; burada yazdığımız
@@ -2291,9 +2444,48 @@ async function navigate(page, el) {
 /* ═══════════════════════════════════════════════
    SIDEBAR TOGGLE
 ═══════════════════════════════════════════════ */
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('collapsed');
+function isMobileViewport() {
+  return window.matchMedia('(max-width: 768px)').matches;
 }
+
+function closeMobileSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('mobileMenuBackdrop');
+  const toggle = document.querySelector('.hamburger-btn');
+  if (!sidebar || !backdrop) return;
+
+  sidebar.classList.remove('mobile-open');
+  backdrop.classList.remove('show');
+  document.body.classList.remove('mobile-menu-open');
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('mobileMenuBackdrop');
+  const toggle = document.querySelector('.hamburger-btn');
+  if (!sidebar) return;
+
+  if (isMobileViewport()) {
+    const isOpen = sidebar.classList.toggle('mobile-open');
+    sidebar.classList.remove('collapsed');
+    if (backdrop) backdrop.classList.toggle('show', isOpen);
+    document.body.classList.toggle('mobile-menu-open', isOpen);
+    if (toggle) toggle.setAttribute('aria-expanded', String(isOpen));
+    return;
+  }
+
+  closeMobileSidebar();
+  sidebar.classList.toggle('collapsed');
+}
+
+window.addEventListener('resize', () => {
+  if (!isMobileViewport()) closeMobileSidebar();
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && isMobileViewport()) closeMobileSidebar();
+});
 
 /* ═══════════════════════════════════════════════
    THEME
