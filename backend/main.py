@@ -19,6 +19,8 @@ import secrets
 import os
 import json
 import sqlite3
+import re
+import unicodedata
 import base64
 
 try:
@@ -455,18 +457,17 @@ def get_workouts_by_user(user_id: int):
     ).fetchall()
     conn.close()
     result = []
-    for r in rows:
-        d = dict(r)
-        try:
-            d["exercises"] = json.loads(d["exercises"])
-        except Exception:
-            d["exercises"] = []
-        result.append(d)
+    for row in rows:
+        workout = dict(row)
+        # Eski JSON kayıtlarını değiştirmeden, API çıktısında kanonik meta
+        # bilgilerle zenginleştir. Böylece eski veriler de grafikte görünür.
+        workout["exercises"] = _iter_workout_exercises(workout)
+        result.append(workout)
     return result
 
 
 def create_workout(user_id: int, data: dict) -> dict:
-    exercises = data.get("exercises", [])
+    exercises = _normalize_workout_exercises(data.get("exercises", []))
     total_volume = 0.0
     for ex in exercises:
         for s in ex.get("sets_data", []):
@@ -530,7 +531,7 @@ def update_workout(workout_id: int, data: dict, user_id: int) -> dict:
     if "notes" in data:
         fields.append("notes=?"); values.append(data["notes"])
     if "exercises" in data:
-        exercises = data["exercises"]
+        exercises = _normalize_workout_exercises(data["exercises"])
         total_volume = 0.0
         for ex in exercises:
             for s in ex.get("sets_data", []):
@@ -719,135 +720,479 @@ def generate_split(days_per_week: int, goal: str = "bulk") -> dict:
 
 
 # ═══════════════════════════════════════════════
-# EGZERSİZ HAVUZU — KOLAYCA EDİTLENEBİLİR
+# EGZERSİZ HAVUZU — KULLANICI DENEYİMİ SABİT, ANALİZ META VERİSİ ZENGİN
 # ═══════════════════════════════════════════════
-# Bir hareket eklemek için bu dict'e yeni entry ekle.
-# is_bodyweight: vücut ağırlığıyla yapılan hareketler
-# category: "compound" (çok kaslı) / "isolation" (tek kaslı)
+# Bu blok mevcut EXERCISE_POOL tanımının yerine kullanılmak üzere hazırlanmıştır.
+# İlk beş alan (id, name, muscle_group, category, is_bodyweight) mevcut frontend
+# ile geriye uyumludur. `analysis` altındaki bilgi kullanıcıya form alanı olarak
+# gösterilmez; uzman sistemi ve arka plan raporları tarafından kullanılır.
+#
+# load_mode değerleri:
+# - external_load: yalnızca harici yük (barbell, dumbbell, cable, makine)
+# - bodyweight: yalnızca vücut ağırlığıyla kaydedilir
+# - bodyweight_plus_external: vücut ağırlığı + plaka/kemer yükü
+#
+# fatigue_cost; tıbbi risk sınıfı değildir. Programda yorgunluk dağılımı için
+# ayarlanabilir bir uzman sistem etiketi olarak tutulur.
+EXERCISE_META_VERSION = 1
+
+def _exercise(
+    exercise_id, name, muscle_group, category, is_bodyweight,
+    *, family, variation, primary_muscles, secondary_muscles,
+    movement_pattern, equipment, load_mode, unilateral=False,
+    minimum_level="beginner", fatigue_cost="medium"
+):
+    return {
+        # Mevcut arayüz ve eski kayıtlarla uyumlu alanlar
+        "id": exercise_id,
+        "name": name,
+        "muscle_group": muscle_group,
+        "category": category,
+        "is_bodyweight": is_bodyweight,
+
+        # Sadece analiz / uzman sistemi için kullanılan görünmez meta veri
+        "analysis": {
+            "family": family,
+            "variation": variation,
+            "primary_muscles": primary_muscles,
+            "secondary_muscles": secondary_muscles,
+            "movement_pattern": movement_pattern,
+            "equipment": equipment,
+            "load_mode": load_mode,
+            "unilateral": unilateral,
+            "minimum_level": minimum_level,
+            "fatigue_cost": fatigue_cost,
+        },
+    }
+
+
 EXERCISE_POOL = [
-    {"id": "bench-press", "name": "Bench Press", "muscle_group": "Chest",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "incline-bench-press", "name": "Incline Bench Press", "muscle_group": "Chest",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "incline-dumbbell-press", "name": "Incline Dumbbell Press", "muscle_group": "Chest",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "decline-bench-press", "name": "Decline Bench Press", "muscle_group": "Chest",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "chest-press-machine", "name": "Chest Press Machine", "muscle_group": "Chest",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "dumbbell-flyes", "name": "Dumbbell Flyes", "muscle_group": "Chest",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "cable-cross-over", "name": "Cable Cross Over", "muscle_group": "Chest",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "pull-ups-bw", "name": "Pull Ups (Ağırlıksız Barfiks)", "muscle_group": "Back",
-     "category": "compound", "is_bodyweight": True},
-    {"id": "weighted-pull-up", "name": "Weighted Pull Up (Ağırlıklı Barfiks)", "muscle_group": "Back",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "chin-ups-bw", "name": "Chin Ups (Ağırlıksız)", "muscle_group": "Back",
-     "category": "compound", "is_bodyweight": True},
-    {"id": "chin-ups-weighted", "name": "Chin Ups (Ağırlıklı)", "muscle_group": "Back",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "lat-pull-down", "name": "Lat Pull Down", "muscle_group": "Back",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "barbell-row", "name": "Barbell Row", "muscle_group": "Back",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "t-bar-row", "name": "T-Bar Row", "muscle_group": "Back",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "seated-row", "name": "Seated Row", "muscle_group": "Back",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "bent-over-row", "name": "Bent-over Row", "muscle_group": "Back",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "overhead-press", "name": "Overhead Press", "muscle_group": "Shoulders",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "arnold-press", "name": "Arnold Press", "muscle_group": "Shoulders",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "lateral-raises", "name": "Lateral Raises", "muscle_group": "Shoulders",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "cable-lateral-raises", "name": "Cable Lateral Raises", "muscle_group": "Shoulders",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "dumbbell-front-raises", "name": "Dumbbell Front Raises", "muscle_group": "Shoulders",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "dumbbell-rear-delt-fly", "name": "Dumbbell Rear Delt Fly", "muscle_group": "Shoulders",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "rear-delt-fly", "name": "Rear Delt Fly (Arka Omuz)", "muscle_group": "Shoulders",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "face-pulls", "name": "Face Pulls", "muscle_group": "Shoulders",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "squat", "name": "Squat", "muscle_group": "Legs", "category": "compound",
-     "is_bodyweight": False},
-    {"id": "front-squat", "name": "Front Squat", "muscle_group": "Legs",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "bulgarian-split-squad", "name": "Bulgarian Split Squat", "muscle_group": "Legs",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "leg-press", "name": "Leg Press", "muscle_group": "Legs",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "romanian-deadlift", "name": "Romanian Deadlift", "muscle_group": "Legs",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "leg-extension", "name": "Leg Extension", "muscle_group": "Legs",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "leg-curl", "name": "Leg Curl", "muscle_group": "Legs",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "hip-thrust", "name": "Hip Thrust", "muscle_group": "Legs",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "calf-raises", "name": "Calf Raises", "muscle_group": "Legs",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "deadlift", "name": "Deadlift", "muscle_group": "Back",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "bicep-curl", "name": "Bicep Curl", "muscle_group": "Biceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "hammer-curl", "name": "Hammer Curl", "muscle_group": "Biceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "preacher-curl-dumbbell", "name": "Preacher Curl (Dumbbell)", "muscle_group": "Biceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "preacher-curl-z-bar", "name": "Preacher Curl (Z Bar)", "muscle_group": "Biceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "preacher-curl-machine", "name": "Preacher Curl Machine", "muscle_group": "Biceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "incline-dumbbell-curl", "name": "Incline Dumbbell Curl", "muscle_group": "Biceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "concentration-curl", "name": "Concentration Curl", "muscle_group": "Biceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "cable-bicep-curl", "name": "Cable Bicep Curl", "muscle_group": "Biceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "tricep-push-down", "name": "Tricep Push Down", "muscle_group": "Triceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "skull-crushers", "name": "Skull Crushers", "muscle_group": "Triceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "overhead-tricep-extension", "name": "Overhead Tricep Extension", "muscle_group": "Triceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "cable-rope-overhead-tricep-extension", "name": "Cable Rope Overhead Tricep Extension",
-     "muscle_group": "Triceps", "category": "isolation", "is_bodyweight": False},
-    {"id": "dumbbell-kickbacks", "name": "Dumbbell Kickbacks", "muscle_group": "Triceps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "close-grip-bench-press", "name": "Close-grip Bench Press", "muscle_group": "Triceps",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "dips-weighted", "name": "Dips (Ağırlıklı)", "muscle_group": "Triceps",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "dips-bw", "name": "Dips (Ağırlıksız)", "muscle_group": "Triceps",
-     "category": "compound", "is_bodyweight": True},
-    {"id": "dumbbell-shrugs", "name": "Dumbbell Shrugs", "muscle_group": "Traps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "barbell-shrugs", "name": "Barbell Shrugs", "muscle_group": "Traps",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "upright-row-z-bar", "name": "Upright Row (Z Bar)", "muscle_group": "Shoulders",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "cable-upright-row", "name": "Cable Upright Row", "muscle_group": "Shoulders",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "barbell-upright-row", "name": "Barbell Upright Row", "muscle_group": "Shoulders",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "russian-twist", "name": "Russian Twist", "muscle_group": "Core",
-     "category": "isolation", "is_bodyweight": True},
-    {"id": "kettlebell-swings", "name": "Kettlebell Swings", "muscle_group": "Core",
-     "category": "compound", "is_bodyweight": False},
-    {"id": "cable-crunches", "name": "Cable Crunches", "muscle_group": "Core",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "seated-crunch", "name": "Seated Crunch", "muscle_group": "Core",
-     "category": "isolation", "is_bodyweight": False},
-    {"id": "hyperextension-weighted", "name": "Hyperextension (Ağırlıklı)", "muscle_group": "Back",
-     "category": "isolation", "is_bodyweight": False},
+    # ── GÖĞÜS ──────────────────────────────────────────
+    _exercise("bench-press", "Bench Press", "Chest", "compound", False,
+              family="bench_press", variation="barbell_flat", primary_muscles=["chest"],
+              secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
+              equipment=["barbell", "flat_bench"], load_mode="external_load", fatigue_cost="medium"),
+    _exercise("dumbbell-bench-press", "Dumbbell Bench Press", "Chest", "compound", False,
+              family="bench_press", variation="dumbbell_flat", primary_muscles=["chest"],
+              secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
+              equipment=["dumbbell", "flat_bench"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
+    _exercise("incline-bench-press", "Incline Bench Press", "Chest", "compound", False,
+              family="bench_press", variation="barbell_incline", primary_muscles=["chest"],
+              secondary_muscles=["triceps", "front_delts"], movement_pattern="incline_press",
+              equipment=["barbell", "adjustable_bench"], load_mode="external_load", fatigue_cost="medium"),
+    _exercise("incline-dumbbell-press", "Incline Dumbbell Press", "Chest", "compound", False,
+              family="bench_press", variation="dumbbell_incline", primary_muscles=["chest"],
+              secondary_muscles=["triceps", "front_delts"], movement_pattern="incline_press",
+              equipment=["dumbbell", "adjustable_bench"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
+    _exercise("decline-bench-press", "Decline Bench Press", "Chest", "compound", False,
+              family="bench_press", variation="barbell_decline", primary_muscles=["chest"],
+              secondary_muscles=["triceps", "front_delts"], movement_pattern="decline_press",
+              equipment=["barbell", "decline_bench"], load_mode="external_load", fatigue_cost="medium"),
+    _exercise("chest-press-machine", "Chest Press Machine", "Chest", "compound", False,
+              family="chest_press", variation="selectorized_machine", primary_muscles=["chest"],
+              secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
+              equipment=["chest_press_machine"], load_mode="external_load", fatigue_cost="low"),
+    _exercise("push-ups-bw", "Push Ups (Ağırlıksız Şınav)", "Chest", "compound", True,
+              family="push_up", variation="bodyweight", primary_muscles=["chest"],
+              secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
+              equipment=["bodyweight", "floor"], load_mode="bodyweight", fatigue_cost="low"),
+    _exercise("push-ups-weighted", "Push Ups (Ağırlıklı Şınav)", "Chest", "compound", False,
+              family="push_up", variation="weighted", primary_muscles=["chest"],
+              secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
+              equipment=["bodyweight", "weight_plate_or_vest", "floor"], load_mode="bodyweight_plus_external", fatigue_cost="medium"),
+    _exercise("dumbbell-flyes", "Dumbbell Flyes", "Chest", "isolation", False,
+              family="chest_fly", variation="dumbbell", primary_muscles=["chest"], secondary_muscles=[],
+              movement_pattern="chest_adduction", equipment=["dumbbell", "flat_bench"],
+              load_mode="external_load", unilateral=True, fatigue_cost="low"),
+    _exercise("cable-cross-over", "Cable Cross Over", "Chest", "isolation", False,
+              family="chest_fly", variation="cable", primary_muscles=["chest"], secondary_muscles=[],
+              movement_pattern="chest_adduction", equipment=["cable_machine"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+
+    # ── SIRT ────────────────────────────────────────────
+    _exercise("pull-ups-bw", "Pull Ups (Ağırlıksız Barfiks)", "Back", "compound", True,
+              family="pull_up", variation="bodyweight_pronated", primary_muscles=["lats"],
+              secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              equipment=["pull_up_bar", "bodyweight"], load_mode="bodyweight", fatigue_cost="medium"),
+    _exercise("weighted-pull-up", "Weighted Pull Up (Ağırlıklı Barfiks)", "Back", "compound", False,
+              family="pull_up", variation="weighted_pronated", primary_muscles=["lats"],
+              secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              equipment=["pull_up_bar", "bodyweight", "dip_belt_or_vest"], load_mode="bodyweight_plus_external",
+              minimum_level="intermediate", fatigue_cost="high"),
+    _exercise("chin-ups-bw", "Chin Ups (Ağırlıksız)", "Back", "compound", True,
+              family="chin_up", variation="bodyweight_supinated", primary_muscles=["lats", "biceps"],
+              secondary_muscles=["upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              equipment=["pull_up_bar", "bodyweight"], load_mode="bodyweight", fatigue_cost="medium"),
+    _exercise("chin-ups-weighted", "Chin Ups (Ağırlıklı)", "Back", "compound", False,
+              family="chin_up", variation="weighted_supinated", primary_muscles=["lats", "biceps"],
+              secondary_muscles=["upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              equipment=["pull_up_bar", "bodyweight", "dip_belt_or_vest"], load_mode="bodyweight_plus_external",
+              minimum_level="intermediate", fatigue_cost="high"),
+    _exercise("lat-pull-down", "Lat Pull Down", "Back", "compound", False,
+              family="lat_pulldown", variation="cable", primary_muscles=["lats"],
+              secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              equipment=["lat_pulldown_machine"], load_mode="external_load", fatigue_cost="medium"),
+    _exercise("barbell-row", "Barbell Row", "Back", "compound", False,
+              family="row", variation="barbell_bent_over", primary_muscles=["upper_back", "lats"],
+              secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
+              equipment=["barbell"], load_mode="external_load", fatigue_cost="high"),
+    _exercise("t-bar-row", "T-Bar Row", "Back", "compound", False,
+              family="row", variation="t_bar", primary_muscles=["upper_back", "lats"],
+              secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
+              equipment=["t_bar_row_machine_or_landmine"], load_mode="external_load", fatigue_cost="medium"),
+    _exercise("seated-row", "Seated Row", "Back", "compound", False,
+              family="row", variation="seated_cable", primary_muscles=["upper_back", "lats"],
+              secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
+              equipment=["cable_row_machine"], load_mode="external_load", fatigue_cost="medium"),
+    _exercise("bent-over-row", "Bent-over Row", "Back", "compound", False,
+              family="row", variation="free_weight_bent_over", primary_muscles=["upper_back", "lats"],
+              secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
+              equipment=["barbell_or_dumbbell"], load_mode="external_load", fatigue_cost="high"),
+    _exercise("inverted-row-bw", "Inverted Row (Ağırlıksız)", "Back", "compound", True,
+              family="inverted_row", variation="bodyweight", primary_muscles=["upper_back", "lats"],
+              secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
+              equipment=["bar_or_suspension_trainer", "bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
+    _exercise("hyperextension-bw", "Hyperextension (Ağırlıksız)", "Back", "isolation", True,
+              family="hyperextension", variation="bodyweight", primary_muscles=["spinal_erectors"],
+              secondary_muscles=["glutes", "hamstrings"], movement_pattern="spinal_extension",
+              equipment=["hyperextension_bench", "bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
+    _exercise("hyperextension-weighted", "Hyperextension (Ağırlıklı)", "Back", "isolation", False,
+              family="hyperextension", variation="weighted", primary_muscles=["spinal_erectors"],
+              secondary_muscles=["glutes", "hamstrings"], movement_pattern="spinal_extension",
+              equipment=["hyperextension_bench", "dumbbell_or_plate"], load_mode="bodyweight_plus_external",
+              fatigue_cost="medium"),
+
+    # ── OMUZ ─────────────────────────────────────────────
+    _exercise("overhead-press", "Overhead Press", "Shoulders", "compound", False,
+              family="shoulder_press", variation="barbell_standing", primary_muscles=["front_delts"],
+              secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
+              equipment=["barbell"], load_mode="external_load", fatigue_cost="medium"),
+    _exercise("dumbbell-shoulder-press", "Dumbbell Shoulder Press", "Shoulders", "compound", False,
+              family="shoulder_press", variation="dumbbell", primary_muscles=["front_delts"],
+              secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
+              equipment=["dumbbell", "bench_optional"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
+    _exercise("shoulder-press-machine", "Shoulder Press Machine", "Shoulders", "compound", False,
+              family="shoulder_press", variation="machine", primary_muscles=["front_delts"],
+              secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
+              equipment=["shoulder_press_machine"], load_mode="external_load", fatigue_cost="low"),
+    _exercise("arnold-press", "Arnold Press", "Shoulders", "compound", False,
+              family="shoulder_press", variation="arnold_dumbbell", primary_muscles=["front_delts", "side_delts"],
+              secondary_muscles=["triceps"], movement_pattern="vertical_press",
+              equipment=["dumbbell", "bench_optional"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
+    _exercise("lateral-raises", "Lateral Raises", "Shoulders", "isolation", False,
+              family="lateral_raise", variation="dumbbell", primary_muscles=["side_delts"], secondary_muscles=[],
+              movement_pattern="shoulder_abduction", equipment=["dumbbell"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("cable-lateral-raises", "Cable Lateral Raises", "Shoulders", "isolation", False,
+              family="lateral_raise", variation="cable", primary_muscles=["side_delts"], secondary_muscles=[],
+              movement_pattern="shoulder_abduction", equipment=["cable_machine"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("dumbbell-front-raises", "Dumbbell Front Raises", "Shoulders", "isolation", False,
+              family="front_raise", variation="dumbbell", primary_muscles=["front_delts"], secondary_muscles=[],
+              movement_pattern="shoulder_flexion", equipment=["dumbbell"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("dumbbell-rear-delt-fly", "Dumbbell Rear Delt Fly", "Shoulders", "isolation", False,
+              family="rear_delt_fly", variation="dumbbell", primary_muscles=["rear_delts"], secondary_muscles=[],
+              movement_pattern="horizontal_abduction", equipment=["dumbbell", "bench_optional"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("rear-delt-fly", "Rear Delt Fly (Arka Omuz)", "Shoulders", "isolation", False,
+              family="rear_delt_fly", variation="machine", primary_muscles=["rear_delts"], secondary_muscles=[],
+              movement_pattern="horizontal_abduction", equipment=["reverse_pec_deck"], load_mode="external_load",
+              fatigue_cost="low"),
+    _exercise("face-pulls", "Face Pulls", "Shoulders", "isolation", False,
+              family="face_pull", variation="cable_rope", primary_muscles=["rear_delts", "upper_back"],
+              secondary_muscles=["traps"], movement_pattern="external_rotation_pull", equipment=["cable_machine", "rope"],
+              load_mode="external_load", fatigue_cost="low"),
+    _exercise("upright-row-z-bar", "Upright Row (Z Bar)", "Shoulders", "compound", False,
+              family="upright_row", variation="ez_bar", primary_muscles=["side_delts", "traps"],
+              secondary_muscles=["biceps"], movement_pattern="vertical_pull_upright", equipment=["ez_bar"],
+              load_mode="external_load", minimum_level="intermediate", fatigue_cost="medium"),
+    _exercise("cable-upright-row", "Cable Upright Row", "Shoulders", "compound", False,
+              family="upright_row", variation="cable", primary_muscles=["side_delts", "traps"],
+              secondary_muscles=["biceps"], movement_pattern="vertical_pull_upright", equipment=["cable_machine"],
+              load_mode="external_load", minimum_level="intermediate", fatigue_cost="medium"),
+    _exercise("barbell-upright-row", "Barbell Upright Row", "Shoulders", "compound", False,
+              family="upright_row", variation="barbell", primary_muscles=["side_delts", "traps"],
+              secondary_muscles=["biceps"], movement_pattern="vertical_pull_upright", equipment=["barbell"],
+              load_mode="external_load", minimum_level="intermediate", fatigue_cost="medium"),
+
+    # ── BACAK ────────────────────────────────────────────
+    _exercise("bodyweight-squat", "Bodyweight Squat (Ağırlıksız Squat)", "Legs", "compound", True,
+              family="squat", variation="bodyweight", primary_muscles=["quads", "glutes"],
+              secondary_muscles=["hamstrings", "spinal_erectors"], movement_pattern="squat",
+              equipment=["bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
+    _exercise("squat", "Squat", "Legs", "compound", False,
+              family="squat", variation="barbell_back", primary_muscles=["quads", "glutes"],
+              secondary_muscles=["hamstrings", "spinal_erectors"], movement_pattern="squat",
+              equipment=["barbell", "squat_rack"], load_mode="external_load", fatigue_cost="high"),
+    _exercise("front-squat", "Front Squat", "Legs", "compound", False,
+              family="squat", variation="barbell_front", primary_muscles=["quads"],
+              secondary_muscles=["glutes", "spinal_erectors"], movement_pattern="squat",
+              equipment=["barbell", "squat_rack"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
+    _exercise("goblet-squat", "Goblet Squat", "Legs", "compound", False,
+              family="squat", variation="dumbbell_goblet", primary_muscles=["quads", "glutes"],
+              secondary_muscles=["hamstrings"], movement_pattern="squat", equipment=["dumbbell_or_kettlebell"],
+              load_mode="external_load", fatigue_cost="medium"),
+    _exercise("bulgarian-split-squat-bw", "Bulgarian Split Squat (Ağırlıksız)", "Legs", "compound", True,
+              family="bulgarian_split_squat", variation="bodyweight", primary_muscles=["quads", "glutes"],
+              secondary_muscles=["hamstrings"], movement_pattern="single_leg_squat",
+              equipment=["bench", "bodyweight"], load_mode="bodyweight", unilateral=True, fatigue_cost="medium"),
+    _exercise("bulgarian-split-squad", "Bulgarian Split Squat", "Legs", "compound", False,
+              family="bulgarian_split_squat", variation="weighted", primary_muscles=["quads", "glutes"],
+              secondary_muscles=["hamstrings"], movement_pattern="single_leg_squat",
+              equipment=["bench", "dumbbell_or_barbell"], load_mode="external_load", unilateral=True, fatigue_cost="high"),
+    _exercise("leg-press", "Leg Press", "Legs", "compound", False,
+              family="leg_press", variation="machine", primary_muscles=["quads", "glutes"],
+              secondary_muscles=["hamstrings"], movement_pattern="leg_press", equipment=["leg_press_machine"],
+              load_mode="external_load", fatigue_cost="medium"),
+    _exercise("romanian-deadlift", "Romanian Deadlift", "Legs", "compound", False,
+              family="romanian_deadlift", variation="free_weight", primary_muscles=["hamstrings", "glutes"],
+              secondary_muscles=["spinal_erectors"], movement_pattern="hip_hinge", equipment=["barbell_or_dumbbell"],
+              load_mode="external_load", fatigue_cost="high"),
+    _exercise("leg-extension", "Leg Extension", "Legs", "isolation", False,
+              family="leg_extension", variation="machine", primary_muscles=["quads"], secondary_muscles=[],
+              movement_pattern="knee_extension", equipment=["leg_extension_machine"], load_mode="external_load",
+              fatigue_cost="low"),
+    _exercise("leg-curl", "Leg Curl", "Legs", "isolation", False,
+              family="leg_curl", variation="machine", primary_muscles=["hamstrings"], secondary_muscles=[],
+              movement_pattern="knee_flexion", equipment=["leg_curl_machine"], load_mode="external_load",
+              fatigue_cost="low"),
+    _exercise("hip-thrust", "Hip Thrust", "Legs", "compound", False,
+              family="hip_thrust", variation="barbell", primary_muscles=["glutes"],
+              secondary_muscles=["hamstrings", "quads"], movement_pattern="hip_extension", equipment=["barbell", "bench"],
+              load_mode="external_load", fatigue_cost="medium"),
+    _exercise("glute-bridge-bw", "Glute Bridge (Ağırlıksız)", "Legs", "compound", True,
+              family="glute_bridge", variation="bodyweight", primary_muscles=["glutes"],
+              secondary_muscles=["hamstrings"], movement_pattern="hip_extension", equipment=["bodyweight", "floor"],
+              load_mode="bodyweight", fatigue_cost="low"),
+    _exercise("calf-raises-bw", "Calf Raises (Ağırlıksız)", "Legs", "isolation", True,
+              family="calf_raise", variation="bodyweight", primary_muscles=["calves"], secondary_muscles=[],
+              movement_pattern="plantar_flexion", equipment=["bodyweight", "step_optional"], load_mode="bodyweight",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("calf-raises", "Calf Raises", "Legs", "isolation", False,
+              family="calf_raise", variation="loaded", primary_muscles=["calves"], secondary_muscles=[],
+              movement_pattern="plantar_flexion", equipment=["calf_raise_machine_or_dumbbell"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+
+    # ── POSTERIOR CHAIN / TRAP ───────────────────────────
+    _exercise("deadlift", "Deadlift", "Back", "compound", False,
+              family="deadlift", variation="barbell_conventional", primary_muscles=["glutes", "hamstrings", "spinal_erectors"],
+              secondary_muscles=["upper_back", "traps", "quads"], movement_pattern="hip_hinge",
+              equipment=["barbell"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
+    _exercise("dumbbell-shrugs", "Dumbbell Shrugs", "Back", "isolation", False,
+              family="shrug", variation="dumbbell", primary_muscles=["traps"], secondary_muscles=[],
+              movement_pattern="scapular_elevation", equipment=["dumbbell"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("barbell-shrugs", "Barbell Shrugs", "Back", "isolation", False,
+              family="shrug", variation="barbell", primary_muscles=["traps"], secondary_muscles=[],
+              movement_pattern="scapular_elevation", equipment=["barbell"], load_mode="external_load",
+              fatigue_cost="low"),
+
+    # ── BICEPS ───────────────────────────────────────────
+    _exercise("bicep-curl", "Bicep Curl", "Biceps", "isolation", False,
+              family="bicep_curl", variation="free_weight", primary_muscles=["biceps"], secondary_muscles=["forearms"],
+              movement_pattern="elbow_flexion", equipment=["barbell_or_dumbbell"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("hammer-curl", "Hammer Curl", "Biceps", "isolation", False,
+              family="hammer_curl", variation="dumbbell", primary_muscles=["biceps", "forearms"], secondary_muscles=[],
+              movement_pattern="elbow_flexion_neutral", equipment=["dumbbell"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("preacher-curl-dumbbell", "Preacher Curl (Dumbbell)", "Biceps", "isolation", False,
+              family="preacher_curl", variation="dumbbell", primary_muscles=["biceps"], secondary_muscles=["forearms"],
+              movement_pattern="elbow_flexion", equipment=["dumbbell", "preacher_bench"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("preacher-curl-z-bar", "Preacher Curl (Z Bar)", "Biceps", "isolation", False,
+              family="preacher_curl", variation="ez_bar", primary_muscles=["biceps"], secondary_muscles=["forearms"],
+              movement_pattern="elbow_flexion", equipment=["ez_bar", "preacher_bench"], load_mode="external_load",
+              fatigue_cost="low"),
+    _exercise("preacher-curl-machine", "Preacher Curl Machine", "Biceps", "isolation", False,
+              family="preacher_curl", variation="machine", primary_muscles=["biceps"], secondary_muscles=["forearms"],
+              movement_pattern="elbow_flexion", equipment=["preacher_curl_machine"], load_mode="external_load",
+              fatigue_cost="low"),
+    _exercise("incline-dumbbell-curl", "Incline Dumbbell Curl", "Biceps", "isolation", False,
+              family="bicep_curl", variation="incline_dumbbell", primary_muscles=["biceps"], secondary_muscles=["forearms"],
+              movement_pattern="elbow_flexion", equipment=["dumbbell", "adjustable_bench"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("concentration-curl", "Concentration Curl", "Biceps", "isolation", False,
+              family="bicep_curl", variation="concentration_dumbbell", primary_muscles=["biceps"], secondary_muscles=["forearms"],
+              movement_pattern="elbow_flexion", equipment=["dumbbell", "bench"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("cable-bicep-curl", "Cable Bicep Curl", "Biceps", "isolation", False,
+              family="bicep_curl", variation="cable", primary_muscles=["biceps"], secondary_muscles=["forearms"],
+              movement_pattern="elbow_flexion", equipment=["cable_machine"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+
+    # ── TRICEPS ──────────────────────────────────────────
+    _exercise("tricep-push-down", "Tricep Push Down", "Triceps", "isolation", False,
+              family="tricep_extension", variation="cable_pushdown", primary_muscles=["triceps"], secondary_muscles=[],
+              movement_pattern="elbow_extension", equipment=["cable_machine"], load_mode="external_load",
+              fatigue_cost="low"),
+    _exercise("skull-crushers", "Skull Crushers", "Triceps", "isolation", False,
+              family="tricep_extension", variation="lying_free_weight", primary_muscles=["triceps"], secondary_muscles=[],
+              movement_pattern="elbow_extension", equipment=["ez_bar_or_dumbbell", "bench"], load_mode="external_load",
+              fatigue_cost="low"),
+    _exercise("overhead-tricep-extension", "Overhead Tricep Extension", "Triceps", "isolation", False,
+              family="tricep_extension", variation="overhead_free_weight", primary_muscles=["triceps"], secondary_muscles=[],
+              movement_pattern="overhead_elbow_extension", equipment=["dumbbell_or_ez_bar"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("cable-rope-overhead-tricep-extension", "Cable Rope Overhead Tricep Extension", "Triceps", "isolation", False,
+              family="tricep_extension", variation="overhead_cable", primary_muscles=["triceps"], secondary_muscles=[],
+              movement_pattern="overhead_elbow_extension", equipment=["cable_machine", "rope"], load_mode="external_load",
+              fatigue_cost="low"),
+    _exercise("dumbbell-kickbacks", "Dumbbell Kickbacks", "Triceps", "isolation", False,
+              family="tricep_extension", variation="kickback_dumbbell", primary_muscles=["triceps"], secondary_muscles=[],
+              movement_pattern="elbow_extension", equipment=["dumbbell"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+    _exercise("close-grip-bench-press", "Close-grip Bench Press", "Triceps", "compound", False,
+              family="bench_press", variation="barbell_close_grip", primary_muscles=["triceps"],
+              secondary_muscles=["chest", "front_delts"], movement_pattern="horizontal_press",
+              equipment=["barbell", "flat_bench"], load_mode="external_load", fatigue_cost="medium"),
+    _exercise("dips-bw", "Dips (Ağırlıksız)", "Triceps", "compound", True,
+              family="dip", variation="bodyweight", primary_muscles=["triceps", "chest"],
+              secondary_muscles=["front_delts"], movement_pattern="vertical_press", equipment=["dip_bars", "bodyweight"],
+              load_mode="bodyweight", fatigue_cost="medium"),
+    _exercise("dips-weighted", "Dips (Ağırlıklı)", "Triceps", "compound", False,
+              family="dip", variation="weighted", primary_muscles=["triceps", "chest"],
+              secondary_muscles=["front_delts"], movement_pattern="vertical_press",
+              equipment=["dip_bars", "bodyweight", "dip_belt_or_vest"], load_mode="bodyweight_plus_external",
+              minimum_level="intermediate", fatigue_cost="high"),
+
+    # ── CORE ─────────────────────────────────────────────
+    _exercise("russian-twist", "Russian Twist", "Core", "isolation", True,
+              family="russian_twist", variation="bodyweight", primary_muscles=["obliques", "abs"], secondary_muscles=[],
+              movement_pattern="trunk_rotation", equipment=["bodyweight", "floor"], load_mode="bodyweight",
+              fatigue_cost="low"),
+    _exercise("weighted-russian-twist", "Russian Twist (Ağırlıklı)", "Core", "isolation", False,
+              family="russian_twist", variation="weighted", primary_muscles=["obliques", "abs"], secondary_muscles=[],
+              movement_pattern="trunk_rotation", equipment=["dumbbell_or_plate", "floor"],
+              load_mode="bodyweight_plus_external", fatigue_cost="low"),
+    _exercise("kettlebell-swings", "Kettlebell Swings", "Core", "compound", False,
+              family="kettlebell_swing", variation="kettlebell", primary_muscles=["glutes", "hamstrings"],
+              secondary_muscles=["spinal_erectors", "abs"], movement_pattern="hip_hinge_power",
+              equipment=["kettlebell"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
+    _exercise("cable-crunches", "Cable Crunches", "Core", "isolation", False,
+              family="cable_crunch", variation="cable", primary_muscles=["abs"], secondary_muscles=[],
+              movement_pattern="trunk_flexion", equipment=["cable_machine", "rope"], load_mode="external_load",
+              fatigue_cost="low"),
+    _exercise("seated-crunch", "Seated Crunch", "Core", "isolation", False,
+              family="crunch", variation="machine", primary_muscles=["abs"], secondary_muscles=[],
+              movement_pattern="trunk_flexion", equipment=["ab_crunch_machine"], load_mode="external_load",
+              fatigue_cost="low"),
 ]
 
-MUSCLE_GROUPS = sorted(set(ex["muscle_group"] for ex in EXERCISE_POOL))
+# Kullanıcı arayüzü yalnızca bu sade ana kategorileri görür. Ayrıntılı kaslar
+# EXERCISE_POOL[*]["analysis"] altında kalır; Traps ayrı bir filtre değildir.
+MUSCLE_GROUPS = ["Chest", "Back", "Shoulders", "Biceps", "Triceps", "Legs", "Core"]
+
+
+# ═══════════════════════════════════════════════
+# EGZERSİZ KİMLİĞİ — ESKİ KAYIT UYUMLULUĞU
+# ═══════════════════════════════════════════════
+# Kullanıcı hiçbir zaman bu kimlikleri görmez. Hareket seçildiğinde frontend
+# gerçek id'yi kaydeder. Eski kayıtlarda id eksik veya yazım farklıysa isim
+# normalizasyonu ve kontrollü alias tablosu devreye girer.
+
+def _normalize_exercise_text(value: object) -> str:
+    text = str(value or '').strip().lower()
+    text = (text.replace('ı', 'i').replace('İ', 'i').replace('ğ', 'g')
+                 .replace('ü', 'u').replace('ş', 's').replace('ö', 'o').replace('ç', 'c'))
+    text = unicodedata.normalize('NFKD', text)
+    text = ''.join(ch for ch in text if not unicodedata.combining(ch))
+    # Eski kayıt ve kullanıcı araması için yaygın yazım farklılıkları.
+    text = text.replace('dumbell', 'dumbbell').replace('dumbel', 'dumbbell')
+    text = text.replace('barfiks', 'pull up').replace('pull-up', 'pull up')
+    text = text.replace('t bar', 'tbar').replace('cross over', 'crossover')
+    text = re.sub(r'[^a-z0-9]+', ' ', text)
+    return re.sub(r'\s+', ' ', text).strip()
+
+
+EXERCISE_BY_ID = {exercise['id']: exercise for exercise in EXERCISE_POOL}
+EXERCISE_ID_BY_NORMALIZED_NAME = {
+    _normalize_exercise_text(exercise['name']): exercise['id']
+    for exercise in EXERCISE_POOL
+}
+# Sadece anlamı net olan eski / yaygın isimler burada tutulur. Belirsiz bir ad
+# asla tahmin edilmez; yanlış grafikten daha güvenli olan seçenek verisiz sonuçtur.
+EXERCISE_ALIASES = {
+    'dumbell bench press': 'dumbbell-bench-press',
+    'dumbbell chest press': 'dumbbell-bench-press',
+    'cable crossover': 'cable-cross-over',
+    'cable chest fly': 'cable-cross-over',
+    'pull ups': 'pull-ups-bw',
+    'pull up': 'pull-ups-bw',
+    'weighted pull ups': 'weighted-pull-up',
+    'weighted pull up': 'weighted-pull-up',
+    'barfiks': 'pull-ups-bw',
+    'weighted barfiks': 'weighted-pull-up',
+    'chin up': 'chin-ups-bw',
+    'chin ups': 'chin-ups-bw',
+    'weighted chin up': 'chin-ups-weighted',
+    'dumbell shoulder press': 'dumbbell-shoulder-press',
+    'dumbbell shoulder press': 'dumbbell-shoulder-press',
+    'shoulder press machine': 'shoulder-press-machine',
+    'bulgarian split squat': 'bulgarian-split-squad',
+    'bulgarian split squats': 'bulgarian-split-squad',
+    'calf raise': 'calf-raises',
+    'tricep pushdown': 'tricep-push-down',
+    'triceps push down': 'tricep-push-down',
+    'hyperextension weighted': 'hyperextension-weighted',
+    'hyperextension bodyweight': 'hyperextension-bw',
+}
+
+
+def resolve_exercise_metadata(exercise_id: object = None, exercise_name: object = None):
+    """Kayıttan kanonik havuz hareketini çözer; bulunamazsa None döndürür."""
+    raw_id = str(exercise_id or '').strip()
+    if raw_id in EXERCISE_BY_ID:
+        return EXERCISE_BY_ID[raw_id]
+
+    normalized_id = _normalize_exercise_text(raw_id)
+    if normalized_id in EXERCISE_ALIASES:
+        return EXERCISE_BY_ID.get(EXERCISE_ALIASES[normalized_id])
+
+    normalized_name = _normalize_exercise_text(exercise_name)
+    canonical_id = EXERCISE_ID_BY_NORMALIZED_NAME.get(normalized_name)
+    if not canonical_id:
+        canonical_id = EXERCISE_ALIASES.get(normalized_name)
+    return EXERCISE_BY_ID.get(canonical_id) if canonical_id else None
+
+
+def _canonical_exercise_from_entry(entry: dict):
+    return resolve_exercise_metadata(
+        entry.get('canonical_exercise_id') or entry.get('exercise_id'),
+        entry.get('exercise_name') or entry.get('name'),
+    )
+
+
+def _normalize_workout_exercises(exercises):
+    """Yeni kaydı zenginleştirir; eski veya bilinmeyen hareketi silmeden korur."""
+    normalized = []
+    for raw in exercises or []:
+        entry = dict(raw)
+        meta = _canonical_exercise_from_entry(entry)
+        if meta:
+            entry['exercise_id'] = meta['id']
+            entry['canonical_exercise_id'] = meta['id']
+            entry['exercise_name'] = meta['name']
+            entry['muscle_group'] = meta['muscle_group']
+            entry['is_bodyweight'] = bool(meta['is_bodyweight'])
+            entry['exercise_meta_version'] = EXERCISE_META_VERSION
+        else:
+            # Kaldırılmış / özel bir hareket varsa eski veriyi görünür tut.
+            entry.setdefault('canonical_exercise_id', entry.get('exercise_id', ''))
+            entry.setdefault('exercise_meta_version', 0)
+        normalized.append(entry)
+    return normalized
+
+
+def _iter_workout_exercises(workout: dict):
+    raw = workout.get('exercises', [])
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except Exception:
+            raw = []
+    return _normalize_workout_exercises(raw)
 
 
 # ═══════════════════════════════════════════════
@@ -877,11 +1222,15 @@ class SetData(BaseModel):
 
 
 class ExerciseEntry(BaseModel):
+    # Eski alanlar zorunlu olarak korunur. Yeni kanonik kimlik kullanıcıya
+    # gösterilmez; ilerleme ve uzman sistemi için arka planda saklanır.
     exercise_id: str
     exercise_name: str
     muscle_group: str
     sets_data: List[SetData]
     is_bodyweight: bool = False
+    canonical_exercise_id: Optional[str] = None
+    exercise_meta_version: int = 1
 
 
 class WorkoutCreate(BaseModel):
@@ -1432,65 +1781,98 @@ def progress(user: dict = Depends(_resolve_current_user)):
 
 
 @app.get("/api/progress/chart")
-def get_exercise_chart_data(exercise: str = Query(...),
-                            user: dict = Depends(_resolve_current_user)):
-    workouts = get_workouts_by_user(user["id"])
-    workouts_sorted = sorted(workouts, key=lambda x: x["date"])
+def get_exercise_chart_data(
+    exercise_id: Optional[str] = Query(None),
+    exercise: Optional[str] = Query(None),
+    user: dict = Depends(_resolve_current_user),
+):
+    """Kanonik id ile egzersiz zaman serisi.
 
-    labels = []
-    weights = []
-    details = []
-    target_exercise = exercise.lower().strip()
+    `exercise` parametresi eski frontend ile uyum için kalır. Yeni frontend
+    daima `exercise_id` gönderir; böylece isim yazım farkı grafiği bozmaz.
+    """
+    target = resolve_exercise_metadata(exercise_id, exercise)
+    if not target:
+        raise HTTPException(status_code=404, detail="Egzersiz havuzunda bulunamadı")
 
-    for w in workouts_sorted:
-        exercises_raw = w.get("exercises", "[]")
-        if isinstance(exercises_raw, str):
-            try:
-                exercises_list = json.loads(exercises_raw)
-            except Exception:
-                exercises_list = []
-        else:
-            exercises_list = exercises_raw
+    load_mode = target.get("analysis", {}).get("load_mode", "external_load")
+    metric_type = "reps" if load_mode == "bodyweight" else "weight_kg"
+    metric_label = "En yüksek tekrar" if metric_type == "reps" else "PR ağırlık (kg)"
 
-        for ex in exercises_list:
-            ex_name = ex.get("exercise_name", ex.get("name", "")).lower().strip()
-            if ex_name == target_exercise:
-                sets = ex.get("sets_data", [])
-                date_str = w["date"].split()[0]
-                parts = date_str.split("-")
-                formatted_date = f"{parts[2]}.{parts[1]}.{parts[0]}" if len(parts) == 3 else date_str
+    labels, values, details = [], [], []
+    workouts = sorted(get_workouts_by_user(user["id"]), key=lambda item: item["date"])
+    for workout in workouts:
+        for entry in workout.get("exercises", []):
+            resolved = _canonical_exercise_from_entry(entry)
+            if not resolved or resolved["id"] != target["id"]:
+                continue
+            date_str = str(workout.get("date", "")).split()[0]
+            parts = date_str.split("-")
+            formatted_date = f"{parts[2]}.{parts[1]}.{parts[0]}" if len(parts) == 3 else date_str
+            for index, set_data in enumerate(entry.get("sets_data", []), 1):
+                try:
+                    reps = int(set_data.get("reps", 0))
+                    weight = float(set_data.get("weight_kg", 0))
+                except (TypeError, ValueError):
+                    continue
+                value = reps if metric_type == "reps" else weight
+                if value <= 0:
+                    continue
+                labels.append(formatted_date)
+                values.append(value)
+                details.append({
+                    "set": index,
+                    "reps": reps,
+                    "weight_kg": weight,
+                    "value": value,
+                })
 
-                for idx, s in enumerate(sets, 1):
-                    try:
-                        weight = float(s.get("weight_kg", 0))
-                        reps = int(s.get("reps", 0))
-                        if weight > 0:
-                            labels.append(formatted_date)
-                            weights.append(weight)
-                            details.append({"set": idx, "reps": reps})
-                    except Exception:
-                        continue
-
-    return {"labels": labels, "data": weights, "details": details}
+    return {
+        "exercise_id": target["id"],
+        "exercise_name": target["name"],
+        "metric_type": metric_type,
+        "metric_label": metric_label,
+        "labels": labels,
+        "data": values,
+        "details": details,
+    }
 
 
 def get_personal_records(workouts):
-    """Her egzersiz için en yüksek ağırlığı bul."""
+    """Her kanonik hareket için kayıt; eski hareket adı farklılıklarını birleştirir."""
     records = {}
-    for w in workouts:
-        for ex in w.get("exercises", []):
-            name = ex.get("exercise_name", "")
-            sets_list = ex.get("sets_data", [])
-            if sets_list:
-                max_weight = max(float(s.get("weight_kg", 0)) for s in sets_list)
-                if name not in records or max_weight > records[name]["max_weight"]:
-                    records[name] = {
-                        "exercise": name,
-                        "muscle": ex.get("muscle_group", ""),
-                        "max_weight": max_weight,
-                        "max_reps": max(int(s.get("reps", 0)) for s in sets_list),
-                        "date": w["date"]
-                    }
+    for workout in workouts:
+        for entry in workout.get("exercises", []):
+            meta = _canonical_exercise_from_entry(entry)
+            record_id = meta["id"] if meta else str(entry.get("exercise_id") or entry.get("exercise_name") or "legacy")
+            display_name = meta["name"] if meta else entry.get("exercise_name", "Bilinmeyen hareket")
+            muscle = EXERCISE_MUSCLE_TR.get(meta.get("muscle_group"), meta.get("muscle_group")) if meta else entry.get("muscle_group", "")
+            load_mode = meta.get("analysis", {}).get("load_mode", "external_load") if meta else "external_load"
+            metric_type = "reps" if load_mode == "bodyweight" else "weight_kg"
+            sets_list = entry.get("sets_data", [])
+            if not sets_list:
+                continue
+            try:
+                best_value = max(
+                    int(item.get("reps", 0)) if metric_type == "reps" else float(item.get("weight_kg", 0))
+                    for item in sets_list
+                )
+            except (TypeError, ValueError):
+                continue
+            if best_value <= 0:
+                continue
+            if record_id not in records or best_value > records[record_id]["record_value"]:
+                records[record_id] = {
+                    "exercise_id": record_id,
+                    "exercise": display_name,
+                    "muscle": muscle,
+                    "category": meta.get("category", "") if meta else "",
+                    "record_value": best_value,
+                    "metric_type": metric_type,
+                    "max_weight": best_value if metric_type == "weight_kg" else 0,
+                    "max_reps": best_value if metric_type == "reps" else max(int(item.get("reps", 0)) for item in sets_list),
+                    "date": workout.get("date", ""),
+                }
     return list(records.values())
 
 
@@ -1523,47 +1905,52 @@ def save_custom_program(data: CustomProgramRequest,
         conn.close()
 
 
-# İngilizce kas grubu -> Türkçe karşılık (havuz editlenirken bu listeden yararlan)
+# İngilizce havuz grubu -> kullanıcıya gösterilecek sade Türkçe filtre adı.
+# "Traps" geriye dönük veri için Sırt'a düşer; yeni havuzda shrug hareketleri
+# doğrudan Back grubunda tanımlıdır.
 EXERCISE_MUSCLE_TR = {
     "Chest": "Göğüs", "Back": "Sırt", "Shoulders": "Omuz",
     "Legs": "Bacak", "Biceps": "Biceps", "Triceps": "Triceps",
-    "Traps": "Traps", "Core": "Core",
+    "Traps": "Sırt", "Core": "Core",
 }
 
-# LEGS alt kas eşlemesi: EXERCISE_POOL'da bacak hareketleri tek "Legs" grubunda toplanır
-# (editlenebilirlik için). Frontend ise bacak gününde Quadriceps/Hamstring/Glute/Calf
-# alt kaslarını bekler. Bu tablo hareket adından alt kası belirler; adı listede olmayan
-# Legs hareketleri varsayılan olarak Quadriceps kabul edilir.
-LEG_SUBMUSCLE = {
-    "quadriceps": {"squat", "front squat", "bulgarian split squat", "leg press", "leg extension", "lunge", "hack squat", "goblet squat"},
-    "hamstring": {"romanian deadlift", "leg curl", "stiff leg", "good morning", "nordic curl"},
-    "glute": {"hip thrust", "glute bridge", "kickback"},
-    "calf": {"calf raise", "calf raises"},
-}
+
+def _display_muscle_groups(exercise: dict, analysis: dict) -> list[str]:
+    """Bir hareketin sade kayıt ekranında görünmesi gereken Türkçe filtreler.
+
+    Bu, analizdeki primary_muscles/secondary_muscles listesinin yerine geçmez.
+    Örneğin Leg Press'in ayrıntısı hâlâ ``quadriceps`` olarak saklanır; kullanıcı
+    ise hareketi yalnızca ``Bacak`` filtresinde görür. Arka omuzun primer hedef
+    olduğu hareketler, kullanıcı beklentisine uygun biçimde hem Omuz hem Sırt
+    altında görünür.
+    """
+    group = exercise.get("muscle_group", "")
+    primary_muscles = set(analysis.get("primary_muscles", []))
+
+    if "rear_delts" in primary_muscles:
+        return ["Omuz", "Sırt"]
+    if group == "Legs":
+        return ["Bacak"]
+    return [EXERCISE_MUSCLE_TR.get(group, group)]
 
 
 def _enrich_exercise_pool(pool):
-    """Frontend uyumluluğu: her hareket için muscle/bw/weighted alias üretir.
-    Havuzun kendisine dokunulmaz; havuz backend'de kolayca editlenebilir kalır."""
+    """Frontend için eski alias'ları ve görünmez analiz meta verisini birlikte sunar."""
     out = []
-    for ex in pool:
-        e = dict(ex)
-        mg = ex.get("muscle_group", "")
-        if mg == "Legs":
-            # Backend'in editlenebilir tek "Legs" grubunu frontend'in beklediği
-            # alt kas gruplarına (Quadriceps/Hamstring/Glute/Calf) eşle
-            name_low = ex.get("name", "").lower()
-            sub = "Quadriceps"
-            for muscle, keywords in LEG_SUBMUSCLE.items():
-                if any(k in name_low for k in keywords):
-                    sub = muscle.title() if muscle != "calf" else "Calf"
-                    break
-            e["muscle"] = sub
-        else:
-            e["muscle"] = EXERCISE_MUSCLE_TR.get(mg, mg)
-        e["bw"] = bool(ex.get("is_bodyweight", False))
-        e["weighted"] = not bool(ex.get("is_bodyweight", False))
-        out.append(e)
+    for exercise in pool:
+        item = dict(exercise)
+        analysis = dict(exercise.get("analysis", {}))
+        display_groups = _display_muscle_groups(exercise, analysis)
+
+        # `muscle` eski arayüz kodu için birincil görünür etikettir.
+        # `display_muscle_groups` ise arka omuzdaki gibi çoklu filtre desteğidir.
+        item["muscle"] = display_groups[0]
+        item["display_muscle_groups"] = display_groups
+        item["bw"] = bool(exercise.get("is_bodyweight", False))
+        item["weighted"] = analysis.get("load_mode") != "bodyweight"
+        item["canonical_exercise_id"] = exercise["id"]
+        item["analysis"] = analysis
+        out.append(item)
     return out
 
 @app.get("/api/exercises")
