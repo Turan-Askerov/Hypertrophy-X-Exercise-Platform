@@ -884,11 +884,9 @@ tr:hover td { background: var(--bg-card-hover); }
     padding: 16px;
   }
   .stats-grid,
-  .grid-2,
-  .grid-3,
   .profile-grid,
   .exercise-selector {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
   .stats-grid {
     gap: 12px;
@@ -896,13 +894,24 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .grid-2,
   .grid-3 {
+    grid-template-columns: 1fr;
     gap: 14px;
   }
   .chart-container {
-    height: 250px;
+    height: 230px;
   }
   .chart-container-sm {
-    height: 210px;
+    height: 200px;
+  }
+  .stat-card .stat-value {
+    font-size: 22px;
+  }
+  .stat-card .stat-icon {
+    width: 34px; height: 34px;
+    margin-bottom: 8px;
+  }
+  .stat-card .stat-detail {
+    font-size: 10px;
   }
   input,
   select,
@@ -936,6 +945,44 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .table-wrap {
     margin: 0 -4px;
+  }
+  /* Küçük telefonlarda dashboard kompakt görünüm. */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    padding: 12px;
+  }
+  .stat-card .stat-value {
+    font-size: 20px;
+  }
+  .stat-card .stat-icon {
+    width: 30px; height: 30px;
+    margin-bottom: 8px;
+  }
+  .stat-card .stat-label {
+    font-size: 11px;
+  }
+  .stat-card .stat-detail {
+    font-size: 10px;
+    margin-top: 4px;
+  }
+  .card {
+    padding: 14px;
+  }
+  .page-title {
+    font-size: 20px;
+  }
+  .chart-container {
+    height: 210px;
+  }
+  .chart-container-sm {
+    height: 180px;
+  }
+  .tf-pill {
+    padding: 6px 10px;
+    font-size: 12px;
   }
 }
 
@@ -3287,7 +3334,8 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
   const splitDaysEl = document.getElementById('splitDays');
   if (splitDaysEl) {
     splitDaysEl.style.position = 'relative';
-    splitDaysEl.style.minHeight = '496px'; 
+    // Mobilde 7 gün kartı alt alta ~480px kaplar; ekran genişliğine göre yükseklik ayarlanır.
+    splitDaysEl.style.minHeight = (window.innerWidth <= 480) ? '480px' : '496px';
     splitDaysEl.innerHTML = bgHTML + fgHTML;
 
     if (reorderContext && typeof Sortable !== 'undefined') {
