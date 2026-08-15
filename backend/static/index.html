@@ -2579,6 +2579,27 @@ async function apiPut(url, data) {
   return await res.json();
 }
 
+function normalizeCustomSplitJson(rawSplit) {
+  try {
+    const parsed = typeof rawSplit === 'string' ? JSON.parse(rawSplit || '[]') : rawSplit;
+    return Array.isArray(parsed) ? JSON.stringify(parsed) : '[]';
+  } catch (_) {
+    return '[]';
+  }
+}
+
+function getServerPRTargets() {
+  const targets = cachedUserData?.dashboard_preferences?.pr_targets;
+  return targets && typeof targets === 'object' ? targets : {};
+}
+
+function applyDashboardPreferences(preferences) {
+  if (!cachedUserData) return;
+  cachedUserData.dashboard_preferences = preferences && typeof preferences === 'object'
+    ? preferences
+    : { schema_version: 1, pr_targets: {} };
+}
+
 /* ═══════════════════════════════════════════════
    TOAST
 ═══════════════════════════════════════════════ */
@@ -2596,14 +2617,19 @@ function toast(msg, type='info') {
    DASHBOARD ANA FONKSİYONU
 ═══════════════════════════════════════════════ */
 
-let cachedUserData = null; 
+let cachedUserData = null;
+// Sunucudaki son doğrulanmış split; kayıt başarısız olursa güvenli geri alma için tutulur.
+let lastConfirmedCustomSplitJson = '[]';
+let customSplitSaveQueue = Promise.resolve();
+let customSplitSaveVersion = 0;
 let volumeChart = null; // Grafikler için global değişkenler
 let muscleChart = null; 
 
 async function loadDashboard(username) {
   // 1. Veriyi Çek
   const data = await apiGet(`/api/dashboard`);
-  cachedUserData = data; 
+  cachedUserData = data;
+  lastConfirmedCustomSplitJson = normalizeCustomSplitJson(data.user?.custom_split);
   const s = data.summary || {};
 
   // 2. Başlık
@@ -2927,7 +2953,8 @@ function renderPRList(username) {
   const container = document.getElementById('prListContainer');
   if (!container) return;
 
-  let savedTargets = JSON.parse(localStorage.getItem(`prTargets_${username}`)) || {};
+  // PR hedefleri cihazdaki localStorage yerine kullanıcı hesabına bağlı olarak gelir.
+  const savedTargets = getServerPRTargets();
   let html = '';
 
   TARGET_COMPOUNDS.forEach(ex => {
@@ -2983,7 +3010,7 @@ function renderPRList(username) {
   }
 }
 
-function togglePREditMode() {
+async function togglePREditMode() {
   const btn = document.getElementById('prEditBtn');
   const btnText = document.getElementById('prBtnText');
   const icon = document.getElementById('prEditIcon');
@@ -2996,24 +3023,35 @@ function togglePREditMode() {
     btnText.innerText = 'Kaydet';
     icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
     renderPRList(_currentUser.username);
-  } else {
-    let newTargets = {};
-    TARGET_COMPOUNDS.forEach(ex => {
-      const inputVal = document.getElementById(`pr_input_${ex.key}`).value;
-      newTargets[ex.key] = parseFloat(inputVal) || 0;
+    return;
+  }
+
+  const newTargets = {};
+  TARGET_COMPOUNDS.forEach(ex => {
+    const input = document.getElementById(`pr_input_${ex.key}`);
+    newTargets[ex.key] = parseFloat(input?.value) || 0;
+  });
+
+  btn.disabled = true;
+  btnText.innerText = 'Kaydediliyor…';
+  try {
+    const result = await apiPost('/api/dashboard/preferences/pr-targets', {
+      pr_targets: newTargets
     });
-
-    localStorage.setItem(`prTargets_${_currentUser.username}`, JSON.stringify(newTargets));
-    toast('PR Hedefleri güncellendi!', 'success');
-
+    applyDashboardPreferences(result.dashboard_preferences);
     isPREditMode = false;
     btn.style.background = 'transparent';
     btn.style.borderColor = 'var(--accent)';
     btn.style.color = 'var(--accent)';
     btnText.innerText = 'Düzenle';
-    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>';
-    
+    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>';
     renderPRList(_currentUser.username);
+    toast('PR hedefleri hesabınıza kaydedildi.', 'success');
+  } catch (error) {
+    btnText.innerText = 'Kaydet';
+    toast(error.message || 'PR hedefleri kaydedilemedi.', 'error');
+  } finally {
+    btn.disabled = false;
   }
 }
 
@@ -3066,7 +3104,7 @@ function renderSelectedSplit(mode) {
         badge.className = "badge badge-accent";
       }
       
-      drawSplitDaysHTML(weekData); 
+      drawSplitDaysHTML(weekData, true, { activeWeekIndex: activeIndex }); 
 
     } else {
       if(badge) {
@@ -3089,12 +3127,56 @@ function renderSelectedSplit(mode) {
       badge.className = "badge badge-accent";
     }
     const expertDays = cachedUserData.split_info?.days || [];
-    drawSplitDaysHTML(expertDays);
+    // Uzman önerisi salt okunurdur; yanlışlıkla kişisel split sırasına dönüşmez.
+    drawSplitDaysHTML(expertDays, true, null);
   }
 }
 
+function queueCustomSplitOrderSave(reorderedWeek, activeWeekIndex) {
+  if (!cachedUserData?.user || !Number.isInteger(activeWeekIndex)) return;
+
+  let program;
+  try {
+    program = JSON.parse(cachedUserData.user.custom_split || '[]');
+  } catch (_) {
+    toast('Özel program okunamadığı için sıra kaydedilemedi.', 'error');
+    return;
+  }
+  if (!Array.isArray(program) || !Array.isArray(program[activeWeekIndex])) return;
+
+  // DOM’daki diziyi derin kopyalayarak kayıt sırasında sonradan değişmesini engelleriz.
+  program[activeWeekIndex] = reorderedWeek.map(day => ({ ...day }));
+  const nextProgramJson = JSON.stringify(program);
+  const username = cachedUserData.user.username || window._currentUsername || _currentUser?.username;
+  if (!username) {
+    toast('Oturum bilgisi bulunamadı; sıra kaydedilemedi.', 'error');
+    return;
+  }
+
+  cachedUserData.user.custom_split = nextProgramJson;
+  const saveVersion = ++customSplitSaveVersion;
+  toast('Program sırası kaydediliyor…', 'info');
+
+  // Kayıtları sıraya alır; hızlı arka arkaya sürüklemelerde son durum kaybolmaz.
+  customSplitSaveQueue = customSplitSaveQueue.then(async () => {
+    try {
+      await apiPost('/api/custom-program', { username, program });
+      lastConfirmedCustomSplitJson = nextProgramJson;
+      if (saveVersion === customSplitSaveVersion) {
+        toast('Program sırası hesabınıza kaydedildi.', 'success');
+      }
+    } catch (error) {
+      if (saveVersion === customSplitSaveVersion) {
+        cachedUserData.user.custom_split = lastConfirmedCustomSplitJson;
+        renderSelectedSplit('custom');
+        toast(error.message || 'Program sırası kaydedilemedi; son kayıtlı düzene geri dönüldü.', 'error');
+      }
+    }
+  });
+}
+
 // 1. ADIM: Fonksiyona "shouldAnimate = true" varsayılan parametresi eklendi
-function drawSplitDaysHTML(daysList, shouldAnimate = true) {
+function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null) {
   if (!document.getElementById('sortable-css')) {
     const style = document.createElement('style');
     style.id = 'sortable-css';
@@ -3184,12 +3266,14 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true) {
     fgHTML += `
       <div data-index="${i}" class="${animClass}" style="${animStyle} height:64px; margin:0; padding:0 50px 0 82px; border-radius:10px; display:flex; align-items:center; gap:12px; transition:background 0.2s;" 
            onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
-         <div class="drag-handle" title="Kaydırarak yer değiştir" style="cursor:grab; color:rgba(255,255,255,0.15); display:flex; align-items:center; transition:0.2s;" 
-              onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.15)'">
-            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-         </div>
+         ${reorderContext ? `
+           <div class="drag-handle" title="Kaydırarak yer değiştir" style="cursor:grab; color:rgba(255,255,255,0.15); display:flex; align-items:center; transition:0.2s;" 
+                onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.15)'">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+           </div>` : '<div style="width:20px; flex:0 0 20px;"></div>'}
+
          <div class="split-type" style="line-height:1.2; overflow:hidden;">
             ${isRest && !dayData.type ? '<span style="font-size:14px; font-weight:600; color:var(--text);">Dinlenme</span>' : displayType}
          </div>
@@ -3206,21 +3290,22 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true) {
     splitDaysEl.style.minHeight = '496px'; 
     splitDaysEl.innerHTML = bgHTML + fgHTML;
 
-    if (typeof Sortable !== 'undefined') {
+    if (reorderContext && typeof Sortable !== 'undefined') {
       new Sortable(document.getElementById('fgSortableList'), {
-        handle: '.drag-handle', 
-        animation: 250,         
+        handle: '.drag-handle',
+        animation: 250,
         ghostClass: 'sortable-ghost',
         onEnd: function(evt) {
           const oldIdx = evt.oldIndex;
           const newIdx = evt.newIndex;
-          if(oldIdx === newIdx) return;
-          
+          if (oldIdx === newIdx) return;
+
           const movedItem = daysList.splice(oldIdx, 1)[0];
           daysList.splice(newIdx, 0, movedItem);
-          
-          // 3. ADIM: Sürükle-bırak bittiğinde listeyi "FALSE" (Animasyonsuz) olarak baştan çiziyoruz!
-          drawSplitDaysHTML(daysList, false); 
+
+          // Sıra önce ekranda korunur, sonra oturum sahibinin sunucu kaydına yazılır.
+          drawSplitDaysHTML(daysList, false, reorderContext);
+          queueCustomSplitOrderSave(daysList, reorderContext.activeWeekIndex);
         }
       });
     }
@@ -5172,8 +5257,28 @@ let customProgramData = [
 
 // 1. Sayfa ilk açıldığında çalışacak fonksiyon
 async function loadCustomProgram() {
+  // Dashboard daha önce yüklenmediyse de merkezi kullanıcı kaydını al.
+  if (!cachedUserData) {
+    try {
+      cachedUserData = await apiGet('/api/dashboard');
+      lastConfirmedCustomSplitJson = normalizeCustomSplitJson(cachedUserData.user?.custom_split);
+    } catch (error) {
+      toast(error.message || 'Özel program yüklenemedi.', 'error');
+    }
+  }
+
+  try {
+    const savedProgram = JSON.parse(cachedUserData?.user?.custom_split || '[]');
+    if (Array.isArray(savedProgram) && savedProgram.length > 0) {
+      customProgramData = savedProgram;
+    }
+  } catch (_) {
+    // Bozuk/eski bir kayıt varsayılan şablonu bozmasın.
+  }
+
+  currentActiveWeekIndex = Math.min(currentActiveWeekIndex, customProgramData.length - 1);
   renderWeekTabs();
-  switchProgramWeek(0);
+  switchProgramWeek(currentActiveWeekIndex);
 }
 
 // 2. Sekmeleri ve Sağ Üst Çarpı (X) Butonlarını Çizen Fonksiyon
@@ -5353,27 +5458,18 @@ async function saveCustomProgram() {
   };
 
   try {
-    // Backend'e veriyi yolla
-    const response = await fetch("/api/custom-program", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + (localStorage.getItem('hx_token') || '')
-      },
-      body: JSON.stringify(requestBody)
-    });
+    const result = await apiPost('/api/custom-program', requestBody);
+    const savedProgram = Array.isArray(result.program) ? result.program : customProgramData;
+    const savedProgramJson = JSON.stringify(savedProgram);
 
-    const result = await response.json();
-
-    if (response.ok && result.success) {
-      alert("✅ " + result.message);
-      // Başarılı olursa butonu geçici olarak yeşil yapabilirsin (İsteğe bağlı UX dokunuşu)
-    } else {
-      alert("❌ Kayıt başarısız: " + (result.detail || "Bilinmeyen bir hata oluştu."));
+    if (cachedUserData?.user) {
+      cachedUserData.user.custom_split = savedProgramJson;
     }
+    lastConfirmedCustomSplitJson = savedProgramJson;
+    toast(result.message || 'Özel program hesabınıza kaydedildi.', 'success');
   } catch (err) {
-    console.error("Sunucuya gönderilirken hata oluştu:", err);
-    alert("❌ Sunucu bağlantı hatası!");
+    console.error('Sunucuya gönderilirken hata oluştu:', err);
+    toast(err.message || 'Özel program kaydedilemedi.', 'error');
   }
 }
 
