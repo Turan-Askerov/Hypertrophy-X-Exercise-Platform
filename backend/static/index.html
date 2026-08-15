@@ -2220,6 +2220,15 @@ let _currentUser = null;
 let _isAdmin = false;
 let _exercisePool = [];
 let _muscleGroups = [];
+const DEFAULT_UI_MUSCLE_GROUPS = Object.freeze(['Göğüs', 'Sırt', 'Omuz', 'Biceps', 'Triceps', 'Bacak', 'Core']);
+// Bacak seansında ana Bacak görünümü korunur; isteyen kullanıcı alt kas odağını
+// bu ek filtrelerle daraltabilir. Bu etiketler analiz meta verisinden okunur.
+const LEG_DETAIL_FILTERS = Object.freeze({
+  'Quadriceps': 'quads',
+  'Hamstring': 'hamstrings',
+  'Gluteus': 'glutes',
+  'Calf': 'calves'
+});
 let _selectedExercises = [];
 let _volumeChart = null;
 let _muscleChart = null;
@@ -3438,9 +3447,21 @@ async function loadWorkoutPage() {
 
   // Load exercise pool
   if (_exercisePool.length === 0) {
-    const data = await apiGet('/api/exercises');
-    _exercisePool = data.exercises;
-    _muscleGroups = data.muscle_groups;
+    try {
+      const data = await apiGet('/api/exercises');
+      _exercisePool = Array.isArray(data?.exercises) ? data.exercises : [];
+      _muscleGroups = Array.isArray(data?.muscle_groups) && data.muscle_groups.length
+        ? data.muscle_groups
+        : [...DEFAULT_UI_MUSCLE_GROUPS];
+      if (_exercisePool.length === 0) throw new Error('Egzersiz havuzu boş döndü');
+    } catch (error) {
+      console.error('Egzersiz havuzu yüklenemedi:', error);
+      _muscleGroups = [...DEFAULT_UI_MUSCLE_GROUPS];
+      document.getElementById('muscleFilterList').innerHTML = '<div class="empty-state">Egzersiz havuzu yüklenemedi. Lütfen bağlantınızı kontrol edip sayfayı yenileyin.</div>';
+      document.getElementById('exerciseListContainer').innerHTML = '<div class="empty-state">Hareket listesi geçici olarak yüklenemedi.</div>';
+      toast('Egzersiz havuzu yüklenemedi', 'error');
+      return;
+    }
   }
 
   // Dropdown değiştiğinde filtrelemeyi tetikler ---
@@ -3454,13 +3475,16 @@ async function loadWorkoutPage() {
 
 // Seans türü yalnızca görünür hareket listesini filtreler.
 // Özel Seans (custom) seçildiğinde havuzdaki tüm kaslar ve hareketler açılır.
-// Bacak alt kasları analiz meta verisinde kalır; kullanıcıya tek bir Bacak filtresi görünür.
+// Legs/Lower seçiminde ise Bacak ana filtresine ek olarak ana kas odak filtreleri sunulur.
 const SESSION_MUSCLE_MAP = Object.freeze({
   push: ["Göğüs", "Omuz", "Triceps"],
   pull: ["Sırt", "Biceps"],
-  legs: ["Bacak"],
-  lower: ["Bacak"],
+  // Bacak hareketleri tümüyle Bacak altında kalır; alttaki dört filtre yalnızca
+  // analitik primary_muscles verisine göre hareket listesini daraltır.
+  legs: ["Bacak", "Quadriceps", "Hamstring", "Gluteus", "Calf"],
+  lower: ["Bacak", "Quadriceps", "Hamstring", "Gluteus", "Calf"],
   upper: ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps"],
+  "full body": ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps", "Bacak", "Core"],
   arms: ["Biceps", "Triceps"],
   core: ["Core"]
 });
@@ -3471,9 +3495,13 @@ function getSelectedSessionType() {
 
 function getAllowedMusclesForSession() {
   const selectedType = getSelectedSessionType();
-  return selectedType === 'custom'
+  const availableGroups = Array.isArray(_muscleGroups) && _muscleGroups.length
     ? _muscleGroups
-    : (SESSION_MUSCLE_MAP[selectedType] || _muscleGroups);
+    : [...DEFAULT_UI_MUSCLE_GROUPS];
+  // Full Body ve Özel Seans, veri henüz bellekten temizlenmiş olsa dahi boş
+  // kalmamalıdır. Bu nedenle güvenli sabit UI listesine geri düşer.
+  if (selectedType === 'custom') return availableGroups;
+  return SESSION_MUSCLE_MAP[selectedType] || availableGroups;
 }
 
 // Yeni API'de arka omuz gibi hareketler birden fazla sade filtreye ait olabilir.
@@ -3488,6 +3516,17 @@ function getExerciseDisplayMuscleGroups(exercise) {
 function exerciseMatchesAnyMuscle(exercise, muscles) {
   const allowed = new Set(muscles || []);
   return getExerciseDisplayMuscleGroups(exercise).some(group => allowed.has(group));
+}
+
+function exerciseMatchesMuscleFilter(exercise, muscle) {
+  const targetPrimaryMuscle = LEG_DETAIL_FILTERS[muscle];
+  if (targetPrimaryMuscle) {
+    const primary = Array.isArray(exercise?.analysis?.primary_muscles)
+      ? exercise.analysis.primary_muscles
+      : [];
+    return primary.includes(targetPrimaryMuscle);
+  }
+  return getExerciseDisplayMuscleGroups(exercise).includes(muscle);
 }
 
 function replayWorkoutFilterAnimation(...elements) {
@@ -3530,9 +3569,7 @@ function renderExerciseList(muscle) {
         (selectedType === 'legs' || selectedType === 'lower');
     });
   } else {
-    filtered = _exercisePool.filter(exercise =>
-      getExerciseDisplayMuscleGroups(exercise).includes(muscle)
-    );
+    filtered = _exercisePool.filter(exercise => exerciseMatchesMuscleFilter(exercise, muscle));
   }
 
   container.innerHTML = filtered.map(ex => {
@@ -4271,6 +4308,7 @@ let _exerciseProgressChart = null; // Yeni dinamik egzersiz grafiği için
 let exercisePool = [];             // Arama menüsü için
 // İlk sayfa yüklemesinde zamanlama hatasını önlemek için bu durumlar erken başlatılır.
 let _progRawData = null;
+let _progHistoricalRecords = [];
 let _progExercise = '';
 let _progTimeframe = 'monthly';
 
@@ -4279,6 +4317,9 @@ async function loadProgress(username) {
   // ── A: GENEL VERİLER (PR Tablosu ve Eski Grafik) ──
   try {
     const data = await apiGet(`/api/progress`);
+
+    // Havuzda artık olmayan eski/özel hareketler de arama listesine eklenir.
+    _progHistoricalRecords = Array.isArray(data.personal_records) ? data.personal_records : [];
 
     // Eski Hacim Grafiği
     const ctx1El = document.getElementById('progressChart');
@@ -4297,13 +4338,15 @@ async function loadProgress(username) {
     // 🏆 PR (PERSONAL RECORDS) TABLOSU - TEK PARÇA KUSURSUZ KOD
     // Yeni Egzersiz İlerleme Grafiği — varsayılan hareket: en üstteki PR, yoksa havuzdan ilk
     let defaultExercise = null;
+    let defaultExerciseName = '';
     if (data.personal_records && data.personal_records.length > 0) {
       defaultExercise = data.personal_records[0].exercise_id || data.personal_records[0].exercise;
+      defaultExerciseName = data.personal_records[0].exercise || '';
     } else if (_exercisePool && _exercisePool.length > 0) {
       defaultExercise = _exercisePool[0].name;
     }
     if (defaultExercise) {
-      await selectProgressExercise(defaultExercise);
+      await selectProgressExercise(defaultExercise, defaultExerciseName);
     } else {
       renderExerciseProgressChart('', { labels: [], data: [], details: [] });
     }
@@ -4550,7 +4593,22 @@ function buildExerciseDropdown(filterText = '') {
   const groupOrder = ['Göğüs', 'Sırt', 'Omuz', 'Kol', 'Bacak', 'Core', 'Diğer'];
   const grouped = new Map();
 
-  (_exercisePool || []).forEach(exercise => {
+  const selectableExercises = [...(_exercisePool || [])];
+  // Güncel havuzda karşılığı olmayan eski/özel hareketler de seçilebilir
+  // kalsın; id'si legacy: ile başladığı için backend onları tarihsel akışta arar.
+  (_progHistoricalRecords || []).forEach(record => {
+    const legacyId = String(record?.exercise_id || '');
+    if (!legacyId.startsWith('legacy:')) return;
+    if (selectableExercises.some(item => String(item.id) === legacyId)) return;
+    selectableExercises.push({
+      id: legacyId,
+      name: String(record.exercise || 'Eski hareket'),
+      muscle: record.muscle || 'Diğer',
+      is_legacy_exercise: true
+    });
+  });
+
+  selectableExercises.forEach(exercise => {
     const name = String(exercise?.name || '');
     if (!name || (search && !name.toLocaleLowerCase('tr-TR').includes(search))) return;
     const group = _progressMuscleGroup(exercise);
