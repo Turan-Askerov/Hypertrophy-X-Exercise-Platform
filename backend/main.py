@@ -754,7 +754,7 @@ def generate_split(days_per_week: int, goal: str = "bulk") -> dict:
 #
 # fatigue_cost; tıbbi risk sınıfı değildir. Programda yorgunluk dağılımı için
 # ayarlanabilir bir uzman sistem etiketi olarak tutulur.
-EXERCISE_META_VERSION = 1
+EXERCISE_META_VERSION = 2
 
 def _exercise(
     exercise_id, name, muscle_group, category, is_bodyweight,
@@ -954,12 +954,12 @@ EXERCISE_POOL = [
               secondary_muscles=["hamstrings"], movement_pattern="squat", equipment=["dumbbell_or_kettlebell"],
               load_mode="external_load", fatigue_cost="medium"),
     _exercise("bulgarian-split-squat-bw", "Bulgarian Split Squat (Ağırlıksız)", "Legs", "compound", True,
-              family="bulgarian_split_squat", variation="bodyweight", primary_muscles=["quads", "glutes"],
-              secondary_muscles=["hamstrings"], movement_pattern="single_leg_squat",
+              family="bulgarian_split_squat", variation="bodyweight", primary_muscles=["glutes"],
+              secondary_muscles=["quads", "hamstrings", "calves"], movement_pattern="single_leg_squat",
               equipment=["bench", "bodyweight"], load_mode="bodyweight", unilateral=True, fatigue_cost="medium"),
     _exercise("bulgarian-split-squad", "Bulgarian Split Squat", "Legs", "compound", False,
-              family="bulgarian_split_squat", variation="weighted", primary_muscles=["quads", "glutes"],
-              secondary_muscles=["hamstrings"], movement_pattern="single_leg_squat",
+              family="bulgarian_split_squat", variation="weighted", primary_muscles=["glutes"],
+              secondary_muscles=["quads", "hamstrings", "calves"], movement_pattern="single_leg_squat",
               equipment=["bench", "dumbbell_or_barbell"], load_mode="external_load", unilateral=True, fatigue_cost="high"),
     _exercise("leg-press", "Leg Press", "Legs", "compound", False,
               family="leg_press", variation="machine", primary_muscles=["quads", "glutes"],
@@ -1121,16 +1121,19 @@ def _normalize_exercise_text(value: object) -> str:
     # Eski kayıt ve kullanıcı araması için yaygın yazım farklılıkları.
     text = text.replace('dumbell', 'dumbbell').replace('dumbel', 'dumbbell')
     text = text.replace('barfiks', 'pull up').replace('pull-up', 'pull up')
-    text = text.replace('t bar', 'tbar').replace('cross over', 'crossover')
+    text = text.replace('pulldown', 'pull down').replace('t bar', 'tbar')
+    text = text.replace('cross over', 'crossover').replace('bulgarian split squad', 'bulgarian split squat')
     text = re.sub(r'[^a-z0-9]+', ' ', text)
     return re.sub(r'\s+', ' ', text).strip()
 
 
 EXERCISE_BY_ID = {exercise['id']: exercise for exercise in EXERCISE_POOL}
-EXERCISE_ID_BY_NORMALIZED_NAME = {
-    _normalize_exercise_text(exercise['name']): exercise['id']
-    for exercise in EXERCISE_POOL
-}
+# İsim, görünen ad ve teknik id birlikte indekslenir. Böylece eski kayıtta
+# `leg-extension`, `Leg Extension` veya `leg extension` bulunması sonucu bozmaz.
+EXERCISE_ID_BY_NORMALIZED_NAME = {}
+for _pool_exercise in EXERCISE_POOL:
+    EXERCISE_ID_BY_NORMALIZED_NAME[_normalize_exercise_text(_pool_exercise['name'])] = _pool_exercise['id']
+    EXERCISE_ID_BY_NORMALIZED_NAME[_normalize_exercise_text(_pool_exercise['id'])] = _pool_exercise['id']
 # Sadece anlamı net olan eski / yaygın isimler burada tutulur. Belirsiz bir ad
 # asla tahmin edilmez; yanlış grafikten daha güvenli olan seçenek verisiz sonuçtur.
 EXERCISE_ALIASES = {
@@ -1157,24 +1160,80 @@ EXERCISE_ALIASES = {
     'triceps push down': 'tricep-push-down',
     'hyperextension weighted': 'hyperextension-weighted',
     'hyperextension bodyweight': 'hyperextension-bw',
+    # v4 ve daha eski havuzdaki açık, anlamı kesin isim varyasyonları.
+    'barbell bench press': 'bench-press',
+    'flat bench press': 'bench-press',
+    'db bench press': 'dumbbell-bench-press',
+    'incline barbell bench press': 'incline-bench-press',
+    'incline db press': 'incline-dumbbell-press',
+    'machine chest press': 'chest-press-machine',
+    'push up': 'push-ups-bw',
+    'push ups': 'push-ups-bw',
+    'weighted push up': 'push-ups-weighted',
+    'weighted push ups': 'push-ups-weighted',
+    'lat pulldown': 'lat-pull-down',
+    'lat pull down': 'lat-pull-down',
+    'seated cable row': 'seated-row',
+    'barbell bent over row': 'bent-over-row',
+    'inverted rows': 'inverted-row-bw',
+    'barbell squat': 'squat',
+    'back squat': 'squat',
+    'front barbell squat': 'front-squat',
+    'bulgarian squat': 'bulgarian-split-squad',
+    'bss': 'bulgarian-split-squad',
+    'bulgarian split squat weighted': 'bulgarian-split-squad',
+    'bulgarian split squat bodyweight': 'bulgarian-split-squat-bw',
+    'romanian dead lift': 'romanian-deadlift',
+    'rdl': 'romanian-deadlift',
+    'leg extensions': 'leg-extension',
+    'seated leg curl': 'leg-curl',
+    'lying leg curl': 'leg-curl',
+    'hamstring curl': 'leg-curl',
+    'calf raises bodyweight': 'calf-raises-bw',
+    'military press': 'overhead-press',
+    'barbell overhead press': 'overhead-press',
+    'lateral raise': 'lateral-raises',
+    'side lateral raise': 'lateral-raises',
+    'triceps pushdown': 'tricep-push-down',
+    'cable tricep pushdown': 'tricep-push-down',
+    'rope pushdown': 'tricep-push-down',
+    'dumbbell curl': 'bicep-curl',
+    'barbell curl': 'bicep-curl',
+    'cable curl': 'cable-bicep-curl',
 }
 
 
 def resolve_exercise_metadata(exercise_id: object = None, exercise_name: object = None):
-    """Kayıttan kanonik havuz hareketini çözer; bulunamazsa None döndürür."""
+    """Kayıttan kanonik havuz hareketini çözer; bilinmeyen ad için None döndürür."""
     raw_id = str(exercise_id or '').strip()
     if raw_id in EXERCISE_BY_ID:
         return EXERCISE_BY_ID[raw_id]
 
-    normalized_id = _normalize_exercise_text(raw_id)
-    if normalized_id in EXERCISE_ALIASES:
-        return EXERCISE_BY_ID.get(EXERCISE_ALIASES[normalized_id])
+    for reference in (raw_id, exercise_name):
+        normalized = _normalize_exercise_text(reference)
+        if not normalized:
+            continue
+        canonical_id = EXERCISE_ID_BY_NORMALIZED_NAME.get(normalized)
+        if not canonical_id:
+            canonical_id = EXERCISE_ALIASES.get(normalized)
+        if canonical_id:
+            return EXERCISE_BY_ID.get(canonical_id)
+    return None
 
-    normalized_name = _normalize_exercise_text(exercise_name)
-    canonical_id = EXERCISE_ID_BY_NORMALIZED_NAME.get(normalized_name)
-    if not canonical_id:
-        canonical_id = EXERCISE_ALIASES.get(normalized_name)
-    return EXERCISE_BY_ID.get(canonical_id) if canonical_id else None
+
+def _legacy_exercise_key(exercise_id: object = None, exercise_name: object = None) -> str:
+    """Havuzda artık bulunmayan hareketler için de kararlı, kullanıcıya görünmeyen kimlik.
+
+    Bu anahtar yalnızca eski kaydı aynı eski kayıtla eşleştirmek içindir. Böylece
+    bilinmeyen/özel bir hareket silinmez ve ilerleme grafiğinde veri kaybolmaz.
+    """
+    raw_id = str(exercise_id or '').strip()
+    if raw_id.lower().startswith('legacy:'):
+        suffix = raw_id.split(':', 1)[1].strip()
+        return f"legacy:{suffix}" if suffix else ''
+    reference = exercise_name or raw_id
+    normalized = _normalize_exercise_text(reference)
+    return f"legacy:{normalized}" if normalized else ''
 
 
 def _canonical_exercise_from_entry(entry: dict):
@@ -1198,8 +1257,13 @@ def _normalize_workout_exercises(exercises):
             entry['is_bodyweight'] = bool(meta['is_bodyweight'])
             entry['exercise_meta_version'] = EXERCISE_META_VERSION
         else:
-            # Kaldırılmış / özel bir hareket varsa eski veriyi görünür tut.
-            entry.setdefault('canonical_exercise_id', entry.get('exercise_id', ''))
+            # Kaldırılmış / özel hareket için de kararlı bir tarihsel kimlik tut.
+            # Eski isim aynen korunur; hiçbir kayıt sessizce silinmez.
+            entry.setdefault('legacy_exercise_name', entry.get('exercise_name') or entry.get('name') or entry.get('exercise_id', ''))
+            entry['canonical_exercise_id'] = _legacy_exercise_key(
+                entry.get('canonical_exercise_id') or entry.get('exercise_id'),
+                entry.get('exercise_name') or entry.get('name'),
+            )
             entry.setdefault('exercise_meta_version', 0)
         normalized.append(entry)
     return normalized
@@ -1820,20 +1884,33 @@ def get_exercise_chart_data(
     daima `exercise_id` gönderir; böylece isim yazım farkı grafiği bozmaz.
     """
     target = resolve_exercise_metadata(exercise_id, exercise)
-    if not target:
-        raise HTTPException(status_code=404, detail="Egzersiz havuzunda bulunamadı")
+    # Havuzdan çıkarılmış veya özel bir hareket de eski antrenman kaydında
+    # kalabilir. Bu durumda istek 404 dönmez; yalnızca aynı tarihsel kimliği
+    # taşıyan kayıtlar bulunur ve grafikte gösterilir.
+    historical_key = '' if target else _legacy_exercise_key(exercise_id, exercise)
+    if not target and not historical_key:
+        raise HTTPException(status_code=400, detail="Egzersiz seçimi geçersiz")
 
-    load_mode = target.get("analysis", {}).get("load_mode", "external_load")
+    load_mode = target.get("analysis", {}).get("load_mode", "external_load") if target else "external_load"
     metric_type = "reps" if load_mode == "bodyweight" else "weight_kg"
     metric_label = "En yüksek tekrar" if metric_type == "reps" else "PR ağırlık (kg)"
+    historical_name = str(exercise or exercise_id or "Eski hareket")
 
     labels, values, details = [], [], []
     workouts = sorted(get_workouts_by_user(user["id"]), key=lambda item: item["date"])
     for workout in workouts:
         for entry in workout.get("exercises", []):
             resolved = _canonical_exercise_from_entry(entry)
-            if not resolved or resolved["id"] != target["id"]:
+            if target:
+                if not resolved or resolved["id"] != target["id"]:
+                    continue
+            elif _legacy_exercise_key(
+                entry.get("canonical_exercise_id") or entry.get("exercise_id"),
+                entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name"),
+            ) != historical_key:
                 continue
+
+            historical_name = str(entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name") or historical_name)
             date_str = str(workout.get("date", "")).split()[0]
             parts = date_str.split("-")
             formatted_date = f"{parts[2]}.{parts[1]}.{parts[0]}" if len(parts) == 3 else date_str
@@ -1856,10 +1933,11 @@ def get_exercise_chart_data(
                 })
 
     return {
-        "exercise_id": target["id"],
-        "exercise_name": target["name"],
+        "exercise_id": target["id"] if target else historical_key,
+        "exercise_name": target["name"] if target else historical_name,
         "metric_type": metric_type,
         "metric_label": metric_label,
+        "is_legacy_exercise": not bool(target),
         "labels": labels,
         "data": values,
         "details": details,
@@ -1872,9 +1950,12 @@ def get_personal_records(workouts):
     for workout in workouts:
         for entry in workout.get("exercises", []):
             meta = _canonical_exercise_from_entry(entry)
-            record_id = meta["id"] if meta else str(entry.get("exercise_id") or entry.get("exercise_name") or "legacy")
-            display_name = meta["name"] if meta else entry.get("exercise_name", "Bilinmeyen hareket")
-            muscle = EXERCISE_MUSCLE_TR.get(meta.get("muscle_group"), meta.get("muscle_group")) if meta else entry.get("muscle_group", "")
+            record_id = meta["id"] if meta else _legacy_exercise_key(
+                entry.get("canonical_exercise_id") or entry.get("exercise_id"),
+                entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name"),
+            )
+            display_name = meta["name"] if meta else str(entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name") or "Bilinmeyen hareket")
+            muscle = EXERCISE_MUSCLE_TR.get(meta.get("muscle_group"), meta.get("muscle_group")) if meta else entry.get("muscle_group", "Diğer")
             load_mode = meta.get("analysis", {}).get("load_mode", "external_load") if meta else "external_load"
             metric_type = "reps" if load_mode == "bodyweight" else "weight_kg"
             sets_list = entry.get("sets_data", [])
