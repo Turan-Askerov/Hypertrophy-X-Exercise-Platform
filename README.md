@@ -23,7 +23,7 @@
 | Özellik | Açıklama |
 |---|---|
 | **Hareket Havuzu API** | 60+ hareket `/api/exercises` üzerinden kas bölgesine göre filtrelenebilir listeleniyor. Ağırlıklı / Vücut Ağırlığı rozetleri destekli |
-| **Uzman Sistemi (Otomatik)** | "Uzman Sistemi" sayfasına girildiğinde analiz **otomatik** çalışır — "Analiz Başlat" butonu kaldırıldı. Günlere göre haftalık program, A/B varyantları ile aynı hareketin haftada iki kez çıkması engelleniyor |
+| **Uzman Sistemi (Otomatik)** | "Uzman Sistemi" sayfasına girildiğinde analiz **otomatik** çalışır. Günlere göre haftalık program, A/B varyantları ile aynı hareketin haftada iki kez çıkması engelleniyor |
 | **Cache-Control Middleware** | API → `no-cache`, index.html → `no-store`, statik dosyalar → `public, max-age=1y` |
 | **Sağlık Kontrolü** | `/api/health` endpoint'i ile DB + uygulama durumu izlenir (Railway/Render health check) |
 | **İstek Loglama** | Tüm HTTP istekleri formatlı olarak loglanır (zaman, method, path, durum, süre) |
