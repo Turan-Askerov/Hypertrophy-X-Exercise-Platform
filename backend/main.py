@@ -48,6 +48,24 @@ from datetime import date, datetime, timedelta
 from jose import jwt, JWTError, ExpiredSignatureError
 import bcrypt
 from postgres_schema import POSTGRES_SCHEMA_STATEMENTS
+from expert_system import (
+    AVAILABLE_EQUIPMENT_OPTIONS,
+    DETAILED_MUSCLE_OPTIONS,
+    PRIMARY_GOALS,
+    PROFILE_FIELD_LABELS,
+    UI_MUSCLE_GROUPS,
+    build_expert_result,
+    build_expert_result_v2,
+    calculate_muscle_readiness,
+    eligibility as expert_eligibility,
+    generate_dynamic_program,
+    handle_missed_session,
+    normalize_detailed_muscle,
+    normalize_muscle_group,
+    validate_detailed_preferences,
+    validate_preferences as validate_expert_preferences,
+    validate_score as validate_expert_score,
+)
 
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -353,6 +371,20 @@ def init_db():
                 exercises TEXT NOT NULL DEFAULT '[]',
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
                 FOREIGN KEY (user_id) REFERENCES users(id)
+            );
+        """)
+        # Uzman Sistemi; kullanıcı başına tek kayıt ve JSON koleksiyonları kullanır.
+        # Yeni anket sekmeleri, tablo göçü olmadan yeni JSON alanları ile eklenebilir.
+        cur.executescript("""
+            CREATE TABLE IF NOT EXISTS expert_profiles (
+                user_id INTEGER PRIMARY KEY,
+                goals_json TEXT NOT NULL DEFAULT '{}',
+                doms_history_json TEXT NOT NULL DEFAULT '[]',
+                constraints_json TEXT NOT NULL DEFAULT '[]',
+                ui_preferences_json TEXT NOT NULL DEFAULT '{}',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
         """)
 
@@ -1365,6 +1397,89 @@ class DashboardPreferencesRequest(BaseModel):
     pr_targets: dict[str, float]
 
 
+class ExpertPreferencesRequest(BaseModel):
+    primary_goal: str
+    priority_muscles: List[str]
+
+
+class ExpertCheckinRequest(BaseModel):
+    # session: antrenman sonu; daily: isteğe bağlı günlük toparlanma kontrolü
+    checkin_type: str
+    checkin_date: Optional[str] = None
+    session_rpe: Optional[float] = None
+    day_fatigue: Optional[float] = None
+    recovery_feeling: Optional[float] = None
+    completion_percentage: Optional[float] = None
+    notes: Optional[str] = ""
+
+
+class ExpertDomsReportInput(BaseModel):
+    muscle_group: str
+    severity: float
+    notes: Optional[str] = ""
+
+
+class ExpertDomsReportRequest(BaseModel):
+    report_date: Optional[str] = None
+    reports: List[ExpertDomsReportInput]
+
+
+class ExpertEquipmentRequest(BaseModel):
+    available_equipment: List[str]
+
+
+class ExpertConstraintRequest(BaseModel):
+    constraint_id: Optional[int] = None
+    muscle_group: str
+    constraint_type: str = "pain"
+    severity: float
+    notes: Optional[str] = ""
+    started_on: Optional[str] = None
+    resolved: bool = False
+
+
+class ExpertGenerateProgramRequest(BaseModel):
+    # İstemci bu alanı göndermezse kullanıcı profilindeki gün sayısı kullanılır.
+    days_per_week: Optional[int] = None
+
+
+class ExpertActivateProgramRequest(BaseModel):
+    program_version_id: int
+
+
+class ExpertMissedSessionRequest(BaseModel):
+    session_id: str
+    recovery_score: float
+    program_version_id: Optional[int] = None
+
+
+class ExpertGoalsDataRequest(BaseModel):
+    primary_goal: str
+    priority_muscles: List[str]
+    priority_note: Optional[str] = ""
+
+
+class ExpertDomsDataRequest(BaseModel):
+    muscle_group: str
+    severity: int
+    report_date: Optional[str] = None
+    status: str = "active"
+    notes: Optional[str] = ""
+
+
+class ExpertConstraintDataRequest(BaseModel):
+    area: str
+    side: str = "not_specified"
+    severity: int
+    started_on: Optional[str] = None
+    status: str = "active"
+    notes: Optional[str] = ""
+
+
+class ExpertLegacyResetRequest(BaseModel):
+    confirmation: str
+
+
 class NutritionLogSchema(BaseModel):
     username: str
     log_date: str = ""
@@ -1495,6 +1610,363 @@ log.info("Middleware katmanı aktif: CORS + Cache-Control + İstek Loglama + Gü
 
 
 # ═══════════════════════════════════════════════
+# UZMAN SİSTEMİ — KALICILIK VE DURUM YARDIMCILARI
+# ═══════════════════════════════════════════════
+def _expert_date(value: Optional[str] = None) -> str:
+    """Kullanıcıdan gelen tarihi güvenli ISO-8601 biçimine çevirir."""
+    if not value:
+        return date.today().isoformat()
+    try:
+        return date.fromisoformat(str(value)).isoformat()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Tarih YYYY-MM-DD biçiminde olmalıdır.") from exc
+
+
+def _json_dict(raw_value) -> dict:
+    """JSON nesnesi alanlarını bozuk eski değerlerde güvenli biçimde çözer."""
+    if isinstance(raw_value, dict):
+        return raw_value
+    try:
+        value = json.loads(raw_value or "{}")
+        return value if isinstance(value, dict) else {}
+    except (TypeError, json.JSONDecodeError):
+        return {}
+
+
+def _expert_data_profile(conn, user_id: int, create: bool = True) -> dict | None:
+    """Kullanıcı başına tek uzman sistemi kaydını okur; gerekirse boş kayıt açar."""
+    row = conn.execute(
+        "SELECT user_id, goals_json, doms_history_json, constraints_json, ui_preferences_json, created_at, updated_at "
+        "FROM expert_profiles WHERE user_id = ?",
+        (user_id,),
+    ).fetchone()
+    if not row and create:
+        conn.execute(
+            "INSERT INTO expert_profiles (user_id, goals_json, doms_history_json, constraints_json, ui_preferences_json) "
+            "VALUES (?, '{}', '[]', '[]', '{}') ON CONFLICT(user_id) DO NOTHING",
+            (user_id,),
+        )
+        conn.commit()
+        row = conn.execute(
+            "SELECT user_id, goals_json, doms_history_json, constraints_json, ui_preferences_json, created_at, updated_at "
+            "FROM expert_profiles WHERE user_id = ?",
+            (user_id,),
+        ).fetchone()
+    if not row:
+        return None
+    data = dict(row)
+    return {
+        "user_id": data["user_id"],
+        "goals": _json_dict(data.get("goals_json")),
+        "doms_history": _json_list(data.get("doms_history_json")),
+        "constraints": _json_list(data.get("constraints_json")),
+        "ui_preferences": _json_dict(data.get("ui_preferences_json")),
+        "created_at": data.get("created_at"),
+        "updated_at": data.get("updated_at"),
+    }
+
+
+def _save_expert_data_profile(conn, user_id: int, profile: dict) -> None:
+    conn.execute(
+        """
+        INSERT INTO expert_profiles
+            (user_id, goals_json, doms_history_json, constraints_json, ui_preferences_json, updated_at)
+        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(user_id) DO UPDATE SET
+            goals_json = excluded.goals_json,
+            doms_history_json = excluded.doms_history_json,
+            constraints_json = excluded.constraints_json,
+            ui_preferences_json = excluded.ui_preferences_json,
+            updated_at = CURRENT_TIMESTAMP
+        """,
+        (
+            user_id,
+            json.dumps(profile.get("goals") or {}, ensure_ascii=False),
+            json.dumps(profile.get("doms_history") or [], ensure_ascii=False),
+            json.dumps(profile.get("constraints") or [], ensure_ascii=False),
+            json.dumps(profile.get("ui_preferences") or {}, ensure_ascii=False),
+        ),
+    )
+    conn.commit()
+
+
+def _expert_data_metrics(doms_history: list[dict]) -> list[dict]:
+    """Son kaydı esas alarak kullanıcıya tanı koymadan görsel durum metrikleri üretir."""
+    latest_by_muscle: dict[str, dict] = {}
+    for entry in doms_history:
+        muscle = normalize_detailed_muscle(entry.get("muscle_group"))
+        if not muscle:
+            continue
+        entry_date = str(entry.get("report_date") or "")
+        previous = latest_by_muscle.get(muscle)
+        if not previous or entry_date >= str(previous.get("report_date") or ""):
+            latest_by_muscle[muscle] = entry
+
+    metrics = []
+    for muscle, entry in latest_by_muscle.items():
+        severity = int(entry.get("severity") or 0)
+        if entry.get("status") == "resolved":
+            severity = 0
+        metrics.append({
+            "muscle_group": muscle,
+            "pain_level": max(0, min(5, severity)),
+            "readiness": max(0, min(100, 100 - (severity * 20))),
+            "status": entry.get("status") or "active",
+            "report_date": entry.get("report_date"),
+            "notes": entry.get("notes") or "",
+        })
+    return sorted(metrics, key=lambda item: (-item["pain_level"], item["muscle_group"]))
+
+
+def _expert_data_state(user: dict) -> dict:
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+    finally:
+        conn.close()
+    return {
+        "success": True,
+        "goals": profile.get("goals") or {},
+        "doms_history": profile.get("doms_history") or [],
+        "constraints": profile.get("constraints") or [],
+        "metrics": _expert_data_metrics(profile.get("doms_history") or []),
+        "catalog": {
+            "primary_goals": PRIMARY_GOALS,
+            "detailed_muscles": list(DETAILED_MUSCLE_OPTIONS),
+            "sides": {
+                "not_specified": "Belirtilmedi",
+                "left": "Sol taraf",
+                "right": "Sağ taraf",
+                "bilateral": "Her iki taraf",
+            },
+            "constraint_areas": [
+                "Omuz", "Dirsek", "Bilek", "Bel", "Kalça", "Diz", "Ayak bileği",
+                "Göğüs", "Sırt", "Biceps", "Triceps", "Quadriceps", "Hamstring", "Gluteus", "Calf",
+            ],
+            "pain_scale": {"min": 0, "max": 5, "labels": ["Yok", "Hafif", "Düşük", "Orta", "Yüksek", "Çok yüksek"]},
+            "max_priority_muscles": 3,
+        },
+    }
+
+
+def _expert_preferences_for_user(conn, user_id: int) -> Optional[dict]:
+    row = conn.execute(
+        "SELECT primary_goal, priority_muscles, created_at, updated_at FROM expert_preferences WHERE user_id = ?",
+        (user_id,),
+    ).fetchone()
+    if not row:
+        return None
+    data = dict(row)
+    try:
+        data["priority_muscles"] = json.loads(data.get("priority_muscles") or "[]")
+    except (TypeError, json.JSONDecodeError):
+        data["priority_muscles"] = []
+    return data
+
+
+def _expert_latest_checkin(conn, user_id: int) -> Optional[dict]:
+    row = conn.execute(
+        """
+        SELECT checkin_date, checkin_type, session_rpe, day_fatigue,
+               recovery_feeling, completion_percentage, notes, updated_at
+        FROM expert_checkins
+        WHERE user_id = ?
+        ORDER BY checkin_date DESC, updated_at DESC, id DESC
+        LIMIT 1
+        """,
+        (user_id,),
+    ).fetchone()
+    return dict(row) if row else None
+
+
+def _expert_active_doms(conn, user_id: int) -> list[dict]:
+    rows = conn.execute(
+        """
+        SELECT id, muscle_group, started_on, status, last_severity,
+               last_report_date, resolved_on, updated_at
+        FROM expert_doms_cases
+        WHERE user_id = ? AND status = 'active'
+        ORDER BY last_severity DESC, last_report_date DESC, id DESC
+        """,
+        (user_id,),
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def _json_list(raw_value) -> list:
+    """Bozuk veya eski JSON alanlarında API yanıtını güvenli biçimde korur."""
+    if isinstance(raw_value, list):
+        return raw_value
+    try:
+        value = json.loads(raw_value or "[]")
+        return value if isinstance(value, list) else []
+    except (TypeError, json.JSONDecodeError):
+        return []
+
+
+def _expert_equipment_for_user(conn, user_id: int) -> tuple[list[str], bool]:
+    row = conn.execute(
+        "SELECT available_equipment FROM expert_equipment WHERE user_id = ?", (user_id,)
+    ).fetchone()
+    if not row:
+        return [], False
+    return _json_list(dict(row).get("available_equipment")), True
+
+
+def _expert_active_constraints(conn, user_id: int) -> list[dict]:
+    rows = conn.execute(
+        """
+        SELECT id, muscle_group, constraint_type, severity, notes, started_on,
+               resolved_on, status, updated_at
+        FROM expert_constraints
+        WHERE user_id = ? AND status = 'active' AND resolved_on IS NULL
+        ORDER BY severity DESC, started_on DESC, id DESC
+        """,
+        (user_id,),
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def _expert_active_program(conn, user_id: int) -> dict | None:
+    """Eski program modülü kaldırılmış şemalarda dashboard geri uyumluluğu sağlar."""
+    try:
+        row = conn.execute(
+            """
+            SELECT id, program_json, is_active, created_at, activated_at
+            FROM expert_program_versions
+            WHERE user_id = ? AND is_active = TRUE
+            ORDER BY activated_at DESC, created_at DESC, id DESC
+            LIMIT 1
+            """,
+            (user_id,),
+        ).fetchone()
+    except Exception as exc:
+        # Veri toplama sürümünde expert_program_versions artık kurulmaz. Yalnızca
+        # bu beklenen şema farkını sessizce boş program olarak ele al; diğer
+        # veritabanı hataları görünür kalmalıdır.
+        if "expert_program_versions" in str(exc):
+            return None
+        raise
+    if not row:
+        return None
+    data = dict(row)
+    try:
+        program = json.loads(data.pop("program_json") or "{}")
+    except (TypeError, json.JSONDecodeError):
+        program = {}
+    return {"version_id": data.get("id"), "created_at": data.get("created_at"), "activated_at": data.get("activated_at"), "program": program}
+
+
+def _expert_history_context(workouts: list[dict]) -> tuple[dict, dict[str, str]]:
+    """Son yedi takvim gününün doğrudan setlerini ve kas seansı tarihlerini çıkarır."""
+    cutoff = date.today() - timedelta(days=6)
+    volume: dict[str, int] = defaultdict(int)
+    latest_dates: dict[str, str] = {}
+    for workout in workouts or []:
+        workout_date = _expert_date(workout.get("date")) if _parse_iso_date_safe(workout.get("date")) else None
+        if not workout_date:
+            continue
+        parsed_date = _parse_iso_date_safe(workout_date)
+        for entry in _iter_workout_exercises(workout):
+            meta = _canonical_exercise_from_entry(entry)
+            if meta:
+                muscles = (meta.get("analysis") or {}).get("primary_muscles") or []
+            else:
+                broad = normalize_muscle_group(entry.get("muscle_group"))
+                muscles = [option["id"] for option in DETAILED_MUSCLE_OPTIONS if option["ui_group"] == broad]
+            set_count = len(entry.get("sets_data") or [])
+            for raw_muscle in muscles:
+                muscle = normalize_detailed_muscle(raw_muscle)
+                if not muscle:
+                    continue
+                if parsed_date >= cutoff:
+                    volume[muscle] += set_count
+                if muscle not in latest_dates or workout_date > latest_dates[muscle]:
+                    latest_dates[muscle] = workout_date
+    return {"sets_by_muscle": dict(volume)}, latest_dates
+
+
+def _parse_iso_date_safe(value) -> date | None:
+    try:
+        return date.fromisoformat(str(value or "")[:10])
+    except ValueError:
+        return None
+
+
+def _expert_state(user: dict) -> dict:
+    """İstemcinin tek istekle ekranı kurabilmesi için uzman sistemi durumunu döndürür.
+
+    `result` alanı V1 ile aynı kalır. Ekipman kaydedilmişse aynı nesneye V2'nin
+    `dynamic_program` alanı eklenir; böylece eski arayüz güvenle çalışmaya devam eder.
+    """
+    workouts = get_workouts_by_user(user["id"])
+    eligibility = expert_eligibility(user, len(workouts))
+    conn = get_db()
+    try:
+        preferences = _expert_preferences_for_user(conn, user["id"])
+        latest_checkin = _expert_latest_checkin(conn, user["id"])
+        active_doms = _expert_active_doms(conn, user["id"])
+        equipment, equipment_configured = _expert_equipment_for_user(conn, user["id"])
+        constraints = _expert_active_constraints(conn, user["id"])
+        active_program = _expert_active_program(conn, user["id"])
+    finally:
+        conn.close()
+
+    result = None
+    history, latest_dates = _expert_history_context(workouts)
+    if eligibility["ready"] and preferences:
+        if equipment_configured:
+            result = build_expert_result(user, preferences, workouts, latest_checkin, active_doms)
+            result["dynamic_program"] = generate_dynamic_program(
+                user, preferences, EXERCISE_POOL, equipment, active_doms, constraints,
+                history=history, last_workout_dates=latest_dates,
+            )
+        else:
+            result = build_expert_result(user, preferences, workouts, latest_checkin, active_doms)
+
+    return {
+        "eligibility": eligibility,
+        "preferences": preferences,
+        "latest_checkin": latest_checkin,
+        "active_doms": active_doms,
+        "equipment": equipment,
+        "equipment_configured": equipment_configured,
+        "constraints": constraints,
+        "active_program": active_program,
+        "result": result,
+        "catalog": {
+            "primary_goals": PRIMARY_GOALS,
+            "muscle_groups": list(UI_MUSCLE_GROUPS),
+            "detailed_muscles": list(DETAILED_MUSCLE_OPTIONS),
+            "equipment_options": list(AVAILABLE_EQUIPMENT_OPTIONS),
+            "constraint_types": {
+                "pain": "Kas / eklem ağrısı",
+                "tendon": "Tendon hassasiyeti",
+                "medical_clearance": "Tıbbi değerlendirme bekleniyor",
+            },
+            "max_priority_muscles": 3,
+        },
+    }
+
+
+def _expert_require_ready(user: dict) -> None:
+    workouts = get_workouts_by_user(user["id"])
+    state = expert_eligibility(user, len(workouts))
+    if not state["ready"]:
+        raise HTTPException(status_code=409, detail=state)
+
+
+def _expert_require_preferences(conn, user_id: int) -> dict:
+    preferences = _expert_preferences_for_user(conn, user_id)
+    if not preferences:
+        raise HTTPException(
+            status_code=409,
+            detail="Önce amaç ve öncelikli kas grupları anketini kaydedin.",
+        )
+    return preferences
+
+
+# ═══════════════════════════════════════════════
 # AUTH ENDPOINT'LERİ
 # ═══════════════════════════════════════════════
 @app.post("/api/auth/register")
@@ -1618,6 +2090,458 @@ def update_workout_endpoint(workout_id: int,
                             data: WorkoutUpdate = Body(...),
                             user: dict = Depends(_resolve_current_user)):
     return update_workout(workout_id, data.model_dump(exclude_unset=True), user["id"])
+
+
+# ═══════════════════════════════════════════════
+# UZMAN SİSTEMİ ENDPOINT'LERİ — JWT korumalı, açıklanabilir kural motoru
+# ═══════════════════════════════════════════════
+@app.get("/api/expert-system")
+def expert_system_state(user: dict = Depends(_resolve_current_user)):
+    """Uzman sistemi ekranının ihtiyaç duyduğu tüm merkezi durumu döndürür."""
+    return _expert_state(user)
+
+
+@app.post("/api/expert-system/preferences")
+def save_expert_preferences(
+    data: ExpertPreferencesRequest = Body(...),
+    user: dict = Depends(_resolve_current_user),
+):
+    _expert_require_ready(user)
+    try:
+        # V2 ayrıntılı kas kimlikleri önceliklidir. Eski V1 arayüzünün geniş kas
+        # grupları ise mevcut kullanıcıların tercihini kaybetmemesi için korunur.
+        try:
+            preferences = validate_detailed_preferences(data.primary_goal, data.priority_muscles)
+        except ValueError:
+            preferences = validate_expert_preferences(data.primary_goal, data.priority_muscles)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    conn = get_db()
+    try:
+        exists = conn.execute(
+            "SELECT user_id FROM expert_preferences WHERE user_id = ?", (user["id"],)
+        ).fetchone()
+        payload = json.dumps(preferences.priority_muscles, ensure_ascii=False)
+        if exists:
+            conn.execute(
+                """
+                UPDATE expert_preferences
+                SET primary_goal = ?, priority_muscles = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE user_id = ?
+                """,
+                (preferences.primary_goal, payload, user["id"]),
+            )
+        else:
+            conn.execute(
+                """
+                INSERT INTO expert_preferences (user_id, primary_goal, priority_muscles)
+                VALUES (?, ?, ?)
+                """,
+                (user["id"], preferences.primary_goal, payload),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+    return _expert_state(user)
+
+
+@app.post("/api/expert-system/checkins")
+def save_expert_checkin(
+    data: ExpertCheckinRequest = Body(...),
+    user: dict = Depends(_resolve_current_user),
+):
+    _expert_require_ready(user)
+    checkin_type = str(data.checkin_type or "").strip().lower()
+    if checkin_type not in {"session", "daily"}:
+        raise HTTPException(status_code=400, detail="Kontrol türü session veya daily olmalıdır.")
+    try:
+        checkin_date = _expert_date(data.checkin_date)
+        session_rpe = validate_expert_score(
+            data.session_rpe, "Son seansın RPE değeri", required=checkin_type == "session"
+        )
+        fatigue = validate_expert_score(data.day_fatigue, "Gün içi yorgunluk", required=True)
+        recovery = validate_expert_score(data.recovery_feeling, "Toparlanma hissi", required=True)
+        completion = validate_expert_score(
+            data.completion_percentage,
+            "Set tamamlama oranı",
+            minimum=0,
+            maximum=100,
+            required=checkin_type == "session",
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    conn = get_db()
+    try:
+        _expert_require_preferences(conn, user["id"])
+        existing = conn.execute(
+            """
+            SELECT id FROM expert_checkins
+            WHERE user_id = ? AND checkin_date = ? AND checkin_type = ?
+            ORDER BY id DESC LIMIT 1
+            """,
+            (user["id"], checkin_date, checkin_type),
+        ).fetchone()
+        values = (
+            session_rpe,
+            fatigue,
+            recovery,
+            completion,
+            str(data.notes or "").strip()[:1000],
+        )
+        if existing:
+            conn.execute(
+                """
+                UPDATE expert_checkins
+                SET session_rpe = ?, day_fatigue = ?, recovery_feeling = ?,
+                    completion_percentage = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                (*values, existing["id"]),
+            )
+        else:
+            conn.execute(
+                """
+                INSERT INTO expert_checkins (
+                    user_id, checkin_date, checkin_type, session_rpe, day_fatigue,
+                    recovery_feeling, completion_percentage, notes
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (user["id"], checkin_date, checkin_type, *values),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+    return _expert_state(user)
+
+
+@app.post("/api/expert-system/doms-reports")
+def save_expert_doms_reports(
+    data: ExpertDomsReportRequest = Body(...),
+    user: dict = Depends(_resolve_current_user),
+):
+    _expert_require_ready(user)
+    if not data.reports or len(data.reports) > len(UI_MUSCLE_GROUPS):
+        raise HTTPException(status_code=400, detail="En az 1, en fazla 7 kas ağrısı kaydı gönderin.")
+    try:
+        report_date = _expert_date(data.report_date)
+    except HTTPException:
+        raise
+
+    cleaned: list[tuple[str, float, str]] = []
+    seen: set[str] = set()
+    for report in data.reports:
+        group = normalize_muscle_group(report.muscle_group)
+        if not group:
+            raise HTTPException(status_code=400, detail="Geçersiz kas grubu seçildi.")
+        if group in seen:
+            raise HTTPException(status_code=400, detail="Bir kas grubu aynı ankette yalnızca bir kez girilebilir.")
+        try:
+            severity = validate_expert_score(report.severity, f"{group} DOMS", required=True)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        seen.add(group)
+        cleaned.append((group, float(severity), str(report.notes or "").strip()[:600]))
+
+    conn = get_db()
+    try:
+        _expert_require_preferences(conn, user["id"])
+        for group, severity, notes in cleaned:
+            active = conn.execute(
+                """
+                SELECT id FROM expert_doms_cases
+                WHERE user_id = ? AND muscle_group = ? AND status = 'active'
+                ORDER BY last_report_date DESC, id DESC LIMIT 1
+                """,
+                (user["id"], group),
+            ).fetchone()
+            if active:
+                case_id = active["id"]
+                if severity <= 0:
+                    conn.execute(
+                        """
+                        UPDATE expert_doms_cases
+                        SET last_severity = 0, last_report_date = ?, status = 'resolved',
+                            resolved_on = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                        """,
+                        (report_date, report_date, case_id),
+                    )
+                else:
+                    conn.execute(
+                        """
+                        UPDATE expert_doms_cases
+                        SET last_severity = ?, last_report_date = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                        """,
+                        (severity, report_date, case_id),
+                    )
+                conn.execute(
+                    """
+                    INSERT INTO expert_doms_reports (doms_case_id, report_date, severity, notes)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (case_id, report_date, severity, notes),
+                )
+            elif severity > 0:
+                conn.execute(
+                    """
+                    INSERT INTO expert_doms_cases (
+                        user_id, muscle_group, started_on, status, last_severity, last_report_date
+                    ) VALUES (?, ?, ?, 'active', ?, ?)
+                    """,
+                    (user["id"], group, report_date, severity, report_date),
+                )
+                new_case = conn.execute(
+                    """
+                    SELECT id FROM expert_doms_cases
+                    WHERE user_id = ? AND muscle_group = ? AND status = 'active'
+                    ORDER BY id DESC LIMIT 1
+                    """,
+                    (user["id"], group),
+                ).fetchone()
+                conn.execute(
+                    """
+                    INSERT INTO expert_doms_reports (doms_case_id, report_date, severity, notes)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (new_case["id"], report_date, severity, notes),
+                )
+        conn.commit()
+    finally:
+        conn.close()
+    return _expert_state(user)
+
+
+# ═══════════════════════════════════════════════
+# UZMAN SİSTEMİ V2 ENDPOINT'LERİ — ekipman, kısıt ve kullanıcı onayı
+# ═══════════════════════════════════════════════
+@app.post("/api/expert-system/equipment")
+def save_expert_equipment(
+    data: ExpertEquipmentRequest = Body(...),
+    user: dict = Depends(_resolve_current_user),
+):
+    _expert_require_ready(user)
+    allowed = {item["id"] for item in AVAILABLE_EQUIPMENT_OPTIONS}
+    cleaned: list[str] = []
+    for raw in data.available_equipment or []:
+        equipment_id = str(raw or "").strip().lower().replace(" ", "_").replace("-", "_")
+        if equipment_id not in allowed:
+            raise HTTPException(status_code=400, detail="Geçersiz ekipman seçildi.")
+        if equipment_id not in cleaned:
+            cleaned.append(equipment_id)
+    if not cleaned:
+        raise HTTPException(status_code=400, detail="Program üretmek için en az bir erişilebilir ekipman seçin.")
+
+    conn = get_db()
+    try:
+        existing = conn.execute(
+            "SELECT user_id FROM expert_equipment WHERE user_id = ?", (user["id"],)
+        ).fetchone()
+        payload = json.dumps(cleaned, ensure_ascii=False)
+        if existing:
+            conn.execute(
+                "UPDATE expert_equipment SET available_equipment = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?",
+                (payload, user["id"]),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO expert_equipment (user_id, available_equipment) VALUES (?, ?)",
+                (user["id"], payload),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+    return _expert_state(user)
+
+
+@app.post("/api/expert-system/constraints")
+def save_expert_constraint(
+    data: ExpertConstraintRequest = Body(...),
+    user: dict = Depends(_resolve_current_user),
+):
+    _expert_require_ready(user)
+    muscle = normalize_detailed_muscle(data.muscle_group)
+    if not muscle:
+        raise HTTPException(status_code=400, detail="Geçerli bir ayrıntılı kas bölgesi seçin.")
+    allowed_types = {"pain", "tendon", "medical_clearance"}
+    constraint_type = str(data.constraint_type or "pain").strip().lower()
+    if constraint_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Geçersiz kısıt türü seçildi.")
+    try:
+        severity = float(validate_expert_score(data.severity, "Kısıt şiddeti", required=True))
+        started_on = _expert_date(data.started_on)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    resolved = bool(data.resolved) or severity <= 0
+    status = "resolved" if resolved else "active"
+    resolved_on = date.today().isoformat() if resolved else None
+    notes = str(data.notes or "").strip()[:600]
+
+    conn = get_db()
+    try:
+        _expert_require_preferences(conn, user["id"])
+        if data.constraint_id:
+            existing = conn.execute(
+                "SELECT id FROM expert_constraints WHERE id = ? AND user_id = ?",
+                (data.constraint_id, user["id"]),
+            ).fetchone()
+            if not existing:
+                raise HTTPException(status_code=404, detail="Kısıt kaydı bulunamadı.")
+            conn.execute(
+                """
+                UPDATE expert_constraints
+                SET muscle_group = ?, constraint_type = ?, severity = ?, notes = ?,
+                    started_on = ?, status = ?, resolved_on = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ? AND user_id = ?
+                """,
+                (muscle, constraint_type, 0 if resolved else severity, notes, started_on, status, resolved_on, data.constraint_id, user["id"]),
+            )
+        else:
+            conn.execute(
+                """
+                INSERT INTO expert_constraints (
+                    user_id, muscle_group, constraint_type, severity, notes, started_on, resolved_on, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (user["id"], muscle, constraint_type, 0 if resolved else severity, notes, started_on, resolved_on, status),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+    return _expert_state(user)
+
+
+def _expert_store_program_version(conn, user_id: int, program: dict) -> int:
+    """Öneriyi pasif sürüm olarak kaydeder; aktif program yalnızca ayrı uçla değişir."""
+    conn.execute(
+        "INSERT INTO expert_program_versions (user_id, program_json, is_active) VALUES (?, ?, FALSE)",
+        (user_id, json.dumps(program, ensure_ascii=False)),
+    )
+    row = conn.execute(
+        "SELECT id FROM expert_program_versions WHERE user_id = ? ORDER BY id DESC LIMIT 1",
+        (user_id,),
+    ).fetchone()
+    if not row:
+        raise RuntimeError("Program sürümü kaydedilemedi.")
+    return int(row["id"])
+
+
+@app.post("/api/expert-system/generate-program")
+def generate_expert_program(
+    data: ExpertGenerateProgramRequest = Body(default=ExpertGenerateProgramRequest()),
+    user: dict = Depends(_resolve_current_user),
+):
+    _expert_require_ready(user)
+    profile = dict(user)
+    if data.days_per_week is not None:
+        if not 1 <= int(data.days_per_week) <= 7:
+            raise HTTPException(status_code=400, detail="Haftalık gün sayısı 1 ile 7 arasında olmalıdır.")
+        profile["days_per_week"] = int(data.days_per_week)
+
+    workouts = get_workouts_by_user(user["id"])
+    history, latest_dates = _expert_history_context(workouts)
+    conn = get_db()
+    try:
+        preferences = _expert_require_preferences(conn, user["id"])
+        equipment, equipment_configured = _expert_equipment_for_user(conn, user["id"])
+        if not equipment_configured or not equipment:
+            raise HTTPException(status_code=409, detail="Önce erişebildiğiniz ekipmanı kaydedin.")
+        active_doms = _expert_active_doms(conn, user["id"])
+        constraints = _expert_active_constraints(conn, user["id"])
+        try:
+            program = generate_dynamic_program(
+                profile, preferences, EXERCISE_POOL, equipment, active_doms, constraints,
+                history=history, last_workout_dates=latest_dates,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        version_id = _expert_store_program_version(conn, user["id"], program)
+        conn.commit()
+    finally:
+        conn.close()
+    return {"message": "Uzman programı taslak olarak üretildi; aktif etmek için onay verin.", "program_version_id": version_id, "program": program}
+
+
+@app.post("/api/expert-system/activate-program")
+def activate_expert_program(
+    data: ExpertActivateProgramRequest = Body(...),
+    user: dict = Depends(_resolve_current_user),
+):
+    _expert_require_ready(user)
+    conn = get_db()
+    try:
+        version = conn.execute(
+            "SELECT id FROM expert_program_versions WHERE id = ? AND user_id = ?",
+            (data.program_version_id, user["id"]),
+        ).fetchone()
+        if not version:
+            raise HTTPException(status_code=404, detail="Aktifleştirilecek uzman programı bulunamadı.")
+        # Özel Programım alanına hiçbir yazım yapılmaz: iki program alanı bağımsızdır.
+        conn.execute("UPDATE expert_program_versions SET is_active = FALSE WHERE user_id = ?", (user["id"],))
+        conn.execute(
+            "UPDATE expert_program_versions SET is_active = TRUE, activated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?",
+            (data.program_version_id, user["id"]),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return _expert_state(user)
+
+
+@app.post("/api/expert-system/missed-session")
+def reschedule_missed_expert_session(
+    data: ExpertMissedSessionRequest = Body(...),
+    user: dict = Depends(_resolve_current_user),
+):
+    """Kaçırılan uzman seansı için pasif, kullanıcı onaylı yeni taslak sürüm üretir."""
+    _expert_require_ready(user)
+    try:
+        recovery_score = float(data.recovery_score)
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="Toparlanma puanı geçersiz.") from exc
+    if not 0 <= recovery_score <= 100:
+        raise HTTPException(status_code=400, detail="Toparlanma puanı 0 ile 100 arasında olmalıdır.")
+
+    conn = get_db()
+    try:
+        requested_id = data.program_version_id
+        if requested_id:
+            row = conn.execute(
+                "SELECT id, program_json FROM expert_program_versions WHERE id = ? AND user_id = ?",
+                (requested_id, user["id"]),
+            ).fetchone()
+        else:
+            row = conn.execute(
+                """
+                SELECT id, program_json FROM expert_program_versions
+                WHERE user_id = ? AND is_active = TRUE
+                ORDER BY activated_at DESC, created_at DESC, id DESC LIMIT 1
+                """,
+                (user["id"],),
+            ).fetchone()
+        if not row:
+            raise HTTPException(status_code=409, detail="Telafi için önce bir uzman programını aktifleştirin.")
+        try:
+            source_program = json.loads(row["program_json"] or "{}")
+            split_program = source_program.get("program") or source_program
+            adjusted_split = handle_missed_session(
+                split_program, data.session_id, _expert_active_doms(conn, user["id"]), recovery_score,
+                _expert_active_constraints(conn, user["id"]),
+            )
+        except (TypeError, json.JSONDecodeError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        if "program" in source_program:
+            source_program["program"] = adjusted_split
+        else:
+            source_program = adjusted_split
+        source_program["rescheduled_from_version_id"] = int(row["id"])
+        version_id = _expert_store_program_version(conn, user["id"], source_program)
+        conn.commit()
+    finally:
+        conn.close()
+    return {"message": "Telafi planı taslak olarak hazırlandı; isterseniz aktifleştirin.", "program_version_id": version_id, "program": source_program}
 
 
 # ═══════════════════════════════════════════════
@@ -1812,6 +2736,29 @@ def dashboard(user: dict = Depends(_resolve_current_user)):
     sessions_data = [
         {"date": w["date"], "type": w.get("session_type", "Workout")} for w in workouts
     ]
+    conn = get_db()
+    try:
+        active_expert_program = _expert_active_program(conn, user["id"])
+    finally:
+        conn.close()
+
+    expert_program_summary = None
+    if active_expert_program:
+        dynamic = active_expert_program.get("program") or {}
+        selected = dynamic.get("program") or dynamic
+        split_explanation = (dynamic.get("split") or {}).get("explanation") or ""
+        if isinstance(split_explanation, dict):
+            split_explanation = " — ".join(
+                str(value).strip() for value in (split_explanation.get("title"), split_explanation.get("summary")) if value
+            )
+        expert_program_summary = {
+            "source": "expert_system_v2",
+            "version_id": active_expert_program.get("version_id"),
+            "name": selected.get("name") or selected.get("title") or "Uzman Programı",
+            "rationale": selected.get("rationale") or split_explanation,
+            "session_count": len(selected.get("sessions") or []),
+            "activated_at": active_expert_program.get("activated_at"),
+        }
 
     return {
         "success": True,
@@ -1828,6 +2775,8 @@ def dashboard(user: dict = Depends(_resolve_current_user)):
             "total_volume": sum(w["total_volume"] for w in workouts)
         },
         "split_info": split_info,
+        "active_expert_program": active_expert_program,
+        "expert_program_summary": expert_program_summary,
         "rest_days": rest_days,
         "muscle_distribution": {
             "all": muscle_dist_all,
@@ -2211,6 +3160,175 @@ def delete_nutrition_log(log_date: str = Query(...),
         conn.close()
 
     return {"success": True, "message": "Kayıt başarıyla silindi"}
+
+
+# ═══════════════════════════════════════════════
+# UZMAN SİSTEMİ — VERİ TOPLAMA API'LERİ
+# Analiz, program oluşturma veya tıbbi yorum üretmez; yalnızca kullanıcının
+# kendi bildirdiği verileri tek JSON kayıt altında saklar.
+# ═══════════════════════════════════════════════
+@app.get("/api/expert-data")
+def get_expert_data(user: dict = Depends(_resolve_current_user)):
+    return _expert_data_state(user)
+
+
+@app.put("/api/expert-data/goals")
+def save_expert_goals(data: ExpertGoalsDataRequest = Body(...),
+                      user: dict = Depends(_resolve_current_user)):
+    primary_goal = str(data.primary_goal or "").strip()
+    if primary_goal not in PRIMARY_GOALS:
+        raise HTTPException(status_code=400, detail="Geçerli bir ana hedef seçin.")
+
+    priority_muscles: list[str] = []
+    for raw_muscle in data.priority_muscles or []:
+        muscle = normalize_detailed_muscle(raw_muscle)
+        if not muscle or muscle in priority_muscles:
+            continue
+        priority_muscles.append(muscle)
+    if not 1 <= len(priority_muscles) <= 3:
+        raise HTTPException(status_code=400, detail="En az 1, en fazla 3 öncelikli kas seçin.")
+
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        profile["goals"] = {
+            "primary_goal": primary_goal,
+            "priority_muscles": priority_muscles,
+            "priority_note": str(data.priority_note or "").strip()[:500],
+            "updated_at": datetime.now().isoformat(timespec="seconds"),
+        }
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.post("/api/expert-data/doms")
+def add_expert_doms(data: ExpertDomsDataRequest = Body(...),
+                    user: dict = Depends(_resolve_current_user)):
+    muscle = normalize_detailed_muscle(data.muscle_group)
+    if not muscle:
+        raise HTTPException(status_code=400, detail="Geçerli bir kas grubu seçin.")
+    if not 0 <= int(data.severity) <= 5:
+        raise HTTPException(status_code=400, detail="Kas ağrısı değeri 0 ile 5 arasında olmalıdır.")
+    status = str(data.status or "active").strip().lower()
+    if status not in {"active", "resolved"}:
+        raise HTTPException(status_code=400, detail="Durum aktif veya geçti olmalıdır.")
+
+    report_date = _expert_date(data.report_date)
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        profile["doms_history"].append({
+            "id": secrets.token_hex(8),
+            "muscle_group": muscle,
+            "severity": int(data.severity),
+            "status": status,
+            "report_date": report_date,
+            "created_at": datetime.now().isoformat(timespec="seconds"),
+            "notes": str(data.notes or "").strip()[:500],
+        })
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.post("/api/expert-data/constraints")
+def add_expert_constraint(data: ExpertConstraintDataRequest = Body(...),
+                          user: dict = Depends(_resolve_current_user)):
+    area = str(data.area or "").strip()
+    allowed_areas = {
+        "Omuz", "Dirsek", "Bilek", "Bel", "Kalça", "Diz", "Ayak bileği",
+        "Göğüs", "Sırt", "Biceps", "Triceps", "Quadriceps", "Hamstring", "Gluteus", "Calf",
+    }
+    if area not in allowed_areas:
+        raise HTTPException(status_code=400, detail="Geçerli bir ağrı veya kısıt bölgesi seçin.")
+    if not 0 <= int(data.severity) <= 5:
+        raise HTTPException(status_code=400, detail="Şiddet değeri 0 ile 5 arasında olmalıdır.")
+    side = str(data.side or "not_specified").strip()
+    if side not in {"not_specified", "left", "right", "bilateral"}:
+        raise HTTPException(status_code=400, detail="Geçerli bir taraf seçin.")
+    status = str(data.status or "active").strip().lower()
+    if status not in {"active", "resolved"}:
+        raise HTTPException(status_code=400, detail="Durum aktif veya geçti olmalıdır.")
+
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        profile["constraints"].append({
+            "id": secrets.token_hex(8),
+            "area": area,
+            "side": side,
+            "severity": int(data.severity),
+            "status": status,
+            "started_on": _expert_date(data.started_on),
+            "created_at": datetime.now().isoformat(timespec="seconds"),
+            "notes": str(data.notes or "").strip()[:500],
+        })
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.post("/api/expert-data/reset-legacy")
+def reset_legacy_expert_data(data: ExpertLegacyResetRequest = Body(...),
+                             user: dict = Depends(_resolve_current_user)):
+    """Kullanıcının eski uzman sistemi kayıtlarını açık onayla temizler.
+
+    Kullanıcı hesabı, profil, antrenman, beslenme, özel split ve PR verileri bu
+    işlemden etkilenmez. Yeni tek-kayıt uzman verisi boş olarak oluşturulur.
+    """
+    if str(data.confirmation or "").strip() != "UZMAN VERİLERİNİ SIFIRLA":
+        raise HTTPException(status_code=400, detail="Sıfırlama onayı geçersiz.")
+    conn = get_db()
+    try:
+        # Yeni şemada eski tablolar kurulmaz; eski üretim veritabanlarında ise
+        # tamamı bulunabilir. PostgreSQL'de bulunmayan bir tabloya sorgu atmak
+        # işlemi geçersiz kılacağından, silmeden önce tablo varlığı denetlenir.
+        legacy_tables = (
+            "expert_preferences", "expert_checkins", "expert_equipment",
+            "expert_constraints", "expert_program_versions", "expert_doms_cases",
+            "expert_doms_reports",
+        )
+        if DATABASE_BACKEND == "postgresql":
+            existing_rows = conn.execute(
+                "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+            ).fetchall()
+            existing_tables = {str(row["tablename"]) for row in existing_rows}
+        else:
+            existing_rows = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+            existing_tables = {str(row["name"]) for row in existing_rows}
+
+        # Raporlar, DOMS vakalarına bağlı olduğundan önce silinir.
+        if "expert_doms_reports" in existing_tables and "expert_doms_cases" in existing_tables:
+            conn.execute(
+                "DELETE FROM expert_doms_reports WHERE doms_case_id IN "
+                "(SELECT id FROM expert_doms_cases WHERE user_id = ?)",
+                (user["id"],),
+            )
+
+        statements = (
+            ("expert_preferences", "DELETE FROM expert_preferences WHERE user_id = ?"),
+            ("expert_checkins", "DELETE FROM expert_checkins WHERE user_id = ?"),
+            ("expert_equipment", "DELETE FROM expert_equipment WHERE user_id = ?"),
+            ("expert_constraints", "DELETE FROM expert_constraints WHERE user_id = ?"),
+            ("expert_program_versions", "DELETE FROM expert_program_versions WHERE user_id = ?"),
+            ("expert_doms_cases", "DELETE FROM expert_doms_cases WHERE user_id = ?"),
+        )
+        for table_name, statement in statements:
+            if table_name in existing_tables:
+                conn.execute(statement, (user["id"],))
+
+        if "expert_profiles" in existing_tables:
+            conn.execute("DELETE FROM expert_profiles WHERE user_id = ?", (user["id"],))
+        conn.commit()
+    finally:
+        conn.close()
+    return _expert_data_state(user)
 
 
 # ═══════════════════════════════════════════════
