@@ -1,7 +1,9 @@
-"""Hypertrophy-X PostgreSQL şeması.
+"""
+Hypertrophy-X PostgreSQL / Neon şeması.
 
-JSON tabanlı alanlar TEXT olarak korunur; böylece mevcut frontend ve API yanıtları
-SQLite sürümüyle bire bir uyumlu kalır.
+JSON tabanlı uzman sistemi alanları TEXT olarak tutulur. Böylece SQLite ve
+PostgreSQL aynı API sözleşmesini kullanır ve ileride yeni anket bölümleri şema
+göçü gerektirmeden eklenebilir.
 """
 
 POSTGRES_SCHEMA_STATEMENTS = (
@@ -40,6 +42,20 @@ POSTGRES_SCHEMA_STATEMENTS = (
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
     """,
+    # Daha önceki sürümlerde oluşturulmuş users tabloları ile uyumluluk.
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS dashboard_preferences TEXT NOT NULL DEFAULT '{}'",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_nutrition TEXT NOT NULL DEFAULT '{}'",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin INTEGER NOT NULL DEFAULT 0",
+    """
+    CREATE TABLE IF NOT EXISTS expert_profiles (
+        user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        goals_json TEXT NOT NULL DEFAULT '{}',
+        doms_history_json TEXT NOT NULL DEFAULT '[]',
+        constraints_json TEXT NOT NULL DEFAULT '[]',
+        ui_preferences_json TEXT NOT NULL DEFAULT '{}',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+    """,
     "CREATE INDEX IF NOT EXISTS idx_workouts_user_date ON workouts (user_id, date DESC)",
 )
