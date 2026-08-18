@@ -1425,6 +1425,51 @@ canvas {
 
 
 
+
+/* ═══════════════════════════════════════════════
+   UZMAN SİSTEMİ — Açıklanabilir kural/fuzzy arayüzü
+═══════════════════════════════════════════════ */
+.expert-layout { display:grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .72fr); gap:20px; align-items:start; }
+.expert-stack { display:flex; flex-direction:column; gap:16px; min-width:0; }
+.expert-card { min-width:0; overflow:hidden; }
+.expert-card-title { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; font-size:16px; font-weight:700; color:var(--text); }
+.expert-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; background:rgba(108,99,255,.15); color:#a99dff; border:1px solid rgba(108,99,255,.28); }
+.expert-pill.warn { background:rgba(245,158,11,.13); color:#fbbf24; border-color:rgba(245,158,11,.28); }
+.expert-pill.good { background:rgba(34,197,94,.12); color:#4ade80; border-color:rgba(34,197,94,.25); }
+.expert-actions { display:flex; flex-wrap:wrap; gap:10px; }
+.expert-choice-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
+.expert-choice { appearance:none; width:100%; min-height:44px; cursor:pointer; text-align:left; color:var(--text-secondary); background:rgba(255,255,255,.025); border:1px solid var(--border); border-radius:10px; padding:10px; font:inherit; font-size:12px; transition:.2s ease; }
+.expert-choice:hover { border-color:var(--accent); background:rgba(108,99,255,.08); }
+.expert-choice.selected { color:#fff; background:rgba(108,99,255,.17); border-color:var(--accent); box-shadow:0 0 0 1px rgba(108,99,255,.22) inset; }
+.expert-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.expert-form-grid .wide { grid-column:1/-1; }
+.expert-form-grid label { display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px; }
+.expert-form-grid input,.expert-form-grid textarea { width:100%; }
+.expert-scale { display:grid; grid-template-columns:repeat(11,minmax(0,1fr)); gap:4px; }
+.expert-scale button { border:1px solid var(--border); background:rgba(255,255,255,.025); color:var(--text-muted); border-radius:7px; height:30px; font-size:11px; cursor:pointer; }
+.expert-scale button.selected { color:#fff; background:var(--accent); border-color:var(--accent); }
+.expert-doms-row { display:grid; grid-template-columns:minmax(88px,.8fr) minmax(130px,1.3fr) auto; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); }
+.expert-doms-row:last-child { border-bottom:0; }
+.expert-doms-name { font-size:13px; font-weight:700; }
+.expert-doms-score { color:#fbbf24; font-size:12px; font-weight:700; white-space:nowrap; }
+.expert-recommendation { border-left:3px solid var(--accent); background:rgba(108,99,255,.07); border-radius:0 10px 10px 0; padding:12px; margin-top:10px; }
+.expert-rule-list { margin:0; padding-left:18px; color:var(--text-secondary); font-size:12px; line-height:1.6; }
+.expert-empty { border:1px dashed var(--border); border-radius:10px; padding:16px; color:var(--text-muted); font-size:13px; }
+@media (max-width: 768px) {
+  .expert-layout { grid-template-columns:1fr; gap:14px; }
+  .expert-card-title { font-size:15px; }
+  .expert-choice-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .expert-form-grid { grid-template-columns:1fr; }
+  .expert-form-grid .wide { grid-column:auto; }
+  .expert-doms-row { grid-template-columns:88px minmax(120px,1fr) auto; gap:7px; }
+  .expert-actions .btn { flex:1 1 145px; justify-content:center; }
+}
+@media (max-width: 410px) {
+  .expert-choice-grid { grid-template-columns:1fr; }
+  .expert-doms-row { grid-template-columns:1fr; gap:6px; }
+  .expert-scale { gap:3px; }
+  .expert-scale button { height:28px; }
+}
 </style>
 </head>
 <body>
@@ -1732,10 +1777,10 @@ canvas {
       <div class="page page-animated" id="page-analyze">
         <div class="page-header">
           <div class="page-title">Uzman Sistemi</div>
-          <div class="page-subtitle">Vücut analizi, beslenme ve antrenman önerileri</div>
+          <div class="page-subtitle">Kural tabanlı toparlanma ve hipertrofi karar desteği</div>
         </div>
         <div id="analyzeContent">
-          <div class="card"><p style="color:var(--text-muted)">Analiz hazırlanıyor...</p></div>
+          <div class="card"><p style="color:var(--text-muted)">Uzman sistemi hazırlanıyor...</p></div>
         </div>
       </div>
 
@@ -4224,81 +4269,191 @@ window.deleteNutritionLog = async function(logDate, event) {
 /* ═══════════════════════════════════════════════
    ANALİZ SAYFASI
 ═══════════════════════════════════════════════ */
-async function runAnalysis() {
+let expertSystemState = null;
+let expertPreferenceDraft = { primary_goal: 'hypertrophy', priority_muscles: [] };
+let expertCheckinDraft = { session_rpe: null, day_fatigue: null, recovery_feeling: null, completion_percentage: 100 };
+let expertDomsDraft = {};
+
+function expertEscape(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[char]));
+}
+function expertToday() { return new Date().toISOString().slice(0, 10); }
+function expertDateLabel(value) {
+  if (!value) return '—';
+  const date = new Date(`${value}T12:00:00`);
+  return Number.isNaN(date.getTime()) ? expertEscape(value) : date.toLocaleDateString('tr-TR');
+}
+function expertGoalLabel(goal) {
+  return expertSystemState?.catalog?.primary_goals?.[goal] || goal || '—';
+}
+function expertScale(field, value) {
+  return `<div class="expert-scale">${Array.from({length:11}, (_, number) =>
+    `<button type="button" class="${Number(value) === number ? 'selected' : ''}" onclick="expertSetScore('${field}',${number})">${number}</button>`
+  ).join('')}</div>`;
+}
+function expertLoading() {
   const content = document.getElementById('analyzeContent');
-  content.innerHTML = '<div class="card"><p style="color:var(--text-muted);font-size:13px">Analiz yapılıyor...</p></div>';
+  if (content) content.innerHTML = '<div class="card"><p style="color:var(--text-muted);font-size:13px">Uzman sistemi yükleniyor...</p></div>';
+}
+
+async function loadExpertSystem() {
+  expertLoading();
   try {
-    const data = await apiPost(`/api/analyze`, { stagnation_detected: false });
-    const split = data.split || {name: '-', days: []};
-    const daysHTML = (split.days || []).map(d => {
-      if (d.rest) {
-        return `<div class="split-card" style="border:1px dashed var(--border)">
-          <div class="split-day" style="color:var(--text-muted)">${d.day}</div>
-          <div class="split-type" style="color:var(--text-muted)">💤 Dinlenme</div></div>`;
-      }
-      const exList = (d.exercises || []).map(e =>
-        `<div style="font-size:12px;color:var(--text-muted);padding:2px 0;display:flex;justify-content:space-between;gap:6px">
-           <span>• ${e.name} <span style="color:var(--accent);font-weight:600">${e.sets}</span></span>
-           <span style="font-size:11px;color:var(--text-dim);text-align:right">${e.note || ''}</span>
-         </div>`).join('');
-      return `<div class="split-card">
-        <div class="split-day">${d.day}</div>
-        <div class="split-type">${d.type}</div>
-        <div style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.06);padding-top:6px">${exList}</div>
-      </div>`;
-    }).join('');
-    content.innerHTML = `
-      <div class="stats-grid mb-20">
-        <div class="stat-card accent">
-          <div class="stat-value">${data.bmi || '—'}</div>
-          <div class="stat-label">BMI</div>
-        </div>
-        <div class="stat-card green">
-          <div class="stat-value">${data.bmr || '—'}</div>
-          <div class="stat-label">BMR (kcal)</div>
-        </div>
-        <div class="stat-card orange">
-          <div class="stat-value">${data.tdee || '—'}</div>
-          <div class="stat-label">TDEE (kcal)</div>
-        </div>
-        <div class="stat-card blue">
-          <div class="stat-value">${data.target_calories || '—'}</div>
-          <div class="stat-label">Hedef Kalori</div>
-        </div>
-      </div>
-      <div class="grid-2 mb-20">
-        <div class="card">
-          <div class="card-title">Makro Hedefler</div>
-          <div class="profile-grid">
-            <div><span style="color:var(--text-muted);font-size:12px">Protein</span><div style="font-size:20px;font-weight:700;color:var(--green)">${data.protein}g</div></div>
-            <div><span style="color:var(--text-muted);font-size:12px">Karbonhidrat</span><div style="font-size:20px;font-weight:700;color:var(--orange)">${data.carbs}g</div></div>
-            <div><span style="color:var(--text-muted);font-size:12px">Yağ</span><div style="font-size:20px;font-weight:700;color:var(--blue)">${data.fat}g</div></div>
-          </div>
-          <div style="margin-top:10px;font-size:12px;color:var(--text-dim)">
-            Protein: kg başına ~2g · Yağ: kg başına ~0.9g · Karb: kalan kaloriden hesaplanır.
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title">Haftalık Program — ${split.name} <span style="font-size:12px;color:var(--text-dim);font-weight:400">(${split.rest_count ?? 0} dinlenme günü)</span></div>
-          <div class="split-list" style="display:flex;flex-direction:column;gap:8px">${daysHTML}</div>
-          <div style="margin-top:10px;font-size:12px;color:var(--text-dim)">
-            Aynı hareket haftada iki kez çıkmaz — Push/Pull/Legs günleri A/B varyantlarıyla
-            farklı açılış hareketleriyle başlar. Hareket listesinden istediğin gibi özelleştir.
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">İlerleme Durumu</div>
-        <p style="color:${data.stagnation?.includes('Durgunluk') ? 'var(--red)' : 'var(--green)'};font-size:14px">${data.stagnation}</p>
-      </div>
-    `;
-  } catch(e) {
-    content.innerHTML = `<div class="card"><p style="color:var(--red)">Analiz yapılamadı: ${e.message}</p></div>`;
+    expertSystemState = await apiGet('/api/expert-system');
+    if (expertSystemState.preferences) {
+      expertPreferenceDraft = {
+        primary_goal: expertSystemState.preferences.primary_goal,
+        priority_muscles: [...(expertSystemState.preferences.priority_muscles || [])]
+      };
+    }
+    renderExpertSystem();
+  } catch (error) {
+    const content = document.getElementById('analyzeContent');
+    if (content) content.innerHTML = `<div class="card"><p style="color:var(--red)">Uzman sistemi yüklenemedi: ${expertEscape(error.message)}</p></div>`;
   }
 }
 
-// Uzman Sistemine her girişte analiz otomatik çalışsın
-function onAnalyzePageEnter() { runAnalysis(); }
+function expertGateCard(eligibility) {
+  const profileMissing = eligibility.reason === 'profile_incomplete';
+  const button = profileMissing
+    ? `<button class="btn btn-primary" onclick="navigate('profile')">Profil Sayfasına Git</button>`
+    : `<button class="btn btn-primary" onclick="navigate('workout')">Antrenman Kaydı Ekle</button>`;
+  return `<div class="card expert-card" style="max-width:720px">
+    <div class="expert-card-title"><span>Uzman sistemi henüz hazır değil</span><span class="expert-pill warn">Ön koşul gerekli</span></div>
+    <p style="margin:0 0 14px;color:var(--text-secondary);font-size:13px;line-height:1.6">${expertEscape(eligibility.message || 'Ön koşulları tamamlayın.')}</p>
+    ${profileMissing && eligibility.missing_fields?.length ? `<div class="expert-empty" style="margin-bottom:14px">Eksik profil bilgileri: ${eligibility.missing_fields.map(expertEscape).join(', ')}</div>` : ''}
+    ${button}
+  </div>`;
+}
+
+function expertPreferencesForm() {
+  const catalog = expertSystemState?.catalog || { primary_goals: {}, muscle_groups: [] };
+  const goals = Object.entries(catalog.primary_goals || {}).map(([key, label]) =>
+    `<button type="button" class="expert-choice ${expertPreferenceDraft.primary_goal === key ? 'selected' : ''}" onclick="expertSelectGoal('${key}')">${expertEscape(label)}</button>`
+  ).join('');
+  const muscles = (catalog.muscle_groups || []).map(group =>
+    `<button type="button" class="expert-choice ${expertPreferenceDraft.priority_muscles.includes(group) ? 'selected' : ''}" onclick="expertTogglePriority('${group}')">${expertEscape(group)}</button>`
+  ).join('');
+  return `<div class="card expert-card">
+    <div class="expert-card-title"><span>${expertSystemState?.preferences ? 'Hedeflerini Düzenle' : 'Uzman Sistemi Başlangıç Anketi'}</span><span class="expert-pill">2 kısa tercih</span></div>
+    <p style="margin:0 0 16px;color:var(--text-muted);font-size:13px;line-height:1.55">Profilinizde bulunan deneyim, haftalık gün ve seans süresi tekrar sorulmaz. Bu tercihler kaydedilir; daha sonra istediğiniz zaman değiştirebilirsiniz.</p>
+    <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:8px">ANA AMAÇ</div>
+    <div class="expert-choice-grid" style="margin-bottom:18px">${goals}</div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:8px"><span style="font-size:12px;font-weight:700;color:var(--text-secondary)">ÖNCELİKLİ KAS GRUPLARI</span><span style="font-size:11px;color:var(--text-muted)">${expertPreferenceDraft.priority_muscles.length}/3 seçildi</span></div>
+    <div class="expert-choice-grid">${muscles}</div>
+    <div class="expert-actions" style="margin-top:18px">
+      <button class="btn btn-primary" onclick="expertSavePreferences()">Tercihleri Kaydet ve Analizi Aç</button>
+      ${expertSystemState?.preferences ? `<button class="btn btn-secondary" onclick="expertClosePanel()">Vazgeç</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function expertResultCard(result) {
+  const program = result?.program_focus || {};
+  const recovery = result?.recovery || {};
+  const score = recovery.recovery_score;
+  const scoreColor = score == null ? 'var(--text-muted)' : score < 45 ? 'var(--red)' : score < 70 ? 'var(--orange)' : 'var(--green)';
+  const focus = (program.weekly_focus || []).map(item => `<div class="expert-recommendation"><div style="display:flex;justify-content:space-between;gap:10px"><strong>${expertEscape(item.muscle_group)}</strong><span class="expert-pill">${item.recent_direct_sets} set · hedef ${item.recommended_weekly_sets.min}-${item.recommended_weekly_sets.max}</span></div><div style="margin-top:7px;color:var(--text-secondary);font-size:12px;line-height:1.5">${expertEscape(item.message)}</div></div>`).join('') || '<div class="expert-empty">Öncelikli kas seçimi henüz yok.</div>';
+  const rules = (recovery.rule_trace || []).map(item => `<li><strong>${expertEscape(item.rule)}:</strong> ${expertEscape(item.detail)}</li>`).join('');
+  const doms = (recovery.active_doms || []).map(item => `<span class="expert-pill warn">${expertEscape(item.muscle_group)} ${expertEscape(item.severity)}/10</span>`).join(' ') || '<span style="font-size:12px;color:var(--text-muted)">Aktif DOMS kaydı yok</span>';
+  return `<div class="expert-stack">
+    <div class="card expert-card">
+      <div class="expert-card-title"><span>Bugünkü Karar Desteği</span><span class="expert-pill ${score != null && score >= 70 ? 'good' : score != null ? 'warn' : ''}">${expertEscape(recovery.title || 'Değerlendirme bekleniyor')}</span></div>
+      <div style="display:flex;gap:16px;align-items:center"><div style="min-width:78px;text-align:center"><div style="font-size:32px;font-weight:800;color:${scoreColor}">${score == null ? '—' : score}</div><div style="font-size:11px;color:var(--text-muted)">Toparlanma</div></div><div style="font-size:13px;line-height:1.58;color:var(--text-secondary)">${expertEscape(recovery.message || 'Anketi tamamladığınızda değerlendirme burada görünür.')}</div></div>
+      <div style="margin-top:14px"><div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:7px">AKTİF KAS AĞRISI / DOMS</div>${doms}</div>
+    </div>
+    <div class="card expert-card"><div class="expert-card-title"><span>Hedefe Göre Hacim Odağı</span><span class="expert-pill">${expertEscape(program.primary_goal_label || '—')}</span></div><p style="margin:0;color:var(--text-secondary);font-size:13px;line-height:1.5">${expertEscape(program.message || '')}</p>${focus}</div>
+    <div class="card expert-card"><div class="expert-card-title"><span>Neden Bu Öneri?</span><span class="expert-pill">Açıklanabilir kurallar</span></div><ul class="expert-rule-list">${rules}</ul><p style="margin:14px 0 0;color:var(--text-muted);font-size:11px;line-height:1.45">${expertEscape(recovery.disclaimer || '')}</p></div>
+  </div>`;
+}
+
+function expertActionPanel() {
+  const preferences = expertSystemState.preferences;
+  const domsCount = (expertSystemState.active_doms || []).length;
+  return `<div class="expert-stack">
+    <div class="card expert-card"><div class="expert-card-title"><span>Kontrol Anketleri</span><span class="expert-pill good">İsteğe bağlı</span></div>
+      <p style="margin:0 0 14px;color:var(--text-muted);font-size:12px;line-height:1.55">Veriler zorunlu günlük bildirim olarak istenmez. Antrenmandan sonra veya toparlanmanızı değerlendirmek istediğiniz günlerde siz başlatırsınız.</p>
+      <div class="expert-actions"><button class="btn btn-primary" onclick="expertOpenPanel('session')">Son Seansı Değerlendir</button><button class="btn btn-secondary" onclick="expertOpenPanel('daily')">Günlük Toparlanma Kontrolü</button><button class="btn btn-secondary" onclick="expertOpenPanel('doms')">Kas Ağrısı / DOMS Gir${domsCount ? ` (${domsCount})` : ''}</button></div>
+    </div>
+    <div class="card expert-card"><div class="expert-card-title"><span>Kaydedilmiş Tercihler</span><button class="btn btn-secondary" style="padding:7px 10px;font-size:12px" onclick="expertOpenPanel('preferences')">Düzenle</button></div><div style="font-size:13px;color:var(--text-secondary);line-height:1.7"><div><span style="color:var(--text-muted)">Amaç:</span> ${expertEscape(expertGoalLabel(preferences.primary_goal))}</div><div><span style="color:var(--text-muted)">Odak:</span> ${expertEscape((preferences.priority_muscles || []).join(', '))}</div></div></div>
+    <div id="expertInteractionPanel"></div>
+  </div>`;
+}
+
+function renderExpertSystem() {
+  const content = document.getElementById('analyzeContent');
+  if (!content || !expertSystemState) return;
+  const eligibility = expertSystemState.eligibility || {};
+  if (!eligibility.ready) { content.innerHTML = expertGateCard(eligibility); return; }
+  if (!expertSystemState.preferences) { content.innerHTML = expertPreferencesForm(); return; }
+  content.innerHTML = `<div class="expert-layout"><div>${expertResultCard(expertSystemState.result)}</div><div>${expertActionPanel()}</div></div>`;
+}
+
+window.expertSelectGoal = function(goal) { expertPreferenceDraft.primary_goal = goal; const panel = document.getElementById('expertInteractionPanel'); if (panel) panel.innerHTML = expertPreferencesForm(); else renderExpertSystem(); };
+window.expertTogglePriority = function(group) {
+  const selected = expertPreferenceDraft.priority_muscles;
+  if (selected.includes(group)) expertPreferenceDraft.priority_muscles = selected.filter(item => item !== group);
+  else if (selected.length >= 3) { toast('En fazla 3 öncelikli kas grubu seçebilirsiniz.', 'error'); return; }
+  else expertPreferenceDraft.priority_muscles = [...selected, group];
+  const panel = document.getElementById('expertInteractionPanel'); if (panel) panel.innerHTML = expertPreferencesForm(); else renderExpertSystem();
+};
+window.expertSavePreferences = async function() {
+  try {
+    const state = await apiPost('/api/expert-system/preferences', expertPreferenceDraft);
+    expertSystemState = state;
+    toast('Uzman sistemi tercihleri kaydedildi.', 'success');
+    renderExpertSystem();
+  } catch (error) { toast(error.message, 'error'); }
+};
+window.expertClosePanel = function() { const panel = document.getElementById('expertInteractionPanel'); if (panel) panel.innerHTML = ''; };
+window.expertSetScore = function(field, score) {
+  expertCheckinDraft[field] = score;
+  const panel = document.getElementById('expertInteractionPanel');
+  if (panel) panel.innerHTML = expertCheckinForm(window._expertPanelType || 'session');
+};
+
+function expertCheckinForm(type) {
+  const session = type === 'session';
+  const title = session ? 'Son Seansı Değerlendir' : 'Günlük Toparlanma Kontrolü';
+  const rpe = session ? `<div class="wide"><label>Son seansın genel zorluğu — RPE (0–10)</label>${expertScale('session_rpe', expertCheckinDraft.session_rpe)}<div style="font-size:11px;color:var(--text-muted);margin-top:5px">0: çok kolay · 10: maksimum efor</div></div>` : '';
+  const completion = session ? `<div><label>Planlanan setleri tamamlama (%)</label><input type="number" id="expertCompletion" min="0" max="100" value="${expertCheckinDraft.completion_percentage ?? 100}" /></div>` : '';
+  return `<div class="card expert-card" style="margin-top:16px"><div class="expert-card-title"><span>${title}</span><button class="btn btn-secondary" style="padding:6px 9px;font-size:12px" onclick="expertClosePanel()">Kapat</button></div><div class="expert-form-grid">${rpe}<div class="wide"><label>Gün içindeki yorgunluk (0–10)</label>${expertScale('day_fatigue', expertCheckinDraft.day_fatigue)}</div><div class="wide"><label>Ne kadar toparlanmış hissediyorsun? (0–10)</label>${expertScale('recovery_feeling', expertCheckinDraft.recovery_feeling)}</div>${completion}<div><label>Tarih</label><input type="date" id="expertCheckinDate" value="${expertToday()}" /></div><div class="wide"><label>Kısa not (isteğe bağlı)</label><textarea id="expertCheckinNotes" rows="2" maxlength="1000" placeholder="Uyku, stres, performans veya dikkat çeken durumlar..."></textarea></div></div><div class="expert-actions" style="margin-top:16px"><button class="btn btn-primary" onclick="expertSubmitCheckin('${type}')">Değerlendirmeyi Kaydet</button></div></div>`;
+}
+
+function expertDomsForm() {
+  const groups = expertSystemState.catalog?.muscle_groups || [];
+  const active = Object.fromEntries((expertSystemState.active_doms || []).map(item => [item.muscle_group, Number(item.last_severity || 0)]));
+  if (!Object.keys(expertDomsDraft).length) expertDomsDraft = { ...active };
+  const rows = groups.map(group => {
+    const score = Number(expertDomsDraft[group] ?? active[group] ?? 0);
+    return `<div class="expert-doms-row"><div class="expert-doms-name">${expertEscape(group)}</div><input type="range" min="0" max="10" step="1" value="${score}" oninput="expertSetDoms('${group}', this.value)" /><div class="expert-doms-score" id="expertDomsScore_${group}">${score}/10</div></div>`;
+  }).join('');
+  return `<div class="card expert-card" style="margin-top:16px"><div class="expert-card-title"><span>Kas Ağrısı / DOMS Takibi</span><button class="btn btn-secondary" style="padding:6px 9px;font-size:12px" onclick="expertClosePanel()">Kapat</button></div><p style="margin:0 0 10px;font-size:12px;color:var(--text-muted);line-height:1.55">Ağrı başlayan kaslar için şiddeti girin. Aktif bir ağrı 0'a indiğinde kayıt kapanır. Keskin, olağandışı ya da günlük yaşamı etkileyen ağrı için antrenmanı bırakıp sağlık uzmanına başvurun.</p>${rows}<div class="expert-form-grid" style="margin-top:12px"><div><label>Tarih</label><input type="date" id="expertDomsDate" value="${expertToday()}" /></div></div><div class="expert-actions" style="margin-top:16px"><button class="btn btn-primary" onclick="expertSubmitDoms()">DOMS Durumunu Kaydet</button></div></div>`;
+}
+
+window.expertOpenPanel = function(type) {
+  window._expertPanelType = type;
+  const panel = document.getElementById('expertInteractionPanel');
+  if (!panel) return;
+  if (type === 'preferences') { expertPreferenceDraft = { primary_goal: expertSystemState.preferences.primary_goal, priority_muscles: [...(expertSystemState.preferences.priority_muscles || [])] }; panel.innerHTML = expertPreferencesForm(); return; }
+  if (type === 'doms') { expertDomsDraft = {}; panel.innerHTML = expertDomsForm(); return; }
+  expertCheckinDraft = { session_rpe: null, day_fatigue: null, recovery_feeling: null, completion_percentage: 100 };
+  panel.innerHTML = expertCheckinForm(type);
+};
+window.expertSetDoms = function(group, value) { expertDomsDraft[group] = Number(value); const item = document.getElementById(`expertDomsScore_${group}`); if (item) item.textContent = `${value}/10`; };
+window.expertSubmitCheckin = async function(type) {
+  const completion = type === 'session' ? Number(document.getElementById('expertCompletion')?.value) : null;
+  const payload = { checkin_type:type, checkin_date:document.getElementById('expertCheckinDate')?.value, session_rpe:type === 'session' ? expertCheckinDraft.session_rpe : null, day_fatigue:expertCheckinDraft.day_fatigue, recovery_feeling:expertCheckinDraft.recovery_feeling, completion_percentage:completion, notes:document.getElementById('expertCheckinNotes')?.value || '' };
+  try { expertSystemState = await apiPost('/api/expert-system/checkins', payload); toast('Toparlanma değerlendirmesi kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); }
+};
+window.expertSubmitDoms = async function() {
+  const active = new Set((expertSystemState.active_doms || []).map(item => item.muscle_group));
+  const reports = Object.entries(expertDomsDraft).filter(([group, value]) => Number(value) > 0 || active.has(group)).map(([muscle_group, severity]) => ({ muscle_group, severity:Number(severity) }));
+  if (!reports.length) { toast('Kaydedilecek bir aktif DOMS kaydı yok. Ağrı hissettiğiniz kasın değerini 0 üzerinde seçin.', 'error'); return; }
+  try { expertSystemState = await apiPost('/api/expert-system/doms-reports', { report_date:document.getElementById('expertDomsDate')?.value, reports }); toast('DOMS kayıtları güncellendi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); }
+};
+
+function onAnalyzePageEnter() { loadExpertSystem(); }
 
 /* ═══════════════════════════════════════════════
    İLERLEME (PROGRESS) SAYFASI
@@ -5851,6 +6006,161 @@ document.addEventListener('keydown', (e) => {
     else if (!regPage.classList.contains('hidden')) doRegister();
   }
 });
+
+
+/* ═══════════════════════════════════════════════
+   UZMAN SİSTEMİ — VERİ TOPLAMA MERKEZİ
+   Bu ekran analiz veya program önerisi üretmez. Kullanıcının bildirdiği
+   hedef, kas ağrısı ve geçici kısıt verilerini tek uzman profiline kaydeder.
+═══════════════════════════════════════════════ */
+let expertDataState = null;
+let expertDataTab = 'doms';
+let expertDataGoalDraft = { primary_goal: '', priority_muscles: [], priority_note: '' };
+
+function expertDataEscape(value) { return typeof expertEscape === 'function' ? expertEscape(value) : String(value ?? ''); }
+function expertDataCatalog() { return expertDataState?.catalog || {}; }
+function expertDataMuscles() { return Array.isArray(expertDataCatalog().detailed_muscles) ? expertDataCatalog().detailed_muscles : []; }
+function expertDataMuscleLabel(id) {
+  return expertDataMuscles().find(item => item.id === id)?.label || id || '—';
+}
+function expertDataGoalLabel(id) {
+  return expertDataCatalog().primary_goals?.[id] || id || 'Belirtilmedi';
+}
+function expertDataToday() { return new Date().toISOString().slice(0, 10); }
+function expertDataDate(value) {
+  if (!value) return '—';
+  const parts = String(value).slice(0, 10).split('-');
+  return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : value;
+}
+function expertDataTone(value, type) {
+  const number = Number(value || 0);
+  if (type === 'pain') return number >= 4 ? '#ef476f' : number >= 2 ? '#ffb703' : '#26d0ce';
+  return number >= 80 ? '#33d69f' : number >= 50 ? '#4dabf7' : '#ffb703';
+}
+function expertDataInjectStyles() {
+  if (document.getElementById('expertDataCollectStyles')) return;
+  const style = document.createElement('style');
+  style.id = 'expertDataCollectStyles';
+  style.textContent = `
+    .expert-data-shell{max-width:1240px;margin:0 auto;display:grid;gap:18px}
+    .expert-data-hero{position:relative;overflow:hidden;padding:24px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(120deg,rgba(72,149,239,.17),rgba(38,208,206,.07) 55%,rgba(112,72,232,.13));box-shadow:0 14px 34px rgba(0,0,0,.12)}
+    .expert-data-hero:after{content:'';position:absolute;width:260px;height:260px;right:-110px;top:-155px;border-radius:50%;background:radial-gradient(circle,rgba(38,208,206,.22),transparent 68%);pointer-events:none}
+    .expert-data-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border:1px solid rgba(77,171,247,.35);border-radius:999px;color:#7cc4ff;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+    .expert-data-hero h2{position:relative;margin:11px 0 7px;font-size:clamp(21px,3vw,30px);color:var(--text-primary)}
+    .expert-data-hero p{position:relative;max-width:760px;margin:0;color:var(--text-secondary);font-size:13px;line-height:1.65}
+    .expert-data-tabs{display:flex;gap:8px;overflow-x:auto;padding:5px 1px 8px;scrollbar-width:thin}
+    .expert-data-tab{flex:0 0 auto;display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--card-bg);color:var(--text-secondary);padding:10px 13px;border-radius:11px;font-size:12px;font-weight:750;cursor:pointer;transition:transform .2s ease,border-color .2s ease,background .2s ease,color .2s ease,box-shadow .2s ease}
+    .expert-data-tab:hover{transform:translateY(-2px);border-color:#4dabf7;color:var(--text-primary)}
+    .expert-data-tab.active{color:white;border-color:#378add;background:linear-gradient(135deg,#2967c9,#30a2d8);box-shadow:0 8px 18px rgba(41,103,201,.25)}
+    .expert-data-stage{min-height:500px;animation:expertDataSlide .34s cubic-bezier(.2,.8,.2,1) both}
+    @keyframes expertDataSlide{from{opacity:0;transform:translateY(13px) scale(.992)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .expert-data-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(290px,.75fr);gap:18px;align-items:start}
+    .expert-data-card{border:1px solid var(--border);border-radius:16px;background:var(--card-bg);padding:19px;box-shadow:0 9px 23px rgba(0,0,0,.07)}
+    .expert-data-card h3{margin:0;color:var(--text-primary);font-size:16px}.expert-data-card p{color:var(--text-muted);font-size:12px;line-height:1.58}
+    .expert-data-cardhead{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:13px}
+    .expert-data-badge{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:rgba(77,171,247,.12);color:#5fb7ff;font-size:10px;font-weight:800}
+    .expert-data-metric-head,.expert-data-metric-row{display:grid;grid-template-columns:minmax(110px,.72fr) minmax(165px,1fr) minmax(165px,1fr);align-items:center;gap:16px}
+    .expert-data-metric-head{padding:0 10px 9px;color:var(--text-muted);font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+    .expert-data-metric-row{padding:14px 10px;border-top:1px solid var(--border);transition:background .2s ease}.expert-data-metric-row:hover{background:rgba(77,171,247,.04)}
+    .expert-data-muscle{font-weight:800;color:var(--text-primary);font-size:13px}.expert-data-sub{margin-top:4px;font-size:10px;color:var(--text-muted)}
+    .expert-data-value{display:flex;justify-content:space-between;align-items:center;gap:7px;margin-bottom:7px;font-size:11px;color:var(--text-secondary)}.expert-data-value strong{font-size:14px;color:var(--text-primary)}
+    .expert-data-track{height:7px;border-radius:999px;overflow:hidden;background:rgba(127,146,175,.18);box-shadow:inset 0 1px 2px rgba(0,0,0,.16)}
+    .expert-data-fill{display:block;height:100%;border-radius:inherit;animation:expertDataFill .68s cubic-bezier(.22,.8,.3,1) both}@keyframes expertDataFill{from{width:0!important}}
+    .expert-data-empty{padding:28px 12px;color:var(--text-muted);text-align:center;border:1px dashed var(--border);border-radius:12px;font-size:13px;line-height:1.6}
+    .expert-data-form{display:grid;gap:13px}.expert-data-form label{display:block;margin-bottom:6px;color:var(--text-secondary);font-size:11px;font-weight:800;letter-spacing:.02em}.expert-data-form select,.expert-data-form input,.expert-data-form textarea{width:100%}
+    .expert-data-range-wrap{padding:12px;border:1px solid var(--border);border-radius:12px;background:rgba(77,171,247,.035)}
+    .expert-data-range-title{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--text-secondary);font-size:12px;font-weight:800}.expert-data-range-score{display:inline-flex;align-items:center;justify-content:center;min-width:38px;padding:5px;border-radius:8px;background:rgba(77,171,247,.15);color:#70beff;font-size:13px}
+    .expert-data-range-wrap input[type=range]{accent-color:#38bdf8;margin:12px 0 2px}.expert-data-range-labels{display:flex;justify-content:space-between;color:var(--text-muted);font-size:10px}
+    .expert-data-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.expert-data-choice{min-height:46px;text-align:left;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text-secondary);padding:9px 10px;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s ease}.expert-data-choice:hover{border-color:#4dabf7;transform:translateY(-1px)}.expert-data-choice.selected{color:#dff5ff;border-color:#35a7e9;background:linear-gradient(135deg,rgba(42,119,210,.31),rgba(38,208,206,.14));box-shadow:inset 0 0 0 1px rgba(80,198,255,.12)}
+    .expert-data-summary{display:grid;gap:10px}.expert-data-summary-item{padding:11px;border:1px solid var(--border);border-radius:11px;background:rgba(77,171,247,.035)}.expert-data-summary-label{font-size:10px;font-weight:800;letter-spacing:.05em;color:var(--text-muted);text-transform:uppercase}.expert-data-summary-value{margin-top:4px;color:var(--text-primary);font-size:13px;font-weight:750;line-height:1.45}
+    .expert-data-history{display:grid;gap:8px;margin-top:14px}.expert-data-history-item{padding:11px 12px;border-left:3px solid #4dabf7;border-radius:0 10px 10px 0;background:rgba(77,171,247,.05)}.expert-data-history-item strong{color:var(--text-primary);font-size:12px}.expert-data-history-item div{margin-top:4px;color:var(--text-muted);font-size:11px;line-height:1.5}
+    .expert-data-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}.expert-data-danger{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+    .expert-data-note{margin:12px 0 0;padding:10px 11px;border-radius:10px;background:rgba(255,183,3,.075);border-left:3px solid #ffb703;color:var(--text-secondary);font-size:11px;line-height:1.55}
+    @media(max-width:760px){.expert-data-hero{padding:18px}.expert-data-grid{grid-template-columns:1fr}.expert-data-card{padding:15px}.expert-data-metric-head{display:none}.expert-data-metric-row{grid-template-columns:1fr;gap:10px;padding:14px 4px}.expert-data-choice-grid{grid-template-columns:1fr}.expert-data-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;overflow:visible;margin-right:0}.expert-data-tab{min-width:0;justify-content:center;gap:4px;padding:9px 5px;font-size:10px;white-space:nowrap;overflow:hidden}.expert-data-tab-label{font-size:0}.expert-data-tab-label::after{content:attr(data-mobile);font-size:10px}.expert-data-stage{min-height:0}}
+  `;
+  document.head.appendChild(style);
+}
+
+function expertDataTabs() {
+  const tabs = [
+    ['doms', 'Kas Ağrısı', '01', 'Kas Ağrısı'],
+    ['goals', 'Hedeflerini Düzenle', '02', 'Hedefler'],
+    ['constraints', 'Ağrı ve Geçici Kısıtlar', '03', 'Kısıtlar'],
+  ];
+  return `<nav class="expert-data-tabs" aria-label="Uzman sistemi anket sekmeleri">${tabs.map(([id, label, num, mobileLabel]) => `<button class="expert-data-tab ${expertDataTab === id ? 'active' : ''}" type="button" onclick="expertDataSwitchTab('${id}')"><span style="opacity:.72;font-size:10px">${num}</span><span class="expert-data-tab-label" data-mobile="${mobileLabel}">${label}</span></button>`).join('')}</nav>`;
+}
+
+function expertDataMetricRows() {
+  const metrics = Array.isArray(expertDataState?.metrics) ? expertDataState.metrics : [];
+  if (!metrics.length) return `<div class="expert-data-empty">Henüz bir kas ağrısı bildirimi yok.<br><span style="font-size:11px">İlk kaydı sağdaki kısa formdan ekleyebilirsin.</span></div>`;
+  return `<div class="expert-data-metric-head"><span>Kas grubu</span><span>Kas ağrısı</span><span>Sonraki antrenmana hazırlık</span></div>${metrics.map(metric => {
+    const pain = Number(metric.pain_level || 0); const readiness = Number(metric.readiness || 0);
+    const status = metric.status === 'resolved' ? 'Geçti' : 'Aktif kayıt';
+    return `<div class="expert-data-metric-row"><div><div class="expert-data-muscle">${expertDataEscape(expertDataMuscleLabel(metric.muscle_group))}</div><div class="expert-data-sub">${expertDataEscape(status)} · ${expertDataDate(metric.report_date)}</div></div><div><div class="expert-data-value"><span>Bildirim seviyesi</span><strong>${pain}/5</strong></div><div class="expert-data-track"><span class="expert-data-fill" style="width:${pain * 20}%;background:${expertDataTone(pain, 'pain')}"></span></div></div><div><div class="expert-data-value"><span>Görsel hazırlık göstergesi</span><strong>${readiness}/100</strong></div><div class="expert-data-track"><span class="expert-data-fill" style="width:${readiness}%;background:${expertDataTone(readiness, 'readiness')}"></span></div></div></div>`;
+  }).join('')}`;
+}
+
+function expertDataDomsPane() {
+  const muscles = expertDataMuscles().map(item => `<option value="${expertDataEscape(item.id)}">${expertDataEscape(item.label)}</option>`).join('');
+  const history = (expertDataState?.doms_history || []).slice(-5).reverse();
+  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kas Durum Panosu</h3><p>Her kas için iki çizgi gösterilir: kendi bildirdiğin ağrı seviyesi ve buna göre oluşturulan sonraki antrenmana hazırlık göstergesi.</p></div><span class="expert-data-badge">0–5 ölçeği</span></div>${expertDataMetricRows()}<div class="expert-data-note"><strong>Not:</strong> Bu bölüm tanı koymaz. Hazırlık değeri yalnızca girilen kas ağrısı seviyesini görselleştirir.</div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kas Ağrısı Ekle</h3><p>İstersen aynı kas için yeni bir günlük kayıt oluşturabilirsin.</p></div></div><div class="expert-data-form"><div><label for="expertDataDomsMuscle">KAS GRUBU</label><select id="expertDataDomsMuscle">${muscles}</select></div><div class="expert-data-range-wrap"><div class="expert-data-range-title"><span>KAS AĞRISI SEVİYESİ</span><span id="expertDataDomsScore" class="expert-data-range-score">0/5</span></div><input id="expertDataDomsSeverity" type="range" min="0" max="5" step="1" value="0" oninput="expertDataRangeChange('doms', this.value)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div><div><label for="expertDataDomsStatus">DURUM</label><select id="expertDataDomsStatus"><option value="active">Devam ediyor</option><option value="resolved">Geçti</option></select></div><div><label for="expertDataDomsDate">KAYIT TARİHİ</label><input id="expertDataDomsDate" type="date" value="${expertDataToday()}"></div><div><label for="expertDataDomsNotes">KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataDomsNotes" rows="3" maxlength="500" placeholder="Örn. son hamstring antrenmanından sonra hassasiyet"></textarea></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveDoms()">Kas Ağrısını Kaydet</button></div></div>${history.length ? `<div class="expert-data-history">${history.map(item => `<div class="expert-data-history-item"><strong>${expertDataEscape(expertDataMuscleLabel(item.muscle_group))} · ${Number(item.severity)}/5</strong><div>${expertDataDate(item.report_date)} · ${item.status === 'resolved' ? 'Geçti' : 'Devam ediyor'}${item.notes ? ` · ${expertDataEscape(item.notes)}` : ''}</div></div>`).join('')}</div>` : ''}</aside></div>`;
+}
+
+function expertDataGoalsPane() {
+  const goals = Object.entries(expertDataCatalog().primary_goals || {}).map(([id, label]) => `<button type="button" class="expert-data-choice ${expertDataGoalDraft.primary_goal === id ? 'selected' : ''}" onclick="expertDataSelectGoal('${id}')">${expertDataEscape(label)}</button>`).join('');
+  const priorities = expertDataMuscles().map(item => `<button type="button" class="expert-data-choice ${expertDataGoalDraft.priority_muscles.includes(item.id) ? 'selected' : ''}" onclick="expertDataTogglePriority('${item.id}')"><strong>${expertDataEscape(item.label)}</strong><span style="display:block;margin-top:3px;opacity:.7;font-size:10px">${expertDataEscape(item.ui_group || '')}</span></button>`).join('');
+  const saved = expertDataState?.goals || {};
+  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Hedeflerini Düzenle</h3><p>Hedeflerin değişebilir. Bu bölüm yalnızca tercih verisi toplar; henüz antrenman programı üretmez.</p></div><span class="expert-data-badge">En fazla 3 kas</span></div><div class="expert-data-form"><div><label>ANA HEDEF</label><div class="expert-data-choice-grid">${goals}</div></div><div><label>ÖNCELİKLİ KASLAR · ${expertDataGoalDraft.priority_muscles.length}/3</label><div class="expert-data-choice-grid">${priorities}</div></div><div><label for="expertDataGoalNote">HEDEFE İLİŞKİN KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataGoalNote" rows="3" maxlength="500" placeholder="Örn. üst vücut gelişimine daha fazla odaklanmak istiyorum">${expertDataEscape(expertDataGoalDraft.priority_note || '')}</textarea></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveGoals()">Hedefleri Kaydet</button></div></div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kaydedilen Tercihler</h3><p>Bu özet hesabına bağlı olarak saklanır.</p></div></div><div class="expert-data-summary"><div class="expert-data-summary-item"><div class="expert-data-summary-label">Ana hedef</div><div class="expert-data-summary-value">${expertDataEscape(expertDataGoalLabel(saved.primary_goal))}</div></div><div class="expert-data-summary-item"><div class="expert-data-summary-label">Kas öncelikleri</div><div class="expert-data-summary-value">${(saved.priority_muscles || []).length ? saved.priority_muscles.map(expertDataMuscleLabel).map(expertDataEscape).join(' · ') : 'Henüz seçilmedi'}</div></div><div class="expert-data-summary-item"><div class="expert-data-summary-label">Not</div><div class="expert-data-summary-value">${expertDataEscape(saved.priority_note || 'Not eklenmedi')}</div></div></div><div class="expert-data-danger"><button type="button" class="btn btn-secondary" style="font-size:11px;padding:7px 10px" onclick="expertDataResetLegacy()">Uzman Sistemi Verilerini Sıfırla</button><p style="margin-bottom:0">Yalnızca bu hesaba ait uzman hedefleri, kas ağrısı, kısıtlar ve eski uzman kayıtları silinir. Diğer platform verileri korunur.</p></div></aside></div>`;
+}
+
+function expertDataConstraintsPane() {
+  const areas = (expertDataCatalog().constraint_areas || []).map(area => `<option value="${expertDataEscape(area)}">${expertDataEscape(area)}</option>`).join('');
+  const sides = Object.entries(expertDataCatalog().sides || {}).map(([id, label]) => `<option value="${expertDataEscape(id)}">${expertDataEscape(label)}</option>`).join('');
+  const items = (expertDataState?.constraints || []).slice().reverse();
+  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Ağrı ve Geçici Kısıtlar</h3><p>Belirttiğin ağrı veya kısıtı kayıt altına al. Bu alan tıbbi tanı veya tedavi yerine geçmez.</p></div><span class="expert-data-badge">Kişisel bildirim</span></div><div class="expert-data-form"><div><label for="expertDataConstraintArea">BÖLGE</label><select id="expertDataConstraintArea">${areas}</select></div><div><label for="expertDataConstraintSide">TARAF</label><select id="expertDataConstraintSide">${sides}</select></div><div class="expert-data-range-wrap"><div class="expert-data-range-title"><span>ETKİLENME SEVİYESİ</span><span id="expertDataConstraintScore" class="expert-data-range-score">0/5</span></div><input id="expertDataConstraintSeverity" type="range" min="0" max="5" step="1" value="0" oninput="expertDataRangeChange('constraint', this.value)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div><div><label for="expertDataConstraintStatus">DURUM</label><select id="expertDataConstraintStatus"><option value="active">Aktif</option><option value="resolved">Geçti</option></select></div><div><label for="expertDataConstraintDate">BAŞLANGIÇ TARİHİ</label><input id="expertDataConstraintDate" type="date" value="${expertDataToday()}"></div><div><label for="expertDataConstraintNotes">KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataConstraintNotes" rows="3" maxlength="500" placeholder="Örn. belirli harekette hassasiyet hissediyorum"></textarea></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveConstraint()">Kısıtı Kaydet</button></div></div><div class="expert-data-note"><strong>Güvenlik notu:</strong> Keskin, olağandışı veya günlük yaşamı etkileyen ağrıda egzersizi durdurup yetkin bir sağlık uzmanına başvur.</div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kayıt Geçmişi</h3><p>Yeni kayıtlar tarih sırasıyla hesabında saklanır.</p></div><span class="expert-data-badge">${items.length} kayıt</span></div>${items.length ? `<div class="expert-data-history">${items.map(item => `<div class="expert-data-history-item" style="border-left-color:${expertDataTone(item.severity, 'pain')}"><strong>${expertDataEscape(item.area)} · ${expertDataEscape(expertDataCatalog().sides?.[item.side] || 'Belirtilmedi')} · ${Number(item.severity)}/5</strong><div>${expertDataDate(item.started_on)} · ${item.status === 'resolved' ? 'Geçti' : 'Aktif'}${item.notes ? ` · ${expertDataEscape(item.notes)}` : ''}</div></div>`).join('')}</div>` : `<div class="expert-data-empty">Henüz ağrı veya geçici kısıt kaydı yok.</div>`}</aside></div>`;
+}
+
+function expertDataPane() {
+  if (expertDataTab === 'goals') return expertDataGoalsPane();
+  if (expertDataTab === 'constraints') return expertDataConstraintsPane();
+  return expertDataDomsPane();
+}
+
+function renderExpertSystem() {
+  const content = document.getElementById('analyzeContent');
+  if (!content || !expertDataState) return;
+  expertDataInjectStyles();
+  content.innerHTML = `<div class="expert-data-shell"><header class="expert-data-hero"><span class="expert-data-eyebrow">Uzman Sistemi · Veri Toplama</span><h2>Vücudunu kaydet, verini düzenli tut.</h2><p>Bu alan şimdilik yalnızca kişisel hedef, kas ağrısı ve geçici kısıt verilerini toplar. Analiz veya program önerileri sonraki aşamada bu kayıtlar üzerinden tasarlanacaktır.</p></header>${expertDataTabs()}<div class="expert-data-stage" key="${expertDataTab}">${expertDataPane()}</div></div>`;
+}
+
+async function loadExpertSystem() {
+  const content = document.getElementById('analyzeContent');
+  if (content) content.innerHTML = `<div class="card" style="padding:28px;text-align:center;color:var(--text-muted)">Uzman sistemi veri merkezi yükleniyor…</div>`;
+  try {
+    expertDataState = await apiGet('/api/expert-data');
+    const goals = expertDataState.goals || {};
+    expertDataGoalDraft = { primary_goal: goals.primary_goal || '', priority_muscles: [...(goals.priority_muscles || [])], priority_note: goals.priority_note || '' };
+    renderExpertSystem();
+  } catch (error) {
+    if (content) content.innerHTML = `<div class="card" style="padding:22px;color:var(--red)">Uzman sistemi verileri yüklenemedi: ${expertDataEscape(error.message)}</div>`;
+  }
+}
+
+window.expertDataSwitchTab = function(tab) { if (['doms', 'goals', 'constraints'].includes(tab)) { expertDataTab = tab; renderExpertSystem(); } };
+window.expertDataRangeChange = function(kind, value) { const id = kind === 'doms' ? 'expertDataDomsScore' : 'expertDataConstraintScore'; const label = document.getElementById(id); if (label) label.textContent = `${Number(value)}/5`; };
+window.expertDataSelectGoal = function(goal) { expertDataGoalDraft.primary_goal = goal; renderExpertSystem(); };
+window.expertDataTogglePriority = function(muscle) { const items = expertDataGoalDraft.priority_muscles; if (items.includes(muscle)) expertDataGoalDraft.priority_muscles = items.filter(item => item !== muscle); else if (items.length >= 3) { toast('En fazla 3 öncelikli kas seçebilirsiniz.', 'error'); return; } else expertDataGoalDraft.priority_muscles = [...items, muscle]; renderExpertSystem(); };
+window.expertDataSaveGoals = async function() { const note = document.getElementById('expertDataGoalNote')?.value || ''; if (!expertDataGoalDraft.primary_goal) { toast('Önce bir ana hedef seçin.', 'error'); return; } try { expertDataState = await apiPut('/api/expert-data/goals', { ...expertDataGoalDraft, priority_note: note }); expertDataGoalDraft.priority_note = note; toast('Hedeflerin kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataSaveDoms = async function() { const payload = { muscle_group: document.getElementById('expertDataDomsMuscle')?.value, severity: Number(document.getElementById('expertDataDomsSeverity')?.value || 0), status: document.getElementById('expertDataDomsStatus')?.value, report_date: document.getElementById('expertDataDomsDate')?.value, notes: document.getElementById('expertDataDomsNotes')?.value || '' }; try { expertDataState = await apiPost('/api/expert-data/doms', payload); toast('Kas ağrısı kaydı eklendi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataSaveConstraint = async function() { const payload = { area: document.getElementById('expertDataConstraintArea')?.value, side: document.getElementById('expertDataConstraintSide')?.value, severity: Number(document.getElementById('expertDataConstraintSeverity')?.value || 0), status: document.getElementById('expertDataConstraintStatus')?.value, started_on: document.getElementById('expertDataConstraintDate')?.value, notes: document.getElementById('expertDataConstraintNotes')?.value || '' }; try { expertDataState = await apiPost('/api/expert-data/constraints', payload); toast('Geçici kısıt kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataResetLegacy = async function() { const confirmed = window.prompt('Yalnızca bu hesaba ait uzman sistemi verilerini sıfırlamak için tam olarak şunu yazın:\nUZMAN VERİLERİNİ SIFIRLA'); if (confirmed === null) return; try { expertDataState = await apiPost('/api/expert-data/reset-legacy', { confirmation: confirmed }); expertDataGoalDraft = { primary_goal: '', priority_muscles: [], priority_note: '' }; expertDataTab = 'doms'; toast('Uzman sistemi verileri sıfırlandı. Diğer platform verileri korunmuştur.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+
+// Eski dinamik program ekranından kalan dashboard seçimi için güvenli geri dönüş.
+const hxDataCollectionRenderSelectedSplit = renderSelectedSplit;
+renderSelectedSplit = function(mode) {
+  if (mode === 'expert') { toast('Uzman sistemi şu anda veri toplama aşamasındadır.', 'info'); return hxDataCollectionRenderSelectedSplit('custom'); }
+  return hxDataCollectionRenderSelectedSplit(mode);
+};
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
