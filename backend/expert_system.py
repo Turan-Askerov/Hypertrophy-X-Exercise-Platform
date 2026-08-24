@@ -443,6 +443,94 @@ AVAILABLE_EQUIPMENT_OPTIONS = (
     {"id": "bodyweight", "label": "Vücut ağırlığı"},
 )
 
+# Veri toplama ekranı, V2 program motorunun ayrıntılı ekipman listesinden ayrı
+# olarak salon bazlı sade bir var/yok kataloğu kullanır. Kapasite, kilogram veya
+# çift/tek dumbbell gibi kullanıcıyı yoran detaylar özellikle tutulmaz.
+GYM_EQUIPMENT_CATALOG = (
+    # Sehpalar
+    {"id": "flat_bench", "label": "Flat Bench", "group": "Sehpalar"},
+    {"id": "incline_bench", "label": "İncline Bench", "group": "Sehpalar"},
+    {"id": "decline_bench", "label": "Decline Bench", "group": "Sehpalar"},
+    {"id": "adjustable_bench", "label": "Ayarlanabilir Bench", "group": "Sehpalar"},
+    {"id": "preacher_curl_bench", "label": "Preacher Curl Bench", "group": "Sehpalar"},
+
+    # Ağırlıklar
+    {"id": "dumbbell", "label": "Dumbbell", "group": "Ağırlıklar"},
+    {"id": "barbell", "label": "Barbell", "group": "Ağırlıklar"},
+    {"id": "ez_bar", "label": "Z – Bar", "group": "Ağırlıklar"},
+    {"id": "kettlebell", "label": "Kettlebell", "group": "Ağırlıklar"},
+    {"id": "weight_plates", "label": "Ağırlık Plakaları", "group": "Ağırlıklar"},
+
+    # Fitness makineleri ve istasyonlar
+    {"id": "barbell_bench_press_station", "label": "Barbell Bench Press", "group": "Fitness Makineleri"},
+    {"id": "incline_barbell_bench_press_station", "label": "İncline Barbell Bench Press", "group": "Fitness Makineleri"},
+    {"id": "decline_barbell_bench_press_station", "label": "Decline Barbell Bench Press", "group": "Fitness Makineleri"},
+    {"id": "pec_deck", "label": "Pec Deck Fly", "group": "Fitness Makineleri"},
+    {"id": "cable_station", "label": "Cable Cross", "group": "Fitness Makineleri"},
+    {"id": "smith_machine", "label": "Smith Machine", "group": "Fitness Makineleri"},
+    {"id": "chest_press", "label": "Chest Press Machine", "group": "Fitness Makineleri"},
+    {"id": "shoulder_press", "label": "Shoulder Press Machine", "group": "Fitness Makineleri"},
+    {"id": "lat_pulldown", "label": "Lat Pulldown", "group": "Fitness Makineleri"},
+    {"id": "seated_cable_row", "label": "Cable Row", "group": "Fitness Makineleri"},
+    {"id": "low_row_machine", "label": "Low Row Machine", "group": "Fitness Makineleri"},
+    {"id": "biceps_triceps_station", "label": "Biceps – Triceps Station", "group": "Fitness Makineleri"},
+    {"id": "biceps_curl_machine", "label": "Biceps Curl Machine", "group": "Fitness Makineleri"},
+    {"id": "triceps_press_machine", "label": "Triceps Press Makinesi", "group": "Fitness Makineleri"},
+    {"id": "leg_press", "label": "Leg Press", "group": "Fitness Makineleri"},
+    {"id": "hack_squat", "label": "Hack Squat", "group": "Fitness Makineleri"},
+    {"id": "leg_extension", "label": "Leg Extension", "group": "Fitness Makineleri"},
+    {"id": "seated_leg_curl", "label": "Leg Curl", "group": "Fitness Makineleri"},
+    {"id": "lying_leg_curl", "label": "Lying Leg Curl", "group": "Fitness Makineleri"},
+    {"id": "adductor_machine", "label": "Adductor Machine", "group": "Fitness Makineleri"},
+    {"id": "hyperextension_machine", "label": "Hyperextension Machine", "group": "Fitness Makineleri"},
+    {"id": "calf_raise", "label": "Calf Makinesi", "group": "Fitness Makineleri"},
+    {"id": "seated_calf_raise", "label": "Oturarak Calf Makinesi", "group": "Fitness Makineleri"},
+    {"id": "assisted_pullup_dip", "label": "Assisted Pull-up / Dip", "group": "Fitness Makineleri"},
+
+    # Standlar
+    {"id": "squat_rack", "label": "Squat Rack – Squat Standı", "group": "Standlar"},
+    {"id": "squat_stand", "label": "Squat Standı", "group": "Standlar"},
+    {"id": "half_rack", "label": "Half Rack", "group": "Standlar"},
+    {"id": "power_rack", "label": "Power Rack", "group": "Standlar"},
+    {"id": "pullup_dip_station", "label": "Barfiks – Dips Standı", "group": "Standlar"},
+    {"id": "pullup_bar", "label": "Pull-up Bar", "group": "Standlar"},
+    {"id": "dip_bar", "label": "Dip Bar", "group": "Standlar"},
+
+    # Kardiyo aletleri
+    {"id": "treadmill", "label": "Koşu Bandı", "group": "Kardiyo Aletleri"},
+    {"id": "elliptical_bike", "label": "Eliptik Bisiklet", "group": "Kardiyo Aletleri"},
+    {"id": "recumbent_bike", "label": "Yatay Bisiklet", "group": "Kardiyo Aletleri"},
+    {"id": "exercise_mat", "label": "Egzersiz Minderi (Yoga Matı)", "group": "Kardiyo Aletleri"},
+    {"id": "cardio_area", "label": "Diğer Kardiyo Alanı", "group": "Kardiyo Aletleri"},
+)
+
+_GYM_EQUIPMENT_IDS = {item["id"] for item in GYM_EQUIPMENT_CATALOG}
+_GYM_EQUIPMENT_ALIASES = {
+    "cable_machine": "cable_station", "cable_cross": "cable_station",
+    "lat_pulldown_machine": "lat_pulldown", "cable_row_machine": "seated_cable_row",
+    "chest_press_machine": "chest_press", "shoulder_press_machine": "shoulder_press",
+    "leg_press_machine": "leg_press", "hack_squat_machine": "hack_squat",
+    "leg_extension_machine": "leg_extension", "leg_curl_machine": "seated_leg_curl",
+    "calf_machine": "calf_raise", "seated_calf_machine": "seated_calf_raise",
+    "pull_up_bar": "pullup_dip_station", "pullup_bar": "pullup_dip_station", "dip_station": "pullup_dip_station",
+    "barfiks_dips_standi": "pullup_dip_station", "barfiks_barı": "pullup_bar",
+    "barfiks_bari": "pullup_bar", "squat_standi": "squat_stand",
+    "bench_press": "barbell_bench_press_station", "incline_bench_press": "incline_barbell_bench_press_station",
+    "decline_bench_press": "decline_barbell_bench_press_station",
+    "low_row": "low_row_machine", "low_row_machine": "low_row_machine",
+    "hip_adduction_machine": "adductor_machine", "adduction_machine": "adductor_machine",
+    "hyperextension_bench": "hyperextension_machine", "back_extension_machine": "hyperextension_machine",
+    "yoga_mat": "exercise_mat", "exercise_mat": "exercise_mat", "egzersiz_minderi": "exercise_mat",
+}
+
+
+def normalize_gym_equipment(value: object) -> str | None:
+    """Salon ekipmanı kimliğini katalogdaki güvenli değere dönüştürür."""
+    raw = str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+    if raw in _GYM_EQUIPMENT_IDS:
+        return raw
+    return _GYM_EQUIPMENT_ALIASES.get(raw)
+
 # Kimlikler, havuzdaki analysis.primary_muscles / secondary_muscles değerleri
 # ile eşleşir. `ui_group`, V1 DOMS kayıtları ile geriye dönük eşleştirme içindir.
 DETAILED_MUSCLE_OPTIONS = (
@@ -454,12 +542,15 @@ DETAILED_MUSCLE_OPTIONS = (
     {"id": "front_delts", "label": "Ön Omuz", "ui_group": "Omuz"},
     {"id": "side_delts", "label": "Yan Omuz", "ui_group": "Omuz"},
     {"id": "rear_delts", "label": "Arka Omuz", "ui_group": "Omuz"},
+    {"id": "rotator_cuff", "label": "Rotator Cuff", "ui_group": "Omuz"},
     {"id": "biceps", "label": "Biceps", "ui_group": "Biceps"},
     {"id": "triceps", "label": "Triceps", "ui_group": "Triceps"},
     {"id": "quadriceps", "label": "Quadriceps", "ui_group": "Bacak"},
     {"id": "hamstrings", "label": "Hamstring", "ui_group": "Bacak"},
     {"id": "glutes", "label": "Gluteus", "ui_group": "Bacak"},
     {"id": "calves", "label": "Calf", "ui_group": "Bacak"},
+    {"id": "adductors", "label": "Adductors", "ui_group": "Bacak"},
+    {"id": "forearms", "label": "Bilek Kasları", "ui_group": "Bilek"},
     {"id": "core", "label": "Core", "ui_group": "Core"},
 )
 
@@ -473,21 +564,27 @@ _DETAILED_ALIASES = {
     "ön omuz": "front_delts", "front delts": "front_delts", "front_delts": "front_delts",
     "yan omuz": "side_delts", "side delts": "side_delts", "side_delts": "side_delts",
     "arka omuz": "rear_delts", "rear delts": "rear_delts", "rear_delts": "rear_delts",
+    "rotator cuff": "rotator_cuff", "rotator_cuff": "rotator_cuff",
+    "supraspinatus": "rotator_cuff", "subraspinatus": "rotator_cuff",
+    "infraspinatus": "rotator_cuff", "teres minor": "rotator_cuff", "teres_minor": "rotator_cuff",
+    "subscapularis": "rotator_cuff", "teres major": "rotator_cuff", "teres_major": "rotator_cuff",
     "biceps": "biceps", "triceps": "triceps",
     "quadriceps": "quadriceps", "quad": "quadriceps", "quadricepsler": "quadriceps",
     "hamstring": "hamstrings", "hamstrings": "hamstrings",
     "gluteus": "glutes", "glutes": "glutes", "kalça": "glutes",
     "calf": "calves", "calves": "calves", "baldır": "calves",
+    "adductors": "adductors", "adductor": "adductors", "adduktor": "adductors", "adduktör": "adductors", "iç bacak": "adductors", "ic bacak": "adductors",
+    "forearms": "forearms", "forearm": "forearms", "bilek": "forearms", "bilek kasları": "forearms", "ön kol": "forearms", "on kol": "forearms",
     "core": "core", "karın": "core",
 }
 
 _UI_TO_DETAILED = {
     "Göğüs": {"chest"},
     "Sırt": {"lats", "upper_back", "traps", "spinal_erectors", "rear_delts"},
-    "Omuz": {"front_delts", "side_delts", "rear_delts"},
+    "Omuz": {"front_delts", "side_delts", "rear_delts", "rotator_cuff"},
     "Biceps": {"biceps"},
     "Triceps": {"triceps"},
-    "Bacak": {"quadriceps", "hamstrings", "glutes", "calves"},
+    "Bacak": {"quadriceps", "hamstrings", "glutes", "calves", "adductors"},
     "Core": {"core"},
 }
 
@@ -556,11 +653,14 @@ def normalize_detailed_muscle(value: object) -> str | None:
     raw = str(value or "").strip()
     if not raw:
         return None
-    lowered = raw.lower()
+    # Türkçe büyük İ harfi casefold sonrasında birleşik nokta taşıyabilir.
+    # Bu temizleme, örneğin "İç Bacak" girişinin aynı katalog anahtarına
+    # güvenli biçimde eşleşmesini sağlar.
+    lowered = raw.casefold().replace("\u0307", "")
     if lowered in _DETAILED_BY_ID:
         return lowered
     for item in DETAILED_MUSCLE_OPTIONS:
-        if lowered == str(item["label"]).lower():
+        if lowered == str(item["label"]).casefold().replace("\u0307", ""):
             return item["id"]
     if lowered in _DETAILED_ALIASES:
         return _DETAILED_ALIASES[lowered]
@@ -754,7 +854,9 @@ def select_best_split(candidates: Iterable[dict[str, Any]], priority_muscles: It
 
 
 def _normalize_equipment(value: object) -> str:
-    return str(value or "").strip().lower().replace(" ", "_").replace("-", "_")
+    """Havuzdaki eski ekipman adlarını salon kataloğunun güvenli kimliklerine bağlar."""
+    raw = str(value or "").strip().lower().replace(" ", "_").replace("-", "_")
+    return _GYM_EQUIPMENT_ALIASES.get(raw, raw)
 
 
 def _exercise_required_equipment(exercise: dict[str, Any]) -> list[str]:
