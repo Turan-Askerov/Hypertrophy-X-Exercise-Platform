@@ -1689,8 +1689,8 @@ canvas {
       <!-- ═══ ANTRENMAN KAYDI PAGE ═══ -->
       <div class="page page-animated" id="page-workout">
         <div class="page-header">
-          <div class="page-title">Antrenman Kaydı</div>
-          <div class="page-subtitle">Yeni bir antrenman seansı kaydet</div>
+          <div class="page-title" id="workoutPageTitle">Antrenman Kaydı</div>
+          <div class="page-subtitle" id="workoutPageSubtitle">Yeni bir antrenman seansı kaydet</div>
         </div>
         <div class="card">
           <div class="form-row">
@@ -1743,12 +1743,13 @@ canvas {
             <textarea id="workoutNotes" rows="2" placeholder="İsteğe bağlı notlar..."></textarea>
           </div>
 
-          <div style="display:flex;gap:12px;margin-top:20px">
-            <button class="btn btn-primary" onclick="saveWorkout()">
+          <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+            <button class="btn btn-primary" id="saveWorkoutButton" onclick="saveWorkout()">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-              Kaydet
+              <span id="saveWorkoutButtonLabel">Kaydet</span>
             </button>
             <button class="btn btn-secondary" onclick="clearWorkout()">Temizle</button>
+            <button class="btn btn-secondary" id="cancelWorkoutEditButton" onclick="cancelWorkoutEdit()" style="display:none">Düzenlemeyi İptal Et</button>
           </div>
         </div>
       </div>
@@ -1796,12 +1797,18 @@ canvas {
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
             <div>
               <h3 style="font-size:16px; font-weight:700; color:var(--text); margin:0;">Egzersiz İlerleme Analizi</h3>
-              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Seçilen hareketin zaman içindeki kaldırdığı ağırlık değişimi — PR çizgisi ve set detayları</div>
+              <div id="progressChartSubtitle" style="font-size:12px; color:var(--text-muted); margin-top:2px;">Seçilen hareketin zaman içindeki kaldırdığı ağırlık değişimi — PR çizgisi ve set detayları</div>
             </div>
-            <div class="timeframe-pills" style="display:inline-flex; gap:6px;">
-              <button id="progTime_monthly" class="tf-pill active" onclick="switchProgTimeframe('monthly')">Aylık</button>
-              <button id="progTime_yearly" class="tf-pill" onclick="switchProgTimeframe('yearly')">Yıllık</button>
-              <button id="progTime_all" class="tf-pill" onclick="switchProgTimeframe('all')">Genel</button>
+            <div style="display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+              <div class="timeframe-pills" style="display:inline-flex; gap:6px;">
+                <button id="progView_weight" class="tf-pill active" onclick="switchProgChartMode('weight')">Ağırlık</button>
+                <button id="progView_reps_weight" class="tf-pill" onclick="switchProgChartMode('reps_weight')">Tekrar–Ağırlık</button>
+              </div>
+              <div class="timeframe-pills" style="display:inline-flex; gap:6px;">
+                <button id="progTime_monthly" class="tf-pill active" onclick="switchProgTimeframe('monthly')">Aylık</button>
+                <button id="progTime_yearly" class="tf-pill" onclick="switchProgTimeframe('yearly')">Yıllık</button>
+                <button id="progTime_all" class="tf-pill" onclick="switchProgTimeframe('all')">Genel</button>
+              </div>
             </div>
           </div>
           <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
@@ -2275,6 +2282,9 @@ const LEG_DETAIL_FILTERS = Object.freeze({
   'Calf': 'calves'
 });
 let _selectedExercises = [];
+// Geçmişten açılan taslak yalnızca tarayıcı belleğinde tutulur. Bu değer doluyken
+// Kaydet, yeni kayıt oluşturmak yerine aynı workout kimliğine PUT gönderir.
+let _editingWorkoutId = null;
 let _volumeChart = null;
 let _muscleChart = null;
 let _weeklyAvgChart = null;
@@ -2726,12 +2736,61 @@ let customSplitSaveVersion = 0;
 let volumeChart = null; // Grafikler için global değişkenler
 let muscleChart = null; 
 
+function getDashboardProgramSummary(data, preferredMode = localStorage.getItem('selectedSplitMode') || 'custom') {
+  let customWeek = [];
+  let customWeekIndex = 0;
+  try {
+    const rawCustomSplit = data?.user?.custom_split;
+    const customProgram = Array.isArray(rawCustomSplit)
+      ? rawCustomSplit
+      : JSON.parse(rawCustomSplit || '[]');
+    if (Array.isArray(customProgram) && customProgram.length) {
+      customWeekIndex = getWeekNum(new Date()) % customProgram.length;
+      customWeek = Array.isArray(customProgram[customWeekIndex]) ? customProgram[customWeekIndex] : [];
+    }
+  } catch (_) {
+    customWeek = [];
+  }
+
+  const customSessionCount = customWeek.filter(day => {
+    const type = String(day?.type || '').toLowerCase();
+    return !day?.isRest && !type.includes('rest') && !type.includes('dinlenme');
+  }).length;
+  const activeExpert = data?.expert_program_summary;
+  const expertSessionCount = Number(activeExpert?.session_count || 0);
+  const hasExpert = Boolean(activeExpert && expertSessionCount > 0);
+  const hasCustom = customWeek.length > 0 && customSessionCount > 0;
+
+  // Kullanıcı Uzman Önerisi sekmesini seçse bile aktif uzman programı yoksa
+  // kişisel program boş görünmez; mevcut özel split özetlenir.
+  if (preferredMode === 'expert' && hasExpert) {
+    return { name: activeExpert.name || 'Uzman Programı', sessionCount: expertSessionCount, source: 'expert' };
+  }
+  if (hasCustom) {
+    return { name: `Özel Programım · ${customWeekIndex + 1}. Hafta`, sessionCount: customSessionCount, source: 'custom' };
+  }
+  if (hasExpert) {
+    return { name: activeExpert.name || 'Uzman Programı', sessionCount: expertSessionCount, source: 'expert' };
+  }
+  return { name: 'Program Yok', sessionCount: 0, source: 'none' };
+}
+
+function refreshDashboardProgramStat(preferredMode) {
+  if (!cachedUserData) return;
+  const summary = getDashboardProgramSummary(cachedUserData, preferredMode);
+  const title = document.getElementById('dashboardProgramName');
+  const detail = document.getElementById('dashboardProgramDetail');
+  if (title) title.textContent = summary.name;
+  if (detail) detail.textContent = summary.sessionCount ? `${summary.sessionCount} gün bölünmüş program` : 'Henüz aktif bir program yok';
+}
+
 async function loadDashboard(username) {
   // 1. Veriyi Çek
   const data = await apiGet(`/api/dashboard`);
   cachedUserData = data;
   lastConfirmedCustomSplitJson = normalizeCustomSplitJson(data.user?.custom_split);
   const s = data.summary || {};
+  const dashboardProgram = getDashboardProgramSummary(data);
 
   // 2. Başlık
   const subtitleEl = document.getElementById('dashSubtitle');
@@ -2755,9 +2814,9 @@ async function loadDashboard(username) {
         <div class="stat-icon" style="background:var(--green-bg);color:var(--green)">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         </div>
-        <div class="stat-value" style="font-size:18px">${data.split_info?.split || 'Program Yok'}</div>
+        <div class="stat-value" id="dashboardProgramName" style="font-size:18px">${dashboardProgram.name}</div>
         <div class="stat-label">Antrenman Programı</div>
-        <div class="stat-detail">${data.split_info?.days?.length || 0} gün bölünmüş program</div>
+        <div class="stat-detail" id="dashboardProgramDetail">${dashboardProgram.sessionCount ? `${dashboardProgram.sessionCount} gün bölünmüş program` : 'Henüz aktif bir program yok'}</div>
       </div>
       <div class="stat-card orange">
         <div class="stat-icon" style="background:var(--orange-bg);color:var(--orange)">
@@ -2837,6 +2896,22 @@ async function loadDashboardRPG(username) {
     const completedMusclesSet = new Set();
     const baselines = {};
     const COMPOUND_KEYWORDS = ['bench', 'squat', 'deadlift', 'overhead', 'row', 'dip', 'bulgarian'];
+    // Yeni hareket havuzundaki ayrıntılı ana kas tanımları önce kullanılır.
+    // Böylece Legs gibi geniş bir görünür grup, hamstring/glute kaydını gizlemez.
+    const PRIMARY_TO_RPG_MUSCLE = {
+      chest: 'Göğüs', lats: 'Sırt', upper_back: 'Sırt', traps: 'Sırt',
+      rear_delts: 'Omuz', side_delts: 'Omuz', front_delts: 'Omuz',
+      quadriceps: 'Quadriceps', hamstrings: 'Hamstring', glutes: 'Glute',
+      calves: 'Calf', biceps: 'Biceps', triceps: 'Triceps'
+    };
+    const normalizeRpgText = value => String(value || '')
+      .toLocaleLowerCase('tr-TR')
+      .replace(/ı/g, 'i')
+      .replace(/ü/g, 'u')
+      .replace(/ğ/g, 'g')
+      .replace(/ş/g, 's')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c');
 
     let totalXP = 0;
 
@@ -2852,17 +2927,34 @@ async function loadDashboardRPG(username) {
 
       exercises.forEach(ex => {
         const muscle = ex.muscle_group || ex.muscle || "";
-        const exName = (ex.exercise_name || ex.name || "").toLowerCase();
+        const exName = normalizeRpgText(ex.exercise_name || ex.name || "");
         const sets = ex.sets_data || [];
+        const matchedMuscles = new Set();
+        const catalogExercise = (_exercisePool || []).find(item =>
+          item.id === ex.canonical_exercise_id || item.id === ex.exercise_id ||
+          item.name === ex.exercise_name || item.name === ex.name
+        );
+        const primaryMuscles = ex.analysis?.primary_muscles || ex.primary_muscles ||
+          catalogExercise?.analysis?.primary_muscles || [];
+        (Array.isArray(primaryMuscles) ? primaryMuscles : []).forEach(primary => {
+          const mapped = PRIMARY_TO_RPG_MUSCLE[String(primary || '').toLowerCase()];
+          if (mapped) matchedMuscles.add(mapped);
+        });
 
-        let matchedMuscle = REQUIRED_MUSCLES.find(m => m.toLowerCase() === muscle.toLowerCase());
-        if (!matchedMuscle) {
-          if (exName.includes('chest') || exName.includes('bench')) matchedMuscle = 'Göğüs';
-          else if (exName.includes('back') || exName.includes('lat') || exName.includes('row')) matchedMuscle = 'Sırt';
-          else if (exName.includes('shoulder') || exName.includes('press')) matchedMuscle = 'Omuz';
-          else if (exName.includes('squat') || exName.includes('leg press')) matchedMuscle = 'Quadriceps';
-          else if (exName.includes('curl')) matchedMuscle = 'Biceps';
-          else if (exName.includes('triceps') || exName.includes('pushdown')) matchedMuscle = 'Triceps';
+        // Eski kayıtlar ayrıntılı analiz meta verisi içermeyebilir. Bu nedenle
+        // hareket ismi ve görünür grup üzerinden geri uyumlu bir eşleştirme kalır.
+        const exactGroup = REQUIRED_MUSCLES.find(m => normalizeRpgText(m) === normalizeRpgText(muscle));
+        if (exactGroup) matchedMuscles.add(exactGroup);
+        if (!matchedMuscles.size) {
+          if (exName.includes('hamstring') || exName.includes('leg curl') || exName.includes('romanian') || exName.includes('rdl')) matchedMuscles.add('Hamstring');
+          else if (exName.includes('glute') || exName.includes('hip thrust') || exName.includes('kickback') || exName.includes('abduction') || exName.includes('bulgarian')) matchedMuscles.add('Glute');
+          else if (exName.includes('calf') || exName.includes('calves')) matchedMuscles.add('Calf');
+          else if (exName.includes('squat') || exName.includes('leg press') || exName.includes('leg extension')) matchedMuscles.add('Quadriceps');
+          else if (exName.includes('chest') || exName.includes('bench') || exName.includes('fly')) matchedMuscles.add('Göğüs');
+          else if (exName.includes('back') || exName.includes('lat') || exName.includes('row') || exName.includes('pulldown')) matchedMuscles.add('Sırt');
+          else if (exName.includes('shoulder') || exName.includes('lateral raise') || exName.includes('overhead')) matchedMuscles.add('Omuz');
+          else if (exName.includes('triceps') || exName.includes('pushdown')) matchedMuscles.add('Triceps');
+          else if (exName.includes('biceps') || exName.includes('curl')) matchedMuscles.add('Biceps');
         }
 
         let hasValidSet = false;
@@ -2889,8 +2981,8 @@ async function loadDashboardRPG(username) {
           }
         });
 
-        if (matchedMuscle && hasValidSet) {
-          completedMusclesSet.add(matchedMuscle);
+        if (hasValidSet) {
+          matchedMuscles.forEach(muscleName => completedMusclesSet.add(muscleName));
         }
       });
     });
@@ -3180,6 +3272,7 @@ function switchSplitMode(mode) {
   }
 
   renderSelectedSplit(mode);
+  refreshDashboardProgramStat(mode);
 }
 
 function renderSelectedSplit(mode) {
@@ -3485,8 +3578,10 @@ async function loadWorkoutPage() {
   const localTodayStr = (new Date(today - offset)).toISOString().split('T')[0];
   
   const dateInput = document.getElementById('workoutDate');
-  dateInput.value = localTodayStr;
-  
+  // Genel düzenleme taslağının özgün tarihi, sayfaya geçişte bugünün tarihiyle
+  // ezilmemelidir. Yeni kayıt ekranı ise önceki davranışını korur.
+  if (_editingWorkoutId === null) dateInput.value = localTodayStr;
+
   // Takvimde bugünden sonrasını (geleceği) KİLİTLE!
   dateInput.setAttribute('max', localTodayStr);
 
@@ -3514,8 +3609,11 @@ async function loadWorkoutPage() {
   workoutTypeEl.removeEventListener('change', applySessionFilter);
   workoutTypeEl.addEventListener('change', applySessionFilter);
 
-  // Sayfa ilk yüklendiğinde dropdown'da ne seçiliyse ona göre filtrele
+  // Sayfa ilk yüklendiğinde dropdown'da ne seçiliyse ona göre filtrele.
+  // Bu işlem genel düzenleme taslağındaki seçili hareketleri değiştirmez.
   applySessionFilter();
+  renderSelectedExercises();
+  updateWorkoutFormMode();
 }
 
 // Seans türü yalnızca görünür hareket listesini filtreler.
@@ -3721,6 +3819,47 @@ function removeExercise(idx) {
   card.addEventListener('animationend', finalizeRemoval, { once: true });
 }
 
+function updateWorkoutFormMode() {
+  const isEditing = _editingWorkoutId !== null;
+  const title = document.getElementById('workoutPageTitle');
+  const subtitle = document.getElementById('workoutPageSubtitle');
+  const saveLabel = document.getElementById('saveWorkoutButtonLabel');
+  const cancelButton = document.getElementById('cancelWorkoutEditButton');
+
+  if (title) title.textContent = isEditing ? 'Antrenmanı Düzenle' : 'Antrenman Kaydı';
+  if (subtitle) subtitle.textContent = isEditing
+    ? 'Değişiklikler yalnızca Antrenmanı Güncelle seçildiğinde kaydedilir'
+    : 'Yeni bir antrenman seansı kaydet';
+  if (saveLabel) saveLabel.textContent = isEditing ? 'Antrenmanı Güncelle' : 'Kaydet';
+  if (cancelButton) cancelButton.style.display = isEditing ? 'inline-flex' : 'none';
+}
+
+function resetWorkoutFormToNewMode() {
+  _editingWorkoutId = null;
+  _selectedExercises = [];
+
+  const dateInput = document.getElementById('workoutDate');
+  if (dateInput) {
+    const today = new Date();
+    const offset = today.getTimezoneOffset() * 60000;
+    dateInput.value = new Date(today - offset).toISOString().split('T')[0];
+  }
+  const typeInput = document.getElementById('workoutType');
+  if (typeInput) typeInput.value = 'Push';
+  const notesInput = document.getElementById('workoutNotes');
+  if (notesInput) notesInput.value = '';
+
+  renderSelectedExercises();
+  applySessionFilter();
+  updateWorkoutFormMode();
+}
+
+function cancelWorkoutEdit() {
+  if (_editingWorkoutId === null) return;
+  resetWorkoutFormToNewMode();
+  toast('Genel düzenleme taslağı iptal edildi. Kayıt değiştirilmedi.', 'info');
+}
+
 // ── YENİ VE TERTEMİZ KAYDETME FONKSİYONU ──
 async function saveWorkout() {
   if (_selectedExercises.length === 0) { 
@@ -3759,12 +3898,18 @@ async function saveWorkout() {
   };
 
   try {
-    await apiPost(`/api/workouts`, data);
-    toast('Antrenman başarıyla kaydedildi!', 'success');
-    _selectedExercises = [];
-    renderSelectedExercises();
-    document.getElementById('workoutNotes').value = '';
-    
+    const isEditing = _editingWorkoutId !== null;
+    if (isEditing) {
+      // Genel düzenleme modunda POST kullanılmaz: aynı workout kimliği güncellenir.
+      await apiPut(`/api/workouts/${_editingWorkoutId}`, data);
+      toast('Antrenman başarıyla güncellendi!', 'success');
+    } else {
+      await apiPost(`/api/workouts`, data);
+      toast('Antrenman başarıyla kaydedildi!', 'success');
+    }
+
+    resetWorkoutFormToNewMode();
+
     // Antrenman kaydedildikten sonra PR, XP ve İlerleme verilerini güncellemesi için Dashboard sayfasına yönlendir (Opsiyonel ama şık olur)
     navigate('dashboard');
   } catch(e) {
@@ -3905,7 +4050,8 @@ async function loadHistory(username) {
               <div style="text-align:right; margin-right:8px;">
                 <div style="font-size:14px; font-weight:700; color:var(--accent);">${Math.round(w.total_volume).toLocaleString()} kg</div>
               </div>
-              <button id="edit-btn-${index}" onclick="toggleEditMode(${index}, event)" title="Düzenle" style="background:transparent; border:none; color:var(--accent); cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+              <button id="edit-btn-${index}" onclick="toggleEditMode(${index}, event)" title="Setleri Düzenle" style="background:transparent; border:none; color:var(--accent); cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+              <button onclick="openWorkoutGeneralEdit(${index}, event)" title="Genel Düzenle" class="btn btn-sm btn-secondary" style="white-space:nowrap;">Genel Düzenle</button>
               <button id="save-btn-${index}" onclick="saveEdit(${index}, ${w.id}, event)" title="Kaydet" style="display:none; background:var(--green-bg); border:1px solid var(--green); color:var(--green); font-size:12px; font-weight:700; border-radius:6px; padding:4px 10px; cursor:pointer;">Kaydet</button>
               <button onclick="deleteWorkout(${w.id}, event)" title="Sil" style="background:transparent; border:none; color:#ef4444; cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
             </div>
@@ -4020,6 +4166,80 @@ function toggleEditMode(index, event) {
   document.getElementById(`save-btn-${index}`).style.display = 'inline-block';
 }
 
+function buildWorkoutDraftExercise(rawExercise) {
+  const raw = rawExercise && typeof rawExercise === 'object' ? rawExercise : {};
+  const rawId = raw.exercise_id || raw.canonical_exercise_id || '';
+  const catalogExercise = _exercisePool.find(item =>
+    item.id === rawId || item.id === raw.canonical_exercise_id || item.name === raw.exercise_name
+  );
+  const isBodyweight = typeof raw.is_bodyweight === 'boolean'
+    ? raw.is_bodyweight
+    : Boolean(catalogExercise?.bw);
+  const storedSets = Array.isArray(raw.sets_data) ? raw.sets_data : [];
+
+  return {
+    exercise_id: String(raw.exercise_id || catalogExercise?.id || raw.canonical_exercise_id || ''),
+    canonical_exercise_id: String(raw.canonical_exercise_id || raw.exercise_id || catalogExercise?.id || ''),
+    exercise_name: raw.exercise_name || raw.name || catalogExercise?.name || 'Egzersiz',
+    muscle_group: raw.muscle_group || catalogExercise?.muscle_group || catalogExercise?.muscle || 'Diğer',
+    display_muscle: catalogExercise?.muscle || raw.muscle_group || 'Diğer',
+    is_bodyweight: isBodyweight,
+    load_mode: raw.load_mode || catalogExercise?.analysis?.load_mode || (isBodyweight ? 'bodyweight' : 'external_load'),
+    // Yeni dizi oluşturulur; taslak üzerinde yapılan hiçbir değişiklik geçmiş
+    // listesindeki nesneyi veya veritabanını Kaydet'e kadar etkileyemez.
+    sets_data: (storedSets.length ? storedSets : [{ reps: 0, weight_kg: 0 }]).map(set => ({
+      reps: Number(set?.reps) || 0,
+      weight_kg: Number(set?.weight_kg) || 0
+    }))
+  };
+}
+
+async function openWorkoutGeneralEdit(index, event) {
+  if (event) event.stopPropagation();
+  const workout = globalHistoryWorkouts[index];
+  if (!workout?.id) {
+    toast('Düzenlenecek antrenman bulunamadı.', 'error');
+    return;
+  }
+
+  let storedExercises = [];
+  try {
+    storedExercises = typeof workout.exercises === 'string'
+      ? JSON.parse(workout.exercises)
+      : (Array.isArray(workout.exercises) ? workout.exercises : []);
+  } catch (error) {
+    toast('Antrenman hareketleri okunamadı.', 'error');
+    return;
+  }
+
+  // Bu aşama yalnızca istemci tarafında bir taslak oluşturur; API isteği yapılmaz.
+  _editingWorkoutId = workout.id;
+  _selectedExercises = storedExercises.map(buildWorkoutDraftExercise);
+
+  await navigate('workout');
+
+  const dateInput = document.getElementById('workoutDate');
+  if (dateInput) dateInput.value = String(workout.date || '').slice(0, 10);
+
+  const typeInput = document.getElementById('workoutType');
+  if (typeInput) {
+    const sessionType = String(workout.session_type || 'Custom');
+    if (!Array.from(typeInput.options).some(option => option.value === sessionType)) {
+      const legacyOption = new Option(sessionType, sessionType);
+      typeInput.add(legacyOption);
+    }
+    typeInput.value = sessionType;
+  }
+
+  const notesInput = document.getElementById('workoutNotes');
+  if (notesInput) notesInput.value = workout.notes || '';
+
+  applySessionFilter();
+  renderSelectedExercises();
+  updateWorkoutFormMode();
+  toast('Antrenman taslak olarak açıldı. Kaydetmeden hiçbir kayıt değişmez.', 'info');
+}
+
 async function saveEdit(index, workoutId, event) {
   if (event) event.stopPropagation();
   const username = window._currentUsername; 
@@ -4117,7 +4337,8 @@ async function loadNutritionHistory() {
         <div class="card history-card history-card-animated" id="nutri-card-${index}" style="--card-index: ${index}; cursor:pointer; margin-bottom:12px;" onclick="toggleNutritionDetails(${index}, event)">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
             <div>
-              <div style="font-size:15px; font-weight:700; color:var(--text);">${formatDateTR(log.date)}</div>
+              <div class="nutri-view-${index}" style="font-size:15px; font-weight:700; color:var(--text);">${formatDateTR(log.date)}</div>
+              <input type="date" class="nutri-edit-${index} edit-input" id="n-edit-date-${index}" value="${log.date}" max="${new Date().toISOString().slice(0, 10)}" aria-label="Kayıt tarihi" style="display:none; width:148px; padding:5px 7px; font-size:12px;">
               <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Günlük Beslenme Özeti</div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
@@ -4225,13 +4446,15 @@ window.saveNutritionEdit = async function(index, logDate, event) {
   const pro = parseFloat(document.getElementById(`n-edit-pro-${index}`).value) || 0;
   const carb = parseFloat(document.getElementById(`n-edit-carb-${index}`).value) || 0;
   const fat = parseFloat(document.getElementById(`n-edit-fat-${index}`).value) || 0;
+  const editedDate = document.getElementById(`n-edit-date-${index}`)?.value || logDate;
   
   const notesInput = document.getElementById(`n-edit-notes-${index}`);
   const notesVal = notesInput ? notesInput.value : '';
 
   const payload = {
     username: username,
-    log_date: logDate,
+    original_date: logDate,
+    log_date: editedDate,
     protein: pro,
     carbs: carb,
     fat: fat,
@@ -4240,9 +4463,9 @@ window.saveNutritionEdit = async function(index, logDate, event) {
   };
 
   try {
-    const res = await apiPost('/api/nutrition/log', payload);
+    const res = await apiPut('/api/nutrition/log', payload);
     if (res.success) {
-      toast('Beslenme verisi ve notlar başarıyla güncellendi!', 'success');
+      toast('Beslenme kaydı başarıyla güncellendi!', 'success');
       loadNutritionHistory(); 
     }
   } catch(e) {
@@ -4466,6 +4689,7 @@ let _progRawData = null;
 let _progHistoricalRecords = [];
 let _progExercise = '';
 let _progTimeframe = 'monthly';
+let _progChartMode = 'weight';
 
 // 1. İlerleme Sayfası Yüklendiğinde
 async function loadProgress(username) {
@@ -4928,6 +5152,42 @@ function switchProgTimeframe(tf) {
 }
 window.switchProgTimeframe = switchProgTimeframe;
 
+function switchProgChartMode(mode) {
+  if (!['weight', 'reps_weight'].includes(mode)) return;
+  _progChartMode = mode;
+  ['weight', 'reps_weight'].forEach(item => {
+    const el = document.getElementById('progView_' + item);
+    if (el) el.classList.toggle('active', item === mode);
+  });
+  const subtitle = document.getElementById('progressChartSubtitle');
+  if (subtitle) {
+    subtitle.textContent = mode === 'reps_weight'
+      ? 'Seçilen harekette yapılan her setin tekrar ve ağırlık ilişkisi'
+      : 'Seçilen hareketin zaman içindeki kaldırdığı ağırlık değişimi — PR çizgisi ve set detayları';
+  }
+  renderExerciseProgressChart(_progExercise, null);
+}
+window.switchProgChartMode = switchProgChartMode;
+
+function _progFilteredPoints() {
+  if (!_progRawData?.labels?.length) return [];
+  const now = new Date();
+  let cutoff = null;
+  if (_progTimeframe === 'monthly') { const d = new Date(now); d.setMonth(d.getMonth() - 1); cutoff = d; }
+  else if (_progTimeframe === 'yearly') { const d = new Date(now); d.setFullYear(d.getFullYear() - 1); cutoff = d; }
+  return _progRawData.labels.map((label, index) => {
+    const detail = _progRawData.details[index] || {};
+    return {
+      label,
+      iso: _progParseDate(label),
+      value: Number(_progRawData.data[index] || 0),
+      reps: Number(detail.reps || 0),
+      weightKg: Number(detail.weight_kg || 0),
+      set: Number(detail.set || index + 1)
+    };
+  }).filter(point => point.iso && (!cutoff || point.iso >= cutoff));
+}
+
 function renderExerciseProgressChart(exName, raw) {
   if (typeof Chart === 'undefined') {
     console.error('HATA: Chart.js kütüphanesi yüklenmedi!');
@@ -4937,100 +5197,120 @@ function renderExerciseProgressChart(exName, raw) {
   if (!ctxEl) return;
   _registerHxBeamPlugin();
   const ctx = ctxEl.getContext('2d');
-  if (_exerciseProgressChart) {
-    _exerciseProgressChart.destroy();
-  }
+  if (_exerciseProgressChart) _exerciseProgressChart.destroy();
   if (raw) {
     _progRawData = { labels: raw.labels || [], data: raw.data || [], details: raw.details || [], metric_type: raw.metric_type || 'weight_kg', metric_label: raw.metric_label || 'PR ağırlık (kg)' };
     _progExercise = exName;
   }
-  const hasData = _progRawData && _progRawData.labels.length > 0;
+
   const metricType = _progRawData?.metric_type || 'weight_kg';
   const metricLabel = _progRawData?.metric_label || 'PR ağırlık (kg)';
   const metricSuffix = metricType === 'reps' ? ' tekrar' : ' kg';
-  let labels = [], data = [];
-  if (hasData) {
-    const now = new Date();
-    const valid = _progRawData.labels.map((l, i) => ({ label: l, iso: _progParseDate(l), value: _progRawData.data[i], reps: (_progRawData.details[i] && _progRawData.details[i].reps != null) ? _progRawData.details[i].reps : null, weightKg: (_progRawData.details[i] && _progRawData.details[i].weight_kg != null) ? _progRawData.details[i].weight_kg : 0 })).filter(o => o.iso);
-    let cutoff = null;
-    if (_progTimeframe === 'monthly') { const d = new Date(now); d.setMonth(d.getMonth() - 1); cutoff = d; }
-    else if (_progTimeframe === 'yearly')  { const d = new Date(now); d.setFullYear(d.getFullYear() - 1); cutoff = d; }
-    const filtered = valid.filter(o => !cutoff || o.iso >= cutoff);
-    if (filtered.length === 0) { labels = ['Veri Yok']; }
-    else {
-      const groups = new Map();
-      for (const o of filtered) {
-        const key = o.iso.toISOString().split('T')[0];
-        if (!groups.has(key)) groups.set(key, { dateIso: key, tr: o.label, sets: [] });
-        groups.get(key).sets.push({ value: o.value, reps: o.reps, weightKg: o.weightKg });
+  const points = _progFilteredPoints();
+  const isRepsWeightMode = _progChartMode === 'reps_weight';
+
+  if (isRepsWeightMode) {
+    const scatterPoints = points
+      .filter(point => point.reps > 0 && point.weightKg > 0)
+      .map(point => ({ x: point.reps, y: point.weightKg, dateLabel: point.label, set: point.set }));
+    _exerciseProgressChart = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: exName ? exName + ' — Tekrar / Ağırlık' : 'Tekrar / Ağırlık',
+          data: scatterPoints,
+          backgroundColor: 'rgba(34, 197, 94, 0.82)',
+          borderColor: '#ffffff',
+          borderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 9
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: _hxChartAnimation(),
+        plugins: {
+          legend: { display: false },
+          title: { display: scatterPoints.length === 0, text: 'Bu zaman aralığında tekrar–ağırlık verisi bulunmuyor.', color: '#9ca3b4', font: { size: 13, weight: '500' }, padding: 20 },
+          tooltip: {
+            backgroundColor: 'rgba(20, 22, 32, 0.95)', borderColor: 'rgba(34, 197, 94, 0.5)', borderWidth: 1,
+            titleColor: '#e8eaf0', bodyColor: '#d1d5e0', padding: 12,
+            callbacks: {
+              title: context => context[0]?.raw?.dateLabel || '',
+              label: context => `  ${context.parsed.y} kg × ${context.parsed.x} tekrar`,
+              afterLabel: context => `  Set ${context.raw?.set || '—'}`
+            }
+          }
+        },
+        scales: {
+          x: { type: 'linear', beginAtZero: false, title: { display: true, text: 'Tekrar', color: '#9ca3b4' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3b4', precision: 0 } },
+          y: { beginAtZero: false, title: { display: true, text: 'Ağırlık (kg)', color: '#9ca3b4' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3b4', callback: value => `${value} kg` } }
+        }
       }
-      for (const g of [...groups.values()].sort((a, b) => a.dateIso.localeCompare(b.dateIso))) {
-        const maxSet = g.sets.reduce((m, s) => (s.value > m.value ? s : m), g.sets[0]);
-        labels.push(g.tr);
-        data.push({ y: maxSet.value, daySets: g.sets });
-      }
-    }
-  } else {
-    labels = ['Veri Yok'];
+    });
+    _playHxBeamReveal(_exerciseProgressChart, '#22c55e');
+    return;
   }
+
+  let labels = [], chartPoints = [];
+  if (points.length === 0) {
+    labels = ['Veri Yok'];
+  } else {
+    const groups = new Map();
+    for (const point of points) {
+      const key = point.iso.toISOString().split('T')[0];
+      if (!groups.has(key)) groups.set(key, { dateIso: key, tr: point.label, sets: [] });
+      groups.get(key).sets.push(point);
+    }
+    for (const group of [...groups.values()].sort((a, b) => a.dateIso.localeCompare(b.dateIso))) {
+      const maxSet = group.sets.reduce((current, item) => (item.value > current.value ? item : current), group.sets[0]);
+      labels.push(group.tr);
+      chartPoints.push({ y: maxSet.value, daySets: group.sets });
+    }
+  }
+
   const gradient = ctx.createLinearGradient(0, 0, 0, 400);
   gradient.addColorStop(0, 'rgba(108, 99, 255, 0.45)');
   gradient.addColorStop(1, 'rgba(108, 99, 255, 0.0)');
   _exerciseProgressChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels,
+      labels,
       datasets: [{
         label: exName ? exName + ' — ' + metricLabel : metricLabel,
-        data: data.length ? data.map(p => p.y) : [0],
-        borderColor: '#6c63ff',
-        borderWidth: 3,
-        backgroundColor: gradient,
-        fill: true,
-        tension: 0.3,
-        pointBackgroundColor: '#22c55e',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointRadius: 6,
-        pointHoverRadius: 9
+        data: chartPoints.length ? chartPoints.map(point => point.y) : [0],
+        borderColor: '#6c63ff', borderWidth: 3, backgroundColor: gradient, fill: true, tension: 0.3,
+        pointBackgroundColor: '#22c55e', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointRadius: 6, pointHoverRadius: 9
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: _hxChartAnimation(),
+      responsive: true, maintainAspectRatio: false, animation: _hxChartAnimation(),
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(20, 22, 32, 0.95)',
-          borderColor: 'rgba(108, 99, 255, 0.5)',
-          borderWidth: 1,
-          titleColor: '#e8eaf0',
-          bodyColor: '#d1d5e0',
-          padding: 12,
+          backgroundColor: 'rgba(20, 22, 32, 0.95)', borderColor: 'rgba(108, 99, 255, 0.5)', borderWidth: 1,
+          titleColor: '#e8eaf0', bodyColor: '#d1d5e0', padding: 12,
           callbacks: {
-            title: function(context) {
-              return context[0].label;
-            },
-            label: function(context) {
-              const pt = data[context.dataIndex];
-              if (!pt) return '';
-              const sets = pt.daySets || [{ value: context.parsed.y, reps: null, weightKg: 0 }];
-              const lines = sets.map(s => metricType === 'reps'
-                ? '  ' + s.reps + ' tekrar'
-                : '  ' + s.weightKg + ' kg' + (s.reps ? ' × ' + s.reps + ' tekrar' : ''));
-              const out = lines;
+            title: context => context[0].label,
+            label: context => {
+              const point = chartPoints[context.dataIndex];
+              if (!point) return '';
+              const sets = point.daySets || [{ value: context.parsed.y, reps: null, weightKg: 0 }];
+              const lines = sets.map(set => metricType === 'reps'
+                ? `  ${set.reps} tekrar`
+                : `  ${set.weightKg} kg${set.reps ? ` × ${set.reps} tekrar` : ''}`);
               if (sets.length > 1) {
-                const prMax = sets.reduce((m, s) => Math.max(m, s.value), 0);
-                out.push('───────', '  ' + sets.length + ' set oynatıldı', '  PR: ' + prMax + metricSuffix);
+                const prMax = sets.reduce((maximum, set) => Math.max(maximum, set.value), 0);
+                lines.push('───────', `  ${sets.length} set oynatıldı`, `  PR: ${prMax}${metricSuffix}`);
               }
-              return out;
+              return lines;
             }
           }
         }
       },
       scales: {
-        y: { beginAtZero: false, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3b4', callback: function(value) { return value + metricSuffix; } } },
+        y: { beginAtZero: false, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3b4', callback: value => `${value}${metricSuffix}` } },
         x: { grid: { display: false }, ticks: { color: '#9ca3b4', maxRotation: 45, maxTicksLimit: 12 } }
       }
     }
@@ -6014,8 +6294,16 @@ document.addEventListener('keydown', (e) => {
    hedef, kas ağrısı ve geçici kısıt verilerini tek uzman profiline kaydeder.
 ═══════════════════════════════════════════════ */
 let expertDataState = null;
-let expertDataTab = 'doms';
+// Üstteki ana sekme sade tutulur; kas ağrısı ve sakatlık panelleri sağlık
+// ebeveyni altında iki alt görünüm olarak çalışır.
+let expertDataTab = 'health';
+let expertDataHealthTab = 'doms';
+let expertDataSetupTab = 'goals';
+let expertDataPlanningTab = 'split';
 let expertDataGoalDraft = { primary_goal: '', priority_muscles: [], priority_note: '' };
+let expertDataGymDraft = null;
+let expertDataInjuryDraft = null;
+let expertDataDomsEditDraft = null;
 
 function expertDataEscape(value) { return typeof expertEscape === 'function' ? expertEscape(value) : String(value ?? ''); }
 function expertDataCatalog() { return expertDataState?.catalog || {}; }
@@ -6025,6 +6313,11 @@ function expertDataMuscleLabel(id) {
 }
 function expertDataGoalLabel(id) {
   return expertDataCatalog().primary_goals?.[id] || id || 'Belirtilmedi';
+}
+function expertDataProfileGoal() {
+  const value = String(_currentUser?.goal || '').trim().toLowerCase();
+  const aliases = { bulk: 'hypertrophy', hypertrophy: 'hypertrophy', muscle_gain: 'hypertrophy', strength: 'strength', cut: 'fat_loss', fat_loss: 'fat_loss', maintain: 'fat_loss', maintenance: 'fat_loss' };
+  return aliases[value] || 'hypertrophy';
 }
 function expertDataToday() { return new Date().toISOString().slice(0, 10); }
 function expertDataDate(value) {
@@ -6050,6 +6343,8 @@ function expertDataInjectStyles() {
     .expert-data-hero p{position:relative;max-width:760px;margin:0;color:var(--text-secondary);font-size:13px;line-height:1.65}
     .expert-data-tabs{display:flex;gap:8px;overflow-x:auto;padding:5px 1px 8px;scrollbar-width:thin}
     .expert-data-tab{flex:0 0 auto;display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--card-bg);color:var(--text-secondary);padding:10px 13px;border-radius:11px;font-size:12px;font-weight:750;cursor:pointer;transition:transform .2s ease,border-color .2s ease,background .2s ease,color .2s ease,box-shadow .2s ease}
+    .expert-data-subtabs{display:flex;gap:8px;align-items:center;padding:0 0 15px;margin-bottom:18px;border-bottom:1px solid var(--border)}
+    .expert-data-subtab{border:1px solid var(--border);background:rgba(77,171,247,.04);color:var(--text-secondary);padding:9px 12px;border-radius:10px;font-size:12px;font-weight:750;cursor:pointer;transition:background .18s ease,color .18s ease,border-color .18s ease,transform .18s ease}.expert-data-subtab:hover{transform:translateY(-1px);border-color:rgba(77,171,247,.7);color:var(--text-primary)}.expert-data-subtab.active{background:rgba(77,171,247,.16);border-color:#3aa5e6;color:#8bd4ff;box-shadow:0 5px 13px rgba(41,103,201,.14)}
     .expert-data-tab:hover{transform:translateY(-2px);border-color:#4dabf7;color:var(--text-primary)}
     .expert-data-tab.active{color:white;border-color:#378add;background:linear-gradient(135deg,#2967c9,#30a2d8);box-shadow:0 8px 18px rgba(41,103,201,.25)}
     .expert-data-stage{min-height:500px;animation:expertDataSlide .34s cubic-bezier(.2,.8,.2,1) both}
@@ -6071,66 +6366,177 @@ function expertDataInjectStyles() {
     .expert-data-range-wrap{padding:12px;border:1px solid var(--border);border-radius:12px;background:rgba(77,171,247,.035)}
     .expert-data-range-title{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--text-secondary);font-size:12px;font-weight:800}.expert-data-range-score{display:inline-flex;align-items:center;justify-content:center;min-width:38px;padding:5px;border-radius:8px;background:rgba(77,171,247,.15);color:#70beff;font-size:13px}
     .expert-data-range-wrap input[type=range]{accent-color:#38bdf8;margin:12px 0 2px}.expert-data-range-labels{display:flex;justify-content:space-between;color:var(--text-muted);font-size:10px}
+    .expert-data-switch{display:inline-flex!important;align-items:center;gap:10px;margin:0!important;cursor:pointer;user-select:none}.expert-data-switch input{position:absolute;opacity:0;pointer-events:none}.expert-data-switch-track{position:relative;display:inline-block;width:42px;height:23px;flex:0 0 42px;border-radius:999px;background:rgba(127,146,175,.42);box-shadow:inset 0 1px 3px rgba(0,0,0,.22);transition:background .2s ease}.expert-data-switch-track:after{content:'';position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.3);transition:transform .2s ease}.expert-data-switch input:checked + .expert-data-switch-track{background:linear-gradient(135deg,#2967c9,#30a2d8)}.expert-data-switch input:checked + .expert-data-switch-track:after{transform:translateX(19px)}.expert-data-switch input:focus-visible + .expert-data-switch-track{outline:2px solid #70beff;outline-offset:3px}.expert-data-switch-text{color:var(--text-secondary);font-size:12px;font-weight:750;letter-spacing:0}
     .expert-data-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.expert-data-choice{min-height:46px;text-align:left;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text-secondary);padding:9px 10px;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s ease}.expert-data-choice:hover{border-color:#4dabf7;transform:translateY(-1px)}.expert-data-choice.selected{color:#dff5ff;border-color:#35a7e9;background:linear-gradient(135deg,rgba(42,119,210,.31),rgba(38,208,206,.14));box-shadow:inset 0 0 0 1px rgba(80,198,255,.12)}
+    .expert-equipment-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}.expert-equipment-column{display:grid;gap:12px;align-content:start;min-width:0}.expert-equipment-group{padding:12px;border:1px solid rgba(77,171,247,.18);border-radius:13px;background:linear-gradient(145deg,rgba(77,171,247,.07),rgba(10,17,31,.04));min-width:0}.expert-equipment-group-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.expert-equipment-group-head strong{color:var(--text-primary);font-size:12px}.expert-equipment-group-head span{padding:3px 7px;border-radius:999px;background:rgba(77,171,247,.13);color:#76c8ff;font-size:10px;font-weight:800}.expert-equipment-toggle-grid{display:grid;gap:7px}.expert-equipment-toggle{position:relative;display:flex!important;align-items:center;justify-content:space-between;gap:10px;min-height:52px;margin:0!important;padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:rgba(7,12,23,.2);cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease}.expert-equipment-toggle:hover{border-color:rgba(77,171,247,.7);background:rgba(77,171,247,.075);transform:translateY(-1px)}.expert-equipment-toggle input{position:absolute;opacity:0;pointer-events:none}.expert-equipment-copy{min-width:0}.expert-equipment-copy strong{display:block;color:var(--text-secondary);font-size:11px;font-weight:780;line-height:1.25;transition:color .18s ease}.expert-equipment-status{display:block;margin-top:3px;color:var(--text-muted);font-size:10px;font-weight:700}.expert-equipment-status:after{content:'Yok'}.expert-equipment-track{position:relative;display:inline-block;width:39px;height:22px;flex:0 0 39px;border-radius:999px;background:rgba(127,146,175,.42);box-shadow:inset 0 1px 3px rgba(0,0,0,.24);transition:background .2s ease}.expert-equipment-track:after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.3);transition:transform .2s ease}.expert-equipment-toggle input:checked + .expert-equipment-copy strong{color:#dffaff}.expert-equipment-toggle input:checked + .expert-equipment-copy .expert-equipment-status{color:#68dfc3}.expert-equipment-toggle input:checked + .expert-equipment-copy .expert-equipment-status:after{content:'Var'}.expert-equipment-toggle input:checked ~ .expert-equipment-track{background:linear-gradient(135deg,#1972d2,#28c6a1)}.expert-equipment-toggle input:checked ~ .expert-equipment-track:after{transform:translateX(17px)}.expert-equipment-toggle input:focus-visible ~ .expert-equipment-track{outline:2px solid #70beff;outline-offset:3px}
+    .expert-data-goal-intro{padding:16px;border:1px solid rgba(77,171,247,.34);border-radius:14px;background:linear-gradient(120deg,rgba(42,119,210,.18),rgba(38,208,206,.055));margin-bottom:16px}.expert-data-goal-intro h3{margin:0 0 5px;font-size:17px}.expert-data-goal-intro p{margin:0;color:var(--text-secondary)}.expert-data-profile-goal{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;margin:0 0 16px;border:1px solid rgba(38,208,206,.25);border-radius:12px;background:rgba(38,208,206,.055)}.expert-data-profile-goal span{display:block;color:var(--text-muted);font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.expert-data-profile-goal strong{display:block;margin-top:3px;color:#9ee9e7;font-size:13px}.expert-data-profile-goal small{max-width:220px;color:var(--text-muted);font-size:10px;line-height:1.45;text-align:right}.expert-data-priority-heading{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:8px}.expert-data-priority-heading label{margin:0!important}.expert-data-priority-count{color:#72c9ff;font-size:11px;font-weight:800}.expert-data-priority-grid .expert-data-choice{min-height:58px}.expert-data-goal-actions{margin-top:2px}
     .expert-data-summary{display:grid;gap:10px}.expert-data-summary-item{padding:11px;border:1px solid var(--border);border-radius:11px;background:rgba(77,171,247,.035)}.expert-data-summary-label{font-size:10px;font-weight:800;letter-spacing:.05em;color:var(--text-muted);text-transform:uppercase}.expert-data-summary-value{margin-top:4px;color:var(--text-primary);font-size:13px;font-weight:750;line-height:1.45}
     .expert-data-history{display:grid;gap:8px;margin-top:14px}.expert-data-history-item{padding:11px 12px;border-left:3px solid #4dabf7;border-radius:0 10px 10px 0;background:rgba(77,171,247,.05)}.expert-data-history-item strong{color:var(--text-primary);font-size:12px}.expert-data-history-item div{margin-top:4px;color:var(--text-muted);font-size:11px;line-height:1.5}
+    .expert-data-doms-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.expert-data-doms-input{min-width:0;padding:11px;border:1px solid var(--border);border-radius:12px;background:rgba(77,171,247,.035);transition:border-color .18s ease,background .18s ease}.expert-data-doms-input:hover{border-color:rgba(77,171,247,.6);background:rgba(77,171,247,.06)}.expert-data-doms-input-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.expert-data-doms-input-name{color:var(--text-primary);font-size:12px;font-weight:800;line-height:1.25}.expert-data-doms-input-score{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:4px 6px;border-radius:7px;background:rgba(77,171,247,.15);color:#70beff;font-size:12px;font-weight:800}.expert-data-doms-input input[type=range]{display:block;width:100%!important;min-width:100%;max-width:100%!important;box-sizing:border-box;accent-color:#38bdf8;margin:12px 0 2px;cursor:pointer}.expert-data-doms-edit{padding:12px;border:1px solid rgba(77,171,247,.45);border-radius:12px;background:rgba(77,171,247,.06)}.expert-data-doms-edit-title{margin:0 0 4px;color:var(--text-primary);font-size:14px;font-weight:800}.expert-data-doms-edit-meta{margin:0 0 12px;color:var(--text-muted);font-size:11px}
     .expert-data-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}.expert-data-danger{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
     .expert-data-note{margin:12px 0 0;padding:10px 11px;border-radius:10px;background:rgba(255,183,3,.075);border-left:3px solid #ffb703;color:var(--text-secondary);font-size:11px;line-height:1.55}
-    @media(max-width:760px){.expert-data-hero{padding:18px}.expert-data-grid{grid-template-columns:1fr}.expert-data-card{padding:15px}.expert-data-metric-head{display:none}.expert-data-metric-row{grid-template-columns:1fr;gap:10px;padding:14px 4px}.expert-data-choice-grid{grid-template-columns:1fr}.expert-data-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;overflow:visible;margin-right:0}.expert-data-tab{min-width:0;justify-content:center;gap:4px;padding:9px 5px;font-size:10px;white-space:nowrap;overflow:hidden}.expert-data-tab-label{font-size:0}.expert-data-tab-label::after{content:attr(data-mobile);font-size:10px}.expert-data-stage{min-height:0}}
+    @media(max-width:760px){.expert-equipment-groups{grid-template-columns:1fr;gap:10px}.expert-equipment-column{gap:10px}.expert-equipment-group{padding:10px}.expert-equipment-toggle{min-height:56px;padding:10px 11px}.expert-data-actions .btn{flex:1 1 145px;min-height:42px}}
+    @media(max-width:760px){.expert-data-hero{padding:18px}.expert-data-grid{grid-template-columns:1fr}.expert-data-card{padding:15px}.expert-data-metric-head{display:none}.expert-data-metric-row{grid-template-columns:1fr!important;gap:10px;padding:14px 4px}.expert-data-choice-grid,.expert-data-doms-grid,.expert-equipment-groups{grid-template-columns:1fr}.expert-data-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;overflow:visible;margin-right:0}.expert-data-tab{min-width:0;justify-content:center;gap:3px;padding:9px 4px;font-size:10px;white-space:nowrap;overflow:hidden}.expert-data-tab-label{font-size:0}.expert-data-tab-label::after{content:attr(data-mobile);font-size:10px}.expert-data-subtabs{gap:6px;padding-bottom:12px;margin-bottom:14px}.expert-data-subtab{flex:1;min-width:0;padding:9px 7px;font-size:11px}.expert-data-stage{min-height:0}}
   `;
   document.head.appendChild(style);
 }
 
 function expertDataTabs() {
   const tabs = [
-    ['doms', 'Kas Ağrısı', '01', 'Kas Ağrısı'],
-    ['goals', 'Hedeflerini Düzenle', '02', 'Hedefler'],
-    ['constraints', 'Ağrı ve Geçici Kısıtlar', '03', 'Kısıtlar'],
+    ['health', 'Kas Ağrısı ve Sakatlıklar', '01', 'Sağlık'],
+    ['setup', 'Hedef ve Ekipmanlar', '02', 'Tercihler'],
+    ['planning', 'Split ve Analiz', '03', 'Planlama'],
   ];
   return `<nav class="expert-data-tabs" aria-label="Uzman sistemi anket sekmeleri">${tabs.map(([id, label, num, mobileLabel]) => `<button class="expert-data-tab ${expertDataTab === id ? 'active' : ''}" type="button" onclick="expertDataSwitchTab('${id}')"><span style="opacity:.72;font-size:10px">${num}</span><span class="expert-data-tab-label" data-mobile="${mobileLabel}">${label}</span></button>`).join('')}</nav>`;
 }
 
+function expertDataHealthTabs() {
+  const children = [
+    ['doms', 'Bugünkü Kas Ağrısı'],
+    ['injuries', 'Sakatlık ve Kısıtlar'],
+  ];
+  return `<nav class="expert-data-subtabs" aria-label="Kas ağrısı ve sakatlık alt sekmeleri">${children.map(([id, label]) => `<button class="expert-data-subtab ${expertDataHealthTab === id ? 'active' : ''}" type="button" onclick="expertDataSwitchHealthTab('${id}')">${label}</button>`).join('')}</nav>`;
+}
+
+function expertDataSetupTabs() {
+  const children = [
+    ['goals', 'Hedef Kaslar'],
+    ['gyms', 'Salonlar ve Ekipmanlar'],
+  ];
+  return `<nav class="expert-data-subtabs" aria-label="Hedef ve salon alt sekmeleri">${children.map(([id, label]) => `<button class="expert-data-subtab ${expertDataSetupTab === id ? 'active' : ''}" type="button" onclick="expertDataSwitchSetupTab('${id}')">${label}</button>`).join('')}</nav>`;
+}
+
+function expertDataPlanningTabs() {
+  const children = [
+    ['split', 'Split'],
+    ['analysis', 'Analiz'],
+  ];
+  return `<nav class="expert-data-subtabs" aria-label="Split ve analiz alt sekmeleri">${children.map(([id, label]) => `<button class="expert-data-subtab ${expertDataPlanningTab === id ? 'active' : ''}" type="button" onclick="expertDataSwitchPlanningTab('${id}')">${label}</button>`).join('')}</nav>`;
+}
+
 function expertDataMetricRows() {
   const metrics = Array.isArray(expertDataState?.metrics) ? expertDataState.metrics : [];
-  if (!metrics.length) return `<div class="expert-data-empty">Henüz bir kas ağrısı bildirimi yok.<br><span style="font-size:11px">İlk kaydı sağdaki kısa formdan ekleyebilirsin.</span></div>`;
-  return `<div class="expert-data-metric-head"><span>Kas grubu</span><span>Kas ağrısı</span><span>Sonraki antrenmana hazırlık</span></div>${metrics.map(metric => {
-    const pain = Number(metric.pain_level || 0); const readiness = Number(metric.readiness || 0);
-    const status = metric.status === 'resolved' ? 'Geçti' : 'Aktif kayıt';
-    return `<div class="expert-data-metric-row"><div><div class="expert-data-muscle">${expertDataEscape(expertDataMuscleLabel(metric.muscle_group))}</div><div class="expert-data-sub">${expertDataEscape(status)} · ${expertDataDate(metric.report_date)}</div></div><div><div class="expert-data-value"><span>Bildirim seviyesi</span><strong>${pain}/5</strong></div><div class="expert-data-track"><span class="expert-data-fill" style="width:${pain * 20}%;background:${expertDataTone(pain, 'pain')}"></span></div></div><div><div class="expert-data-value"><span>Görsel hazırlık göstergesi</span><strong>${readiness}/100</strong></div><div class="expert-data-track"><span class="expert-data-fill" style="width:${readiness}%;background:${expertDataTone(readiness, 'readiness')}"></span></div></div></div>`;
+  if (!metrics.length) return `<div class="expert-data-empty">Henüz bir kas ağrısı bildirimi yok.<br><span style="font-size:11px">Günlük durumunu sağdaki kısa formdan kaydedebilirsin.</span></div>`;
+      return `<div class="expert-data-metric-head" style="grid-template-columns:minmax(110px,.72fr) minmax(165px,1fr)"><span>Kas grubu</span><span>Kas ağrısı</span></div>${metrics.map(metric => {
+    const pain = Number(metric.pain_level || 0);
+    return `<div class="expert-data-metric-row" style="grid-template-columns:minmax(110px,.72fr) minmax(165px,1fr)"><div><div class="expert-data-muscle">${expertDataEscape(expertDataMuscleLabel(metric.muscle_group))}</div><div class="expert-data-sub">Son günlük bildirim</div></div><div><div class="expert-data-value"><span>Bildirim seviyesi</span><strong>${pain}/5</strong></div><div class="expert-data-track"><span class="expert-data-fill" style="width:${pain * 20}%;background:${expertDataTone(pain, 'pain')}"></span></div></div></div>`;
   }).join('')}`;
+
+}
+
+function expertDataDomsEntries() {
+  const daily = expertDataState?.doms_daily || {};
+  return Object.entries(daily)
+    .flatMap(([report_date, entries]) => (Array.isArray(entries) ? entries : []).map(item => ({ ...item, report_date })))
+    .sort((a, b) => String(b.report_date).localeCompare(String(a.report_date)));
+}
+
+function expertDataDomsTodayEntries() {
+  const entries = expertDataState?.doms_daily?.[expertDataToday()];
+  return Array.isArray(entries) ? entries : [];
+}
+
+function expertDataDomsLevelInput(muscle, entry) {
+  const severity = Number(entry?.severity || 0);
+  const safeId = String(muscle.id).replace(/[^a-zA-Z0-9_-]/g, '');
+  const muscleId = JSON.stringify(muscle.id);
+  return `<div class="expert-data-doms-input"><div class="expert-data-doms-input-head"><span class="expert-data-doms-input-name">${expertDataEscape(muscle.label)}</span><span id="expertDataDomsScore_${safeId}" class="expert-data-doms-input-score">${severity}/5</span></div><input class="expertDataDomsMuscleInput" data-muscle="${expertDataEscape(muscle.id)}" data-notes="${expertDataEscape(entry?.notes || '')}" type="range" min="0" max="5" step="1" value="${severity}" oninput="expertDataDomsGridRangeChange(${muscleId}, this.value, this)" onchange="expertDataDomsGridRangeChange(${muscleId}, this.value, this)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div>`;
+}
+
+function expertDataDomsEditForm(draft) {
+  const safeId = String(draft.muscle_group).replace(/[^a-zA-Z0-9_-]/g, '');
+  return `<div class="expert-data-doms-edit"><p class="expert-data-doms-edit-title">${expertDataEscape(expertDataMuscleLabel(draft.muscle_group))} kaydını düzenle</p><p class="expert-data-doms-edit-meta">Kayıt günü: ${expertDataEscape(expertDataDate(draft.report_date))}. Bu tarih değiştirilemez.</p><div class="expert-data-range-wrap"><div class="expert-data-range-title"><span>KAS AĞRISI SEVİYESİ</span><span id="expertDataDomsEditScore" class="expert-data-range-score">${Number(draft.severity || 0)}/5</span></div><input id="expertDataDomsEditSeverity" type="range" min="0" max="5" step="1" value="${Number(draft.severity || 0)}" oninput="expertDataDomsEditRangeChange(this.value)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div><div style="margin-top:12px"><label for="expertDataDomsEditNotes">KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataDomsEditNotes" rows="3" maxlength="500">${expertDataEscape(draft.notes || '')}</textarea></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveDomsEdit()">Kaydı Güncelle</button><button class="btn btn-secondary" type="button" onclick="expertDataCancelDomsEdit()">Vazgeç</button></div></div>`;
 }
 
 function expertDataDomsPane() {
-  const muscles = expertDataMuscles().map(item => `<option value="${expertDataEscape(item.id)}">${expertDataEscape(item.label)}</option>`).join('');
-  const history = (expertDataState?.doms_history || []).slice(-5).reverse();
-  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kas Durum Panosu</h3><p>Her kas için iki çizgi gösterilir: kendi bildirdiğin ağrı seviyesi ve buna göre oluşturulan sonraki antrenmana hazırlık göstergesi.</p></div><span class="expert-data-badge">0–5 ölçeği</span></div>${expertDataMetricRows()}<div class="expert-data-note"><strong>Not:</strong> Bu bölüm tanı koymaz. Hazırlık değeri yalnızca girilen kas ağrısı seviyesini görselleştirir.</div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kas Ağrısı Ekle</h3><p>İstersen aynı kas için yeni bir günlük kayıt oluşturabilirsin.</p></div></div><div class="expert-data-form"><div><label for="expertDataDomsMuscle">KAS GRUBU</label><select id="expertDataDomsMuscle">${muscles}</select></div><div class="expert-data-range-wrap"><div class="expert-data-range-title"><span>KAS AĞRISI SEVİYESİ</span><span id="expertDataDomsScore" class="expert-data-range-score">0/5</span></div><input id="expertDataDomsSeverity" type="range" min="0" max="5" step="1" value="0" oninput="expertDataRangeChange('doms', this.value)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div><div><label for="expertDataDomsStatus">DURUM</label><select id="expertDataDomsStatus"><option value="active">Devam ediyor</option><option value="resolved">Geçti</option></select></div><div><label for="expertDataDomsDate">KAYIT TARİHİ</label><input id="expertDataDomsDate" type="date" value="${expertDataToday()}"></div><div><label for="expertDataDomsNotes">KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataDomsNotes" rows="3" maxlength="500" placeholder="Örn. son hamstring antrenmanından sonra hassasiyet"></textarea></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveDoms()">Kas Ağrısını Kaydet</button></div></div>${history.length ? `<div class="expert-data-history">${history.map(item => `<div class="expert-data-history-item"><strong>${expertDataEscape(expertDataMuscleLabel(item.muscle_group))} · ${Number(item.severity)}/5</strong><div>${expertDataDate(item.report_date)} · ${item.status === 'resolved' ? 'Geçti' : 'Devam ediyor'}${item.notes ? ` · ${expertDataEscape(item.notes)}` : ''}</div></div>`).join('')}</div>` : ''}</aside></div>`;
+  const todayEntries = expertDataDomsTodayEntries();
+  const entryByMuscle = new Map(todayEntries.map(entry => [entry.muscle_group, entry]));
+  const history = expertDataDomsEntries();
+  const entryForm = expertDataDomsEditDraft
+    ? expertDataDomsEditForm(expertDataDomsEditDraft)
+    : `<div class="expert-data-doms-grid">${expertDataMuscles().map(muscle => expertDataDomsLevelInput(muscle, entryByMuscle.get(muscle.id))).join('')}</div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveDomsGrid()">Bugünkü Ağrı Değerlerini Kaydet</button></div>`;
+
+  const records = history.length
+    ? `<div class="expert-data-history">${history.map(item => `<div class="expert-data-history-item" style="border-left-color:${expertDataTone(item.severity, 'pain')}"><strong>${expertDataEscape(expertDataMuscleLabel(item.muscle_group))} · ${Number(item.severity)}/5</strong><div>${expertDataDate(item.report_date)}${item.notes ? ` · ${expertDataEscape(item.notes)}` : ''}</div><div class="expert-data-actions" style="margin-top:8px"><button class="btn btn-secondary" style="font-size:11px;padding:6px 9px" type="button" onclick='expertDataEditDoms(${JSON.stringify(item.report_date)}, ${JSON.stringify(item.muscle_group)})'>Düzenle</button><button class="btn btn-secondary" style="font-size:11px;padding:6px 9px;color:#ef476f" type="button" onclick='expertDataDeleteDoms(${JSON.stringify(item.report_date)}, ${JSON.stringify(item.muscle_group)})'>Sil</button></div></div>`).join('')}</div>`
+    : `<div class="expert-data-empty">Henüz kas ağrısı kaydı yok.</div>`;
+
+  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>${expertDataDomsEditDraft ? 'Kas Ağrısı Kaydını Düzenle' : 'Bugünkü Kas Ağrısı Kaydı'}</h3><p>${expertDataDomsEditDraft ? 'Seçili kaydın günü korunur; yalnızca seviye ve kısa not güncellenir.' : 'Tüm kas grupları aşağıda görünür. Yalnızca ağrı hissettiğin kasların seviyesini değiştirip kaydetmen yeterlidir.'}</p></div><span class="expert-data-badge">0–5 ölçeği</span></div>${entryForm}<div class="expert-data-note"><strong>Günlük güncelleme:</strong> Kayıt günü sistem tarafından otomatik belirlenir. Aynı kası aynı gün yeniden kaydedersen eski değer güncellenir.</div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kas Ağrısı Panosu</h3><p>En güncel kas ağrısı seviyesi ve kaydedilmiş bildirimlerin burada görünür.</p></div><span class="expert-data-badge">${history.length} kayıt</span></div>${expertDataMetricRows()}<div class="expert-data-note"><strong>Kayıt yönetimi:</strong> Ağrı geçtiğinde ilgili kaydı sil. Düzeltmek istediğinde kaydı düzenle.</div><div style="margin-top:16px"><div class="expert-data-summary-label">KAS AĞRISI KAYITLARI</div>${records}</div></aside></div>`;
 }
 
 function expertDataGoalsPane() {
-  const goals = Object.entries(expertDataCatalog().primary_goals || {}).map(([id, label]) => `<button type="button" class="expert-data-choice ${expertDataGoalDraft.primary_goal === id ? 'selected' : ''}" onclick="expertDataSelectGoal('${id}')">${expertDataEscape(label)}</button>`).join('');
   const priorities = expertDataMuscles().map(item => `<button type="button" class="expert-data-choice ${expertDataGoalDraft.priority_muscles.includes(item.id) ? 'selected' : ''}" onclick="expertDataTogglePriority('${item.id}')"><strong>${expertDataEscape(item.label)}</strong><span style="display:block;margin-top:3px;opacity:.7;font-size:10px">${expertDataEscape(item.ui_group || '')}</span></button>`).join('');
-  const saved = expertDataState?.goals || {};
-  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Hedeflerini Düzenle</h3><p>Hedeflerin değişebilir. Bu bölüm yalnızca tercih verisi toplar; henüz antrenman programı üretmez.</p></div><span class="expert-data-badge">En fazla 3 kas</span></div><div class="expert-data-form"><div><label>ANA HEDEF</label><div class="expert-data-choice-grid">${goals}</div></div><div><label>ÖNCELİKLİ KASLAR · ${expertDataGoalDraft.priority_muscles.length}/3</label><div class="expert-data-choice-grid">${priorities}</div></div><div><label for="expertDataGoalNote">HEDEFE İLİŞKİN KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataGoalNote" rows="3" maxlength="500" placeholder="Örn. üst vücut gelişimine daha fazla odaklanmak istiyorum">${expertDataEscape(expertDataGoalDraft.priority_note || '')}</textarea></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveGoals()">Hedefleri Kaydet</button></div></div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kaydedilen Tercihler</h3><p>Bu özet hesabına bağlı olarak saklanır.</p></div></div><div class="expert-data-summary"><div class="expert-data-summary-item"><div class="expert-data-summary-label">Ana hedef</div><div class="expert-data-summary-value">${expertDataEscape(expertDataGoalLabel(saved.primary_goal))}</div></div><div class="expert-data-summary-item"><div class="expert-data-summary-label">Kas öncelikleri</div><div class="expert-data-summary-value">${(saved.priority_muscles || []).length ? saved.priority_muscles.map(expertDataMuscleLabel).map(expertDataEscape).join(' · ') : 'Henüz seçilmedi'}</div></div><div class="expert-data-summary-item"><div class="expert-data-summary-label">Not</div><div class="expert-data-summary-value">${expertDataEscape(saved.priority_note || 'Not eklenmedi')}</div></div></div><div class="expert-data-danger"><button type="button" class="btn btn-secondary" style="font-size:11px;padding:7px 10px" onclick="expertDataResetLegacy()">Uzman Sistemi Verilerini Sıfırla</button><p style="margin-bottom:0">Yalnızca bu hesaba ait uzman hedefleri, kas ağrısı, kısıtlar ve eski uzman kayıtları silinir. Diğer platform verileri korunur.</p></div></aside></div>`;
+  const saved = expertDataState?.target_muscles || {};
+  const profileGoal = expertDataProfileGoal();
+  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-goal-intro"><h3>Öncelikli kaslarını seç</h3><p>Uzman sistemi, program odağını belirlemek için seçtiğin kasları kullanır. En fazla üç kas seçebilirsin.</p></div><div class="expert-data-profile-goal"><div><span>Profilinden alınan ana amaç</span><strong>${expertDataEscape(expertDataGoalLabel(profileGoal))}</strong></div><small>Genel amaç profil sayfasından yönetilir; burada tekrar girmen gerekmez.</small></div><div class="expert-data-form"><div><div class="expert-data-priority-heading"><label>ÖNCELİKLİ KASLAR</label><span class="expert-data-priority-count">${expertDataGoalDraft.priority_muscles.length}/3 seçildi</span></div><div class="expert-data-choice-grid expert-data-priority-grid">${priorities}</div></div><div><label for="expertDataGoalNote">KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataGoalNote" rows="3" maxlength="500" placeholder="Örn. üst vücut gelişimine daha fazla odaklanmak istiyorum">${expertDataEscape(expertDataGoalDraft.priority_note || '')}</textarea></div><div class="expert-data-actions expert-data-goal-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveGoals()">Hedefleri Kaydet</button><button class="btn btn-secondary" type="button" onclick="expertDataClearGoalDraft()">Girdileri Temizle</button></div></div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kaydedilen Öncelikler</h3><p>Son kaydın hesabına bağlı olarak korunur.</p></div><span class="expert-data-badge">Profil ile uyumlu</span></div><div class="expert-data-summary"><div class="expert-data-summary-item"><div class="expert-data-summary-label">Ana amaç</div><div class="expert-data-summary-value">${expertDataEscape(expertDataGoalLabel(profileGoal))}</div></div><div class="expert-data-summary-item"><div class="expert-data-summary-label">Kas öncelikleri</div><div class="expert-data-summary-value">${(saved.priority_muscles || []).length ? saved.priority_muscles.map(expertDataMuscleLabel).map(expertDataEscape).join(' · ') : 'Henüz seçilmedi'}</div></div><div class="expert-data-summary-item"><div class="expert-data-summary-label">Not</div><div class="expert-data-summary-value">${expertDataEscape(saved.priority_note || 'Not eklenmedi')}</div></div></div><div class="expert-data-danger"><button type="button" class="btn btn-secondary" style="font-size:11px;padding:7px 10px" onclick="expertDataResetLegacy()">Uzman Sistemi Verilerini Sıfırla</button><p style="margin-bottom:0">Yalnızca uzman hedefleri, kas ağrısı, salon ve sakatlık kayıtları silinir. Diğer platform verileri korunur.</p></div></aside></div>`;
 }
 
-function expertDataConstraintsPane() {
-  const areas = (expertDataCatalog().constraint_areas || []).map(area => `<option value="${expertDataEscape(area)}">${expertDataEscape(area)}</option>`).join('');
-  const sides = Object.entries(expertDataCatalog().sides || {}).map(([id, label]) => `<option value="${expertDataEscape(id)}">${expertDataEscape(label)}</option>`).join('');
-  const items = (expertDataState?.constraints || []).slice().reverse();
-  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Ağrı ve Geçici Kısıtlar</h3><p>Belirttiğin ağrı veya kısıtı kayıt altına al. Bu alan tıbbi tanı veya tedavi yerine geçmez.</p></div><span class="expert-data-badge">Kişisel bildirim</span></div><div class="expert-data-form"><div><label for="expertDataConstraintArea">BÖLGE</label><select id="expertDataConstraintArea">${areas}</select></div><div><label for="expertDataConstraintSide">TARAF</label><select id="expertDataConstraintSide">${sides}</select></div><div class="expert-data-range-wrap"><div class="expert-data-range-title"><span>ETKİLENME SEVİYESİ</span><span id="expertDataConstraintScore" class="expert-data-range-score">0/5</span></div><input id="expertDataConstraintSeverity" type="range" min="0" max="5" step="1" value="0" oninput="expertDataRangeChange('constraint', this.value)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div><div><label for="expertDataConstraintStatus">DURUM</label><select id="expertDataConstraintStatus"><option value="active">Aktif</option><option value="resolved">Geçti</option></select></div><div><label for="expertDataConstraintDate">BAŞLANGIÇ TARİHİ</label><input id="expertDataConstraintDate" type="date" value="${expertDataToday()}"></div><div><label for="expertDataConstraintNotes">KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataConstraintNotes" rows="3" maxlength="500" placeholder="Örn. belirli harekette hassasiyet hissediyorum"></textarea></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveConstraint()">Kısıtı Kaydet</button></div></div><div class="expert-data-note"><strong>Güvenlik notu:</strong> Keskin, olağandışı veya günlük yaşamı etkileyen ağrıda egzersizi durdurup yetkin bir sağlık uzmanına başvur.</div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kayıt Geçmişi</h3><p>Yeni kayıtlar tarih sırasıyla hesabında saklanır.</p></div><span class="expert-data-badge">${items.length} kayıt</span></div>${items.length ? `<div class="expert-data-history">${items.map(item => `<div class="expert-data-history-item" style="border-left-color:${expertDataTone(item.severity, 'pain')}"><strong>${expertDataEscape(item.area)} · ${expertDataEscape(expertDataCatalog().sides?.[item.side] || 'Belirtilmedi')} · ${Number(item.severity)}/5</strong><div>${expertDataDate(item.started_on)} · ${item.status === 'resolved' ? 'Geçti' : 'Aktif'}${item.notes ? ` · ${expertDataEscape(item.notes)}` : ''}</div></div>`).join('')}</div>` : `<div class="expert-data-empty">Henüz ağrı veya geçici kısıt kaydı yok.</div>`}</aside></div>`;
+function expertDataInjuryPane() {
+  const draft = expertDataInjuryDraft || { is_active: true, severity: 0, injury_type: 'other', notes: '' };
+  const activationDate = draft.started_on || expertDataToday();
+  const areas = (expertDataCatalog().injury_areas || []).map(area => `<option value="${expertDataEscape(area)}" ${draft.area === area ? 'selected' : ''}>${expertDataEscape(area)}</option>`).join('');
+  const types = Object.entries(expertDataCatalog().injury_types || {}).map(([id, label]) => `<option value="${expertDataEscape(id)}" ${draft.injury_type === id ? 'selected' : ''}>${expertDataEscape(label)}</option>`).join('');
+  const items = (expertDataState?.injuries || []).slice().reverse();
+  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>${draft.id ? 'Sakatlık Kaydını Düzenle' : 'Ağrı ve Geçici Kısıt Ekle'}</h3><p>Bu alan tıbbi tanı veya tedavi yerine geçmez. Aktif/pasif bilgisi yalnızca sakatlık kayıtları için tutulur.</p></div><span class="expert-data-badge">Kişisel bildirim</span></div><div class="expert-data-form"><div><label for="expertDataInjuryArea">BÖLGE</label><select id="expertDataInjuryArea">${areas}</select></div><div><label for="expertDataInjuryType">SAKATLIK TÜRÜ</label><select id="expertDataInjuryType">${types}</select></div><div class="expert-data-range-wrap"><div class="expert-data-range-title"><span>ETKİLENME SEVİYESİ</span><span id="expertDataInjuryScore" class="expert-data-range-score">${Number(draft.severity || 0)}/5</span></div><input id="expertDataInjurySeverity" type="range" min="0" max="5" step="1" value="${Number(draft.severity || 0)}" oninput="expertDataRangeChange('injury', this.value)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div><label class="expert-data-switch" for="expertDataInjuryActive"><input id="expertDataInjuryActive" type="checkbox" ${draft.is_active !== false ? 'checked' : ''}><span class="expert-data-switch-track" aria-hidden="true"></span><span class="expert-data-switch-text">Sakatlık hâlen aktif</span></label><div><label for="expertDataInjuryActivationDate">AKTİVASYON TARİHİ</label><input id="expertDataInjuryActivationDate" type="text" value="${expertDataEscape(expertDataDate(activationDate))}" readonly aria-readonly="true" title="Bu tarih sistem tarafından otomatik belirlenir."></div><div><label for="expertDataInjuryNotes">KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataInjuryNotes" rows="3" maxlength="500" placeholder="Örn. belirli harekette hassasiyet hissediyorum">${expertDataEscape(draft.notes || '')}</textarea></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveInjury()">${draft.id ? 'Kaydı Güncelle' : 'Sakatlık Kaydet'}</button>${draft.id ? '<button class="btn btn-secondary" type="button" onclick="expertDataCancelInjuryEdit()">Vazgeç</button>' : ''}</div></div><div class="expert-data-note"><strong>Otomatik takip:</strong> Kayıt aktif edildiği gün aktivasyon tarihi sistem tarafından atanır. Kaydı pasife alırsan kapanır; yeniden aktifleştirirsen aktivasyon tarihi yeni güne güncellenir.</div><div class="expert-data-note"><strong>Güvenlik notu:</strong> Keskin, olağandışı veya günlük yaşamı etkileyen ağrıda egzersizi durdurup yetkin bir sağlık uzmanına başvur.</div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Sakatlık Kayıtları</h3><p>Aktif ve pasif kayıtları saklanır; gerektiğinde düzenlenebilir.</p></div><span class="expert-data-badge">${items.length} kayıt</span></div>${items.length ? `<div class="expert-data-history">${items.map(item => `<div class="expert-data-history-item" style="border-left-color:${item.is_active === false ? '#7f8ea8' : expertDataTone(item.severity, 'pain')}"><strong>${expertDataEscape(item.area)} · ${expertDataEscape(expertDataCatalog().injury_types?.[item.injury_type] || 'Diğer')} · ${Number(item.severity)}/5</strong><div>${item.is_active === false ? 'Pasif' : 'Aktif'}${item.started_on ? ` · Aktivasyon: ${expertDataDate(item.started_on)}` : ''}${item.notes ? ` · ${expertDataEscape(item.notes)}` : ''}</div><div class="expert-data-actions" style="margin-top:8px"><button class="btn btn-secondary" style="font-size:11px;padding:6px 9px" type="button" onclick="expertDataEditInjury('${item.id}')">Düzenle</button>${item.is_active !== false ? `<button class="btn btn-secondary" style="font-size:11px;padding:6px 9px" type="button" onclick="expertDataResolveInjury('${item.id}')">Pasife Al</button>` : ''}<button class="btn btn-secondary" style="font-size:11px;padding:6px 9px;color:#ef476f" type="button" onclick="expertDataDeleteInjury('${item.id}')">Sil</button></div></div>`).join('')}</div>` : `<div class="expert-data-empty">Henüz sakatlık veya geçici kısıt kaydı yok.</div>`}</aside></div>`;
+}
+
+function expertDataGroupedEquipment() {
+  return (expertDataCatalog().gym_equipment || []).reduce((groups, item) => {
+    (groups[item.group] ||= []).push(item); return groups;
+  }, {});
+}
+
+function expertDataGymsPane() {
+  const draft = expertDataGymDraft || { name: '', equipment: [] };
+  const selected = new Set(draft.equipment || []);
+  const grouped = expertDataGroupedEquipment();
+  const renderEquipmentGroup = (group, items, isContinuation = false) => `<section class="expert-equipment-group"><div class="expert-equipment-group-head"><strong>${expertDataEscape(group)}${isContinuation ? ' · devamı' : ''}</strong><span>${items.length} ekipman</span></div><div class="expert-equipment-toggle-grid">${items.map(item => `<label class="expert-equipment-toggle" for="expertEquipment_${expertDataEscape(item.id)}"><input id="expertEquipment_${expertDataEscape(item.id)}" type="checkbox" class="expertDataGymEquipment" value="${expertDataEscape(item.id)}" ${selected.has(item.id) ? 'checked' : ''}><span class="expert-equipment-copy"><strong>${expertDataEscape(item.label)}</strong><small class="expert-equipment-status" aria-live="polite"></small></span><span class="expert-equipment-track" aria-hidden="true"></span></label>`).join('')}</div></section>`;
+  const equipmentColumns = [[], []];
+  const columnWeights = [0, 0];
+  Object.entries(grouped).forEach(([group, items]) => {
+    const midpoint = Math.ceil(items.length / 2);
+    const chunks = items.length > 8 ? [items.slice(0, midpoint), items.slice(midpoint)] : [items];
+    chunks.forEach((chunk, index) => {
+      const targetColumn = columnWeights[0] <= columnWeights[1] ? 0 : 1;
+      equipmentColumns[targetColumn].push(renderEquipmentGroup(group, chunk, index > 0));
+      columnWeights[targetColumn] += chunk.length + 1;
+    });
+  });
+  const toggles = equipmentColumns.map(column => `<div class="expert-equipment-column">${column.join('')}</div>`).join('');
+  const gyms = expertDataState?.gyms || [];
+  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>${draft.id ? 'Salon Kaydını Düzenle' : 'Salon ve Ekipman Ekle'}</h3><p>Her salon için ekipmanın var/yok durumunu sağdaki anahtardan işaretle. Kilogram, kapasite veya çift/tek ayrıntısı istenmez.</p></div><span class="expert-data-badge">Salon bazlı</span></div><div class="expert-data-form"><div><label for="expertDataGymName">SALON ADI</label><input id="expertDataGymName" maxlength="80" value="${expertDataEscape(draft.name || '')}" placeholder="Örn. Üniversite spor salonu"></div><div><label>EKİPMAN DURUMU</label><div class="expert-equipment-groups">${toggles}</div></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveGym()">${draft.id ? 'Salonu Güncelle' : 'Salonu Kaydet'}</button><button class="btn btn-secondary" type="button" onclick="expertDataClearGymDraft()">Girdileri Temizle</button>${draft.id ? '<button class="btn btn-secondary" type="button" onclick="expertDataCancelGymEdit()">Vazgeç</button>' : ''}</div></div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kaydedilen Salonlar</h3><p>Bir ekipmanın en az bir salonda var olması gelecekteki planlama aşaması için yeterli bilgi sağlar.</p></div><span class="expert-data-badge">${gyms.length} salon</span></div>${gyms.length ? `<div class="expert-data-history">${gyms.map(gym => { const labels = (gym.equipment || []).map(id => (expertDataCatalog().gym_equipment || []).find(item => item.id === id)?.label || id); return `<div class="expert-data-history-item"><strong>${expertDataEscape(gym.name)}</strong><div>${labels.length ? expertDataEscape(labels.join(' · ')) : 'Ekipman seçilmedi'}</div><div class="expert-data-actions" style="margin-top:8px"><button class="btn btn-secondary" style="font-size:11px;padding:6px 9px" type="button" onclick="expertDataEditGym('${gym.id}')">Düzenle</button><button class="btn btn-secondary" style="font-size:11px;padding:6px 9px;color:#ef476f" type="button" onclick="expertDataDeleteGym('${gym.id}')">Sil</button></div></div>`; }).join('')}</div>` : `<div class="expert-data-empty">Henüz salon kaydı yok.</div>`}</aside></div>`;
+}
+
+// TODO: Split sekmesinin program mantığı ve görsel bileşenleri ileride bu alana eklenecek.
+function expertDataSplitDraftPane() {
+  return `<section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Split</h3><p>Bu taslak sekme ileride uzman sistemi split çıktıları için doldurulacaktır.</p></div><span class="expert-data-badge">Taslak</span></div><!-- TODO: Split sekmesi içeriği buraya eklenecek. --></section>`;
+}
+
+// TODO: Analiz sekmesinin kural sonuçları ve açıklamaları ileride bu alana eklenecek.
+function expertDataAnalysisDraftPane() {
+  return `<section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Analiz</h3><p>Bu taslak sekme ileride uzman sistemi analiz sonuçları için doldurulacaktır.</p></div><span class="expert-data-badge">Taslak</span></div><!-- TODO: Analiz sekmesi içeriği buraya eklenecek. --></section>`;
 }
 
 function expertDataPane() {
-  if (expertDataTab === 'goals') return expertDataGoalsPane();
-  if (expertDataTab === 'constraints') return expertDataConstraintsPane();
-  return expertDataDomsPane();
+  if (expertDataTab === 'health') {
+    const childPane = expertDataHealthTab === 'injuries' ? expertDataInjuryPane() : expertDataDomsPane();
+    return `${expertDataHealthTabs()}<div class="expert-data-health-stage" key="${expertDataHealthTab}">${childPane}</div>`;
+  }
+  if (expertDataTab === 'setup') {
+    const childPane = expertDataSetupTab === 'gyms' ? expertDataGymsPane() : expertDataGoalsPane();
+    return `${expertDataSetupTabs()}<div class="expert-data-setup-stage" key="${expertDataSetupTab}">${childPane}</div>`;
+  }
+  if (expertDataTab === 'planning') {
+    const childPane = expertDataPlanningTab === 'analysis' ? expertDataAnalysisDraftPane() : expertDataSplitDraftPane();
+    return `${expertDataPlanningTabs()}<div class="expert-data-planning-stage" key="${expertDataPlanningTab}">${childPane}</div>`;
+  }
+  return `${expertDataHealthTabs()}<div class="expert-data-health-stage">${expertDataDomsPane()}</div>`;
 }
 
 function renderExpertSystem() {
   const content = document.getElementById('analyzeContent');
   if (!content || !expertDataState) return;
   expertDataInjectStyles();
-  content.innerHTML = `<div class="expert-data-shell"><header class="expert-data-hero"><span class="expert-data-eyebrow">Uzman Sistemi · Veri Toplama</span><h2>Vücudunu kaydet, verini düzenli tut.</h2><p>Bu alan şimdilik yalnızca kişisel hedef, kas ağrısı ve geçici kısıt verilerini toplar. Analiz veya program önerileri sonraki aşamada bu kayıtlar üzerinden tasarlanacaktır.</p></header>${expertDataTabs()}<div class="expert-data-stage" key="${expertDataTab}">${expertDataPane()}</div></div>`;
+  content.innerHTML = `<div class="expert-data-shell"><header class="expert-data-hero"><span class="expert-data-eyebrow">Uzman Sistemi · Veri Toplama</span><h2>Vücudunu kaydet, verini düzenli tut.</h2><p>Bu alan; günlük kas ağrısı, hedef kaslar, sakatlık kayıtları ve salon bazlı ekipman varlığını tek kişisel uzman profiline kaydeder. Analiz veya program önerileri bu sürümde üretilmez.</p></header>${expertDataTabs()}<div class="expert-data-stage" key="${expertDataTab}-${expertDataHealthTab}-${expertDataSetupTab}-${expertDataPlanningTab}">${expertDataPane()}</div></div>`;
 }
 
 async function loadExpertSystem() {
@@ -6138,22 +6544,150 @@ async function loadExpertSystem() {
   if (content) content.innerHTML = `<div class="card" style="padding:28px;text-align:center;color:var(--text-muted)">Uzman sistemi veri merkezi yükleniyor…</div>`;
   try {
     expertDataState = await apiGet('/api/expert-data');
-    const goals = expertDataState.goals || {};
-    expertDataGoalDraft = { primary_goal: goals.primary_goal || '', priority_muscles: [...(goals.priority_muscles || [])], priority_note: goals.priority_note || '' };
+    const target = expertDataState.target_muscles || {};
+    expertDataGoalDraft = { primary_goal: expertDataProfileGoal(), priority_muscles: [...(target.priority_muscles || [])], priority_note: target.priority_note || '' };
+    expertDataGymDraft = null;
+    expertDataInjuryDraft = null;
     renderExpertSystem();
   } catch (error) {
     if (content) content.innerHTML = `<div class="card" style="padding:22px;color:var(--red)">Uzman sistemi verileri yüklenemedi: ${expertDataEscape(error.message)}</div>`;
   }
 }
 
-window.expertDataSwitchTab = function(tab) { if (['doms', 'goals', 'constraints'].includes(tab)) { expertDataTab = tab; renderExpertSystem(); } };
-window.expertDataRangeChange = function(kind, value) { const id = kind === 'doms' ? 'expertDataDomsScore' : 'expertDataConstraintScore'; const label = document.getElementById(id); if (label) label.textContent = `${Number(value)}/5`; };
-window.expertDataSelectGoal = function(goal) { expertDataGoalDraft.primary_goal = goal; renderExpertSystem(); };
-window.expertDataTogglePriority = function(muscle) { const items = expertDataGoalDraft.priority_muscles; if (items.includes(muscle)) expertDataGoalDraft.priority_muscles = items.filter(item => item !== muscle); else if (items.length >= 3) { toast('En fazla 3 öncelikli kas seçebilirsiniz.', 'error'); return; } else expertDataGoalDraft.priority_muscles = [...items, muscle]; renderExpertSystem(); };
-window.expertDataSaveGoals = async function() { const note = document.getElementById('expertDataGoalNote')?.value || ''; if (!expertDataGoalDraft.primary_goal) { toast('Önce bir ana hedef seçin.', 'error'); return; } try { expertDataState = await apiPut('/api/expert-data/goals', { ...expertDataGoalDraft, priority_note: note }); expertDataGoalDraft.priority_note = note; toast('Hedeflerin kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataSaveDoms = async function() { const payload = { muscle_group: document.getElementById('expertDataDomsMuscle')?.value, severity: Number(document.getElementById('expertDataDomsSeverity')?.value || 0), status: document.getElementById('expertDataDomsStatus')?.value, report_date: document.getElementById('expertDataDomsDate')?.value, notes: document.getElementById('expertDataDomsNotes')?.value || '' }; try { expertDataState = await apiPost('/api/expert-data/doms', payload); toast('Kas ağrısı kaydı eklendi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataSaveConstraint = async function() { const payload = { area: document.getElementById('expertDataConstraintArea')?.value, side: document.getElementById('expertDataConstraintSide')?.value, severity: Number(document.getElementById('expertDataConstraintSeverity')?.value || 0), status: document.getElementById('expertDataConstraintStatus')?.value, started_on: document.getElementById('expertDataConstraintDate')?.value, notes: document.getElementById('expertDataConstraintNotes')?.value || '' }; try { expertDataState = await apiPost('/api/expert-data/constraints', payload); toast('Geçici kısıt kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataResetLegacy = async function() { const confirmed = window.prompt('Yalnızca bu hesaba ait uzman sistemi verilerini sıfırlamak için tam olarak şunu yazın:\nUZMAN VERİLERİNİ SIFIRLA'); if (confirmed === null) return; try { expertDataState = await apiPost('/api/expert-data/reset-legacy', { confirmation: confirmed }); expertDataGoalDraft = { primary_goal: '', priority_muscles: [], priority_note: '' }; expertDataTab = 'doms'; toast('Uzman sistemi verileri sıfırlandı. Diğer platform verileri korunmuştur.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataSwitchTab = function(tab) {
+  // Eski çağrılar bozulmasın: eski çocuk kimlikleri uygun ebeveyne yönlenir.
+  if (tab === 'doms' || tab === 'injuries') {
+    expertDataTab = 'health';
+    expertDataHealthTab = tab;
+  } else if (tab === 'goals' || tab === 'gyms') {
+    expertDataTab = 'setup';
+    expertDataSetupTab = tab;
+  } else if (tab === 'split' || tab === 'analysis') {
+    expertDataTab = 'planning';
+    expertDataPlanningTab = tab;
+  } else if (['health', 'setup', 'planning'].includes(tab)) {
+    expertDataTab = tab;
+  } else {
+    return;
+  }
+  renderExpertSystem();
+};
+window.expertDataSwitchHealthTab = function(tab) {
+  if (!['doms', 'injuries'].includes(tab)) return;
+  expertDataTab = 'health';
+  expertDataHealthTab = tab;
+  renderExpertSystem();
+};
+window.expertDataSwitchSetupTab = function(tab) {
+  if (!['goals', 'gyms'].includes(tab)) return;
+  expertDataTab = 'setup';
+  expertDataSetupTab = tab;
+  renderExpertSystem();
+};
+window.expertDataSwitchPlanningTab = function(tab) {
+  if (!['split', 'analysis'].includes(tab)) return;
+  expertDataTab = 'planning';
+  expertDataPlanningTab = tab;
+  renderExpertSystem();
+};
+window.expertDataRangeChange = function(kind, value) { const id = kind === 'doms' ? 'expertDataDomsScore' : 'expertDataInjuryScore'; const label = document.getElementById(id); if (label) label.textContent = `${Number(value)}/5`; };
+window.expertDataTogglePriority = function(muscle) { const items = expertDataGoalDraft.priority_muscles; if (items.includes(muscle)) expertDataGoalDraft.priority_muscles = items.filter(item => item !== muscle); else if (items.length >= 3) { toast('En fazla 3 hedef kas seçebilirsiniz.', 'error'); return; } else expertDataGoalDraft.priority_muscles = [...items, muscle]; renderExpertSystem(); };
+window.expertDataClearGoalDraft = function() { expertDataGoalDraft = { primary_goal: expertDataProfileGoal(), priority_muscles: [], priority_note: '' }; renderExpertSystem(); };
+window.expertDataSaveGoals = async function() { const note = document.getElementById('expertDataGoalNote')?.value || ''; if (!expertDataGoalDraft.priority_muscles.length) { toast('En az bir öncelikli kas seçin.', 'error'); return; } try { expertDataGoalDraft.primary_goal = expertDataProfileGoal(); expertDataState = await apiPut('/api/expert-data/goals', { ...expertDataGoalDraft, priority_note: note }); expertDataGoalDraft.priority_note = note; toast('Hedeflerin kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataDomsGridRangeChange = function(muscleId, value, input) {
+  const level = Math.max(0, Math.min(5, Number(value) || 0));
+  const safeId = String(muscleId).replace(/[^a-zA-Z0-9_-]/g, '');
+  const score = document.getElementById(`expertDataDomsScore_${safeId}`);
+  if (score) score.textContent = `${level}/5`;
+  if (input) input.setAttribute('aria-valuetext', `${level}/5`);
+};
+if (!window.__expertDataDomsSliderBound) {
+  document.addEventListener('input', (event) => {
+    const input = event.target;
+    if (input instanceof HTMLInputElement && input.classList.contains('expertDataDomsMuscleInput')) {
+      window.expertDataDomsGridRangeChange(input.dataset.muscle || '', input.value, input);
+    }
+  });
+  window.__expertDataDomsSliderBound = true;
+}
+window.expertDataDomsEditRangeChange = function(value) {
+  const score = document.getElementById('expertDataDomsEditScore');
+  if (score) score.textContent = `${Number(value)}/5`;
+};
+window.expertDataSaveDomsGrid = async function() {
+  const existing = new Map(expertDataDomsTodayEntries().map(entry => [entry.muscle_group, entry]));
+  const values = [...document.querySelectorAll('.expertDataDomsMuscleInput')].map(input => ({
+    muscle_group: input.dataset.muscle,
+    severity: Number(input.value || 0),
+    notes: existing.get(input.dataset.muscle)?.notes || input.dataset.notes || '',
+  }));
+  const changedOrExisting = values.filter(item => item.severity > 0 || existing.has(item.muscle_group));
+  if (!changedOrExisting.length) {
+    toast('Ağrı seviyesi belirlenen en az bir kas seçin.', 'error');
+    return;
+  }
+  try {
+    for (const item of changedOrExisting) {
+      expertDataState = await apiPut('/api/expert-data/doms', item);
+    }
+    toast('Bugünkü kas ağrısı kayıtları güncellendi.', 'success');
+    renderExpertSystem();
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+};
+window.expertDataEditDoms = function(reportDate, muscleGroup) {
+  const entries = expertDataState?.doms_daily?.[reportDate] || [];
+  const item = entries.find(entry => entry?.muscle_group === muscleGroup);
+  if (!item) {
+    toast('Kas ağrısı kaydı bulunamadı.', 'error');
+    return;
+  }
+  expertDataDomsEditDraft = { ...item, report_date: reportDate };
+  renderExpertSystem();
+};
+window.expertDataCancelDomsEdit = function() {
+  expertDataDomsEditDraft = null;
+  renderExpertSystem();
+};
+window.expertDataSaveDomsEdit = async function() {
+  const draft = expertDataDomsEditDraft;
+  if (!draft) return;
+  const payload = {
+    severity: Number(document.getElementById('expertDataDomsEditSeverity')?.value || 0),
+    notes: document.getElementById('expertDataDomsEditNotes')?.value || '',
+  };
+  try {
+    expertDataState = await apiPut(`/api/expert-data/doms/${encodeURIComponent(draft.report_date)}/${encodeURIComponent(draft.muscle_group)}`, payload);
+    expertDataDomsEditDraft = null;
+    toast('Kas ağrısı kaydı güncellendi.', 'success');
+    renderExpertSystem();
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+};
+window.expertDataDeleteDoms = async function(reportDate, muscleGroup) {
+  if (!window.confirm(`${expertDataMuscleLabel(muscleGroup)} kas ağrısı kaydı silinsin mi?`)) return;
+  try {
+    expertDataState = await apiDelete(`/api/expert-data/doms/${encodeURIComponent(reportDate)}/${encodeURIComponent(muscleGroup)}`);
+    if (expertDataDomsEditDraft?.report_date === reportDate && expertDataDomsEditDraft?.muscle_group === muscleGroup) expertDataDomsEditDraft = null;
+    toast('Kas ağrısı kaydı silindi.', 'success');
+    renderExpertSystem();
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+};
+window.expertDataSaveInjury = async function() { const draft = expertDataInjuryDraft || {}; const payload = { area: document.getElementById('expertDataInjuryArea')?.value, injury_type: document.getElementById('expertDataInjuryType')?.value, severity: Number(document.getElementById('expertDataInjurySeverity')?.value || 0), is_active: Boolean(document.getElementById('expertDataInjuryActive')?.checked), notes: document.getElementById('expertDataInjuryNotes')?.value || '' }; try { expertDataState = draft.id ? await apiPut(`/api/expert-data/injuries/${draft.id}`, payload) : await apiPost('/api/expert-data/injuries', payload); expertDataInjuryDraft = null; toast('Sakatlık kaydı kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataEditInjury = function(id) { const item = (expertDataState?.injuries || []).find(value => value.id === id); if (item) { expertDataInjuryDraft = { ...item }; renderExpertSystem(); } };
+window.expertDataCancelInjuryEdit = function() { expertDataInjuryDraft = null; renderExpertSystem(); };
+window.expertDataResolveInjury = async function(id) { const item = (expertDataState?.injuries || []).find(value => value.id === id); if (!item) return; const payload = { area: item.area, injury_type: item.injury_type, severity: Number(item.severity || 0), is_active: false, notes: item.notes || '' }; try { expertDataState = await apiPut(`/api/expert-data/injuries/${id}`, payload); toast('Sakatlık kaydı pasife alındı.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataDeleteInjury = async function(id) { if (!window.confirm('Bu sakatlık kaydı silinsin mi?')) return; try { expertDataState = await apiDelete(`/api/expert-data/injuries/${id}`); toast('Sakatlık kaydı silindi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataSaveGym = async function() { const draft = expertDataGymDraft || {}; const payload = { name: document.getElementById('expertDataGymName')?.value || '', equipment: [...document.querySelectorAll('.expertDataGymEquipment:checked')].map(item => item.value) }; try { expertDataState = draft.id ? await apiPut(`/api/expert-data/gyms/${draft.id}`, payload) : await apiPost('/api/expert-data/gyms', payload); expertDataGymDraft = null; toast('Salon kaydı kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataEditGym = function(id) { const item = (expertDataState?.gyms || []).find(value => value.id === id); if (item) { expertDataGymDraft = { ...item, equipment: [...(item.equipment || [])] }; renderExpertSystem(); } };
+window.expertDataClearGymDraft = function() { const draft = expertDataGymDraft || {}; expertDataGymDraft = draft.id ? { ...draft, name: '', equipment: [] } : { name: '', equipment: [] }; renderExpertSystem(); toast('Salon adı ve ekipman seçimleri temizlendi.', 'info'); };
+window.expertDataCancelGymEdit = function() { expertDataGymDraft = null; renderExpertSystem(); };
+window.expertDataDeleteGym = async function(id) { if (!window.confirm('Bu salon kaydı silinsin mi?')) return; try { expertDataState = await apiDelete(`/api/expert-data/gyms/${id}`); toast('Salon kaydı silindi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataResetLegacy = async function() { const confirmed = window.prompt('Yalnızca bu hesaba ait uzman sistemi verilerini sıfırlamak için tam olarak şunu yazın:\nUZMAN VERİLERİNİ SIFIRLA'); if (confirmed === null) return; try { expertDataState = await apiPost('/api/expert-data/reset-legacy', { confirmation: confirmed }); expertDataGoalDraft = { primary_goal: '', priority_muscles: [], priority_note: '' }; expertDataGymDraft = null; expertDataInjuryDraft = null; expertDataDomsEditDraft = null; expertDataTab = 'health'; expertDataHealthTab = 'doms'; toast('Uzman sistemi verileri sıfırlandı. Diğer platform verileri korunmuştur.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
 
 // Eski dinamik program ekranından kalan dashboard seçimi için güvenli geri dönüş.
 const hxDataCollectionRenderSelectedSplit = renderSelectedSplit;
