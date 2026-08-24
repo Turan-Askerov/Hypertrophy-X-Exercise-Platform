@@ -50,6 +50,7 @@ import bcrypt
 from postgres_schema import POSTGRES_SCHEMA_STATEMENTS
 from expert_system import (
     AVAILABLE_EQUIPMENT_OPTIONS,
+    GYM_EQUIPMENT_CATALOG,
     DETAILED_MUSCLE_OPTIONS,
     PRIMARY_GOALS,
     PROFILE_FIELD_LABELS,
@@ -61,6 +62,7 @@ from expert_system import (
     generate_dynamic_program,
     handle_missed_session,
     normalize_detailed_muscle,
+    normalize_gym_equipment,
     normalize_muscle_group,
     validate_detailed_preferences,
     validate_preferences as validate_expert_preferences,
@@ -374,19 +376,47 @@ def init_db():
             );
         """)
         # Uzman Sistemi; kullanıcı başına tek kayıt ve JSON koleksiyonları kullanır.
-        # Yeni anket sekmeleri, tablo göçü olmadan yeni JSON alanları ile eklenebilir.
+        # Bu veri toplama sürümünde kas ağrısı, salonlar ve sakatlıklar ayrı
+        # tablolara bölünmez. Böylece yalnızca uzman sistemi verisi sadeleşir;
+        # uygulamanın kullanıcı, antrenman ve beslenme tabloları etkilenmez.
         cur.executescript("""
             CREATE TABLE IF NOT EXISTS expert_profiles (
                 user_id INTEGER PRIMARY KEY,
-                goals_json TEXT NOT NULL DEFAULT '{}',
-                doms_history_json TEXT NOT NULL DEFAULT '[]',
-                constraints_json TEXT NOT NULL DEFAULT '[]',
-                ui_preferences_json TEXT NOT NULL DEFAULT '{}',
+                target_muscles_json TEXT NOT NULL DEFAULT '{}',
+                doms_daily_json TEXT NOT NULL DEFAULT '{}',
+                gym_equipment_json TEXT NOT NULL DEFAULT '[]',
+                injuries_json TEXT NOT NULL DEFAULT '[]',
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
                 updated_at TEXT NOT NULL DEFAULT (datetime('now')),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
         """)
+
+        # Eski tek-kayıt denemesi farklı JSON sütunlarıyla kurulmuş olabilir.
+        # Bu sürümde yalnızca uzman sistemi verisinin sıfırlanmasına izin verildiği
+        # için eski şema, kullanıcıya ait diğer hiçbir tabloya dokunulmadan yeniden
+        # oluşturulur. Yeni şema zaten varsa bu blok işlem yapmaz.
+        expert_columns = {
+            str(row["name"]) for row in cur.execute("PRAGMA table_info(expert_profiles)").fetchall()
+        }
+        required_expert_columns = {
+            "user_id", "target_muscles_json", "doms_daily_json",
+            "gym_equipment_json", "injuries_json", "created_at", "updated_at",
+        }
+        if expert_columns and not required_expert_columns.issubset(expert_columns):
+            cur.execute("DROP TABLE expert_profiles")
+            cur.executescript("""
+                CREATE TABLE expert_profiles (
+                    user_id INTEGER PRIMARY KEY,
+                    target_muscles_json TEXT NOT NULL DEFAULT '{}',
+                    doms_daily_json TEXT NOT NULL DEFAULT '{}',
+                    gym_equipment_json TEXT NOT NULL DEFAULT '[]',
+                    injuries_json TEXT NOT NULL DEFAULT '[]',
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                );
+            """)
 
         # Eski SQLite dosyaları için geriye dönük şema uyumluluğu.
         for statement in (
@@ -1462,17 +1492,27 @@ class ExpertGoalsDataRequest(BaseModel):
 class ExpertDomsDataRequest(BaseModel):
     muscle_group: str
     severity: int
-    report_date: Optional[str] = None
-    status: str = "active"
     notes: Optional[str] = ""
 
 
-class ExpertConstraintDataRequest(BaseModel):
-    area: str
-    side: str = "not_specified"
+class ExpertDomsEntryUpdateRequest(BaseModel):
+    """Var olan günlük kas ağrısı kaydında yalnızca seviye ve not güncellenir."""
     severity: int
-    started_on: Optional[str] = None
-    status: str = "active"
+    notes: Optional[str] = ""
+
+
+class ExpertGymDataRequest(BaseModel):
+    gym_id: Optional[str] = None
+    name: str
+    equipment: List[str] = []
+
+
+class ExpertInjuryDataRequest(BaseModel):
+    injury_id: Optional[str] = None
+    area: str
+    injury_type: str = "other"
+    severity: int
+    is_active: bool = True
     notes: Optional[str] = ""
 
 
@@ -1488,6 +1528,11 @@ class NutritionLogSchema(BaseModel):
     carbs: float = 0
     fat: float = 0
     notes: str = ""
+
+
+class NutritionLogUpdateSchema(NutritionLogSchema):
+    # JSON içindeki eski tarih anahtarı. Tarih değişmediğinde de açıkça gönderilir.
+    original_date: str
 
 
 # ═══════════════════════════════════════════════
@@ -1635,32 +1680,29 @@ def _json_dict(raw_value) -> dict:
 
 def _expert_data_profile(conn, user_id: int, create: bool = True) -> dict | None:
     """Kullanıcı başına tek uzman sistemi kaydını okur; gerekirse boş kayıt açar."""
-    row = conn.execute(
-        "SELECT user_id, goals_json, doms_history_json, constraints_json, ui_preferences_json, created_at, updated_at "
-        "FROM expert_profiles WHERE user_id = ?",
-        (user_id,),
-    ).fetchone()
+    select = (
+        "SELECT user_id, target_muscles_json, doms_daily_json, gym_equipment_json, injuries_json, "
+        "created_at, updated_at FROM expert_profiles WHERE user_id = ?"
+    )
+    row = conn.execute(select, (user_id,)).fetchone()
     if not row and create:
         conn.execute(
-            "INSERT INTO expert_profiles (user_id, goals_json, doms_history_json, constraints_json, ui_preferences_json) "
-            "VALUES (?, '{}', '[]', '[]', '{}') ON CONFLICT(user_id) DO NOTHING",
+            "INSERT INTO expert_profiles "
+            "(user_id, target_muscles_json, doms_daily_json, gym_equipment_json, injuries_json) "
+            "VALUES (?, '{}', '{}', '[]', '[]') ON CONFLICT(user_id) DO NOTHING",
             (user_id,),
         )
         conn.commit()
-        row = conn.execute(
-            "SELECT user_id, goals_json, doms_history_json, constraints_json, ui_preferences_json, created_at, updated_at "
-            "FROM expert_profiles WHERE user_id = ?",
-            (user_id,),
-        ).fetchone()
+        row = conn.execute(select, (user_id,)).fetchone()
     if not row:
         return None
     data = dict(row)
     return {
         "user_id": data["user_id"],
-        "goals": _json_dict(data.get("goals_json")),
-        "doms_history": _json_list(data.get("doms_history_json")),
-        "constraints": _json_list(data.get("constraints_json")),
-        "ui_preferences": _json_dict(data.get("ui_preferences_json")),
+        "target_muscles": _json_dict(data.get("target_muscles_json")),
+        "doms_daily": _json_dict(data.get("doms_daily_json")),
+        "gyms": _json_list(data.get("gym_equipment_json")),
+        "injuries": _json_list(data.get("injuries_json")),
         "created_at": data.get("created_at"),
         "updated_at": data.get("updated_at"),
     }
@@ -1670,52 +1712,46 @@ def _save_expert_data_profile(conn, user_id: int, profile: dict) -> None:
     conn.execute(
         """
         INSERT INTO expert_profiles
-            (user_id, goals_json, doms_history_json, constraints_json, ui_preferences_json, updated_at)
+            (user_id, target_muscles_json, doms_daily_json, gym_equipment_json, injuries_json, updated_at)
         VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(user_id) DO UPDATE SET
-            goals_json = excluded.goals_json,
-            doms_history_json = excluded.doms_history_json,
-            constraints_json = excluded.constraints_json,
-            ui_preferences_json = excluded.ui_preferences_json,
+            target_muscles_json = excluded.target_muscles_json,
+            doms_daily_json = excluded.doms_daily_json,
+            gym_equipment_json = excluded.gym_equipment_json,
+            injuries_json = excluded.injuries_json,
             updated_at = CURRENT_TIMESTAMP
         """,
         (
             user_id,
-            json.dumps(profile.get("goals") or {}, ensure_ascii=False),
-            json.dumps(profile.get("doms_history") or [], ensure_ascii=False),
-            json.dumps(profile.get("constraints") or [], ensure_ascii=False),
-            json.dumps(profile.get("ui_preferences") or {}, ensure_ascii=False),
+            json.dumps(profile.get("target_muscles") or {}, ensure_ascii=False),
+            json.dumps(profile.get("doms_daily") or {}, ensure_ascii=False),
+            json.dumps(profile.get("gyms") or [], ensure_ascii=False),
+            json.dumps(profile.get("injuries") or [], ensure_ascii=False),
         ),
     )
     conn.commit()
 
 
-def _expert_data_metrics(doms_history: list[dict]) -> list[dict]:
-    """Son kaydı esas alarak kullanıcıya tanı koymadan görsel durum metrikleri üretir."""
+def _expert_data_metrics(doms_daily: dict) -> list[dict]:
+    """Her kasın en güncel günlük ağrı bildirimini görselleştirme için döndürür."""
     latest_by_muscle: dict[str, dict] = {}
-    for entry in doms_history:
-        muscle = normalize_detailed_muscle(entry.get("muscle_group"))
-        if not muscle:
+    for report_date, entries in (doms_daily or {}).items():
+        if not isinstance(entries, list):
             continue
-        entry_date = str(entry.get("report_date") or "")
-        previous = latest_by_muscle.get(muscle)
-        if not previous or entry_date >= str(previous.get("report_date") or ""):
-            latest_by_muscle[muscle] = entry
-
-    metrics = []
-    for muscle, entry in latest_by_muscle.items():
-        severity = int(entry.get("severity") or 0)
-        if entry.get("status") == "resolved":
-            severity = 0
-        metrics.append({
-            "muscle_group": muscle,
-            "pain_level": max(0, min(5, severity)),
-            "readiness": max(0, min(100, 100 - (severity * 20))),
-            "status": entry.get("status") or "active",
-            "report_date": entry.get("report_date"),
-            "notes": entry.get("notes") or "",
-        })
-    return sorted(metrics, key=lambda item: (-item["pain_level"], item["muscle_group"]))
+        for raw_entry in entries:
+            entry = raw_entry if isinstance(raw_entry, dict) else {}
+            muscle = normalize_detailed_muscle(entry.get("muscle_group"))
+            if not muscle:
+                continue
+            previous = latest_by_muscle.get(muscle)
+            if not previous or str(report_date) >= str(previous.get("report_date") or ""):
+                latest_by_muscle[muscle] = {
+                    "muscle_group": muscle,
+                    "pain_level": max(0, min(5, int(entry.get("severity") or 0))),
+                    "report_date": str(report_date),
+                    "notes": str(entry.get("notes") or ""),
+                }
+    return sorted(latest_by_muscle.values(), key=lambda item: (-item["pain_level"], item["muscle_group"]))
 
 
 def _expert_data_state(user: dict) -> dict:
@@ -1726,23 +1762,27 @@ def _expert_data_state(user: dict) -> dict:
         conn.close()
     return {
         "success": True,
-        "goals": profile.get("goals") or {},
-        "doms_history": profile.get("doms_history") or [],
-        "constraints": profile.get("constraints") or [],
-        "metrics": _expert_data_metrics(profile.get("doms_history") or []),
+        "target_muscles": profile.get("target_muscles") or {},
+        "doms_daily": profile.get("doms_daily") or {},
+        "gyms": profile.get("gyms") or [],
+        "injuries": profile.get("injuries") or [],
+        "metrics": _expert_data_metrics(profile.get("doms_daily") or {}),
         "catalog": {
             "primary_goals": PRIMARY_GOALS,
             "detailed_muscles": list(DETAILED_MUSCLE_OPTIONS),
-            "sides": {
-                "not_specified": "Belirtilmedi",
-                "left": "Sol taraf",
-                "right": "Sağ taraf",
-                "bilateral": "Her iki taraf",
-            },
-            "constraint_areas": [
-                "Omuz", "Dirsek", "Bilek", "Bel", "Kalça", "Diz", "Ayak bileği",
+            "gym_equipment": list(GYM_EQUIPMENT_CATALOG),
+            "injury_areas": [
+                "Omuz", "Dirsek", "Bilek", "El", "Boyun", "Bel", "Kalça", "Diz", "Ayak bileği",
                 "Göğüs", "Sırt", "Biceps", "Triceps", "Quadriceps", "Hamstring", "Gluteus", "Calf",
             ],
+            "injury_types": {
+                "tendon": "Tendon",
+                "joint": "Eklem",
+                "muscle_tissue": "Kas dokusu",
+                "bone": "Kemik",
+                "nerve": "Sinir",
+                "other": "Diğer",
+            },
             "pain_scale": {"min": 0, "max": 5, "labels": ["Yok", "Hafif", "Düşük", "Orta", "Yüksek", "Çok yüksek"]},
             "max_priority_muscles": 3,
         },
@@ -2692,12 +2732,25 @@ def analyze(data: AnalyzeRequest = Body(...),
 def dashboard(user: dict = Depends(_resolve_current_user)):
     workouts = get_workouts_by_user(user["id"])
     now = datetime.now()
+    today_date = now.date()
 
-    week_start = now - timedelta(days=now.weekday())
-    weekly = [w for w in workouts if datetime.strptime(w["date"], "%Y-%m-%d") >= week_start]
+    # Haftalık sayaç pazartesi 00:00'dan başlar. Kayıtlar tarih (YYYY-MM-DD)
+    # olarak tutulduğu için datetime ile karşılaştırma, pazartesi gününün
+    # kaydını "00:00 < şu an" diye yanlışlıkla dışarıda bırakabiliyordu.
+    week_start = today_date - timedelta(days=today_date.weekday())
+    monthly_start = today_date.replace(day=1)
+    dated_workouts: list[tuple[dict, date]] = []
+    for workout in workouts:
+        try:
+            workout_date = date.fromisoformat(str(workout.get("date", ""))[:10])
+        except (TypeError, ValueError):
+            continue
+        dated_workouts.append((workout, workout_date))
 
-    month_start = now.replace(day=1)
-    monthly = [w for w in workouts if datetime.strptime(w["date"], "%Y-%m-%d") >= month_start]
+    weekly = [workout for workout, workout_date in dated_workouts
+              if week_start <= workout_date <= today_date]
+    monthly = [workout for workout, workout_date in dated_workouts
+               if monthly_start <= workout_date <= today_date]
 
     streak = 0
     check_date = now.date()
@@ -3140,6 +3193,61 @@ def save_nutrition_log(data: NutritionLogSchema,
     return {"success": True, "message": "Beslenme verisi kaydedildi"}
 
 
+@app.put("/api/nutrition/log")
+def update_nutrition_log(data: NutritionLogUpdateSchema,
+                         current_user: dict = Depends(_resolve_current_user)):
+    """Tek bir beslenme kaydını günceller; tarih değiştiyse eski anahtarı taşır."""
+    if data.username != current_user["username"]:
+        raise HTTPException(status_code=403, detail="Başkası için kayıt güncellenemez")
+
+    original_date = str(data.original_date or "")[:10]
+    target_date = str(data.log_date or original_date)[:10]
+    try:
+        original_day = date.fromisoformat(original_date)
+        target_day = date.fromisoformat(target_date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Kayıt tarihi geçerli bir tarih olmalıdır")
+    if target_day > date.today():
+        raise HTTPException(status_code=400, detail="Gelecek gün için kayıt güncellenemez")
+
+    raw_nutri = current_user.get("daily_nutrition", "{}")
+    try:
+        history_dict = json.loads(raw_nutri) if isinstance(raw_nutri, str) else raw_nutri
+    except Exception:
+        history_dict = {}
+
+    if original_day.isoformat() not in history_dict:
+        raise HTTPException(status_code=404, detail="Düzenlenecek beslenme kaydı bulunamadı")
+    if target_day.isoformat() != original_day.isoformat() and target_day.isoformat() in history_dict:
+        raise HTTPException(status_code=409, detail="Seçilen tarihte zaten bir beslenme kaydı bulunuyor")
+
+    calories = data.calories
+    if calories <= 0:
+        calories = (data.protein * 4) + (data.carbs * 4) + (data.fat * 9)
+
+    # Önce eski günü silmek, tarih düzenlemesinin iki ayrı kayıt oluşturmamasını sağlar.
+    del history_dict[original_day.isoformat()]
+    history_dict[target_day.isoformat()] = {
+        "calories": calories,
+        "protein": data.protein,
+        "carbs": data.carbs,
+        "fat": data.fat,
+        "notes": data.notes or "",
+        "updated_at": str(datetime.now())
+    }
+
+    conn = get_db()
+    try:
+        conn.execute(
+            "UPDATE users SET daily_nutrition = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?",
+            (json.dumps(history_dict, ensure_ascii=False), current_user["username"])
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return {"success": True, "message": "Beslenme kaydı güncellendi", "date": target_day.isoformat()}
+
+
 @app.delete("/api/nutrition/log")
 def delete_nutrition_log(log_date: str = Query(...),
                          user: dict = Depends(_resolve_current_user)):
@@ -3167,9 +3275,59 @@ def delete_nutrition_log(log_date: str = Query(...),
 # Analiz, program oluşturma veya tıbbi yorum üretmez; yalnızca kullanıcının
 # kendi bildirdiği verileri tek JSON kayıt altında saklar.
 # ═══════════════════════════════════════════════
+@app.get("/api/expert-system/data")
 @app.get("/api/expert-data")
 def get_expert_data(user: dict = Depends(_resolve_current_user)):
+    """Yalnızca veri toplama ekranının tek profil kaydını ve kataloglarını döndürür."""
     return _expert_data_state(user)
+
+
+def _clean_gym_equipment(values: List[str]) -> list[str]:
+    equipment: list[str] = []
+    for raw_value in values or []:
+        equipment_id = normalize_gym_equipment(raw_value)
+        if not equipment_id:
+            raise HTTPException(status_code=400, detail="Geçersiz salon ekipmanı seçildi.")
+        if equipment_id not in equipment:
+            equipment.append(equipment_id)
+    return equipment
+
+
+def _validate_injury_payload(data: ExpertInjuryDataRequest, existing: dict | None = None) -> dict:
+    """Sakatlık verisini kullanıcının değiştiremediği aktivasyon tarihiyle hazırlar."""
+    allowed_areas = {
+        "Omuz", "Dirsek", "Bilek", "El", "Boyun", "Bel", "Kalça", "Diz", "Ayak bileği",
+        "Göğüs", "Sırt", "Biceps", "Triceps", "Quadriceps", "Hamstring", "Gluteus", "Calf",
+    }
+    allowed_types = {"tendon", "joint", "muscle_tissue", "bone", "nerve", "other"}
+    area = str(data.area or "").strip()
+    injury_type = str(data.injury_type or "other").strip()
+    if area not in allowed_areas:
+        raise HTTPException(status_code=400, detail="Geçerli bir sakatlık bölgesi seçin.")
+    if injury_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Geçerli bir sakatlık türü seçin.")
+    if not 0 <= int(data.severity) <= 5:
+        raise HTTPException(status_code=400, detail="Şiddet değeri 0 ile 5 arasında olmalıdır.")
+
+    is_active = bool(data.is_active)
+    today = date.today().isoformat()
+    was_active = bool((existing or {}).get("is_active", True))
+    if is_active:
+        # Yeni kayıtta veya pasif kaydın yeniden etkinleştirilmesinde tarih bugündür.
+        started_on = today if not existing or not was_active else _expert_date(existing.get("started_on") or today)
+    else:
+        # Pasif kayıt için bitiş tarihi tutulmaz; varsa geçmiş aktivasyon tarihi korunur.
+        started_on = _expert_date((existing or {}).get("started_on")) if existing and (existing or {}).get("started_on") else None
+
+    return {
+        "area": area,
+        "injury_type": injury_type,
+        "severity": int(data.severity),
+        "is_active": is_active,
+        "started_on": started_on,
+        "notes": str(data.notes or "").strip()[:500],
+        "updated_at": datetime.now().isoformat(timespec="seconds"),
+    }
 
 
 @app.put("/api/expert-data/goals")
@@ -3182,16 +3340,15 @@ def save_expert_goals(data: ExpertGoalsDataRequest = Body(...),
     priority_muscles: list[str] = []
     for raw_muscle in data.priority_muscles or []:
         muscle = normalize_detailed_muscle(raw_muscle)
-        if not muscle or muscle in priority_muscles:
-            continue
-        priority_muscles.append(muscle)
+        if muscle and muscle not in priority_muscles:
+            priority_muscles.append(muscle)
     if not 1 <= len(priority_muscles) <= 3:
-        raise HTTPException(status_code=400, detail="En az 1, en fazla 3 öncelikli kas seçin.")
+        raise HTTPException(status_code=400, detail="En az 1, en fazla 3 hedef kas seçin.")
 
     conn = get_db()
     try:
         profile = _expert_data_profile(conn, user["id"])
-        profile["goals"] = {
+        profile["target_muscles"] = {
             "primary_goal": primary_goal,
             "priority_muscles": priority_muscles,
             "priority_note": str(data.priority_note or "").strip()[:500],
@@ -3203,69 +3360,244 @@ def save_expert_goals(data: ExpertGoalsDataRequest = Body(...),
     return _expert_data_state(user)
 
 
-@app.post("/api/expert-data/doms")
-def add_expert_doms(data: ExpertDomsDataRequest = Body(...),
-                    user: dict = Depends(_resolve_current_user)):
+@app.post("/api/expert-system/doms")
+@app.put("/api/expert-data/doms")
+def upsert_expert_doms(data: ExpertDomsDataRequest = Body(...),
+                       user: dict = Depends(_resolve_current_user)):
+    """Bugün ve aynı kas grubu için önceki ağrı bildirimini değiştirir."""
     muscle = normalize_detailed_muscle(data.muscle_group)
     if not muscle:
         raise HTTPException(status_code=400, detail="Geçerli bir kas grubu seçin.")
     if not 0 <= int(data.severity) <= 5:
         raise HTTPException(status_code=400, detail="Kas ağrısı değeri 0 ile 5 arasında olmalıdır.")
-    status = str(data.status or "active").strip().lower()
-    if status not in {"active", "resolved"}:
-        raise HTTPException(status_code=400, detail="Durum aktif veya geçti olmalıdır.")
 
-    report_date = _expert_date(data.report_date)
+    # Kas ağrısı yalnızca güncel gün için kaydedilir; tarih istemciden seçilemez.
+    report_date = date.today().isoformat()
     conn = get_db()
     try:
         profile = _expert_data_profile(conn, user["id"])
-        profile["doms_history"].append({
-            "id": secrets.token_hex(8),
+        daily = profile.get("doms_daily") or {}
+        same_day = daily.get(report_date) if isinstance(daily.get(report_date), list) else []
+        daily[report_date] = [
+            item for item in same_day
+            if normalize_detailed_muscle((item or {}).get("muscle_group")) != muscle
+        ]
+        daily[report_date].append({
             "muscle_group": muscle,
             "severity": int(data.severity),
-            "status": status,
-            "report_date": report_date,
-            "created_at": datetime.now().isoformat(timespec="seconds"),
             "notes": str(data.notes or "").strip()[:500],
+            "updated_at": datetime.now().isoformat(timespec="seconds"),
         })
+        profile["doms_daily"] = daily
         _save_expert_data_profile(conn, user["id"], profile)
     finally:
         conn.close()
     return _expert_data_state(user)
 
 
-@app.post("/api/expert-data/constraints")
-def add_expert_constraint(data: ExpertConstraintDataRequest = Body(...),
-                          user: dict = Depends(_resolve_current_user)):
-    area = str(data.area or "").strip()
-    allowed_areas = {
-        "Omuz", "Dirsek", "Bilek", "Bel", "Kalça", "Diz", "Ayak bileği",
-        "Göğüs", "Sırt", "Biceps", "Triceps", "Quadriceps", "Hamstring", "Gluteus", "Calf",
-    }
-    if area not in allowed_areas:
-        raise HTTPException(status_code=400, detail="Geçerli bir ağrı veya kısıt bölgesi seçin.")
+@app.put("/api/expert-system/doms/{report_date}/{muscle_group}")
+@app.put("/api/expert-data/doms/{report_date}/{muscle_group}")
+def update_expert_doms_entry(
+    report_date: str,
+    muscle_group: str,
+    data: ExpertDomsEntryUpdateRequest = Body(...),
+    user: dict = Depends(_resolve_current_user),
+):
+    """Seçilmiş günlük kas ağrısı kaydını tarihini değiştirmeden günceller."""
+    target_date = _expert_date(report_date)
+    muscle = normalize_detailed_muscle(muscle_group)
+    if not muscle:
+        raise HTTPException(status_code=400, detail="Geçerli bir kas grubu seçin.")
     if not 0 <= int(data.severity) <= 5:
-        raise HTTPException(status_code=400, detail="Şiddet değeri 0 ile 5 arasında olmalıdır.")
-    side = str(data.side or "not_specified").strip()
-    if side not in {"not_specified", "left", "right", "bilateral"}:
-        raise HTTPException(status_code=400, detail="Geçerli bir taraf seçin.")
-    status = str(data.status or "active").strip().lower()
-    if status not in {"active", "resolved"}:
-        raise HTTPException(status_code=400, detail="Durum aktif veya geçti olmalıdır.")
+        raise HTTPException(status_code=400, detail="Kas ağrısı değeri 0 ile 5 arasında olmalıdır.")
 
     conn = get_db()
     try:
         profile = _expert_data_profile(conn, user["id"])
-        profile["constraints"].append({
-            "id": secrets.token_hex(8),
-            "area": area,
-            "side": side,
-            "severity": int(data.severity),
-            "status": status,
-            "started_on": _expert_date(data.started_on),
+        daily = profile.get("doms_daily") or {}
+        entries = daily.get(target_date) if isinstance(daily.get(target_date), list) else []
+        found = False
+        updated_entries = []
+        for raw_entry in entries:
+            entry = raw_entry if isinstance(raw_entry, dict) else {}
+            if normalize_detailed_muscle(entry.get("muscle_group")) == muscle:
+                updated_entries.append({
+                    "muscle_group": muscle,
+                    "severity": int(data.severity),
+                    "notes": str(data.notes or "").strip()[:500],
+                    "updated_at": datetime.now().isoformat(timespec="seconds"),
+                })
+                found = True
+            else:
+                updated_entries.append(entry)
+        if not found:
+            raise HTTPException(status_code=404, detail="Kas ağrısı kaydı bulunamadı.")
+        daily[target_date] = updated_entries
+        profile["doms_daily"] = daily
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.delete("/api/expert-system/doms/{report_date}/{muscle_group}")
+@app.delete("/api/expert-data/doms/{report_date}/{muscle_group}")
+def delete_expert_doms_entry(
+    report_date: str,
+    muscle_group: str,
+    user: dict = Depends(_resolve_current_user),
+):
+    """Geçmiş veya güncel kas ağrısı kaydını tek başına siler."""
+    target_date = _expert_date(report_date)
+    muscle = normalize_detailed_muscle(muscle_group)
+    if not muscle:
+        raise HTTPException(status_code=400, detail="Geçerli bir kas grubu seçin.")
+
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        daily = profile.get("doms_daily") or {}
+        entries = daily.get(target_date) if isinstance(daily.get(target_date), list) else []
+        kept_entries = [
+            entry for entry in entries
+            if normalize_detailed_muscle((entry or {}).get("muscle_group")) != muscle
+        ]
+        if len(kept_entries) == len(entries):
+            raise HTTPException(status_code=404, detail="Kas ağrısı kaydı bulunamadı.")
+        if kept_entries:
+            daily[target_date] = kept_entries
+        else:
+            daily.pop(target_date, None)
+        profile["doms_daily"] = daily
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.post("/api/expert-system/gyms")
+@app.post("/api/expert-data/gyms")
+def create_expert_gym(data: ExpertGymDataRequest = Body(...),
+                      user: dict = Depends(_resolve_current_user)):
+    name = str(data.name or "").strip()
+    if not 2 <= len(name) <= 80:
+        raise HTTPException(status_code=400, detail="Salon adı 2 ile 80 karakter arasında olmalıdır.")
+    equipment = _clean_gym_equipment(data.equipment)
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        gyms = profile.get("gyms") or []
+        if any(str(item.get("name") or "").casefold() == name.casefold() for item in gyms if isinstance(item, dict)):
+            raise HTTPException(status_code=409, detail="Bu isimde bir salon zaten kayıtlı.")
+        gyms.append({
+            "id": "gym_" + secrets.token_hex(6),
+            "name": name,
+            "equipment": equipment,
             "created_at": datetime.now().isoformat(timespec="seconds"),
-            "notes": str(data.notes or "").strip()[:500],
+            "updated_at": datetime.now().isoformat(timespec="seconds"),
         })
+        profile["gyms"] = gyms
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.put("/api/expert-system/gyms/{gym_id}")
+@app.put("/api/expert-data/gyms/{gym_id}")
+def update_expert_gym(gym_id: str, data: ExpertGymDataRequest = Body(...),
+                      user: dict = Depends(_resolve_current_user)):
+    name = str(data.name or "").strip()
+    if not 2 <= len(name) <= 80:
+        raise HTTPException(status_code=400, detail="Salon adı 2 ile 80 karakter arasında olmalıdır.")
+    equipment = _clean_gym_equipment(data.equipment)
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        gyms = profile.get("gyms") or []
+        gym = next((item for item in gyms if isinstance(item, dict) and item.get("id") == gym_id), None)
+        if not gym:
+            raise HTTPException(status_code=404, detail="Salon kaydı bulunamadı.")
+        if any(item is not gym and str(item.get("name") or "").casefold() == name.casefold() for item in gyms if isinstance(item, dict)):
+            raise HTTPException(status_code=409, detail="Bu isimde bir salon zaten kayıtlı.")
+        gym.update({"name": name, "equipment": equipment, "updated_at": datetime.now().isoformat(timespec="seconds")})
+        profile["gyms"] = gyms
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.delete("/api/expert-system/gyms/{gym_id}")
+@app.delete("/api/expert-data/gyms/{gym_id}")
+def delete_expert_gym(gym_id: str, user: dict = Depends(_resolve_current_user)):
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        gyms = profile.get("gyms") or []
+        updated = [item for item in gyms if not (isinstance(item, dict) and item.get("id") == gym_id)]
+        if len(updated) == len(gyms):
+            raise HTTPException(status_code=404, detail="Salon kaydı bulunamadı.")
+        profile["gyms"] = updated
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.post("/api/expert-system/injuries")
+@app.post("/api/expert-data/injuries")
+def create_expert_injury(data: ExpertInjuryDataRequest = Body(...),
+                         user: dict = Depends(_resolve_current_user)):
+    injury = _validate_injury_payload(data)
+    injury["id"] = "inj_" + secrets.token_hex(6)
+    injury["created_at"] = datetime.now().isoformat(timespec="seconds")
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        injuries = profile.get("injuries") or []
+        injuries.append(injury)
+        profile["injuries"] = injuries
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.put("/api/expert-system/injuries/{injury_id}")
+@app.put("/api/expert-data/injuries/{injury_id}")
+def update_expert_injury(injury_id: str, data: ExpertInjuryDataRequest = Body(...),
+                         user: dict = Depends(_resolve_current_user)):
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        injuries = profile.get("injuries") or []
+        injury = next((item for item in injuries if isinstance(item, dict) and item.get("id") == injury_id), None)
+        if not injury:
+            raise HTTPException(status_code=404, detail="Sakatlık kaydı bulunamadı.")
+        updated = _validate_injury_payload(data, existing=injury)
+        updated["id"] = injury_id
+        updated["created_at"] = injury.get("created_at") or datetime.now().isoformat(timespec="seconds")
+        injury.clear()
+        injury.update(updated)
+        profile["injuries"] = injuries
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.delete("/api/expert-system/injuries/{injury_id}")
+@app.delete("/api/expert-data/injuries/{injury_id}")
+def delete_expert_injury(injury_id: str, user: dict = Depends(_resolve_current_user)):
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        injuries = profile.get("injuries") or []
+        updated = [item for item in injuries if not (isinstance(item, dict) and item.get("id") == injury_id)]
+        if len(updated) == len(injuries):
+            raise HTTPException(status_code=404, detail="Sakatlık kaydı bulunamadı.")
+        profile["injuries"] = updated
         _save_expert_data_profile(conn, user["id"], profile)
     finally:
         conn.close()
