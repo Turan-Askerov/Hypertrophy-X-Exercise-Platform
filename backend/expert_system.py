@@ -1245,3 +1245,4 @@ def build_expert_result_v2(
         profile, preferences, exercise_pool, available_equipment, active_doms, constraints,
     )
     return base
+
