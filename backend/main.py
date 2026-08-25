@@ -3741,3 +3741,5 @@ async def on_startup():
     validate_runtime_configuration()
     init_db()
     log.info("Hypertrophy-X v5.0 hazır. Ortam: %s", APP_ENV)
+
+
