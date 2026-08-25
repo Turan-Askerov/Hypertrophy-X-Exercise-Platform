@@ -49,13 +49,24 @@ POSTGRES_SCHEMA_STATEMENTS = (
     """
     CREATE TABLE IF NOT EXISTS expert_profiles (
         user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-        goals_json TEXT NOT NULL DEFAULT '{}',
-        doms_history_json TEXT NOT NULL DEFAULT '[]',
-        constraints_json TEXT NOT NULL DEFAULT '[]',
-        ui_preferences_json TEXT NOT NULL DEFAULT '{}',
+        target_muscles_json TEXT NOT NULL DEFAULT '{}',
+        doms_daily_json TEXT NOT NULL DEFAULT '{}',
+        gym_equipment_json TEXT NOT NULL DEFAULT '[]',
+        injuries_json TEXT NOT NULL DEFAULT '[]',
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
     """,
+    # Önceki veri toplama denemelerinde expert_profiles farklı JSON sütunlarıyla
+    # oluşmuş olabilir. Bu geçiş yalnızca uzman sistemi alanlarını temizler;
+    # kullanıcı, antrenman, beslenme, split ve PR kayıtlarına dokunmaz.
+    "ALTER TABLE expert_profiles ADD COLUMN IF NOT EXISTS target_muscles_json TEXT NOT NULL DEFAULT '{}'",
+    "ALTER TABLE expert_profiles ADD COLUMN IF NOT EXISTS doms_daily_json TEXT NOT NULL DEFAULT '{}'",
+    "ALTER TABLE expert_profiles ADD COLUMN IF NOT EXISTS gym_equipment_json TEXT NOT NULL DEFAULT '[]'",
+    "ALTER TABLE expert_profiles ADD COLUMN IF NOT EXISTS injuries_json TEXT NOT NULL DEFAULT '[]'",
+    "ALTER TABLE expert_profiles DROP COLUMN IF EXISTS goals_json",
+    "ALTER TABLE expert_profiles DROP COLUMN IF EXISTS doms_history_json",
+    "ALTER TABLE expert_profiles DROP COLUMN IF EXISTS constraints_json",
+    "ALTER TABLE expert_profiles DROP COLUMN IF EXISTS ui_preferences_json",
     "CREATE INDEX IF NOT EXISTS idx_workouts_user_date ON workouts (user_id, date DESC)",
 )
