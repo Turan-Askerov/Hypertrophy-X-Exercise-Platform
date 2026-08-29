@@ -6,7 +6,7 @@
 
 ```bash
 # 1. Backend klasörüne gir
-cd Hypertrophy-X-v4.1/backend
+cd Hypertrophy-X-v4.0/backend
 
 # 2. Start script'ini çalıştır
 chmod +x start.sh
@@ -36,14 +36,8 @@ cp ../frontend/index.html static/
 rm -f hypertrophy.db
 
 # 7. Sunucuyu başlat
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
-
-### Tarayıcıda Aç
-
-```
-http://127.0.0.1:8000/app
-```
+cd ~/Desktop/Hypertrophy-X-v4.0/backend
+DATABASE_URL='' ../venv/bin/python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
 ## Giriş Bilgileri
 
@@ -53,8 +47,8 @@ http://127.0.0.1:8000/app
 - Profil sayfasından kişisel bilgileri doldur
 
 ### Admin
-- Kullanıcı adı: `admin`
-- Şifre: `admin`
+- Kullanıcı adı: `xxx`
+- Şifre: `xxx`
 - Admin bilgileriyle giriş yapınca otomatik admin paneline yönlendirilir
 
 ## Özellikler
@@ -99,7 +93,6 @@ http://127.0.0.1:8000/app
 
 ## Dosya Yapısı
 
-```
 Hypertrophy-X-v4.0/
 ├── backend/
 │   ├── main.py          # Tüm API'ler (887 satır)
@@ -108,7 +101,6 @@ Hypertrophy-X-v4.0/
 ├── frontend/
 │   └── index.html       # Tüm sayfalar (2198 satır)
 └── KULLANIM.md
-```
 
 ## Endpoint'ler
 
@@ -133,15 +125,3 @@ Hypertrophy-X-v4.0/
 | /api/admin/workout/{id} | DELETE | Antrenman sil |
 | /app | GET | Ana sayfa |
 | / | GET | /app'e yönlendir |
-
-## Hareket Havuzunu Genişletme
-
-`main.py` içinde `EXERCISE_POOL` listesini bul ve yeni hareket ekle:
-
-```python
-{"id": "yeni_hareket", "name": "Hareket Adı", "muscle": "Kas Grubu", "bw": false, "weighted": true}
-```
-
-- `bw: true` → Vücut ağırlığı hareketi (ağırlık kutusu gizlenir)
-- `weighted: true` → Ağırlıklı hareket
-- Her iki değer de `true` ise hem ağırlıklı hem ağırlıksız seçilebilir

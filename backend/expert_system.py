@@ -868,15 +868,21 @@ def _exercise_required_equipment(exercise: dict[str, Any]) -> list[str]:
 def _is_equipment_satisfied(required: Iterable[str], available: set[str]) -> bool:
     # Zemin ve vücut ağırlığı kullanıcıdan ayrıca sorulmaz. *_optional gerekli
     # değildir; `a_or_b` türü değerlerde yalnızca bir seçenek yeterlidir.
-    ignored = {"floor", "bodyweight", "bench_optional", "weight_plate_or_vest", "dip_belt_or_vest"}
+    # Sehpalar ve serbest ağırlıklar her kullanıcı için temel imkân kabul edilir;
+    # salon/tercih formunda ayrıca seçilmez ve hareket filtresini daraltmaz.
+    ignored = {
+        "floor", "bodyweight", "bench_optional", "weight_plate_or_vest", "dip_belt_or_vest",
+        "flat_bench", "incline_bench", "decline_bench", "adjustable_bench", "preacher_curl_bench",
+        "dumbbell", "barbell", "ez_bar", "kettlebell", "weight_plates",
+    }
     for item in required:
         if item in ignored or item.endswith("_optional"):
             continue
         if "_or_" in item:
             choices = set(item.split("_or_"))
-            # `barbell_or_dumbbell` gibi havuz birleşik değerleri için tam token
-            # kontrolü de yapılır, ayrıştırılmış kelimeler de desteklenir.
-            if item in available or choices.intersection(available):
+            # Bir seçenek temel ekipmansa (ör. calf machine veya dumbbell),
+            # kullanıcıdan ayrıca salon seçimi istenmeden hareket uygun sayılır.
+            if choices.intersection(ignored) or item in available or choices.intersection(available):
                 continue
             return False
         if item not in available:
@@ -944,6 +950,132 @@ def _exercise_risk_reason(exercise: dict[str, Any], doms: dict[str, float], cons
     return None
 
 
+# HX_MOVEMENT_PREFERENCES_ALTERNATIVES_V1
+# HX_EXPERT_CATALOG_CLEANUP_LAYOUT_V1
+# HX_EXPERT_LAYOUT_MOVEMENT_VARIATIONS_V1
+# Bu liste yalnız uzman önerileri ve hareket tercih ekranı içindir. Eski workout
+# kayıtları değişmez; kullanıcı yalnızca yeni taslaklarda bu hareketleri görmez.
+_EXPERT_CATALOG_EXCLUDED_IDS = {
+    # Biceps: yalnız istenmeyen generic, dumbbell preacher ve makine varyasyonları gizli.
+    "preacher-curl",
+    "preacher-curl-dumbbell",
+    "preacher-curl-machine",
+    # Calf için yalnız üç açık dış yük varyasyonu kullanılır.
+    "calf-raises-bw",
+    "bulgarian-split-squat-bw",
+    "cable-hip-abduction",
+    "glute-bridge-bw",
+    "bodyweight-squat",
+    "inverted-row-bw",
+    # Eski reverse-pec-deck kaydı geçmişle uyum için kalır; yeni cable varyasyonu önerilir.
+    "rear-delt-fly",
+}
+
+
+def is_expert_catalog_excluded(exercise: dict[str, Any] | None) -> bool:
+    """Kullanıcının uzman sisteminden çıkardığı hareketleri tek noktada tanımlar."""
+    item = exercise if isinstance(exercise, dict) else {}
+    exercise_id = str(item.get("id") or "").strip().casefold()
+    if exercise_id in _EXPERT_CATALOG_EXCLUDED_IDS:
+        return True
+    analysis = item.get("analysis") if isinstance(item.get("analysis"), dict) else {}
+    group = str(item.get("muscle_group") or "").strip().casefold()
+    searchable = " ".join((
+        exercise_id,
+        str(item.get("name") or "").casefold(),
+        str(analysis.get("family") or "").casefold(),
+        str(analysis.get("movement_pattern") or "").casefold(),
+    ))
+    # Platformdaki omuz ve kalça rotasyonları kullanıcı arayüzünde birlikte
+    # "Rotatorlar" olarak sunulduğu için her ikisi tek kuralda dışlanır.
+    return group in {"rotator cuff", "hip rotators"} or "retraction" in searchable
+
+
+# Hareket tercihleri, kısıt/DOMS ekipman filtresinden sonra aday sırasını etkiler.
+# "preferred" öncelik verir; "avoid" hareketi uzman taslağından çıkarır.
+def _clean_exercise_preference_ids(values: Iterable[object] | None, exercise_pool: Iterable[dict[str, Any]] | None) -> set[str]:
+    known = {str(item.get("id")) for item in (exercise_pool or []) if isinstance(item, dict) and item.get("id")}
+    return {str(value).strip() for value in (values or []) if str(value).strip() in known}
+
+
+def _exercise_preference_sets(exercise_preferences: dict[str, Any] | None, exercise_pool: Iterable[dict[str, Any]] | None) -> tuple[set[str], set[str]]:
+    raw = exercise_preferences if isinstance(exercise_preferences, dict) else {}
+    preferred = _clean_exercise_preference_ids(raw.get("preferred_exercise_ids"), exercise_pool)
+    avoided = _clean_exercise_preference_ids(raw.get("avoid_exercise_ids"), exercise_pool)
+    # Aynı hareket iki listede olsa bile "önerme" kararı güvenlik için baskındır.
+    return preferred - avoided, avoided
+
+
+def _alternative_candidates(
+    source_exercise_id: object,
+    exercise_pool: Iterable[dict[str, Any]] | None,
+    available_equipment: Iterable[object],
+    doms_state: Iterable[dict[str, Any]] | dict[str, Any] | None = None,
+    constraints: Iterable[dict[str, Any]] | None = None,
+    exercise_preferences: dict[str, Any] | None = None,
+    limit: int = 5,
+) -> list[dict[str, Any]]:
+    """Aynı kas hedefi/patern için kural uyumlu alternatifleri sıralar."""
+    full_pool = list(exercise_pool or [])
+    source = next((item for item in full_pool if str(item.get("id")) == str(source_exercise_id)), None)
+    if not source:
+        return []
+    source_primary, source_secondary = _exercise_muscles(source)
+    source_analysis = source.get("analysis") or {}
+    source_pattern = str(source_analysis.get("movement_pattern") or "")
+    source_category = str(source.get("category") or "").lower()
+    doms_raw = list(doms_state.values()) if isinstance(doms_state, dict) else list(doms_state or [])
+    doms = _case_muscles(doms_raw)
+    active_constraints = _constraint_muscles(constraints or [])
+    preferred, avoided = _exercise_preference_sets(exercise_preferences, full_pool)
+    candidates: list[tuple[int, dict[str, Any]]] = []
+    for exercise in filter_exercises_by_equipment(full_pool, available_equipment):
+        if is_expert_catalog_excluded(exercise):
+            continue
+        exercise_id = str(exercise.get("id") or "")
+        if not exercise_id or exercise_id == str(source_exercise_id) or exercise_id in avoided:
+            continue
+        primary, secondary = _exercise_muscles(exercise)
+        overlap = len(source_primary.intersection(primary)) * 4 + len(source_primary.intersection(secondary)) * 2 + len(source_secondary.intersection(primary))
+        if overlap <= 0:
+            continue
+        if _exercise_risk_reason(exercise, doms, active_constraints):
+            continue
+        analysis = exercise.get("analysis") or {}
+        score = overlap * 10
+        if str(analysis.get("movement_pattern") or "") == source_pattern and source_pattern:
+            score += 9
+        if str(exercise.get("category") or "").lower() == source_category:
+            score += 2
+        if exercise_id in preferred:
+            score += 25
+        candidates.append((score, exercise))
+    candidates.sort(key=lambda item: (item[0], str(item[1].get("name", ""))), reverse=True)
+    return [
+        {
+            "id": item.get("id"),
+            "name": item.get("name"),
+            "primary_muscle_labels": [detailed_muscle_label(value) for value in sorted(_exercise_muscles(item)[0])],
+            "equipment": _exercise_required_equipment(item),
+            "is_preferred": str(item.get("id")) in preferred,
+        }
+        for _, item in candidates[:max(1, min(int(limit or 5), 8))]
+    ]
+
+
+def get_exercise_alternatives(
+    source_exercise_id: object,
+    exercise_pool: Iterable[dict[str, Any]] | None,
+    available_equipment: Iterable[object],
+    doms_state: Iterable[dict[str, Any]] | dict[str, Any] | None = None,
+    constraints: Iterable[dict[str, Any]] | None = None,
+    exercise_preferences: dict[str, Any] | None = None,
+    limit: int = 5,
+) -> list[dict[str, Any]]:
+    """Arayüz/endpoint için açık isimli alternatif hareket sağlayıcısı."""
+    return _alternative_candidates(source_exercise_id, exercise_pool, available_equipment, doms_state, constraints, exercise_preferences, limit)
+
+
 def _prescription_for_exercise(exercise: dict[str, Any], goal: str, reduced: bool = False) -> dict[str, Any]:
     analysis = exercise.get("analysis") or {}
     category = str(exercise.get("category") or "").lower()
@@ -970,6 +1102,7 @@ def build_session_content(
     exercise_pool: Iterable[dict[str, Any]] | None = None,
     goal: str = "hypertrophy",
     max_exercises: int = 6,
+    exercise_preferences: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Split seansını hareket havuzu, ekipman, DOMS ve kısıtlara göre kurar.
 
@@ -981,7 +1114,9 @@ def build_session_content(
     raw_doms = list(doms_state.values()) if isinstance(doms_state, dict) else list(doms_state or [])
     doms = _case_muscles(raw_doms)
     active_constraints = _constraint_muscles(constraints or [])
-    pool = filter_exercises_by_equipment(exercise_pool or [], available_equipment)
+    full_pool = list(exercise_pool or [])
+    pool = filter_exercises_by_equipment(full_pool, available_equipment)
+    preferred_ids, avoided_ids = _exercise_preference_sets(exercise_preferences, full_pool)
 
     blocked_targets = {muscle for muscle, severity in active_constraints.items() if severity >= 7}
     if target_muscles and target_muscles.issubset(blocked_targets):
@@ -993,9 +1128,15 @@ def build_session_content(
     candidates: list[tuple[int, dict[str, Any]]] = []
     excluded: list[dict[str, str]] = []
     for exercise in pool:
+        if is_expert_catalog_excluded(exercise):
+            continue
         primary, secondary = _exercise_muscles(exercise)
         relevance = len(target_muscles.intersection(primary)) * 3 + len(target_muscles.intersection(secondary))
         if relevance <= 0:
+            continue
+        exercise_id = str(exercise.get("id") or "")
+        if exercise_id in avoided_ids:
+            excluded.append({"name": str(exercise.get("name", "Hareket")), "reason": "Kullanıcı bu hareketin önerilmemesini tercih etti."})
             continue
         reason = _exercise_risk_reason(exercise, doms, active_constraints)
         if reason:
@@ -1009,6 +1150,8 @@ def build_session_content(
             score += 2
         if any(doms.get(muscle, 0) >= 5 for muscle in primary):
             score -= 5
+        if exercise_id in preferred_ids:
+            score += 25
         candidates.append((score, exercise))
 
     candidates.sort(key=lambda item: (item[0], str(item[1].get("name", ""))), reverse=True)
@@ -1192,6 +1335,7 @@ def generate_dynamic_program(
     constraints: Iterable[dict[str, Any]] | None = None,
     history: Any = None,
     last_workout_dates: dict[str, Any] | None = None,
+    exercise_preferences: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """V2 program üretiminin tek giriş noktasıdır.
 
@@ -1212,7 +1356,7 @@ def generate_dynamic_program(
         else:
             session_copy["content"] = build_session_content(
                 session_copy.get("muscles", []), available_equipment, active_doms, constraints,
-                exercise_pool=exercise_pool, goal=goal,
+                exercise_pool=exercise_pool, goal=goal, exercise_preferences=exercise_preferences,
             )
             for muscle in session_copy.get("muscles", []):
                 readiness.append(calculate_muscle_readiness(muscle, active_doms or [], (last_workout_dates or {}).get(muscle)))
@@ -1229,7 +1373,7 @@ def generate_dynamic_program(
         "split": split,
         "program": selected,
         "muscle_readiness": list(unique_readiness.values()),
-        "catalog_note": "Hareketler yalnızca bildirilen ekipman, aktif DOMS ve geçici kısıtlara göre filtrelendi.",
+        "catalog_note": "Hareketler bildirilen ekipman, aktif DOMS, geçici kısıtlar ve hareket tercihlerine göre filtrelendi.",
     }
 
 

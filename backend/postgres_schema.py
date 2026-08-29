@@ -37,6 +37,8 @@ POSTGRES_SCHEMA_STATEMENTS = (
         date TEXT NOT NULL,
         session_type TEXT NOT NULL,
         notes TEXT DEFAULT '',
+        gym_id TEXT DEFAULT NULL,
+        gym_name TEXT DEFAULT '',
         total_volume DOUBLE PRECISION NOT NULL DEFAULT 0,
         exercises TEXT NOT NULL DEFAULT '[]',
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -46,6 +48,8 @@ POSTGRES_SCHEMA_STATEMENTS = (
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS dashboard_preferences TEXT NOT NULL DEFAULT '{}'",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_nutrition TEXT NOT NULL DEFAULT '{}'",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE workouts ADD COLUMN IF NOT EXISTS gym_id TEXT DEFAULT NULL",
+    "ALTER TABLE workouts ADD COLUMN IF NOT EXISTS gym_name TEXT DEFAULT ''",
     """
     CREATE TABLE IF NOT EXISTS expert_profiles (
         user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -53,6 +57,7 @@ POSTGRES_SCHEMA_STATEMENTS = (
         doms_daily_json TEXT NOT NULL DEFAULT '{}',
         gym_equipment_json TEXT NOT NULL DEFAULT '[]',
         injuries_json TEXT NOT NULL DEFAULT '[]',
+        rpe_checkins_json TEXT NOT NULL DEFAULT '[]',
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
@@ -64,6 +69,7 @@ POSTGRES_SCHEMA_STATEMENTS = (
     "ALTER TABLE expert_profiles ADD COLUMN IF NOT EXISTS doms_daily_json TEXT NOT NULL DEFAULT '{}'",
     "ALTER TABLE expert_profiles ADD COLUMN IF NOT EXISTS gym_equipment_json TEXT NOT NULL DEFAULT '[]'",
     "ALTER TABLE expert_profiles ADD COLUMN IF NOT EXISTS injuries_json TEXT NOT NULL DEFAULT '[]'",
+    "ALTER TABLE expert_profiles ADD COLUMN IF NOT EXISTS rpe_checkins_json TEXT NOT NULL DEFAULT '[]'",
     "ALTER TABLE expert_profiles DROP COLUMN IF EXISTS goals_json",
     "ALTER TABLE expert_profiles DROP COLUMN IF EXISTS doms_history_json",
     "ALTER TABLE expert_profiles DROP COLUMN IF EXISTS constraints_json",

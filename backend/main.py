@@ -41,7 +41,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import date, datetime, timedelta
 
@@ -60,7 +60,9 @@ from expert_system import (
     calculate_muscle_readiness,
     eligibility as expert_eligibility,
     generate_dynamic_program,
+    get_exercise_alternatives,
     handle_missed_session,
+    is_expert_catalog_excluded,
     normalize_detailed_muscle,
     normalize_gym_equipment,
     normalize_muscle_group,
@@ -68,6 +70,8 @@ from expert_system import (
     validate_preferences as validate_expert_preferences,
     validate_score as validate_expert_score,
 )
+from expert_recommendation import build_recommendation_program, format_tr_date, rpe_summary_from_rir
+from program_schedule_sync import align_rest_slots, current_week_actuals, is_rest_day, reconcile_week
 
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -369,6 +373,8 @@ def init_db():
                 date TEXT NOT NULL,
                 session_type TEXT NOT NULL,
                 notes TEXT DEFAULT '',
+                gym_id TEXT DEFAULT NULL,
+                gym_name TEXT DEFAULT '',
                 total_volume REAL NOT NULL DEFAULT 0,
                 exercises TEXT NOT NULL DEFAULT '[]',
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -386,6 +392,7 @@ def init_db():
                 doms_daily_json TEXT NOT NULL DEFAULT '{}',
                 gym_equipment_json TEXT NOT NULL DEFAULT '[]',
                 injuries_json TEXT NOT NULL DEFAULT '[]',
+                rpe_checkins_json TEXT NOT NULL DEFAULT '[]',
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
                 updated_at TEXT NOT NULL DEFAULT (datetime('now')),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -424,6 +431,9 @@ def init_db():
             "ALTER TABLE users ADD COLUMN dashboard_preferences TEXT NOT NULL DEFAULT '{}'",
             "ALTER TABLE users ADD COLUMN daily_nutrition TEXT NOT NULL DEFAULT '{}'",
             "ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE workouts ADD COLUMN gym_id TEXT DEFAULT NULL",
+            "ALTER TABLE workouts ADD COLUMN gym_name TEXT DEFAULT ''",
+            "ALTER TABLE expert_profiles ADD COLUMN rpe_checkins_json TEXT NOT NULL DEFAULT '[]'",
         ):
             try:
                 cur.execute(statement)
@@ -531,6 +541,106 @@ def _parse_dashboard_preferences(raw_preferences) -> dict:
     return preferences
 
 
+
+# HX_REAL_WORKOUT_SCHEDULE_SYNC_V1
+# Antrenman geçmişi gerçekleşen gerçektir. Takvimdeki Pazartesi–Pazar slotları
+# sabit kalır; yalnız seans/dinlenme içerikleri uygun slotlar arasında taşınır.
+def _schedule_week_index(total_weeks: int) -> int:
+    return date.today().isocalendar().week % max(1, total_weeks)
+
+
+def _read_custom_program(raw_program: object) -> list:
+    if isinstance(raw_program, list):
+        return raw_program
+    try:
+        parsed = json.loads(raw_program or "[]")
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return []
+    return parsed if isinstance(parsed, list) else []
+
+
+def _sync_programs_with_real_workouts(user_id: int) -> dict:
+    """Bu haftanın kayıtlarını yalnız kullanıcının takvim içeriklerine uygular.
+
+    Geçmiş workout satırları değiştirilmez. Değişiklik varsa aynı kullanıcıya ait
+    özel program ve/veya uzman önerisi tek veritabanı işlemiyle kalıcılaştırılır.
+    """
+    user = get_user_by_id(user_id)
+    if not user:
+        return {"changed": False}
+    actuals = current_week_actuals(get_workouts_by_user(user_id))
+    if not actuals:
+        return {"changed": False}
+
+    today_index = date.today().weekday()
+    custom_program = _read_custom_program(user.get("custom_split", "[]"))
+    custom_changed = False
+    custom_rest_indices: set[int] = set()
+    if custom_program:
+        custom_week_index = _schedule_week_index(len(custom_program))
+        custom_days = custom_program[custom_week_index]
+        if isinstance(custom_days, list) and len(custom_days) == 7:
+            reconciled, custom_changed = reconcile_week(custom_days, actuals, today_index)
+            if custom_changed:
+                custom_program[custom_week_index] = reconciled
+            current_custom_days = custom_program[custom_week_index]
+            if isinstance(current_custom_days, list) and len(current_custom_days) == 7:
+                custom_rest_indices = {
+                    index for index, item in enumerate(current_custom_days) if is_rest_day(item)
+                }
+
+    preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
+    recommendation = preferences.get("expert_recommendation")
+    expert_changed = False
+    if isinstance(recommendation, dict) and isinstance(recommendation.get("weeks"), list):
+        weeks = recommendation.get("weeks") or []
+        if weeks:
+            recommendation = _expert_normalize_recommendation_slots(recommendation)
+            week_index = _schedule_week_index(len(weeks))
+            active_week = recommendation.get("weeks", [])[week_index]
+            if isinstance(active_week, dict) and isinstance(active_week.get("days"), list):
+                expert_days = active_week.get("days")
+                if len(expert_days) == 7:
+                    # Özel programdaki kullanıcı seçimi (ör. Salı dinlenme) uzman
+                    # taslağında da öncelikle korunur. Gerçek antrenman yine üstündür.
+                    rest_aligned = align_rest_slots(expert_days, custom_rest_indices)
+                    reconciled, reconciled_changed = reconcile_week(
+                        expert_days, actuals, today_index, protected_rest_indices=custom_rest_indices
+                    )
+                    if rest_aligned or reconciled_changed:
+                        active_week["days"] = reconciled
+                        expert_changed = True
+
+    if not custom_changed and not expert_changed:
+        return {"changed": False}
+
+    conn = get_db()
+    try:
+        if custom_changed:
+            conn.execute(
+                "UPDATE users SET custom_split = ? WHERE id = ?",
+                (json.dumps(custom_program, ensure_ascii=False), user_id),
+            )
+        if expert_changed:
+            preferences["expert_recommendation"] = recommendation
+            conn.execute(
+                "UPDATE users SET dashboard_preferences = ? WHERE id = ?",
+                (json.dumps(preferences, ensure_ascii=False), user_id),
+            )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+    return {
+        "changed": True,
+        "custom_split": json.dumps(custom_program, ensure_ascii=False) if custom_changed else user.get("custom_split", "[]"),
+        "dashboard_preferences": preferences if expert_changed else _parse_dashboard_preferences(user.get("dashboard_preferences", "{}")),
+    }
+
+
 def get_workouts_by_user(user_id: int):
     conn = get_db()
     rows = conn.execute(
@@ -557,26 +667,28 @@ def create_workout(user_id: int, data: dict) -> dict:
 
     values = (
         user_id, data.get("date", str(date.today())), data.get("session_type", "Workout"),
-        data.get("notes", ""), total_volume, json.dumps(exercises, ensure_ascii=False),
+        data.get("notes", ""), data.get("gym_id"), str(data.get("gym_name") or "")[:80],
+        total_volume, json.dumps(exercises, ensure_ascii=False),
     )
     conn = get_db()
     if DATABASE_BACKEND == "postgresql":
         row = conn.execute(
-            """INSERT INTO workouts (user_id, date, session_type, notes, total_volume, exercises)
-               VALUES (?, ?, ?, ?, ?, ?) RETURNING id""",
+            """INSERT INTO workouts (user_id, date, session_type, notes, gym_id, gym_name, total_volume, exercises)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id""",
             values,
         ).fetchone()
         new_id = row["id"]
     else:
         cur = conn.cursor()
         cur.execute(
-            """INSERT INTO workouts (user_id, date, session_type, notes, total_volume, exercises)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+            """INSERT INTO workouts (user_id, date, session_type, notes, gym_id, gym_name, total_volume, exercises)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
             values,
         )
         new_id = cur.lastrowid
     conn.commit()
     conn.close()
+    _sync_programs_with_real_workouts(user_id)
     return {"success": True, "message": "Antrenman kaydedildi", "id": new_id}
 
 
@@ -612,6 +724,10 @@ def update_workout(workout_id: int, data: dict, user_id: int) -> dict:
         fields.append("session_type=?"); values.append(data["session_type"])
     if "notes" in data:
         fields.append("notes=?"); values.append(data["notes"])
+    if "gym_id" in data:
+        fields.append("gym_id=?"); values.append(data["gym_id"])
+    if "gym_name" in data:
+        fields.append("gym_name=?"); values.append(str(data["gym_name"] or "")[:80])
     if "exercises" in data:
         exercises = _normalize_workout_exercises(data["exercises"])
         total_volume = 0.0
@@ -626,6 +742,7 @@ def update_workout(workout_id: int, data: dict, user_id: int) -> dict:
         conn.commit()
 
     conn.close()
+    _sync_programs_with_real_workouts(user_id)
     return {"success": True, "message": "Antrenman güncellendi"}
 
 
@@ -801,371 +918,8 @@ def generate_split(days_per_week: int, goal: str = "bulk") -> dict:
             "days": days, "rest_count": rest_count}
 
 
-# ═══════════════════════════════════════════════
-# EGZERSİZ HAVUZU — KULLANICI DENEYİMİ SABİT, ANALİZ META VERİSİ ZENGİN
-# ═══════════════════════════════════════════════
-# Bu blok mevcut EXERCISE_POOL tanımının yerine kullanılmak üzere hazırlanmıştır.
-# İlk beş alan (id, name, muscle_group, category, is_bodyweight) mevcut frontend
-# ile geriye uyumludur. `analysis` altındaki bilgi kullanıcıya form alanı olarak
-# gösterilmez; uzman sistemi ve arka plan raporları tarafından kullanılır.
-#
-# load_mode değerleri:
-# - external_load: yalnızca harici yük (barbell, dumbbell, cable, makine)
-# - bodyweight: yalnızca vücut ağırlığıyla kaydedilir
-# - bodyweight_plus_external: vücut ağırlığı + plaka/kemer yükü
-#
-# fatigue_cost; tıbbi risk sınıfı değildir. Programda yorgunluk dağılımı için
-# ayarlanabilir bir uzman sistem etiketi olarak tutulur.
-EXERCISE_META_VERSION = 2
-
-def _exercise(
-    exercise_id, name, muscle_group, category, is_bodyweight,
-    *, family, variation, primary_muscles, secondary_muscles,
-    movement_pattern, equipment, load_mode, unilateral=False,
-    minimum_level="beginner", fatigue_cost="medium"
-):
-    return {
-        # Mevcut arayüz ve eski kayıtlarla uyumlu alanlar
-        "id": exercise_id,
-        "name": name,
-        "muscle_group": muscle_group,
-        "category": category,
-        "is_bodyweight": is_bodyweight,
-
-        # Sadece analiz / uzman sistemi için kullanılan görünmez meta veri
-        "analysis": {
-            "family": family,
-            "variation": variation,
-            "primary_muscles": primary_muscles,
-            "secondary_muscles": secondary_muscles,
-            "movement_pattern": movement_pattern,
-            "equipment": equipment,
-            "load_mode": load_mode,
-            "unilateral": unilateral,
-            "minimum_level": minimum_level,
-            "fatigue_cost": fatigue_cost,
-        },
-    }
-
-
-EXERCISE_POOL = [
-    # ── GÖĞÜS ──────────────────────────────────────────
-    _exercise("bench-press", "Bench Press", "Chest", "compound", False,
-              family="bench_press", variation="barbell_flat", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
-              equipment=["barbell", "flat_bench"], load_mode="external_load", fatigue_cost="medium"),
-    _exercise("dumbbell-bench-press", "Dumbbell Bench Press", "Chest", "compound", False,
-              family="bench_press", variation="dumbbell_flat", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
-              equipment=["dumbbell", "flat_bench"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
-    _exercise("incline-bench-press", "Incline Bench Press", "Chest", "compound", False,
-              family="bench_press", variation="barbell_incline", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="incline_press",
-              equipment=["barbell", "adjustable_bench"], load_mode="external_load", fatigue_cost="medium"),
-    _exercise("incline-dumbbell-press", "Incline Dumbbell Press", "Chest", "compound", False,
-              family="bench_press", variation="dumbbell_incline", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="incline_press",
-              equipment=["dumbbell", "adjustable_bench"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
-    _exercise("decline-bench-press", "Decline Bench Press", "Chest", "compound", False,
-              family="bench_press", variation="barbell_decline", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="decline_press",
-              equipment=["barbell", "decline_bench"], load_mode="external_load", fatigue_cost="medium"),
-    _exercise("chest-press-machine", "Chest Press Machine", "Chest", "compound", False,
-              family="chest_press", variation="selectorized_machine", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
-              equipment=["chest_press_machine"], load_mode="external_load", fatigue_cost="low"),
-    _exercise("push-ups-bw", "Push Ups (Ağırlıksız Şınav)", "Chest", "compound", True,
-              family="push_up", variation="bodyweight", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
-              equipment=["bodyweight", "floor"], load_mode="bodyweight", fatigue_cost="low"),
-    _exercise("push-ups-weighted", "Push Ups (Ağırlıklı Şınav)", "Chest", "compound", False,
-              family="push_up", variation="weighted", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
-              equipment=["bodyweight", "weight_plate_or_vest", "floor"], load_mode="bodyweight_plus_external", fatigue_cost="medium"),
-    _exercise("dumbbell-flyes", "Dumbbell Flyes", "Chest", "isolation", False,
-              family="chest_fly", variation="dumbbell", primary_muscles=["chest"], secondary_muscles=[],
-              movement_pattern="chest_adduction", equipment=["dumbbell", "flat_bench"],
-              load_mode="external_load", unilateral=True, fatigue_cost="low"),
-    _exercise("cable-cross-over", "Cable Cross Over", "Chest", "isolation", False,
-              family="chest_fly", variation="cable", primary_muscles=["chest"], secondary_muscles=[],
-              movement_pattern="chest_adduction", equipment=["cable_machine"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-
-    # ── SIRT ────────────────────────────────────────────
-    _exercise("pull-ups-bw", "Pull Ups (Ağırlıksız Barfiks)", "Back", "compound", True,
-              family="pull_up", variation="bodyweight_pronated", primary_muscles=["lats"],
-              secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
-              equipment=["pull_up_bar", "bodyweight"], load_mode="bodyweight", fatigue_cost="medium"),
-    _exercise("weighted-pull-up", "Weighted Pull Up (Ağırlıklı Barfiks)", "Back", "compound", False,
-              family="pull_up", variation="weighted_pronated", primary_muscles=["lats"],
-              secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
-              equipment=["pull_up_bar", "bodyweight", "dip_belt_or_vest"], load_mode="bodyweight_plus_external",
-              minimum_level="intermediate", fatigue_cost="high"),
-    _exercise("chin-ups-bw", "Chin Ups (Ağırlıksız)", "Back", "compound", True,
-              family="chin_up", variation="bodyweight_supinated", primary_muscles=["lats", "biceps"],
-              secondary_muscles=["upper_back", "rear_delts"], movement_pattern="vertical_pull",
-              equipment=["pull_up_bar", "bodyweight"], load_mode="bodyweight", fatigue_cost="medium"),
-    _exercise("chin-ups-weighted", "Chin Ups (Ağırlıklı)", "Back", "compound", False,
-              family="chin_up", variation="weighted_supinated", primary_muscles=["lats", "biceps"],
-              secondary_muscles=["upper_back", "rear_delts"], movement_pattern="vertical_pull",
-              equipment=["pull_up_bar", "bodyweight", "dip_belt_or_vest"], load_mode="bodyweight_plus_external",
-              minimum_level="intermediate", fatigue_cost="high"),
-    _exercise("lat-pull-down", "Lat Pull Down", "Back", "compound", False,
-              family="lat_pulldown", variation="cable", primary_muscles=["lats"],
-              secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
-              equipment=["lat_pulldown_machine"], load_mode="external_load", fatigue_cost="medium"),
-    _exercise("barbell-row", "Barbell Row", "Back", "compound", False,
-              family="row", variation="barbell_bent_over", primary_muscles=["upper_back", "lats"],
-              secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
-              equipment=["barbell"], load_mode="external_load", fatigue_cost="high"),
-    _exercise("t-bar-row", "T-Bar Row", "Back", "compound", False,
-              family="row", variation="t_bar", primary_muscles=["upper_back", "lats"],
-              secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
-              equipment=["t_bar_row_machine_or_landmine"], load_mode="external_load", fatigue_cost="medium"),
-    _exercise("seated-row", "Seated Row", "Back", "compound", False,
-              family="row", variation="seated_cable", primary_muscles=["upper_back", "lats"],
-              secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
-              equipment=["cable_row_machine"], load_mode="external_load", fatigue_cost="medium"),
-    _exercise("bent-over-row", "Bent-over Row", "Back", "compound", False,
-              family="row", variation="free_weight_bent_over", primary_muscles=["upper_back", "lats"],
-              secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
-              equipment=["barbell_or_dumbbell"], load_mode="external_load", fatigue_cost="high"),
-    _exercise("inverted-row-bw", "Inverted Row (Ağırlıksız)", "Back", "compound", True,
-              family="inverted_row", variation="bodyweight", primary_muscles=["upper_back", "lats"],
-              secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
-              equipment=["bar_or_suspension_trainer", "bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
-    _exercise("hyperextension-bw", "Hyperextension (Ağırlıksız)", "Back", "isolation", True,
-              family="hyperextension", variation="bodyweight", primary_muscles=["spinal_erectors"],
-              secondary_muscles=["glutes", "hamstrings"], movement_pattern="spinal_extension",
-              equipment=["hyperextension_bench", "bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
-    _exercise("hyperextension-weighted", "Hyperextension (Ağırlıklı)", "Back", "isolation", False,
-              family="hyperextension", variation="weighted", primary_muscles=["spinal_erectors"],
-              secondary_muscles=["glutes", "hamstrings"], movement_pattern="spinal_extension",
-              equipment=["hyperextension_bench", "dumbbell_or_plate"], load_mode="bodyweight_plus_external",
-              fatigue_cost="medium"),
-
-    # ── OMUZ ─────────────────────────────────────────────
-    _exercise("overhead-press", "Overhead Press", "Shoulders", "compound", False,
-              family="shoulder_press", variation="barbell_standing", primary_muscles=["front_delts"],
-              secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
-              equipment=["barbell"], load_mode="external_load", fatigue_cost="medium"),
-    _exercise("dumbbell-shoulder-press", "Dumbbell Shoulder Press", "Shoulders", "compound", False,
-              family="shoulder_press", variation="dumbbell", primary_muscles=["front_delts"],
-              secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
-              equipment=["dumbbell", "bench_optional"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
-    _exercise("shoulder-press-machine", "Shoulder Press Machine", "Shoulders", "compound", False,
-              family="shoulder_press", variation="machine", primary_muscles=["front_delts"],
-              secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
-              equipment=["shoulder_press_machine"], load_mode="external_load", fatigue_cost="low"),
-    _exercise("arnold-press", "Arnold Press", "Shoulders", "compound", False,
-              family="shoulder_press", variation="arnold_dumbbell", primary_muscles=["front_delts", "side_delts"],
-              secondary_muscles=["triceps"], movement_pattern="vertical_press",
-              equipment=["dumbbell", "bench_optional"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
-    _exercise("lateral-raises", "Lateral Raises", "Shoulders", "isolation", False,
-              family="lateral_raise", variation="dumbbell", primary_muscles=["side_delts"], secondary_muscles=[],
-              movement_pattern="shoulder_abduction", equipment=["dumbbell"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("cable-lateral-raises", "Cable Lateral Raises", "Shoulders", "isolation", False,
-              family="lateral_raise", variation="cable", primary_muscles=["side_delts"], secondary_muscles=[],
-              movement_pattern="shoulder_abduction", equipment=["cable_machine"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("dumbbell-front-raises", "Dumbbell Front Raises", "Shoulders", "isolation", False,
-              family="front_raise", variation="dumbbell", primary_muscles=["front_delts"], secondary_muscles=[],
-              movement_pattern="shoulder_flexion", equipment=["dumbbell"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("dumbbell-rear-delt-fly", "Dumbbell Rear Delt Fly", "Shoulders", "isolation", False,
-              family="rear_delt_fly", variation="dumbbell", primary_muscles=["rear_delts"], secondary_muscles=[],
-              movement_pattern="horizontal_abduction", equipment=["dumbbell", "bench_optional"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("rear-delt-fly", "Rear Delt Fly (Arka Omuz)", "Shoulders", "isolation", False,
-              family="rear_delt_fly", variation="machine", primary_muscles=["rear_delts"], secondary_muscles=[],
-              movement_pattern="horizontal_abduction", equipment=["reverse_pec_deck"], load_mode="external_load",
-              fatigue_cost="low"),
-    _exercise("face-pulls", "Face Pulls", "Shoulders", "isolation", False,
-              family="face_pull", variation="cable_rope", primary_muscles=["rear_delts", "upper_back"],
-              secondary_muscles=["traps"], movement_pattern="external_rotation_pull", equipment=["cable_machine", "rope"],
-              load_mode="external_load", fatigue_cost="low"),
-    _exercise("upright-row-z-bar", "Upright Row (Z Bar)", "Shoulders", "compound", False,
-              family="upright_row", variation="ez_bar", primary_muscles=["side_delts", "traps"],
-              secondary_muscles=["biceps"], movement_pattern="vertical_pull_upright", equipment=["ez_bar"],
-              load_mode="external_load", minimum_level="intermediate", fatigue_cost="medium"),
-    _exercise("cable-upright-row", "Cable Upright Row", "Shoulders", "compound", False,
-              family="upright_row", variation="cable", primary_muscles=["side_delts", "traps"],
-              secondary_muscles=["biceps"], movement_pattern="vertical_pull_upright", equipment=["cable_machine"],
-              load_mode="external_load", minimum_level="intermediate", fatigue_cost="medium"),
-    _exercise("barbell-upright-row", "Barbell Upright Row", "Shoulders", "compound", False,
-              family="upright_row", variation="barbell", primary_muscles=["side_delts", "traps"],
-              secondary_muscles=["biceps"], movement_pattern="vertical_pull_upright", equipment=["barbell"],
-              load_mode="external_load", minimum_level="intermediate", fatigue_cost="medium"),
-
-    # ── BACAK ────────────────────────────────────────────
-    _exercise("bodyweight-squat", "Bodyweight Squat (Ağırlıksız Squat)", "Legs", "compound", True,
-              family="squat", variation="bodyweight", primary_muscles=["quads", "glutes"],
-              secondary_muscles=["hamstrings", "spinal_erectors"], movement_pattern="squat",
-              equipment=["bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
-    _exercise("squat", "Squat", "Legs", "compound", False,
-              family="squat", variation="barbell_back", primary_muscles=["quads", "glutes"],
-              secondary_muscles=["hamstrings", "spinal_erectors"], movement_pattern="squat",
-              equipment=["barbell", "squat_rack"], load_mode="external_load", fatigue_cost="high"),
-    _exercise("front-squat", "Front Squat", "Legs", "compound", False,
-              family="squat", variation="barbell_front", primary_muscles=["quads"],
-              secondary_muscles=["glutes", "spinal_erectors"], movement_pattern="squat",
-              equipment=["barbell", "squat_rack"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
-    _exercise("goblet-squat", "Goblet Squat", "Legs", "compound", False,
-              family="squat", variation="dumbbell_goblet", primary_muscles=["quads", "glutes"],
-              secondary_muscles=["hamstrings"], movement_pattern="squat", equipment=["dumbbell_or_kettlebell"],
-              load_mode="external_load", fatigue_cost="medium"),
-    _exercise("bulgarian-split-squat-bw", "Bulgarian Split Squat (Ağırlıksız)", "Legs", "compound", True,
-              family="bulgarian_split_squat", variation="bodyweight", primary_muscles=["glutes"],
-              secondary_muscles=["quads", "hamstrings", "calves"], movement_pattern="single_leg_squat",
-              equipment=["bench", "bodyweight"], load_mode="bodyweight", unilateral=True, fatigue_cost="medium"),
-    _exercise("bulgarian-split-squad", "Bulgarian Split Squat", "Legs", "compound", False,
-              family="bulgarian_split_squat", variation="weighted", primary_muscles=["glutes"],
-              secondary_muscles=["quads", "hamstrings", "calves"], movement_pattern="single_leg_squat",
-              equipment=["bench", "dumbbell_or_barbell"], load_mode="external_load", unilateral=True, fatigue_cost="high"),
-    _exercise("leg-press", "Leg Press", "Legs", "compound", False,
-              family="leg_press", variation="machine", primary_muscles=["quads", "glutes"],
-              secondary_muscles=["hamstrings"], movement_pattern="leg_press", equipment=["leg_press_machine"],
-              load_mode="external_load", fatigue_cost="medium"),
-    _exercise("romanian-deadlift", "Romanian Deadlift", "Legs", "compound", False,
-              family="romanian_deadlift", variation="free_weight", primary_muscles=["hamstrings", "glutes"],
-              secondary_muscles=["spinal_erectors"], movement_pattern="hip_hinge", equipment=["barbell_or_dumbbell"],
-              load_mode="external_load", fatigue_cost="high"),
-    _exercise("leg-extension", "Leg Extension", "Legs", "isolation", False,
-              family="leg_extension", variation="machine", primary_muscles=["quads"], secondary_muscles=[],
-              movement_pattern="knee_extension", equipment=["leg_extension_machine"], load_mode="external_load",
-              fatigue_cost="low"),
-    _exercise("leg-curl", "Leg Curl", "Legs", "isolation", False,
-              family="leg_curl", variation="machine", primary_muscles=["hamstrings"], secondary_muscles=[],
-              movement_pattern="knee_flexion", equipment=["leg_curl_machine"], load_mode="external_load",
-              fatigue_cost="low"),
-    _exercise("hip-thrust", "Hip Thrust", "Legs", "compound", False,
-              family="hip_thrust", variation="barbell", primary_muscles=["glutes"],
-              secondary_muscles=["hamstrings", "quads"], movement_pattern="hip_extension", equipment=["barbell", "bench"],
-              load_mode="external_load", fatigue_cost="medium"),
-    _exercise("glute-bridge-bw", "Glute Bridge (Ağırlıksız)", "Legs", "compound", True,
-              family="glute_bridge", variation="bodyweight", primary_muscles=["glutes"],
-              secondary_muscles=["hamstrings"], movement_pattern="hip_extension", equipment=["bodyweight", "floor"],
-              load_mode="bodyweight", fatigue_cost="low"),
-    _exercise("calf-raises-bw", "Calf Raises (Ağırlıksız)", "Legs", "isolation", True,
-              family="calf_raise", variation="bodyweight", primary_muscles=["calves"], secondary_muscles=[],
-              movement_pattern="plantar_flexion", equipment=["bodyweight", "step_optional"], load_mode="bodyweight",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("calf-raises", "Calf Raises", "Legs", "isolation", False,
-              family="calf_raise", variation="loaded", primary_muscles=["calves"], secondary_muscles=[],
-              movement_pattern="plantar_flexion", equipment=["calf_raise_machine_or_dumbbell"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-
-    # ── POSTERIOR CHAIN / TRAP ───────────────────────────
-    _exercise("deadlift", "Deadlift", "Back", "compound", False,
-              family="deadlift", variation="barbell_conventional", primary_muscles=["glutes", "hamstrings", "spinal_erectors"],
-              secondary_muscles=["upper_back", "traps", "quads"], movement_pattern="hip_hinge",
-              equipment=["barbell"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
-    _exercise("dumbbell-shrugs", "Dumbbell Shrugs", "Back", "isolation", False,
-              family="shrug", variation="dumbbell", primary_muscles=["traps"], secondary_muscles=[],
-              movement_pattern="scapular_elevation", equipment=["dumbbell"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("barbell-shrugs", "Barbell Shrugs", "Back", "isolation", False,
-              family="shrug", variation="barbell", primary_muscles=["traps"], secondary_muscles=[],
-              movement_pattern="scapular_elevation", equipment=["barbell"], load_mode="external_load",
-              fatigue_cost="low"),
-
-    # ── BICEPS ───────────────────────────────────────────
-    _exercise("bicep-curl", "Bicep Curl", "Biceps", "isolation", False,
-              family="bicep_curl", variation="free_weight", primary_muscles=["biceps"], secondary_muscles=["forearms"],
-              movement_pattern="elbow_flexion", equipment=["barbell_or_dumbbell"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("hammer-curl", "Hammer Curl", "Biceps", "isolation", False,
-              family="hammer_curl", variation="dumbbell", primary_muscles=["biceps", "forearms"], secondary_muscles=[],
-              movement_pattern="elbow_flexion_neutral", equipment=["dumbbell"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("preacher-curl-dumbbell", "Preacher Curl (Dumbbell)", "Biceps", "isolation", False,
-              family="preacher_curl", variation="dumbbell", primary_muscles=["biceps"], secondary_muscles=["forearms"],
-              movement_pattern="elbow_flexion", equipment=["dumbbell", "preacher_bench"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("preacher-curl-z-bar", "Preacher Curl (Z Bar)", "Biceps", "isolation", False,
-              family="preacher_curl", variation="ez_bar", primary_muscles=["biceps"], secondary_muscles=["forearms"],
-              movement_pattern="elbow_flexion", equipment=["ez_bar", "preacher_bench"], load_mode="external_load",
-              fatigue_cost="low"),
-    _exercise("preacher-curl-machine", "Preacher Curl Machine", "Biceps", "isolation", False,
-              family="preacher_curl", variation="machine", primary_muscles=["biceps"], secondary_muscles=["forearms"],
-              movement_pattern="elbow_flexion", equipment=["preacher_curl_machine"], load_mode="external_load",
-              fatigue_cost="low"),
-    _exercise("incline-dumbbell-curl", "Incline Dumbbell Curl", "Biceps", "isolation", False,
-              family="bicep_curl", variation="incline_dumbbell", primary_muscles=["biceps"], secondary_muscles=["forearms"],
-              movement_pattern="elbow_flexion", equipment=["dumbbell", "adjustable_bench"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("concentration-curl", "Concentration Curl", "Biceps", "isolation", False,
-              family="bicep_curl", variation="concentration_dumbbell", primary_muscles=["biceps"], secondary_muscles=["forearms"],
-              movement_pattern="elbow_flexion", equipment=["dumbbell", "bench"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("cable-bicep-curl", "Cable Bicep Curl", "Biceps", "isolation", False,
-              family="bicep_curl", variation="cable", primary_muscles=["biceps"], secondary_muscles=["forearms"],
-              movement_pattern="elbow_flexion", equipment=["cable_machine"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-
-    # ── TRICEPS ──────────────────────────────────────────
-    _exercise("tricep-push-down", "Tricep Push Down", "Triceps", "isolation", False,
-              family="tricep_extension", variation="cable_pushdown", primary_muscles=["triceps"], secondary_muscles=[],
-              movement_pattern="elbow_extension", equipment=["cable_machine"], load_mode="external_load",
-              fatigue_cost="low"),
-    _exercise("skull-crushers", "Skull Crushers", "Triceps", "isolation", False,
-              family="tricep_extension", variation="lying_free_weight", primary_muscles=["triceps"], secondary_muscles=[],
-              movement_pattern="elbow_extension", equipment=["ez_bar_or_dumbbell", "bench"], load_mode="external_load",
-              fatigue_cost="low"),
-    _exercise("overhead-tricep-extension", "Overhead Tricep Extension", "Triceps", "isolation", False,
-              family="tricep_extension", variation="overhead_free_weight", primary_muscles=["triceps"], secondary_muscles=[],
-              movement_pattern="overhead_elbow_extension", equipment=["dumbbell_or_ez_bar"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("cable-rope-overhead-tricep-extension", "Cable Rope Overhead Tricep Extension", "Triceps", "isolation", False,
-              family="tricep_extension", variation="overhead_cable", primary_muscles=["triceps"], secondary_muscles=[],
-              movement_pattern="overhead_elbow_extension", equipment=["cable_machine", "rope"], load_mode="external_load",
-              fatigue_cost="low"),
-    _exercise("dumbbell-kickbacks", "Dumbbell Kickbacks", "Triceps", "isolation", False,
-              family="tricep_extension", variation="kickback_dumbbell", primary_muscles=["triceps"], secondary_muscles=[],
-              movement_pattern="elbow_extension", equipment=["dumbbell"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-    _exercise("close-grip-bench-press", "Close-grip Bench Press", "Triceps", "compound", False,
-              family="bench_press", variation="barbell_close_grip", primary_muscles=["triceps"],
-              secondary_muscles=["chest", "front_delts"], movement_pattern="horizontal_press",
-              equipment=["barbell", "flat_bench"], load_mode="external_load", fatigue_cost="medium"),
-    _exercise("dips-bw", "Dips (Ağırlıksız)", "Triceps", "compound", True,
-              family="dip", variation="bodyweight", primary_muscles=["triceps", "chest"],
-              secondary_muscles=["front_delts"], movement_pattern="vertical_press", equipment=["dip_bars", "bodyweight"],
-              load_mode="bodyweight", fatigue_cost="medium"),
-    _exercise("dips-weighted", "Dips (Ağırlıklı)", "Triceps", "compound", False,
-              family="dip", variation="weighted", primary_muscles=["triceps", "chest"],
-              secondary_muscles=["front_delts"], movement_pattern="vertical_press",
-              equipment=["dip_bars", "bodyweight", "dip_belt_or_vest"], load_mode="bodyweight_plus_external",
-              minimum_level="intermediate", fatigue_cost="high"),
-
-    # ── CORE ─────────────────────────────────────────────
-    _exercise("russian-twist", "Russian Twist", "Core", "isolation", True,
-              family="russian_twist", variation="bodyweight", primary_muscles=["obliques", "abs"], secondary_muscles=[],
-              movement_pattern="trunk_rotation", equipment=["bodyweight", "floor"], load_mode="bodyweight",
-              fatigue_cost="low"),
-    _exercise("weighted-russian-twist", "Russian Twist (Ağırlıklı)", "Core", "isolation", False,
-              family="russian_twist", variation="weighted", primary_muscles=["obliques", "abs"], secondary_muscles=[],
-              movement_pattern="trunk_rotation", equipment=["dumbbell_or_plate", "floor"],
-              load_mode="bodyweight_plus_external", fatigue_cost="low"),
-    _exercise("kettlebell-swings", "Kettlebell Swings", "Core", "compound", False,
-              family="kettlebell_swing", variation="kettlebell", primary_muscles=["glutes", "hamstrings"],
-              secondary_muscles=["spinal_erectors", "abs"], movement_pattern="hip_hinge_power",
-              equipment=["kettlebell"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
-    _exercise("cable-crunches", "Cable Crunches", "Core", "isolation", False,
-              family="cable_crunch", variation="cable", primary_muscles=["abs"], secondary_muscles=[],
-              movement_pattern="trunk_flexion", equipment=["cable_machine", "rope"], load_mode="external_load",
-              fatigue_cost="low"),
-    _exercise("seated-crunch", "Seated Crunch", "Core", "isolation", False,
-              family="crunch", variation="machine", primary_muscles=["abs"], secondary_muscles=[],
-              movement_pattern="trunk_flexion", equipment=["ab_crunch_machine"], load_mode="external_load",
-              fatigue_cost="low"),
-]
-
-# Kullanıcı arayüzü yalnızca bu sade ana kategorileri görür. Ayrıntılı kaslar
-# EXERCISE_POOL[*]["analysis"] altında kalır; Traps ayrı bir filtre değildir.
-MUSCLE_GROUPS = ["Chest", "Back", "Shoulders", "Biceps", "Triceps", "Legs", "Core"]
-
+from exercise_catalog import EXERCISE_META_VERSION, EXERCISE_POOL, MUSCLE_GROUPS
+from exercise_aliases import EXERCISE_ALIASES
 
 # ═══════════════════════════════════════════════
 # EGZERSİZ KİMLİĞİ — ESKİ KAYIT UYUMLULUĞU
@@ -1196,75 +950,8 @@ EXERCISE_ID_BY_NORMALIZED_NAME = {}
 for _pool_exercise in EXERCISE_POOL:
     EXERCISE_ID_BY_NORMALIZED_NAME[_normalize_exercise_text(_pool_exercise['name'])] = _pool_exercise['id']
     EXERCISE_ID_BY_NORMALIZED_NAME[_normalize_exercise_text(_pool_exercise['id'])] = _pool_exercise['id']
-# Sadece anlamı net olan eski / yaygın isimler burada tutulur. Belirsiz bir ad
-# asla tahmin edilmez; yanlış grafikten daha güvenli olan seçenek verisiz sonuçtur.
-EXERCISE_ALIASES = {
-    'dumbell bench press': 'dumbbell-bench-press',
-    'dumbbell chest press': 'dumbbell-bench-press',
-    'cable crossover': 'cable-cross-over',
-    'cable chest fly': 'cable-cross-over',
-    'pull ups': 'pull-ups-bw',
-    'pull up': 'pull-ups-bw',
-    'weighted pull ups': 'weighted-pull-up',
-    'weighted pull up': 'weighted-pull-up',
-    'barfiks': 'pull-ups-bw',
-    'weighted barfiks': 'weighted-pull-up',
-    'chin up': 'chin-ups-bw',
-    'chin ups': 'chin-ups-bw',
-    'weighted chin up': 'chin-ups-weighted',
-    'dumbell shoulder press': 'dumbbell-shoulder-press',
-    'dumbbell shoulder press': 'dumbbell-shoulder-press',
-    'shoulder press machine': 'shoulder-press-machine',
-    'bulgarian split squat': 'bulgarian-split-squad',
-    'bulgarian split squats': 'bulgarian-split-squad',
-    'calf raise': 'calf-raises',
-    'tricep pushdown': 'tricep-push-down',
-    'triceps push down': 'tricep-push-down',
-    'hyperextension weighted': 'hyperextension-weighted',
-    'hyperextension bodyweight': 'hyperextension-bw',
-    # v4 ve daha eski havuzdaki açık, anlamı kesin isim varyasyonları.
-    'barbell bench press': 'bench-press',
-    'flat bench press': 'bench-press',
-    'db bench press': 'dumbbell-bench-press',
-    'incline barbell bench press': 'incline-bench-press',
-    'incline db press': 'incline-dumbbell-press',
-    'machine chest press': 'chest-press-machine',
-    'push up': 'push-ups-bw',
-    'push ups': 'push-ups-bw',
-    'weighted push up': 'push-ups-weighted',
-    'weighted push ups': 'push-ups-weighted',
-    'lat pulldown': 'lat-pull-down',
-    'lat pull down': 'lat-pull-down',
-    'seated cable row': 'seated-row',
-    'barbell bent over row': 'bent-over-row',
-    'inverted rows': 'inverted-row-bw',
-    'barbell squat': 'squat',
-    'back squat': 'squat',
-    'front barbell squat': 'front-squat',
-    'bulgarian squat': 'bulgarian-split-squad',
-    'bss': 'bulgarian-split-squad',
-    'bulgarian split squat weighted': 'bulgarian-split-squad',
-    'bulgarian split squat bodyweight': 'bulgarian-split-squat-bw',
-    'romanian dead lift': 'romanian-deadlift',
-    'rdl': 'romanian-deadlift',
-    'leg extensions': 'leg-extension',
-    'seated leg curl': 'leg-curl',
-    'lying leg curl': 'leg-curl',
-    'hamstring curl': 'leg-curl',
-    'calf raises bodyweight': 'calf-raises-bw',
-    'military press': 'overhead-press',
-    'barbell overhead press': 'overhead-press',
-    'lateral raise': 'lateral-raises',
-    'side lateral raise': 'lateral-raises',
-    'triceps pushdown': 'tricep-push-down',
-    'cable tricep pushdown': 'tricep-push-down',
-    'rope pushdown': 'tricep-push-down',
-    'dumbbell curl': 'bicep-curl',
-    'barbell curl': 'bicep-curl',
-    'cable curl': 'cable-bicep-curl',
-}
-
-
+# Eski/yaygın egzersiz adlarının kanonik kimlik eşlemeleri ayrı modülde tutulur.
+# Bu sayede katalog ve geçmiş uyumluluğu, API kodundan bağımsız düzenlenebilir.
 def resolve_exercise_metadata(exercise_id: object = None, exercise_name: object = None):
     """Kayıttan kanonik havuz hareketini çözer; bilinmeyen ad için None döndürür."""
     raw_id = str(exercise_id or '').strip()
@@ -1365,6 +1052,9 @@ class UserProfile(BaseModel):
 class SetData(BaseModel):
     reps: int
     weight_kg: float = 0
+    # RIR: sette teknik bozulmadan kalan tahmini tekrar sayısı.
+    # Eski kayıtlar bu alan olmadan geçerlidir; 0 failure'a çok yakın anlamına gelir.
+    rir: Optional[int] = None
 
 
 class ExerciseEntry(BaseModel):
@@ -1384,6 +1074,9 @@ class WorkoutCreate(BaseModel):
     session_type: str
     notes: Optional[str] = ""
     exercises: List[ExerciseEntry]
+    # Salon kaydı yalnız bağlam bilgisidir; uzman taslağını otomatik değiştirmez.
+    gym_id: Optional[str] = None
+    gym_name: Optional[str] = None
 
 
 class WorkoutUpdate(BaseModel):
@@ -1391,6 +1084,8 @@ class WorkoutUpdate(BaseModel):
     session_type: Optional[str] = None
     notes: Optional[str] = None
     exercises: Optional[List[ExerciseEntry]] = None
+    gym_id: Optional[str] = None
+    gym_name: Optional[str] = None
 
 
 class AdminEditUser(BaseModel):
@@ -1483,6 +1178,12 @@ class ExpertMissedSessionRequest(BaseModel):
     program_version_id: Optional[int] = None
 
 
+class ExpertRpeDataRequest(BaseModel):
+    checkin_date: Optional[str] = None
+    session_rpe: int
+    notes: Optional[str] = ""
+
+
 class ExpertGoalsDataRequest(BaseModel):
     primary_goal: str
     priority_muscles: List[str]
@@ -1505,6 +1206,16 @@ class ExpertGymDataRequest(BaseModel):
     gym_id: Optional[str] = None
     name: str
     equipment: List[str] = []
+    is_default: bool = False
+
+
+class ExpertEquipmentPreferencesRequest(BaseModel):
+    preferred_equipment: List[str] = Field(default_factory=list)
+
+
+class ExpertMovementPreferencesRequest(BaseModel):
+    preferred_exercise_ids: List[str] = Field(default_factory=list)
+    avoid_exercise_ids: List[str] = Field(default_factory=list)
 
 
 class ExpertInjuryDataRequest(BaseModel):
@@ -1678,18 +1389,88 @@ def _json_dict(raw_value) -> dict:
         return {}
 
 
+# HX_EQUIPMENT_PREFERENCES_DEFAULT_GYM_DATES_V1
+def _normalize_gyms_with_default(gyms: object) -> list[dict]:
+    """Eski salon kayıtlarını korur ve API'de yalnız bir varsayılan döndürür."""
+    normalized = [dict(item) for item in (gyms or []) if isinstance(item, dict) and item.get("id")]
+    selected_id = next((str(item["id"]) for item in normalized if bool(item.get("is_default"))), None)
+    if not selected_id and normalized:
+        selected_id = str(normalized[0]["id"])
+    for item in normalized:
+        item["is_default"] = str(item.get("id")) == selected_id
+    return normalized
+
+
+# HX_MOVEMENT_PREFERENCES_ALTERNATIVES_V1
+def _exercise_preference_selection(dashboard_preferences: object) -> dict:
+    """Tercihleri mevcut dashboard JSON'unda saklar; eski kullanıcıları korur."""
+    preferences = _parse_dashboard_preferences(dashboard_preferences)
+    raw = preferences.get("exercise_preferences") if isinstance(preferences.get("exercise_preferences"), dict) else {}
+    known_ids = {str(item.get("id")) for item in EXERCISE_POOL if isinstance(item, dict) and item.get("id") and not is_expert_catalog_excluded(item)}
+    preferred = []
+    avoided = []
+    for value in raw.get("preferred_exercise_ids") or []:
+        exercise_id = str(value).strip()
+        if exercise_id in known_ids and exercise_id not in preferred:
+            preferred.append(exercise_id)
+    for value in raw.get("avoid_exercise_ids") or []:
+        exercise_id = str(value).strip()
+        if exercise_id in known_ids and exercise_id not in avoided:
+            avoided.append(exercise_id)
+    preferred = [value for value in preferred if value not in set(avoided)]
+    return {"preferred_exercise_ids": preferred, "avoid_exercise_ids": avoided}
+
+
+def _expert_exercise_catalog() -> list[dict]:
+    """Yalnız uzman motorunun kullandığı kanonik hareketleri sade biçimde döndürür."""
+    items = []
+    for exercise in EXERCISE_POOL:
+        if not isinstance(exercise, dict) or not exercise.get("id") or not exercise.get("name") or is_expert_catalog_excluded(exercise):
+            continue
+        analysis = exercise.get("analysis") or {}
+        primary = [str(value) for value in analysis.get("primary_muscles") or []]
+        items.append({
+            "id": str(exercise["id"]),
+            "name": str(exercise["name"]),
+            "group": str(exercise.get("muscle_group") or "Diğer"),
+            "display_groups": _display_muscle_groups(exercise, analysis),
+            "primary_muscles": primary,
+            "category": str(exercise.get("category") or ""),
+        })
+    return sorted(items, key=lambda item: (str(item["display_groups"][0] if item["display_groups"] else item["group"]), item["name"]))
+
+
+def _equipment_selection(profile: dict, dashboard_preferences: object) -> dict:
+    gyms = _normalize_gyms_with_default(profile.get("gyms") or [])
+    preferences = _parse_dashboard_preferences(dashboard_preferences)
+    raw_preferred = (preferences.get("equipment_preferences") or {}).get("preferred_equipment") or []
+    preferred = _clean_gym_equipment(raw_preferred) if raw_preferred else []
+    default_gym = next((item for item in gyms if item.get("is_default")), None)
+    default_equipment = list(default_gym.get("equipment") or []) if default_gym else []
+    all_equipment = sorted({str(item) for gym in gyms for item in (gym.get("equipment") or []) if item})
+    if preferred:
+        source, label, equipment = "preferred", "Tercih edilen ve hâkim olunan ekipmanlar", preferred
+    elif default_gym and default_equipment:
+        source, label, equipment = "default_gym", f"Varsayılan salon: {default_gym.get('name')}", default_equipment
+    elif all_equipment:
+        source, label, equipment = "all_gyms", "Kayıtlı salonların ortak ekipmanları", all_equipment
+    else:
+        source, label, equipment = "none", "Ekipman bilgisi henüz belirtilmedi", []
+    return {"gyms": gyms, "preferred_equipment": preferred, "default_gym_id": default_gym.get("id") if default_gym else None, "default_gym_name": default_gym.get("name") if default_gym else None, "equipment": equipment, "equipment_source": source, "equipment_source_label": label}
+
+
 def _expert_data_profile(conn, user_id: int, create: bool = True) -> dict | None:
     """Kullanıcı başına tek uzman sistemi kaydını okur; gerekirse boş kayıt açar."""
     select = (
-        "SELECT user_id, target_muscles_json, doms_daily_json, gym_equipment_json, injuries_json, "
+        "SELECT user_id, target_muscles_json, doms_daily_json, gym_equipment_json, injuries_json, rpe_checkins_json, "
         "created_at, updated_at FROM expert_profiles WHERE user_id = ?"
     )
     row = conn.execute(select, (user_id,)).fetchone()
     if not row and create:
         conn.execute(
             "INSERT INTO expert_profiles "
-            "(user_id, target_muscles_json, doms_daily_json, gym_equipment_json, injuries_json) "
-            "VALUES (?, '{}', '{}', '[]', '[]') ON CONFLICT(user_id) DO NOTHING",
+            "(user_id, target_muscles_json, doms_daily_json, gym_equipment_json, injuries_json, rpe_checkins_json) "
+            "VALUES (?, '{}', '{}', '[]', '[]', '[]') ON CONFLICT(user_id) DO NOTHING",
             (user_id,),
         )
         conn.commit()
@@ -1701,8 +1482,9 @@ def _expert_data_profile(conn, user_id: int, create: bool = True) -> dict | None
         "user_id": data["user_id"],
         "target_muscles": _json_dict(data.get("target_muscles_json")),
         "doms_daily": _json_dict(data.get("doms_daily_json")),
-        "gyms": _json_list(data.get("gym_equipment_json")),
+        "gyms": _normalize_gyms_with_default(_json_list(data.get("gym_equipment_json"))),
         "injuries": _json_list(data.get("injuries_json")),
+        "rpe_checkins": _json_list(data.get("rpe_checkins_json")),
         "created_at": data.get("created_at"),
         "updated_at": data.get("updated_at"),
     }
@@ -1712,21 +1494,23 @@ def _save_expert_data_profile(conn, user_id: int, profile: dict) -> None:
     conn.execute(
         """
         INSERT INTO expert_profiles
-            (user_id, target_muscles_json, doms_daily_json, gym_equipment_json, injuries_json, updated_at)
-        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            (user_id, target_muscles_json, doms_daily_json, gym_equipment_json, injuries_json, rpe_checkins_json, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(user_id) DO UPDATE SET
             target_muscles_json = excluded.target_muscles_json,
             doms_daily_json = excluded.doms_daily_json,
             gym_equipment_json = excluded.gym_equipment_json,
             injuries_json = excluded.injuries_json,
+            rpe_checkins_json = excluded.rpe_checkins_json,
             updated_at = CURRENT_TIMESTAMP
         """,
         (
             user_id,
             json.dumps(profile.get("target_muscles") or {}, ensure_ascii=False),
             json.dumps(profile.get("doms_daily") or {}, ensure_ascii=False),
-            json.dumps(profile.get("gyms") or [], ensure_ascii=False),
+            json.dumps(_normalize_gyms_with_default(profile.get("gyms") or []), ensure_ascii=False),
             json.dumps(profile.get("injuries") or [], ensure_ascii=False),
+            json.dumps(profile.get("rpe_checkins") or [], ensure_ascii=False),
         ),
     )
     conn.commit()
@@ -1760,17 +1544,31 @@ def _expert_data_state(user: dict) -> dict:
         profile = _expert_data_profile(conn, user["id"])
     finally:
         conn.close()
+    account = get_user_by_id(user["id"]) or user
+    equipment_selection = _equipment_selection(profile, account.get("dashboard_preferences", "{}"))
+    movement_preferences = _exercise_preference_selection(account.get("dashboard_preferences", "{}"))
     return {
         "success": True,
         "target_muscles": profile.get("target_muscles") or {},
         "doms_daily": profile.get("doms_daily") or {},
-        "gyms": profile.get("gyms") or [],
+        "gyms": equipment_selection["gyms"],
+        "preferred_equipment": equipment_selection["preferred_equipment"],
+        "preferred_exercise_ids": movement_preferences["preferred_exercise_ids"],
+        "avoid_exercise_ids": movement_preferences["avoid_exercise_ids"],
+        "default_gym_id": equipment_selection["default_gym_id"],
+        "default_gym_name": equipment_selection["default_gym_name"],
+        "equipment_source": equipment_selection["equipment_source"],
+        "equipment_source_label": equipment_selection["equipment_source_label"],
         "injuries": profile.get("injuries") or [],
+        "rpe_checkins": profile.get("rpe_checkins") or [],
+        "recommendation": _parse_dashboard_preferences(user.get("dashboard_preferences", "{}")).get("expert_recommendation"),
         "metrics": _expert_data_metrics(profile.get("doms_daily") or {}),
         "catalog": {
             "primary_goals": PRIMARY_GOALS,
             "detailed_muscles": list(DETAILED_MUSCLE_OPTIONS),
-            "gym_equipment": list(GYM_EQUIPMENT_CATALOG),
+            # Sehpa ve serbest ağırlıklar temel kabul edilir; kullanıcıdan ayrıca seçmesi istenmez.
+            "gym_equipment": [item for item in GYM_EQUIPMENT_CATALOG if item.get("group") not in {"Sehpalar", "Ağırlıklar"}],
+            "exercise_preferences": _expert_exercise_catalog(),
             "injury_areas": [
                 "Omuz", "Dirsek", "Bilek", "El", "Boyun", "Bel", "Kalça", "Diz", "Ayak bileği",
                 "Göğüs", "Sırt", "Biceps", "Triceps", "Quadriceps", "Hamstring", "Gluteus", "Calf",
@@ -1784,6 +1582,7 @@ def _expert_data_state(user: dict) -> dict:
                 "other": "Diğer",
             },
             "pain_scale": {"min": 0, "max": 5, "labels": ["Yok", "Hafif", "Düşük", "Orta", "Yüksek", "Çok yüksek"]},
+            "rpe_scale": {"min": 1, "max": 10, "labels": ["Çok kolay", "Maksimale yakın"]},
             "max_priority_muscles": 3,
         },
     }
@@ -2730,6 +2529,12 @@ def analyze(data: AnalyzeRequest = Body(...),
 # ═══════════════════════════════════════════════
 @app.get("/api/dashboard")
 def dashboard(user: dict = Depends(_resolve_current_user)):
+    sync_result = _sync_programs_with_real_workouts(user["id"])
+    if sync_result.get("changed"):
+        user["custom_split"] = sync_result.get("custom_split", user.get("custom_split", "[]"))
+        user["dashboard_preferences"] = json.dumps(
+            sync_result.get("dashboard_preferences", {}), ensure_ascii=False
+        )
     workouts = get_workouts_by_user(user["id"])
     now = datetime.now()
     today_date = now.date()
@@ -2765,25 +2570,111 @@ def dashboard(user: dict = Depends(_resolve_current_user)):
     rest_days = 7 - user.get("days_per_week", 4)
     split_info = generate_split(user.get("days_per_week", 4), user.get("goal", "bulk"))
 
-    def get_muscle_distribution(workout_list):
-        dist = {}
-        for w in workout_list:
-            exercises_raw = w.get("exercises", [])
-            if isinstance(exercises_raw, str):
-                try:
-                    exercises_list = json.loads(exercises_raw)
-                except Exception:
-                    exercises_list = []
-            else:
-                exercises_list = exercises_raw
-            for ex in exercises_list:
-                m = ex.get("muscle_group", ex.get("muscle", "Bilinmiyor"))
-                dist[m] = dist.get(m, 0) + 1
-        return dist
+    # Dashboard anatomik pasta sözleşmesi: her kayıtlı hareket yalnızca bir
+    # kanonik dilime yazılır. Set sayısı veya ikinci kaslar toplamı şişirmez.
+    # Ayrıntılar, yalnız kullanıcının istediği dilimlerde tooltip için tutulur.
+    dashboard_primary_map = {
+        "biceps": ("Biceps", None), "forearms": ("Biceps", None),
+        "triceps": ("Triceps", None), "chest": ("Göğüs", None),
+        "front_delts": ("Omuz", "Ön Omuz"),
+        "side_delts": ("Omuz", "Yan Omuz"),
+        "rear_delts": ("Omuz", "Arka Omuz"),
+        "lats": ("Alt Sırt", "Latissimus Dorsi"),
+        "spinal_erectors": ("Alt Sırt", "Erector Spinae"),
+        "upper_traps": ("Trapezler", "Üst Trapez"),
+        "mid_traps": ("Trapezler", "Orta Trapez"),
+        "lower_traps": ("Trapezler", "Alt Trapez"),
+        "traps": ("Trapezler", "Üst Trapez"),
+        "rhomboids": ("Skapula", "Rhomboidler"),
+        "serratus_anterior": ("Skapula", "Serratus Anterior"),
+        "levator_scapulae": ("Skapula", "Levator Scapulae"),
+        "supraspinatus": ("Kol Rotatorları", "Supraspinatus"),
+        "infraspinatus": ("Kol Rotatorları", "Infraspinatus"),
+        "teres_minor": ("Kol Rotatorları", "Teres Minor"),
+        "subscapularis": ("Kol Rotatorları", "Subscapularis"),
+        "rotator_cuff": ("Kol Rotatorları", "Rotator Cuff"),
+        "quads": ("Quadriceps", None), "hamstrings": ("Hamstring", None),
+        "calves": ("Calf", None), "adductors": ("Adductors", "Adductors"),
+        "glutes": ("Gluteus", "Gluteus Maximus"),
+        "gluteus_maximus": ("Gluteus", "Gluteus Maximus"),
+        "gluteus_medius": ("Gluteus", "Gluteus Medius"),
+        "hip_external_rotators": ("Adductors", "Dış Kalça Rotasyonu"),
+        "hip_internal_rotators": ("Adductors", "İç Kalça Rotasyonu"),
+        "abs": ("Core", "Rectus Abdominis"),
+        "obliques": ("Core", "Oblikler"),
+        "transverse_abs": ("Core", "Transversus Abdominis"),
+    }
+    dashboard_legacy_group_map = {
+        "back": ("Alt Sırt", None), "sırt": ("Alt Sırt", None), "sirt": ("Alt Sırt", None),
+        "lats": ("Alt Sırt", "Latissimus Dorsi"),
+        "shoulders": ("Omuz", None), "shoulder": ("Omuz", None), "omuz": ("Omuz", None),
+        "chest": ("Göğüs", None), "göğüs": ("Göğüs", None), "gogus": ("Göğüs", None),
+        "biceps": ("Biceps", None), "triceps": ("Triceps", None),
+        "legs": ("Quadriceps", None), "leg": ("Quadriceps", None), "bacak": ("Quadriceps", None),
+        "alt vücut": ("Quadriceps", None),
+        "core": ("Core", None), "abs": ("Core", "Rectus Abdominis"), "karın": ("Core", None),
+        "rotator cuff": ("Kol Rotatorları", None), "hip rotators": ("Adductors", None),
+    }
+    dashboard_group_order = [
+        "Biceps", "Triceps", "Göğüs", "Omuz", "Quadriceps", "Hamstring", "Calf",
+        "Gluteus", "Alt Sırt", "Kol Rotatorları", "Trapezler", "Skapula", "Adductors",
+        "Core", "Diğer",
+    ]
+    dashboard_hover_groups = {
+        "Omuz", "Gluteus", "Alt Sırt", "Kol Rotatorları", "Trapezler", "Skapula",
+        "Adductors", "Core",
+    }
 
-    muscle_dist_all = get_muscle_distribution(workouts)
-    muscle_dist_weekly = get_muscle_distribution(weekly)
-    muscle_dist_monthly = get_muscle_distribution(monthly)
+    def _dashboard_entry_target(entry):
+        meta = _canonical_exercise_from_entry(entry)
+        primary = []
+        if meta:
+            primary = (meta.get("analysis") or {}).get("primary_muscles") or []
+        if not primary:
+            primary = (
+                (entry.get("analysis") or {}).get("primary_muscles")
+                or entry.get("primary_muscles")
+                or []
+            )
+        if isinstance(primary, str):
+            primary = [primary]
+        for raw_muscle in primary:
+            key = str(raw_muscle or "").strip().lower().replace("-", "_").replace(" ", "_")
+            mapped = dashboard_primary_map.get(key)
+            if mapped:
+                return mapped
+        legacy_group = str(
+            entry.get("muscle_group") or entry.get("muscle") or entry.get("group") or ""
+        ).strip().lower()
+        legacy_group = " ".join(legacy_group.replace("_", " ").replace("-", " ").split())
+        return dashboard_legacy_group_map.get(legacy_group, ("Diğer", None))
+
+    def get_muscle_distribution(workout_list):
+        group_totals = {}
+        group_details = {}
+        for workout in workout_list:
+            for exercise in _iter_workout_exercises(workout):
+                group, detail = _dashboard_entry_target(exercise)
+                # Eski tutarlı metrik: her kaydedilmiş hareket yalnız bir kez sayılır.
+                group_totals[group] = group_totals.get(group, 0) + 1
+                if group in dashboard_hover_groups and detail:
+                    detail_map = group_details.setdefault(group, {})
+                    detail_map[detail] = detail_map.get(detail, 0) + 1
+        ordered_totals = {}
+        ordered_details = {}
+        for group in dashboard_group_order:
+            if group in group_totals:
+                ordered_totals[group] = group_totals[group]
+                if group in dashboard_hover_groups:
+                    ordered_details[group] = dict(sorted(
+                        group_details.get(group, {}).items(),
+                        key=lambda item: (-item[1], item[0]),
+                    ))
+        return ordered_totals, ordered_details
+
+    muscle_dist_all, muscle_details_all = get_muscle_distribution(workouts)
+    muscle_dist_weekly, muscle_details_weekly = get_muscle_distribution(weekly)
+    muscle_dist_monthly, muscle_details_monthly = get_muscle_distribution(monthly)
 
     stats = calculate_stats(user)
     sessions_data = [
@@ -2835,6 +2726,11 @@ def dashboard(user: dict = Depends(_resolve_current_user)):
             "all": muscle_dist_all,
             "weekly": muscle_dist_weekly,
             "monthly": muscle_dist_monthly
+        },
+        "muscle_distribution_details": {
+            "all": muscle_details_all,
+            "weekly": muscle_details_weekly,
+            "monthly": muscle_details_monthly
         },
         "sessions": sessions_data
     }
@@ -2957,7 +2853,12 @@ def get_personal_records(workouts):
                 entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name"),
             )
             display_name = meta["name"] if meta else str(entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name") or "Bilinmeyen hareket")
-            muscle = EXERCISE_MUSCLE_TR.get(meta.get("muscle_group"), meta.get("muscle_group")) if meta else entry.get("muscle_group", "Diğer")
+            if meta:
+                # Eski kayıtlarda muscle_group "Bacak" olsa bile kanonik havuz
+                # meta verisiyle gerçek alt kas etiketi üretilir.
+                muscle = _display_muscle_groups(meta, meta.get("analysis", {}))[0]
+            else:
+                muscle = entry.get("muscle_group", "Diğer")
             load_mode = meta.get("analysis", {}).get("load_mode", "external_load") if meta else "external_load"
             metric_type = "reps" if load_mode == "bodyweight" else "weight_kg"
             sets_list = entry.get("sets_data", [])
@@ -3064,31 +2965,40 @@ def save_custom_program(data: CustomProgramRequest,
 
 
 # İngilizce havuz grubu -> kullanıcıya gösterilecek sade Türkçe filtre adı.
-# "Traps" geriye dönük veri için Sırt'a düşer; yeni havuzda shrug hareketleri
-# doğrudan Back grubunda tanımlıdır.
+# Rotatorlar, omuz ve kalça rotasyon hareketlerini aynı filtre başlığında birleştirir.
 EXERCISE_MUSCLE_TR = {
     "Chest": "Göğüs", "Back": "Sırt", "Shoulders": "Omuz",
-    "Legs": "Bacak", "Biceps": "Biceps", "Triceps": "Triceps",
+    "Legs": "Alt Vücut", "Biceps": "Biceps", "Triceps": "Triceps",
     "Traps": "Sırt", "Core": "Core",
+    "Rotator Cuff": "Rotatorlar", "Hip Rotators": "Rotatorlar",
 }
-
-
+# Leg/Lower yalnız seans türüdür. Alt kaslar primer meta veriden görünür olur.
+LEG_PRIMARY_MUSCLE_TR = {
+    "quads": "Quadriceps", "hamstrings": "Hamstring", "glutes": "Gluteus",
+    "gluteus_maximus": "Gluteus", "gluteus_medius": "Gluteus",
+    "calves": "Calf", "adductors": "Adductors",
+}
+WORKOUT_UI_MUSCLE_GROUPS = (
+    "Göğüs", "Sırt", "Omuz", "Biceps", "Triceps",
+    "Quadriceps", "Hamstring", "Gluteus", "Calf", "Adductors", "Rotatorlar", "Core",
+)
 def _display_muscle_groups(exercise: dict, analysis: dict) -> list[str]:
-    """Bir hareketin sade kayıt ekranında görünmesi gereken Türkçe filtreler.
+    """Kayıt ekranındaki filtre/etiket gruplarını döndürür.
 
-    Bu, analizdeki primary_muscles/secondary_muscles listesinin yerine geçmez.
-    Örneğin Leg Press'in ayrıntısı hâlâ ``quadriceps`` olarak saklanır; kullanıcı
-    ise hareketi yalnızca ``Bacak`` filtresinde görür. Arka omuzun primer hedef
-    olduğu hareketler, kullanıcı beklentisine uygun biçimde hem Omuz hem Sırt
-    altında görünür.
+    ``Legs`` bir seans türüdür, bağımsız bir kas grubu değildir. Leg hareketleri
+    primary_muscles verisinden Quadriceps, Hamstring, Gluteus, Calf veya
+    Adductors altında listelenir. Arka omuz hareketleri ise hem Omuz hem Sırt
+    filtresinde görünmeye devam eder.
     """
     group = exercise.get("muscle_group", "")
     primary_muscles = set(analysis.get("primary_muscles", []))
-
+    if group in {"Rotator Cuff", "Hip Rotators"}:
+        return ["Rotatorlar"]
     if "rear_delts" in primary_muscles:
         return ["Omuz", "Sırt"]
     if group == "Legs":
-        return ["Bacak"]
+        detailed = [LEG_PRIMARY_MUSCLE_TR[item] for item in LEG_PRIMARY_MUSCLE_TR if item in primary_muscles]
+        return detailed or ["Alt Vücut"]
     return [EXERCISE_MUSCLE_TR.get(group, group)]
 
 
@@ -3113,9 +3023,11 @@ def _enrich_exercise_pool(pool):
 
 @app.get("/api/exercises")
 def get_exercises():
-    """Egzersiz havuzu + kas grupları (Türkçe alias'larla)."""
-    return {"exercises": _enrich_exercise_pool(EXERCISE_POOL),
-            "muscle_groups": [EXERCISE_MUSCLE_TR.get(g, g) for g in MUSCLE_GROUPS]}
+    """Egzersiz havuzu ve kayıt ekranındaki ayrıntılı kas filtreleri."""
+    return {
+        "exercises": _enrich_exercise_pool(EXERCISE_POOL),
+        "muscle_groups": list(WORKOUT_UI_MUSCLE_GROUPS),
+    }
 
 
 # ═══════════════════════════════════════════════
@@ -3275,7 +3187,272 @@ def delete_nutrition_log(log_date: str = Query(...),
 # Analiz, program oluşturma veya tıbbi yorum üretmez; yalnızca kullanıcının
 # kendi bildirdiği verileri tek JSON kayıt altında saklar.
 # ═══════════════════════════════════════════════
-@app.get("/api/expert-system/data")
+# HX_MODULAR_EXPERT_RPE_V1
+# HX_SET_BASED_RIR_V1
+def _expert_recent_rir_summary(user_id: int) -> dict | None:
+    """Son RIR içeren antrenman kaydını salt-okunur olarak özetler.
+
+    RIR setin kendi JSON verisinde saklanır. Eski setlerde RIR yoksa analiz
+    yalnızca veri eksik bilgisini gösterir; hiçbir geçmiş kayıt değiştirilmez.
+    """
+    for workout in get_workouts_by_user(user_id):
+        rir_values: list[int] = []
+        exercise_names: list[str] = []
+        for exercise in workout.get("exercises") or []:
+            exercise_has_rir = False
+            for set_data in exercise.get("sets_data") or []:
+                value = set_data.get("rir") if isinstance(set_data, dict) else None
+                if isinstance(value, bool):
+                    continue
+                try:
+                    rir = int(value)
+                except (TypeError, ValueError):
+                    continue
+                if 0 <= rir <= 5:
+                    rir_values.append(rir)
+                    exercise_has_rir = True
+            if exercise_has_rir:
+                exercise_names.append(str(exercise.get("name") or exercise.get("exercise_name") or exercise.get("id") or "Egzersiz"))
+        if rir_values:
+            return {
+                "workout_date": str(workout.get("date") or ""),
+                "session_type": str(workout.get("session_type") or "Antrenman"),
+                "set_count": len(rir_values),
+                "average_rir": round(sum(rir_values) / len(rir_values), 1),
+                "lowest_rir": min(rir_values),
+                "near_failure_sets": sum(1 for value in rir_values if value <= 1),
+                "exercise_names": sorted(set(exercise_names)),
+            }
+    return None
+
+
+def _expert_rule_context(profile: dict, user_id: int, dashboard_preferences: object = "{}") -> dict:
+    labels = {item["id"]: item["label"] for item in DETAILED_MUSCLE_OPTIONS}
+    metrics = []
+    for item in _expert_data_metrics(profile.get("doms_daily") or {}):
+        copied = dict(item)
+        copied["muscle_label"] = labels.get(copied.get("muscle_group"), copied.get("muscle_group"))
+        metrics.append(copied)
+    equipment_selection = _equipment_selection(profile, dashboard_preferences)
+    targets = profile.get("target_muscles") or {}
+    target_ids = targets.get("priority_muscles") or []
+    recent_rir = _expert_recent_rir_summary(user_id)
+    return {
+        "targets": targets,
+        "target_muscle_labels": [labels.get(item, str(item)) for item in target_ids],
+        "doms_metrics": metrics,
+        "injuries": profile.get("injuries") or [],
+        "equipment": equipment_selection["equipment"],
+        "preferred_equipment": equipment_selection["preferred_equipment"],
+        "default_gym_id": equipment_selection["default_gym_id"],
+        "default_gym_name": equipment_selection["default_gym_name"],
+        "equipment_source": equipment_selection["equipment_source"],
+        "equipment_source_label": equipment_selection["equipment_source_label"],
+        # RIR kaydı yalnızca iç hesaplamada kalır; kullanıcıya RPE özeti döner.
+        "recent_rir": recent_rir,
+        "rpe_summary": rpe_summary_from_rir(recent_rir),
+    }
+
+
+def _expert_data_analysis(user: dict) -> dict:
+    from expert_rule_engine import evaluate_expert_rules
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+    finally:
+        conn.close()
+    analysis = evaluate_expert_rules(_expert_rule_context(profile or {}, user["id"], user.get("dashboard_preferences", "{}")))
+    analysis["generated_on_display"] = format_tr_date(analysis.get("generated_on"))
+    return analysis
+
+
+def _recommendation_days_per_week(user: dict) -> int:
+    try:
+        days = int(user.get("days_per_week") or 3)
+    except (TypeError, ValueError):
+        days = 3
+    return max(1, min(7, days))
+
+
+def _build_expert_recommendation(user: dict) -> dict:
+    """Yeni veri merkezi profilinden taslak üretir; mevcut özel programı değiştirmez."""
+    conn = get_db()
+    try:
+        expert_profile = _expert_data_profile(conn, user["id"])
+    finally:
+        conn.close()
+    expert_profile = expert_profile or {}
+    context = _expert_rule_context(expert_profile, user["id"], user.get("dashboard_preferences", "{}"))
+    days_per_week = _recommendation_days_per_week(user)
+    targets = context.get("targets") or {}
+    planner_profile = dict(user)
+    planner_profile["days_per_week"] = days_per_week
+    movement_preferences = _exercise_preference_selection(user.get("dashboard_preferences", "{}"))
+    preferences = {
+        "primary_goal": targets.get("primary_goal") or user.get("goal") or "hypertrophy",
+        "priority_muscles": list(targets.get("priority_muscles") or []),
+        "exercise_preferences": movement_preferences,
+    }
+    active_doms = [
+        {"muscle_group": item.get("muscle_group"), "severity": item.get("pain_level", 0)}
+        for item in (context.get("doms_metrics") or []) if isinstance(item, dict)
+    ]
+    constraints = [
+        {"muscle_group": item.get("area"), "severity": item.get("severity", 0), "status": "active"}
+        for item in (context.get("injuries") or [])
+        if isinstance(item, dict) and bool(item.get("is_active", True))
+    ]
+    workouts = get_workouts_by_user(user["id"])
+    history, latest_dates = _expert_history_context(workouts)
+    dynamic_program = generate_dynamic_program(
+        planner_profile, preferences, EXERCISE_POOL, context.get("equipment") or [],
+        active_doms, constraints, history=history, last_workout_dates=latest_dates,
+        exercise_preferences=movement_preferences,
+    )
+    recommendation = build_recommendation_program(
+        dynamic_program, context, days_per_week, context.get("rpe_summary"),
+    )
+    recommendation.update({key: context.get(key) for key in ("equipment_source", "equipment_source_label", "default_gym_name", "preferred_equipment")})
+    recommendation.update(movement_preferences)
+    return recommendation
+
+
+def _save_expert_recommendation(user: dict, recommendation: dict) -> dict:
+    preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
+    preferences["schema_version"] = max(2, int(preferences.get("schema_version") or 1))
+    preferences["expert_recommendation"] = recommendation
+    conn = get_db()
+    try:
+        conn.execute(
+            "UPDATE users SET dashboard_preferences = ? WHERE id = ?",
+            (json.dumps(preferences, ensure_ascii=False), user["id"]),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return preferences
+
+
+# HX_EXPERT_FIXED_WEEK_SLOTS_V1
+# Gün slotları (Pazartesi–Pazar) yerinde kalır. Sürükle-bırak yalnız bu slotların
+# içeriğini değiştirir; böylece gün adı ile seans hiçbir zaman birlikte taşınmaz.
+_EXPERT_WEEKDAY_LABELS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
+_EXPERT_CONTENT_KEYS = (
+    "content_id", "type", "focus", "isRest", "session_id", "content_status",
+    "content_reason", "exercises",
+)
+
+
+def _expert_slot_id(week_number: int, day_index: int) -> str:
+    return f"week-{week_number}-day-{day_index + 1}"
+
+
+def _expert_content_from_day(day: dict, fallback_content_id: str) -> dict:
+    content = {key: day.get(key) for key in _EXPERT_CONTENT_KEYS if key in day}
+    content["content_id"] = str(content.get("content_id") or day.get("day_id") or fallback_content_id)
+    content["type"] = str(content.get("type") or "Dinlenme")
+    content["focus"] = str(content.get("focus") or ("Toparlanma" if content.get("isRest") else "Genel antrenman"))
+    content["isRest"] = bool(content.get("isRest"))
+    content["exercises"] = list(content.get("exercises") or [])
+    return content
+
+
+def _expert_normalize_week_slots(days: object, week_number: int) -> list[dict]:
+    """Eski sıralamayı bulunduğu görsel konumla koruyup sabit slotlara taşır."""
+    source_days = [item for item in (days or []) if isinstance(item, dict)]
+    normalized: list[dict] = []
+    for index, label in enumerate(_EXPERT_WEEKDAY_LABELS):
+        source = source_days[index] if index < len(source_days) else {}
+        slot_id = _expert_slot_id(week_number, index)
+        content = _expert_content_from_day(source, f"week-{week_number}-content-{index + 1}")
+        normalized.append({"day_id": slot_id, "slot_id": slot_id, "day": label, **content})
+    return normalized
+
+
+def _expert_normalize_recommendation_slots(recommendation: dict) -> dict:
+    weeks = recommendation.get("weeks") if isinstance(recommendation, dict) else None
+    if not isinstance(weeks, list):
+        return recommendation
+    for index, week in enumerate(weeks, start=1):
+        if isinstance(week, dict):
+            week["days"] = _expert_normalize_week_slots(week.get("days"), index)
+    return recommendation
+
+
+@app.get("/api/expert-data/analysis")
+def get_expert_data_analysis(user: dict = Depends(_resolve_current_user)):
+    return {"success": True, "analysis": _expert_data_analysis(user)}
+
+
+@app.post("/api/expert-data/recommendation/generate")
+def generate_expert_recommendation(user: dict = Depends(_resolve_current_user)):
+    """Kullanıcının profilindeki gün sayısı ve uzman verileriyle taslak üretir."""
+    try:
+        recommendation = _build_expert_recommendation(user)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    preferences = _save_expert_recommendation(user, recommendation)
+    return {"success": True, "recommendation": recommendation, "dashboard_preferences": preferences}
+
+
+@app.put("/api/expert-data/recommendation/reorder")
+def reorder_expert_recommendation(data: dict = Body(...), user: dict = Depends(_resolve_current_user)):
+    """Sabit Pazartesi–Pazar slotlarındaki mevcut seans/dinlenme içeriklerini yer değiştirir."""
+    preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
+    recommendation = preferences.get("expert_recommendation")
+    requested_weeks = data.get("weeks") if isinstance(data, dict) else None
+    if not isinstance(recommendation, dict) or not isinstance(requested_weeks, list):
+        raise HTTPException(status_code=404, detail="Düzenlenecek uzman önerisi bulunamadı.")
+    recommendation = _expert_normalize_recommendation_slots(recommendation)
+    current_weeks = recommendation.get("weeks") or []
+    if len(current_weeks) != len(requested_weeks) or not 1 <= len(current_weeks) <= 3:
+        raise HTTPException(status_code=400, detail="Geçersiz öneri hafta sırası.")
+    for index, current_week in enumerate(current_weeks, start=1):
+        current_days = current_week.get("days") or []
+        sent_week = requested_weeks[index - 1] if isinstance(requested_weeks[index - 1], dict) else {}
+        sent_days = sent_week.get("days") if isinstance(sent_week, dict) else None
+        expected_slots = [_expert_slot_id(index, day_index) for day_index in range(7)]
+        if not isinstance(sent_days, list) or len(current_days) != 7 or len(sent_days) != 7:
+            raise HTTPException(status_code=400, detail="Her öneri haftası yedi sabit gün içermelidir.")
+        sent_slots = [str(day.get("slot_id") or day.get("day_id") or "") for day in sent_days if isinstance(day, dict)]
+        current_content = {str(day.get("content_id")): _expert_content_from_day(day, str(day.get("content_id"))) for day in current_days}
+        requested_content_ids = [str(day.get("content_id") or "") for day in sent_days if isinstance(day, dict)]
+        if sent_slots != expected_slots or len(current_content) != 7 or set(requested_content_ids) != set(current_content):
+            raise HTTPException(status_code=400, detail="Yalnız mevcut seans veya dinlenme kartları sabit günler arasında taşınabilir.")
+        current_week["days"] = [
+            {"day_id": slot_id, "slot_id": slot_id, "day": _EXPERT_WEEKDAY_LABELS[day_index], **current_content[requested_content_ids[day_index]]}
+            for day_index, slot_id in enumerate(expected_slots)
+        ]
+    preferences = _save_expert_recommendation(user, recommendation)
+    return {"success": True, "recommendation": recommendation, "dashboard_preferences": preferences}
+
+
+@app.post("/api/expert-data/rpe-checkins")
+def save_expert_data_rpe_checkin(
+    data: ExpertRpeDataRequest = Body(...),
+    user: dict = Depends(_resolve_current_user),
+):
+    rpe = int(data.session_rpe)
+    if not 1 <= rpe <= 10:
+        raise HTTPException(status_code=400, detail="RPE değeri 1 ile 10 arasında olmalıdır.")
+    checkin_date = _expert_date(data.checkin_date)
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+        reports = [item for item in (profile.get("rpe_checkins") or []) if isinstance(item, dict) and item.get("checkin_date") != checkin_date]
+        reports.append({
+            "checkin_date": checkin_date,
+            "session_rpe": rpe,
+            "notes": str(data.notes or "").strip()[:600],
+        })
+        reports.sort(key=lambda item: str(item.get("checkin_date") or ""), reverse=True)
+        profile["rpe_checkins"] = reports[:90]
+        _save_expert_data_profile(conn, user["id"], profile)
+    finally:
+        conn.close()
+    return {"success": True, "rpe_checkins": reports, "analysis": _expert_data_analysis(user)}
+
+
 @app.get("/api/expert-data")
 def get_expert_data(user: dict = Depends(_resolve_current_user)):
     """Yalnızca veri toplama ekranının tek profil kaydını ve kataloglarını döndürür."""
@@ -3489,14 +3666,19 @@ def create_expert_gym(data: ExpertGymDataRequest = Body(...),
         gyms = profile.get("gyms") or []
         if any(str(item.get("name") or "").casefold() == name.casefold() for item in gyms if isinstance(item, dict)):
             raise HTTPException(status_code=409, detail="Bu isimde bir salon zaten kayıtlı.")
+        if data.is_default:
+            for existing_gym in gyms:
+                if isinstance(existing_gym, dict):
+                    existing_gym["is_default"] = False
         gyms.append({
             "id": "gym_" + secrets.token_hex(6),
             "name": name,
             "equipment": equipment,
+            "is_default": bool(data.is_default) or not gyms,
             "created_at": datetime.now().isoformat(timespec="seconds"),
             "updated_at": datetime.now().isoformat(timespec="seconds"),
         })
-        profile["gyms"] = gyms
+        profile["gyms"] = _normalize_gyms_with_default(gyms)
         _save_expert_data_profile(conn, user["id"], profile)
     finally:
         conn.close()
@@ -3520,8 +3702,12 @@ def update_expert_gym(gym_id: str, data: ExpertGymDataRequest = Body(...),
             raise HTTPException(status_code=404, detail="Salon kaydı bulunamadı.")
         if any(item is not gym and str(item.get("name") or "").casefold() == name.casefold() for item in gyms if isinstance(item, dict)):
             raise HTTPException(status_code=409, detail="Bu isimde bir salon zaten kayıtlı.")
-        gym.update({"name": name, "equipment": equipment, "updated_at": datetime.now().isoformat(timespec="seconds")})
-        profile["gyms"] = gyms
+        if data.is_default:
+            for existing_gym in gyms:
+                if isinstance(existing_gym, dict) and existing_gym is not gym:
+                    existing_gym["is_default"] = False
+        gym.update({"name": name, "equipment": equipment, "is_default": bool(data.is_default), "updated_at": datetime.now().isoformat(timespec="seconds")})
+        profile["gyms"] = _normalize_gyms_with_default(gyms)
         _save_expert_data_profile(conn, user["id"], profile)
     finally:
         conn.close()
@@ -3538,11 +3724,153 @@ def delete_expert_gym(gym_id: str, user: dict = Depends(_resolve_current_user)):
         updated = [item for item in gyms if not (isinstance(item, dict) and item.get("id") == gym_id)]
         if len(updated) == len(gyms):
             raise HTTPException(status_code=404, detail="Salon kaydı bulunamadı.")
-        profile["gyms"] = updated
+        profile["gyms"] = _normalize_gyms_with_default(updated)
         _save_expert_data_profile(conn, user["id"], profile)
     finally:
         conn.close()
     return _expert_data_state(user)
+
+
+@app.put("/api/expert-data/equipment-preferences")
+def save_expert_equipment_preferences(data: ExpertEquipmentPreferencesRequest = Body(...), user: dict = Depends(_resolve_current_user)):
+    """Tercih listesi yalnız sonraki taslak üretiminde kullanılır; mevcut taslağı değiştirmez."""
+    preferred = _clean_gym_equipment(data.preferred_equipment)
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT dashboard_preferences FROM users WHERE id = ?", (user["id"],)).fetchone()
+        preferences = _parse_dashboard_preferences((dict(row) if row else {}).get("dashboard_preferences", "{}"))
+        preferences["equipment_preferences"] = {"preferred_equipment": preferred, "updated_at": datetime.now().isoformat(timespec="seconds")}
+        conn.execute("UPDATE users SET dashboard_preferences = ? WHERE id = ?", (json.dumps(preferences, ensure_ascii=False), user["id"]))
+        conn.commit()
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+@app.put("/api/expert-data/movement-preferences")
+def save_expert_movement_preferences(data: ExpertMovementPreferencesRequest = Body(...), user: dict = Depends(_resolve_current_user)):
+    """Hareket tercihleri yalnız sonraki taslak üretiminde kullanılır."""
+    known_ids = {str(item.get("id")) for item in EXERCISE_POOL if isinstance(item, dict) and item.get("id") and not is_expert_catalog_excluded(item)}
+    avoided = []
+    for value in data.avoid_exercise_ids:
+        exercise_id = str(value).strip()
+        if exercise_id in known_ids and exercise_id not in avoided:
+            avoided.append(exercise_id)
+    preferred = []
+    for value in data.preferred_exercise_ids:
+        exercise_id = str(value).strip()
+        if exercise_id in known_ids and exercise_id not in avoided and exercise_id not in preferred:
+            preferred.append(exercise_id)
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT dashboard_preferences FROM users WHERE id = ?", (user["id"],)).fetchone()
+        preferences = _parse_dashboard_preferences((dict(row) if row else {}).get("dashboard_preferences", "{}"))
+        preferences["exercise_preferences"] = {
+            "preferred_exercise_ids": preferred,
+            "avoid_exercise_ids": avoided,
+            "updated_at": datetime.now().isoformat(timespec="seconds"),
+        }
+        conn.execute("UPDATE users SET dashboard_preferences = ? WHERE id = ?", (json.dumps(preferences, ensure_ascii=False), user["id"]))
+        conn.commit()
+    finally:
+        conn.close()
+    return _expert_data_state(user)
+
+
+# HX_EXPERT_ALTERNATIVE_REPLACE_DEDUPE_V1
+@app.get("/api/expert-data/exercise-alternatives/{exercise_id}")
+def expert_exercise_alternatives(
+    exercise_id: str,
+    exclude: str = "",
+    user: dict = Depends(_resolve_current_user),
+):
+    """Kullanıcı tercihi ve mevcut kural bağlamıyla filtrelenmiş alternatifleri verir."""
+    conn = get_db()
+    try:
+        profile = _expert_data_profile(conn, user["id"])
+    finally:
+        conn.close()
+    account = get_user_by_id(user["id"]) or user
+    profile = profile or {}
+    context = _expert_rule_context(profile, user["id"], account.get("dashboard_preferences", "{}"))
+    movement_preferences = _exercise_preference_selection(account.get("dashboard_preferences", "{}"))
+    active_doms = [
+        {"muscle_group": item.get("muscle_group"), "severity": item.get("pain_level", 0)}
+        for item in (context.get("doms_metrics") or []) if isinstance(item, dict)
+    ]
+    constraints = [
+        {"muscle_group": item.get("area"), "severity": item.get("severity", 0), "status": "active"}
+        for item in (context.get("injuries") or []) if isinstance(item, dict) and bool(item.get("is_active", True))
+    ]
+    excluded_ids = {value.strip() for value in str(exclude or "").split(",") if value.strip()}
+    alternatives = [
+        item for item in get_exercise_alternatives(
+            exercise_id, EXERCISE_POOL, context.get("equipment") or [], active_doms, constraints, movement_preferences,
+        )
+        if str(item.get("id") or "") not in excluded_ids
+    ]
+    return {"success": True, "exercise_id": exercise_id, "alternatives": alternatives}
+
+
+@app.put("/api/expert-data/recommendation/exercise-replace")
+def replace_expert_recommendation_exercise(data: dict = Body(...), user: dict = Depends(_resolve_current_user)):
+    """Seçilen uygun alternatifi yalnız ilgili uzman taslağı günündeki hareketin yerine koyar."""
+    payload = data if isinstance(data, dict) else {}
+    try:
+        week_index = int(payload.get("week_index"))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Geçerli bir öneri haftası seçin.")
+    slot_id = str(payload.get("slot_id") or "").strip()
+    source_exercise_id = str(payload.get("source_exercise_id") or "").strip()
+    alternative_exercise_id = str(payload.get("alternative_exercise_id") or "").strip()
+    if not slot_id or not source_exercise_id or not alternative_exercise_id or source_exercise_id == alternative_exercise_id:
+        raise HTTPException(status_code=400, detail="Geçerli kaynak ve alternatif hareket seçin.")
+
+    preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
+    recommendation = preferences.get("expert_recommendation")
+    if not isinstance(recommendation, dict):
+        raise HTTPException(status_code=404, detail="Düzenlenecek uzman önerisi bulunamadı.")
+    recommendation = _expert_normalize_recommendation_slots(recommendation)
+    weeks = recommendation.get("weeks") or []
+    if not 0 <= week_index < len(weeks):
+        raise HTTPException(status_code=400, detail="Geçerli bir öneri haftası seçin.")
+    days = weeks[week_index].get("days") if isinstance(weeks[week_index], dict) else None
+    day = next((item for item in (days or []) if str(item.get("slot_id") or item.get("day_id") or "") == slot_id), None)
+    if not isinstance(day, dict) or bool(day.get("isRest")):
+        raise HTTPException(status_code=400, detail="Hareket değişimi yalnız antrenman günü yapılabilir.")
+
+    alternative = next((item for item in EXERCISE_POOL if str(item.get("id") or "") == alternative_exercise_id), None)
+    if not isinstance(alternative, dict) or is_expert_catalog_excluded(alternative):
+        raise HTTPException(status_code=400, detail="Seçilen alternatif egzersiz havuzunda bulunamadı.")
+
+    exercises = list(day.get("exercises") or [])
+    if any(str(item.get("id") or "") == alternative_exercise_id for item in exercises if isinstance(item, dict)):
+        raise HTTPException(status_code=400, detail="Bu hareket aynı günün önerisinde zaten bulunuyor.")
+
+    source_catalog = next((item for item in EXERCISE_POOL if str(item.get("id") or "") == source_exercise_id), None)
+    source_name = str((source_catalog or {}).get("name") or "").strip().casefold()
+    replacement_index = next((
+        index for index, item in enumerate(exercises)
+        if isinstance(item, dict) and (
+            str(item.get("id") or "") == source_exercise_id
+            or (not item.get("id") and source_name and str(item.get("name") or "").strip().casefold() == source_name)
+        )
+    ), None)
+    if replacement_index is None:
+        raise HTTPException(status_code=404, detail="Değiştirilecek hareket taslakta bulunamadı.")
+
+    replaced = dict(exercises[replacement_index])
+    replaced["id"] = alternative_exercise_id
+    replaced["name"] = str(alternative.get("name") or "Hareket")
+    exercises[replacement_index] = replaced
+    day["exercises"] = exercises
+    preferences = _save_expert_recommendation(user, recommendation)
+    return {
+        "success": True,
+        "recommendation": recommendation,
+        "dashboard_preferences": preferences,
+        "replaced_exercise": replaced,
+    }
 
 
 @app.post("/api/expert-system/injuries")
@@ -3720,7 +4048,7 @@ def serve_static_file(filename: str):
 @app.get("/{path:path}")
 def serve_spa(path: str):
     if path.startswith("api/"):
-        raise HTTPException(status_code=404, detail="Not Found")
+        raise HTTPException(status_code=405, detail="Not Found")
     first = path.split("/")[0]
     if first in SPA_PAGES:
         return FileResponse("static/index.html")
