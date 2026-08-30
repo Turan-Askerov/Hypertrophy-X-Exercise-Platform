@@ -3397,35 +3397,49 @@ def generate_expert_recommendation(user: dict = Depends(_resolve_current_user)):
 
 @app.put("/api/expert-data/recommendation/reorder")
 def reorder_expert_recommendation(data: dict = Body(...), user: dict = Depends(_resolve_current_user)):
-    """Sabit Pazartesi–Pazar slotlarındaki mevcut seans/dinlenme içeriklerini yer değiştirir."""
+    """Sabit Pazartesi–Pazar slotlarındaki içerikleri yer değiştirir ve GÜNCEL HAREKETLERİ kaydeder."""
     preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
     recommendation = preferences.get("expert_recommendation")
     requested_weeks = data.get("weeks") if isinstance(data, dict) else None
+    
     if not isinstance(recommendation, dict) or not isinstance(requested_weeks, list):
         raise HTTPException(status_code=404, detail="Düzenlenecek uzman önerisi bulunamadı.")
+        
     recommendation = _expert_normalize_recommendation_slots(recommendation)
     current_weeks = recommendation.get("weeks") or []
+    
     if len(current_weeks) != len(requested_weeks) or not 1 <= len(current_weeks) <= 3:
         raise HTTPException(status_code=400, detail="Geçersiz öneri hafta sırası.")
+        
     for index, current_week in enumerate(current_weeks, start=1):
         current_days = current_week.get("days") or []
         sent_week = requested_weeks[index - 1] if isinstance(requested_weeks[index - 1], dict) else {}
         sent_days = sent_week.get("days") if isinstance(sent_week, dict) else None
         expected_slots = [_expert_slot_id(index, day_index) for day_index in range(7)]
+        
         if not isinstance(sent_days, list) or len(current_days) != 7 or len(sent_days) != 7:
             raise HTTPException(status_code=400, detail="Her öneri haftası yedi sabit gün içermelidir.")
+            
         sent_slots = [str(day.get("slot_id") or day.get("day_id") or "") for day in sent_days if isinstance(day, dict)]
-        current_content = {str(day.get("content_id")): _expert_content_from_day(day, str(day.get("content_id"))) for day in current_days}
+        
+        # 🚀 DÜZELTME BURADA: Veritabanındaki eski içerik (current_content) YERİNE, 
+        # Frontend'den gelen güncel içeriği (sent_content) kullanıyoruz!
+        sent_content = {str(day.get("content_id")): _expert_content_from_day(day, str(day.get("content_id"))) for day in sent_days}
         requested_content_ids = [str(day.get("content_id") or "") for day in sent_days if isinstance(day, dict)]
-        if sent_slots != expected_slots or len(current_content) != 7 or set(requested_content_ids) != set(current_content):
+        
+        current_content_ids = {str(day.get("content_id") or "") for day in current_days}
+        
+        if sent_slots != expected_slots or len(current_content_ids) != 7 or set(requested_content_ids) != current_content_ids:
             raise HTTPException(status_code=400, detail="Yalnız mevcut seans veya dinlenme kartları sabit günler arasında taşınabilir.")
+            
+        # Artık sisteme Frontend'in yolladığı yeni/değiştirilmiş egzersizleri kaydediyoruz
         current_week["days"] = [
-            {"day_id": slot_id, "slot_id": slot_id, "day": _EXPERT_WEEKDAY_LABELS[day_index], **current_content[requested_content_ids[day_index]]}
+            {"day_id": slot_id, "slot_id": slot_id, "day": _EXPERT_WEEKDAY_LABELS[day_index], **sent_content[requested_content_ids[day_index]]}
             for day_index, slot_id in enumerate(expected_slots)
         ]
+        
     preferences = _save_expert_recommendation(user, recommendation)
     return {"success": True, "recommendation": recommendation, "dashboard_preferences": preferences}
-
 
 @app.post("/api/expert-data/rpe-checkins")
 def save_expert_data_rpe_checkin(
@@ -3463,10 +3477,15 @@ def _clean_gym_equipment(values: List[str]) -> list[str]:
     equipment: list[str] = []
     for raw_value in values or []:
         equipment_id = normalize_gym_equipment(raw_value)
+        
+        # KURALI ESNEDİYORUZ: Eğer veritabanındaki eski veri geçersizse,
+        # sistemi çökertmek (raise HTTPException) yerine bu veriyi pas geç (continue).
         if not equipment_id:
-            raise HTTPException(status_code=400, detail="Geçersiz salon ekipmanı seçildi.")
+            continue
+            
         if equipment_id not in equipment:
             equipment.append(equipment_id)
+            
     return equipment
 
 

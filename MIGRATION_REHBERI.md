@@ -1,8 +1,6 @@
-# Hypertrophy-X v4.1 — PostgreSQL Aktarım ve Canlıya Alma Rehberi
+# Hypertrophy-X v4.0 — PostgreSQL Aktarım ve Canlıya Alma Rehberi
 
-**Hypertrophy-X v4.1**, mevcut SQLite tabanlı çalışma şeklini yerel geliştirme için korur; ancak production ortamında PostgreSQL bağlantısını zorunlu tutar. `backend/hypertrophy.db` dosyası silinmez, değiştirilmez veya otomatik olarak taşındı diye işaretlenmez. Bu paketteki denetimde kaynak dosyada **2 kullanıcı** ve **16 antrenman kaydı** tespit edilmiştir.
-
-> SQLite'tan PostgreSQL'e aktarım öncesinde hem mevcut `backend/hypertrophy.db` dosyasını hem de PostgreSQL veritabanını yedeklemek gerekir. Eski SQLite dosyasını GitHub'a yüklemeyin.
+> SQLite'tan PostgreSQL'e aktarım öncesinde hem mevcut `backend/hypertrophy.db` dosyasını hem de PostgreSQL veritabanını yedeklemek gerekir. 
 
 | Bileşen | v4.0 davranışı | v4.1 davranışı |
 |---|---|---|
@@ -17,7 +15,7 @@
 Proje kökünde aşağıdaki komutu çalıştırın. Bu adım, orijinal dosyayı yerinde tutar ve tarihli ikinci bir kopya üretir.
 
 ```bash
-cd ~/Desktop/Hypertrophy-X-v4.1
+cd ~/Desktop/Hypertrophy-X-v4.0
 mkdir -p backups
 cp backend/hypertrophy.db "backups/hypertrophy-before-postgres-$(date +%F-%H%M%S).db"
 ```
@@ -33,7 +31,7 @@ Yerel bilgisayarınızdan aktarım yapacağınız için Neon panelinden alınan 
 ## 3. Python Bağımlılıklarını Kur
 
 ```bash
-cd ~/Desktop/Hypertrophy-X-v4.1
+cd ~/Desktop/Hypertrophy-X-v4.0
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -51,7 +49,7 @@ python migrate_sqlite_to_postgres.py --sqlite-path hypertrophy.db --dry-run
 Beklenen çıktı, mevcut paketteki veri için aşağıdaki biçimdedir:
 
 ```text
-Kaynak denetlendi: 2 kullanıcı, 16 antrenman kaydı.
+Kaynak denetlendi: x kullanıcı, xx antrenman kaydı.
 SQLite korunuyor: .../backend/hypertrophy.db
 Dry-run tamamlandı: PostgreSQL'e hiçbir veri yazılmadı.
 ```
@@ -61,7 +59,7 @@ Dry-run tamamlandı: PostgreSQL'e hiçbir veri yazılmadı.
 Aşağıdaki komutta **tırnak içindeki örnek metni aynen bırakmayın**. `NEON_PANELINDEN_KOPYALANAN_GERCEK_POSTGRES_URL` bölümü Neon panelinden kopyaladığınız, `postgresql://` veya `postgres://` ile başlayan gerçek bağlantı adresiyle değiştirilmelidir. Terminal geçmişinde sır kalmasını istemiyorsanız komut tamamlandıktan sonra `unset DATABASE_URL` kullanın; `.env` dosyasını Git'e eklemeyin.
 
 ```bash
-cd ~/Desktop/Hypertrophy-X-v4.1/backend
+cd ~/Desktop/Hypertrophy-X-v4.0/backend
 export DATABASE_URL='NEON_PANELINDEN_KOPYALANAN_GERCEK_POSTGRES_URL'
 python migrate_sqlite_to_postgres.py --sqlite-path hypertrophy.db
 unset DATABASE_URL

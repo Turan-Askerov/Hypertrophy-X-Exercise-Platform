@@ -453,6 +453,7 @@ GYM_EQUIPMENT_CATALOG = (
     {"id": "decline_bench", "label": "Decline Bench", "group": "Sehpalar"},
     {"id": "adjustable_bench", "label": "Ayarlanabilir Bench", "group": "Sehpalar"},
     {"id": "preacher_curl_bench", "label": "Preacher Curl Bench", "group": "Sehpalar"},
+    {"id": "hyperextension_machine", "label": "Hyperextension Machine", "group": "Sehpalar"},
 
     # Ağırlıklar
     {"id": "dumbbell", "label": "Dumbbell", "group": "Ağırlıklar"},
@@ -473,17 +474,14 @@ GYM_EQUIPMENT_CATALOG = (
     {"id": "lat_pulldown", "label": "Lat Pulldown", "group": "Fitness Makineleri"},
     {"id": "seated_cable_row", "label": "Cable Row", "group": "Fitness Makineleri"},
     {"id": "low_row_machine", "label": "Low Row Machine", "group": "Fitness Makineleri"},
-    {"id": "biceps_triceps_station", "label": "Biceps – Triceps Station", "group": "Fitness Makineleri"},
     {"id": "biceps_curl_machine", "label": "Biceps Curl Machine", "group": "Fitness Makineleri"},
     {"id": "triceps_press_machine", "label": "Triceps Press Makinesi", "group": "Fitness Makineleri"},
     {"id": "leg_press", "label": "Leg Press", "group": "Fitness Makineleri"},
     {"id": "hack_squat", "label": "Hack Squat", "group": "Fitness Makineleri"},
     {"id": "leg_extension", "label": "Leg Extension", "group": "Fitness Makineleri"},
-    {"id": "seated_leg_curl", "label": "Leg Curl", "group": "Fitness Makineleri"},
+    {"id": "seated_leg_curl", "label": "Seated Leg Curl", "group": "Fitness Makineleri"},
     {"id": "lying_leg_curl", "label": "Lying Leg Curl", "group": "Fitness Makineleri"},
     {"id": "adductor_machine", "label": "Adductor Machine", "group": "Fitness Makineleri"},
-    {"id": "hyperextension_machine", "label": "Hyperextension Machine", "group": "Fitness Makineleri"},
-    {"id": "calf_raise", "label": "Calf Makinesi", "group": "Fitness Makineleri"},
     {"id": "seated_calf_raise", "label": "Oturarak Calf Makinesi", "group": "Fitness Makineleri"},
     {"id": "assisted_pullup_dip", "label": "Assisted Pull-up / Dip", "group": "Fitness Makineleri"},
 
@@ -513,6 +511,7 @@ _GYM_EQUIPMENT_ALIASES = {
     "leg_extension_machine": "leg_extension", "leg_curl_machine": "seated_leg_curl",
     "calf_machine": "calf_raise", "seated_calf_machine": "seated_calf_raise",
     "pull_up_bar": "pullup_dip_station", "pullup_bar": "pullup_dip_station", "dip_station": "pullup_dip_station",
+    "dip_bars": "pullup_dip_station",
     "barfiks_dips_standi": "pullup_dip_station", "barfiks_barı": "pullup_bar",
     "barfiks_bari": "pullup_bar", "squat_standi": "squat_stand",
     "bench_press": "barbell_bench_press_station", "incline_bench_press": "incline_barbell_bench_press_station",
@@ -866,22 +865,24 @@ def _exercise_required_equipment(exercise: dict[str, Any]) -> list[str]:
 
 
 def _is_equipment_satisfied(required: Iterable[str], available: set[str]) -> bool:
-    # Zemin ve vücut ağırlığı kullanıcıdan ayrıca sorulmaz. *_optional gerekli
-    # değildir; `a_or_b` türü değerlerde yalnızca bir seçenek yeterlidir.
-    # Sehpalar ve serbest ağırlıklar her kullanıcı için temel imkân kabul edilir;
-    # salon/tercih formunda ayrıca seçilmez ve hareket filtresini daraltmaz.
+    # Zemin, serbest ağırlıklar, sehpalar ve kablo uçları kullanıcıdan
+    # ayrıca istenmeyen "temel imkânlar" olarak kabul edilir.
     ignored = {
-        "floor", "bodyweight", "bench_optional", "weight_plate_or_vest", "dip_belt_or_vest",
-        "flat_bench", "incline_bench", "decline_bench", "adjustable_bench", "preacher_curl_bench",
-        "dumbbell", "barbell", "ez_bar", "kettlebell", "weight_plates",
+        "floor", "bodyweight", "bench_optional", "step_optional", 
+        "weight_plate_or_vest", "dip_belt_or_vest",
+        "bench", "flat_bench", "incline_bench", "decline_bench", "adjustable_bench", 
+        "preacher_bench", "preacher_curl_bench",
+        "dumbbell", "barbell", "ez_bar", "kettlebell", "weight_plates", "free_weight",
+        "landmine", "bar", "bar_or_suspension_trainer", 
+        "rope", "single_handle", "ankle_strap", "rope_or_handles", "handles"
     }
     for item in required:
         if item in ignored or item.endswith("_optional"):
             continue
         if "_or_" in item:
             choices = set(item.split("_or_"))
-            # Bir seçenek temel ekipmansa (ör. calf machine veya dumbbell),
-            # kullanıcıdan ayrıca salon seçimi istenmeden hareket uygun sayılır.
+            # Eğer seçeneklerden biri (örneğin dumbbell) temel ekipmansa veya 
+            # kullanıcının salonunda mevcutsa bu şart sağlanmış sayılır.
             if choices.intersection(ignored) or item in available or choices.intersection(available):
                 continue
             return False
@@ -891,16 +892,14 @@ def _is_equipment_satisfied(required: Iterable[str], available: set[str]) -> boo
 
 
 def filter_exercises_by_equipment(exercise_pool: Iterable[dict[str, Any]], available_equipment: Iterable[object]) -> list[dict[str, Any]]:
-    """Yalnızca kullanıcının bildirdiği ekipmanla yapılabilen hareketleri döndürür.
-
-    Boş ekipman listesi "henüz profil edilmedi" anlamına gelir; bu durumda yanlış
-    şekilde tüm hareketleri kaldırmamak için havuz kopyası döndürülür. Program
-    üretme endpoint'i ise ekipman tercihi kaydedilmeden çalıştırılmaz.
-    """
+    """Yalnızca kullanıcının bildirdiği ekipmanla yapılabilen hareketleri döndürür."""
     available = {_normalize_equipment(item) for item in available_equipment or [] if _normalize_equipment(item)}
     pool = [_copy.deepcopy(item) for item in exercise_pool or []]
-    if not available:
-        return pool
+    
+    # DÜZELTME: Eski koddaki `if not available: return pool` kuralı TAMAMEN KESİLDİ!
+    # Böylece listende hiç makine yoksa, tüm makineler kusursuzca elenir ve 
+    # ilk üretimde sadece serbest ağırlık / vücut ağırlığı hareketleri kalır.
+    
     return [item for item in pool if _is_equipment_satisfied(_exercise_required_equipment(item), available)]
 
 
@@ -1015,53 +1014,68 @@ def _alternative_candidates(
     exercise_preferences: dict[str, Any] | None = None,
     limit: int = 5,
 ) -> list[dict[str, Any]]:
-    """Aynı kas hedefi/patern için kural uyumlu alternatifleri sıralar."""
+    """Tüm kısıtlamalardan arındırılmış, doğrudan katalogdaki kas ve gruplara bakan alternatif sıralayıcı."""
     full_pool = list(exercise_pool or [])
     source = next((item for item in full_pool if str(item.get("id")) == str(source_exercise_id)), None)
     if not source:
         return []
-    source_primary, source_secondary = _exercise_muscles(source)
+        
+    # Asıl hareketin geniş grubu (Örn: "Legs", "Back") ve detaylı kasları
+    source_group = source.get("muscle_group")
     source_analysis = source.get("analysis") or {}
-    source_pattern = str(source_analysis.get("movement_pattern") or "")
-    source_category = str(source.get("category") or "").lower()
-    doms_raw = list(doms_state.values()) if isinstance(doms_state, dict) else list(doms_state or [])
-    doms = _case_muscles(doms_raw)
-    active_constraints = _constraint_muscles(constraints or [])
+    source_primary = set(source_analysis.get("primary_muscles") or [])
+    source_secondary = set(source_analysis.get("secondary_muscles") or [])
+    source_all = source_primary | source_secondary
+    
+    # Kişisel tercihler (Önerme / Tercih Et)
     preferred, avoided = _exercise_preference_sets(exercise_preferences, full_pool)
-    candidates: list[tuple[int, dict[str, Any]]] = []
-    for exercise in filter_exercises_by_equipment(full_pool, available_equipment):
-        if is_expert_catalog_excluded(exercise):
-            continue
+    
+    candidates: list[dict[str, Any]] = []
+    
+    for exercise in full_pool:
         exercise_id = str(exercise.get("id") or "")
+        
+        # Kendisini veya "önerme" listesindeki hareketleri atla
         if not exercise_id or exercise_id == str(source_exercise_id) or exercise_id in avoided:
             continue
-        primary, secondary = _exercise_muscles(exercise)
-        overlap = len(source_primary.intersection(primary)) * 4 + len(source_primary.intersection(secondary)) * 2 + len(source_secondary.intersection(primary))
-        if overlap <= 0:
+            
+        # 1. KURAL: Aynı ana kas grubunda (Chest, Back, Legs vb.) olmalı.
+        # Bu kural, Squat (Legs) ile Barbell Row (Back) hareketlerinin "spinal_erectors" 
+        # (bel) kası yüzünden birbirine karışmasını KESİN olarak engeller.
+        if exercise.get("muscle_group") != source_group:
             continue
-        if _exercise_risk_reason(exercise, doms, active_constraints):
+            
+        ex_analysis = exercise.get("analysis") or {}
+        ex_primary = set(ex_analysis.get("primary_muscles") or [])
+        ex_secondary = set(ex_analysis.get("secondary_muscles") or [])
+        ex_all = ex_primary | ex_secondary
+        
+        # 2. KURAL: Birinci kuralı geçenler arasında, en azından bir Primary veya Secondary kas KESİŞMELİ.
+        # Örn: Squat (quads, glutes) ile Leg Extension (quads) kesişir ve listelenir.
+        # Ancak Squat ile Calf Raises (calves) kesişmez ve elenir.
+        if not source_all.intersection(ex_all):
             continue
-        analysis = exercise.get("analysis") or {}
-        score = overlap * 10
-        if str(analysis.get("movement_pattern") or "") == source_pattern and source_pattern:
-            score += 9
-        if str(exercise.get("category") or "").lower() == source_category:
-            score += 2
-        if exercise_id in preferred:
-            score += 25
-        candidates.append((score, exercise))
-    candidates.sort(key=lambda item: (item[0], str(item[1].get("name", ""))), reverse=True)
+            
+        candidates.append(exercise)
+        
+    # Sıralama: "Tercih Edilenler" en üstte, sonrasında alfabetik sıra. (Puanlama yok)
+    candidates.sort(key=lambda ex: (
+        0 if str(ex.get("id", "")) in preferred else 1,
+        str(ex.get("name", "")).lower()
+    ))
+    
+    # Limit ve ekipman/DOMS filtreleri KALDIRILDI. Şartları sağlayan tüm alternatifler listelenir.
     return [
         {
             "id": item.get("id"),
             "name": item.get("name"),
-            "primary_muscle_labels": [detailed_muscle_label(value) for value in sorted(_exercise_muscles(item)[0])],
+            # Çevirmen yüzünden boş dönmemesi için doğrudan analysis içindeki ham veriyi gösteriyoruz
+            "primary_muscle_labels": [detailed_muscle_label(v) for v in (item.get("analysis") or {}).get("primary_muscles", [])],
             "equipment": _exercise_required_equipment(item),
             "is_preferred": str(item.get("id")) in preferred,
         }
-        for _, item in candidates[:max(1, min(int(limit or 5), 8))]
+        for item in candidates
     ]
-
 
 def get_exercise_alternatives(
     source_exercise_id: object,

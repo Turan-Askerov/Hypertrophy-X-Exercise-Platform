@@ -1510,9 +1510,9 @@ canvas {
   outline: none;
 }
 .expert-alternative-menu {
-  width: min(440px, calc(100vw - 92px));
-  margin: 7px 0 5px;
-  padding: 8px;
+  width: 100%; /* Eskiden 440px ile sınırlıydı, artık bulunduğu alanı tam kaplayacak */
+  margin: 10px 0 5px;
+  padding: 12px;
   border: 1px solid rgba(108,99,255,.44);
   border-radius: 10px;
   background: linear-gradient(145deg, rgba(34,39,57,.98), rgba(24,28,42,.98));
@@ -1555,7 +1555,8 @@ canvas {
 }
 .expert-alternative-options {
   display: grid;
-  gap: 5px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Bu satır kartları yan yana paralel dizer! */
+  gap: 8px;
 }
 .expert-alternative-item {
   display: grid;
@@ -7124,15 +7125,80 @@ function expertDataRecommendationDayCard(day, index) {
     .map(item => expertDataResolveExerciseId(item?.id, item?.name))
     .filter(Boolean))];
   const occupiedArgument = `[${occupiedExerciseIds.map(value => `'${String(value).replace(/[^a-zA-Z0-9_-]/g, '')}'`).join(',')}]`;
-  const exerciseRows = exercises.length ? `<div style="display:grid;gap:5px;margin-top:9px">${exercises.map(item => {
+
+  // --- HAREKET SATIRLARI ---
+  const mappedExercises = exercises.map((item, exIdx) => {
     const exerciseId = expertDataResolveExerciseId(item?.id, item?.name);
     const alternatives = expertDataAlternativeState?.[exerciseId];
-    const alternativeView = Array.isArray(alternatives) ? `<div class="expert-alternative-menu" role="menu"><div class="expert-alternative-menu-head"><span>Uygun alternatifler</span><button class="expert-alternative-close" type="button" title="Listeyi kapat" aria-label="Alternatif listesini kapat" onclick="expertDataCloseAlternativeMenus()">×</button></div>${alternatives.length ? `<div class="expert-alternative-options">${alternatives.map(alt => `<button class="expert-alternative-item" type="button" role="menuitem" title="Bu hareketi öneri programına uygula" onclick="expertDataReplaceRecommendedExercise(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}', '${expertDataEscape(alt.id)}')"><span class="expert-alternative-item-main"><span class="expert-alternative-item-name">${expertDataEscape(alt.name)}${alt.is_preferred ? ' · tercih edilen' : ''}</span><small class="expert-alternative-item-meta">${expertDataEscape((alt.primary_muscle_labels || []).join(' · '))}</small></span><span class="expert-alternative-apply">Programda değiştir</span></button>`).join('')}</div>` : '<div class="expert-alternative-empty">Mevcut ekipman ve kurallara uygun, gün içinde kullanılmayan alternatif bulunamadı.</div>'}</div>` : '';
-    return `<div class="expert-recommendation-exercise expert-alternative-shell"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><span>${expertDataEscape(item.name)} <button class="expert-alternative-open" type="button" title="Uygun alternatifleri göster" aria-label="${expertDataEscape(item.name)} için alternatif hareketleri göster" onclick="expertDataLoadAlternatives('${expertDataEscape(exerciseId)}', ${occupiedArgument})">⟳</button></span><strong>${expertDataEscape(item.sets)} × ${expertDataEscape(item.reps)}</strong></div>${alternativeView}</div>`;
-  }).join('')}</div>` : '';
+    const alternativeView = Array.isArray(alternatives) ? `<div class="expert-alternative-menu" role="menu"><div class="expert-alternative-menu-head"><span>Uygun alternatifler</span><button class="expert-alternative-close" type="button" title="Listeyi kapat" onclick="expertDataCloseAlternativeMenus()">×</button></div>${alternatives.length ? `<div class="expert-alternative-options">${alternatives.map(alt => `<button class="expert-alternative-item" type="button" onclick="expertDataReplaceRecommendedExercise(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}', '${expertDataEscape(alt.id)}')"><span class="expert-alternative-item-main"><span class="expert-alternative-item-name">${expertDataEscape(alt.name)}${alt.is_preferred ? ' · tercih edilen' : ''}</span><small class="expert-alternative-item-meta">${expertDataEscape((alt.primary_muscle_labels || []).join(' · '))}</small></span><span class="expert-alternative-apply">Programda değiştir</span></button>`).join('')}</div>` : '<div class="expert-alternative-empty">Mevcut ekipman ve kurallara uygun alternatif bulunamadı.</div>'}</div>` : '';
+
+    return `<div class="expert-recommendation-exercise expert-alternative-shell" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 10px 14px; transition: border-color 0.2s ease;" onmouseover="this.style.borderColor='rgba(108,99,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
+        <div style="display:flex; align-items:center; gap: 10px;">
+          <span class="ex-drag-handle" title="Önceliği değiştirmek için sürükle" style="cursor:grab; color:rgba(255,255,255,0.15); transition:0.2s; display:flex; align-items:center;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.15)'">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
+          </span>
+          <span style="font-size: 13px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.3px;">${expertDataEscape(item.name)}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap: 6px;">
+          <strong style="font-size: 12px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">${expertDataEscape(item.sets)} × ${expertDataEscape(item.reps)}</strong>
+          
+          <!-- YENİLE BUTONU -->
+          <button class="expert-alternative-open" type="button" title="Uygun alternatifleri göster" onclick="expertDataLoadAlternatives('${expertDataEscape(exerciseId)}', ${occupiedArgument})" style="display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:6px; background:var(--accent-bg); color:var(--accent); border:1px solid transparent; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='var(--accent)'; this.style.color='#fff';" onmouseout="this.style.background='var(--accent-bg)'; this.style.color='var(--accent)';">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </button>
+          
+          <!-- SİL BUTONU -->
+          <button type="button" title="Hareketi Çıkar" onclick="expertDataRemoveRecommendedExercise(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')" style="display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:6px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid transparent; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='#fff';" onmouseout="this.style.background='rgba(239,68,68,0.1)'; this.style.color='#ef4444';">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+      </div>
+      ${alternativeView}
+    </div>`;
+  }).join('');
+
   const rest = Boolean(day?.isRest) || String(day?.type || '').toLowerCase().includes('dinlenme');
+  
+  // YENİ EKLE BUTONU (Dinlenme günü değilse en alta eklenir)
+  const addBtnHtml = !rest ? `
+    <div style="margin-top: 10px;">
+      <button type="button" onclick="expertDataAddRecommendedExercise(${weekIndex}, '${expertDataEscape(slotId)}')" style="width: 100%; background: transparent; border: 1px dashed rgba(255,255,255,0.15); color: var(--text-muted); padding: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 12px; font-weight: 600; display:flex; align-items:center; justify-content:center; gap:6px;" onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='var(--text-muted)';">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+        Uzman Sistemden Yeni Hareket Ekle
+      </button>
+    </div>` : '';
+
+  const exerciseRows = `<div class="expert-exercise-sortable" data-day-index="${index}" style="display:flex; flex-direction:column; gap:8px; margin-top:16px;">${mappedExercises} ${addBtnHtml}</div>`;
   const slotLabel = expertRecommendationWeekdays[index] || `Gün ${index + 1}`;
-  return `<article data-index="${index}" class="expert-data-history-item" style="border-left:3px solid ${rest ? '#7f8ea8' : '#4dabf7'};margin:0"><div style="display:flex;align-items:start;gap:9px"><span class="expert-recommendation-drag" title="Seans içeriğini başka güne taşı" style="cursor:grab;color:var(--text-muted);font-size:17px;line-height:1">☰</span><div style="min-width:0;flex:1"><div style="display:flex;justify-content:space-between;gap:9px"><strong>${expertDataEscape(slotLabel)} · ${expertDataEscape(day?.type || (rest ? 'Dinlenme' : 'Antrenman'))}</strong><span class="expert-data-badge">${rest ? 'Dinlenme' : 'Seans'}</span></div><p style="margin:6px 0 0;color:var(--text-secondary)">${expertDataEscape(day?.focus || '')}</p>${day?.content_reason ? `<small style="display:block;margin-top:5px;color:var(--text-muted)">${expertDataEscape(day.content_reason)}</small>` : ''}${exerciseRows}</div></div></article>`;
+
+  const themeColor = rest ? 'rgba(148, 163, 184, 0.8)' : 'var(--accent)';
+  const bgColor = rest ? 'rgba(255,255,255,0.015)' : 'linear-gradient(145deg, rgba(108,99,255,0.05), rgba(0,0,0,0.15))';
+  const borderColor = rest ? 'rgba(255,255,255,0.05)' : 'rgba(108,99,255,0.2)';
+  const badgeHtml = rest ? `<span style="font-size:10px; font-weight:700; color:#9ca3b4; background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:6px; text-transform:uppercase;">Dinlenme</span>` : `<span style="font-size:10px; font-weight:700; color:var(--accent); background:var(--accent-bg); padding:4px 10px; border-radius:6px; text-transform:uppercase; border:1px solid rgba(108,99,255,0.2);">Seans</span>`;
+
+  return `
+    <article data-index="${index}" class="expert-data-history-item" style="margin:0 0 12px 0; padding:18px; background:${bgColor}; border:1px solid ${borderColor}; border-left:4px solid ${themeColor}; border-radius:12px; transition:transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+      <div style="display:flex; align-items:start; gap:14px;">
+        <div class="expert-recommendation-drag" title="Seans içeriğini başka güne taşı" style="cursor:grab; color:rgba(255,255,255,0.15); padding-top:2px; transition:color 0.2s;" onmouseover="this.style.color='${themeColor}'" onmouseout="this.style.color='rgba(255,255,255,0.15)'">
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
+        </div>
+        <div style="min-width:0; flex:1;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:15px; font-weight:800; color:var(--text-primary); letter-spacing:0.3px;">${expertDataEscape(slotLabel)}</span>
+              <span style="color:var(--text-muted); opacity:0.5;">•</span>
+              <span style="font-size:14px; font-weight:700; color:${themeColor};">${expertDataEscape(day?.type || (rest ? 'Dinlenme' : 'Antrenman'))}</span>
+            </div>
+            ${badgeHtml}
+          </div>
+          ${day?.focus ? `<p style="margin:10px 0 0; color:var(--text-secondary); font-size:13px; font-weight:500; line-height:1.5;">${expertDataEscape(day.focus)}</p>` : ''}
+          ${day?.content_reason ? `<div style="margin-top:10px; padding:8px 12px; background:rgba(0,0,0,0.25); border-left:2px solid rgba(255,255,255,0.1); border-radius:6px; display:flex; gap:8px; align-items:flex-start;"><span style="font-size:12px;">💡</span><small style="color:var(--text-muted); font-size:11.5px; line-height:1.45; font-weight:500;">${expertDataEscape(day.content_reason)}</small></div>` : ''}
+          ${exerciseRows}
+        </div>
+      </div>
+    </article>
+  `;
 }
 
 function expertDataRecommendationPane() {
@@ -7159,18 +7225,166 @@ async function expertDataGenerateRecommendation() {
     refreshDashboardProgramStat('expert');
   } catch (error) { toast(error.message || 'Uzman önerisi oluşturulamadı.', 'error'); }
 }
+
 function expertDataInitRecommendationSortable() {
   const list = document.getElementById('expertRecommendationDays');
   const recommendation = expertDataRecommendation();
   if (!list || !recommendation?.weeks?.[expertRecommendationWeekIndex] || typeof Sortable === 'undefined') return;
-  new Sortable(list, { handle: '.expert-recommendation-drag', animation: 180, ghostClass: 'sortable-ghost', onEnd(evt) {
-    if (evt.oldIndex === evt.newIndex) return;
-    const days = recommendation.weeks[expertRecommendationWeekIndex].days;
-    expertRecommendationMoveContents(days, evt.oldIndex, evt.newIndex);
-    queueExpertRecommendationOrderSave(days, expertRecommendationWeekIndex);
-    renderExpertSystem();
-  }});
+  
+  // 1. GÜNLERİN kendi arasında sürüklenmesi (Mevcut olan)
+  new Sortable(list, { 
+    handle: '.expert-recommendation-drag', 
+    animation: 180, 
+    ghostClass: 'sortable-ghost', 
+    onEnd(evt) {
+      if (evt.oldIndex === evt.newIndex) return;
+      const days = recommendation.weeks[expertRecommendationWeekIndex].days;
+      expertRecommendationMoveContents(days, evt.oldIndex, evt.newIndex);
+      queueExpertRecommendationOrderSave(days, expertRecommendationWeekIndex);
+      renderExpertSystem();
+    }
+  });
+
+  // 2. YENİ: HAREKETLERİN kendi arasında sürüklenmesi
+  document.querySelectorAll('.expert-exercise-sortable').forEach(exList => {
+    new Sortable(exList, {
+      handle: '.ex-drag-handle', // Az önce eklediğimiz tutamaç
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      onEnd(evt) {
+        if (evt.oldIndex === evt.newIndex) return;
+        
+        // Hangi günün kartında işlem yapıldığını bul
+        const dayIndex = exList.getAttribute('data-day-index');
+        const days = recommendation.weeks[expertRecommendationWeekIndex].days;
+        const exercises = days[dayIndex].exercises;
+        
+        // JS Dizisindeki sırayı değiştir
+        const movedItem = exercises.splice(evt.oldIndex, 1)[0];
+        exercises.splice(evt.newIndex, 0, movedItem);
+        
+        // Yeni sıralamayı veritabanına kaydet ve UI'ı yenile
+        queueExpertRecommendationOrderSave(days, expertRecommendationWeekIndex);
+        renderExpertSystem();
+      }
+    });
+  });
 }
+
+// HAREKET ÇIKARTMA FONKSİYONU
+window.expertDataRemoveRecommendedExercise = async function(weekIndex, slotId, exerciseId) {
+  if (!confirm('Bu hareketi programdan çıkarmak istediğine emin misin?')) return;
+  
+  const recommendation = expertDataRecommendation();
+  if (!recommendation || !recommendation.weeks?.[weekIndex]) return;
+  
+  const days = recommendation.weeks[weekIndex].days;
+  const dayIndex = days.findIndex(d => d.slot_id === slotId || d.day_id === slotId);
+  if (dayIndex === -1) return;
+  
+  // DÜZELTME 1: Doğrudan eksik olabilen ex.id'ye değil, kesin çözümlenmiş ID'ye bakıyoruz!
+  days[dayIndex].exercises = days[dayIndex].exercises.filter(ex => {
+      const currentExId = expertDataResolveExerciseId(ex.id, ex.name);
+      return currentExId !== String(exerciseId);
+  });
+  
+  try {
+    const result = await apiPut('/api/expert-data/recommendation/reorder', { weeks: recommendation.weeks });
+    if (cachedUserData) cachedUserData.dashboard_preferences = result.dashboard_preferences || cachedUserData.dashboard_preferences;
+    
+    // DÜZELTME 2: Backend bize eski durumu dönse bile, biz kendi sildiğimiz güncel listeyi ekrana zorla basıyoruz!
+    if (expertDataState) {
+        expertDataState.recommendation.weeks = recommendation.weeks;
+    }
+    
+    toast('Hareket başarıyla çıkarıldı.', 'success');
+    renderExpertSystem();
+  } catch (error) {
+    toast(error.message || 'Hareket çıkarılamadı.', 'error');
+  }
+};
+
+// HAREKET EKLEME FONKSİYONU (UZMAN SEÇİMİ)
+window.expertDataAddRecommendedExercise = async function(weekIndex, slotId) {
+  // Havuz boşsa API'den çek
+  if (typeof _exercisePool === 'undefined' || _exercisePool.length === 0) {
+    try {
+      const data = await apiGet('/api/exercises');
+      _exercisePool = data.exercises || [];
+    } catch (e) {
+      toast('Egzersiz havuzu yüklenemedi. Lütfen internet bağlantınızı kontrol edin.', 'error');
+      return;
+    }
+  }
+
+  const recommendation = expertDataRecommendation();
+  if (!recommendation || !recommendation.weeks?.[weekIndex]) return;
+  
+  const days = recommendation.weeks[weekIndex].days;
+  const dayIndex = days.findIndex(d => d.slot_id === slotId || d.day_id === slotId);
+  if (dayIndex === -1) return;
+  
+  const day = days[dayIndex];
+  const existingIds = new Set(day.exercises.map(ex => String(expertDataResolveExerciseId(ex.id, ex.name))));
+  
+  const targetMuscles = new Set();
+  day.exercises.forEach(ex => {
+     const poolEx = _exercisePool.find(p => String(p.id) === String(expertDataResolveExerciseId(ex.id, ex.name)));
+     if (poolEx && poolEx.muscle) targetMuscles.add(poolEx.muscle);
+  });
+  
+  // Günün adından kası tahmin et
+  if (targetMuscles.size === 0) {
+     const type = (day.type || '').toLowerCase();
+     if (type.includes('push') || type.includes('göğüs')) { 
+         targetMuscles.add('Göğüs'); targetMuscles.add('Omuz'); targetMuscles.add('Triceps'); 
+     }
+     else if (type.includes('pull') || type.includes('sırt')) { 
+         targetMuscles.add('Sırt'); targetMuscles.add('Biceps'); 
+     }
+     else if (type.includes('leg') || type.includes('bacak') || type.includes('lower')) { 
+         targetMuscles.add('Quadriceps'); targetMuscles.add('Hamstring'); targetMuscles.add('Calf'); targetMuscles.add('Glute'); 
+     }
+     else {
+         targetMuscles.add('Göğüs');
+     }
+  }
+  
+  // Adayları belirle
+  const candidates = _exercisePool.filter(ex => 
+     !existingIds.has(String(ex.id)) && targetMuscles.has(ex.muscle)
+  );
+  
+  if (candidates.length === 0) {
+     toast('Bu gün için eklenebilecek uygun alternatif hareket bulunamadı.', 'error');
+     return;
+  }
+  
+  const newEx = candidates[Math.floor(Math.random() * candidates.length)];
+  
+  day.exercises.push({
+     id: String(newEx.id),
+     name: newEx.name,
+     sets: "3",
+     reps: "8-12",
+     effort: "RIR 1-3"
+  });
+  
+  try {
+    const result = await apiPut('/api/expert-data/recommendation/reorder', { weeks: recommendation.weeks });
+    if (cachedUserData) cachedUserData.dashboard_preferences = result.dashboard_preferences || cachedUserData.dashboard_preferences;
+    
+    // Ekleme işleminde de ekranı zorla güncel tutuyoruz
+    if (expertDataState) {
+        expertDataState.recommendation.weeks = recommendation.weeks;
+    }
+    
+    toast(newEx.name + ' programa başarıyla eklendi!', 'success');
+    renderExpertSystem();
+  } catch (error) {
+    toast(error.message || 'Hareket eklenemedi.', 'error');
+  }
+};
 
 function expertDataSplitDraftPane() {
   const analysis = expertAnalysisState || {};
@@ -7448,20 +7662,71 @@ document.addEventListener('click', (event) => {
   window.expertDataCloseAlternativeMenus();
 });
 
+// HAREKET DEĞİŞTİRME (ALTERNATİF) FONKSİYONU
 window.expertDataReplaceRecommendedExercise = async function(weekIndex, slotId, sourceExerciseId, alternativeExerciseId) {
+  // 1. Egzersiz havuzu boşsa önce API'den çek
+  if (typeof _exercisePool === 'undefined' || _exercisePool.length === 0) {
+    try {
+      const data = await apiGet('/api/exercises');
+      _exercisePool = data.exercises || [];
+    } catch (e) {
+      toast('Egzersiz havuzu yüklenemedi. Lütfen sayfayı yenileyin.', 'error');
+      return;
+    }
+  }
+
+  // 2. Havuzdan seçilen YENİ alternatif hareketi bul
+  const newEx = _exercisePool.find(ex => String(ex.id) === String(alternativeExerciseId));
+  if (!newEx) {
+    toast('Alternatif hareket sistem havuzunda bulunamadı.', 'error');
+    return;
+  }
+
+  const recommendation = expertDataRecommendation();
+  if (!recommendation || !recommendation.weeks?.[weekIndex]) return;
+  
+  const days = recommendation.weeks[weekIndex].days;
+  const dayIndex = days.findIndex(d => d.slot_id === slotId || d.day_id === slotId);
+  if (dayIndex === -1) return;
+  
+  const day = days[dayIndex];
+
+  // 3. Değiştirilecek ESKİ hareketi güvenli ID çözücü ile listede bul
+  const exIndex = day.exercises.findIndex(ex => {
+      const currentExId = expertDataResolveExerciseId(ex.id, ex.name);
+      return currentExId === String(sourceExerciseId);
+  });
+
+  if (exIndex === -1) {
+      toast('Değiştirilecek eski hareket arayüzde bulunamadı.', 'error');
+      return;
+  }
+
+  // 4. Eski hareketin set, tekrar ve efor değerlerini kopyala, sadece adını ve ID'sini güncelle
+  const oldEx = day.exercises[exIndex];
+  day.exercises[exIndex] = {
+     id: String(newEx.id),
+     name: newEx.name,
+     sets: oldEx.sets || "3",
+     reps: oldEx.reps || "8-12",
+     effort: oldEx.effort || "RIR 1-3"
+  };
+
   try {
-    const result = await apiPut('/api/expert-data/recommendation/exercise-replace', {
-      week_index: Number(weekIndex),
-      slot_id: String(slotId || ''),
-      source_exercise_id: String(sourceExerciseId || ''),
-      alternative_exercise_id: String(alternativeExerciseId || ''),
-    });
-    expertDataState = expertDataState || {};
-    expertDataState.recommendation = result.recommendation;
+    // 5. Değiştirilmiş güncel listeyi (Ekle/Çıkar mantığındaki gibi) bütün olarak kaydet
+    const result = await apiPut('/api/expert-data/recommendation/reorder', { weeks: recommendation.weeks });
+    
     if (cachedUserData) cachedUserData.dashboard_preferences = result.dashboard_preferences || cachedUserData.dashboard_preferences;
-    expertDataAlternativeState = {};
-    toast(`${result.replaced_exercise?.name || 'Alternatif hareket'} öneri programına uygulandı.`, 'success');
+    
+    if (expertDataState) {
+        expertDataState.recommendation.weeks = recommendation.weeks;
+    }
+    
+    // Açık olan alternatifler menüsünü temizle ve arayüzü yenile
+    expertDataAlternativeState = {}; 
+    toast(newEx.name + ' programa başarıyla uygulandı!', 'success');
     renderExpertSystem();
+    
   } catch (error) {
     toast(error.message || 'Hareket değiştirilemedi.', 'error');
   }

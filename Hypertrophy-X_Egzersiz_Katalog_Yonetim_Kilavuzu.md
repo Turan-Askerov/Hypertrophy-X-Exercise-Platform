@@ -21,13 +21,13 @@ Terminalde aşağıdaki komutları çalıştır. Bu adım yalnız kaynak dosyala
 cd ~/Desktop/Hypertrophy-X-v4.0
 STAMP=$(date +%Y%m%d_%H%M%S)
 mkdir -p ".local-backups/manual-catalog-${STAMP}/backend"
-cp -p backend/exercise_catalog.py backend/exercise_aliases.py backend/expert_system.py ".local-backups/manual-catalog-${STAMP}/backend/"
+cp -p backend/exercise_catalog.py backend/expert_rule_engine.py backend/expert_recommendation.py backend/exercise_aliases.py backend/expert_system.py ".local-backups/manual-catalog-${STAMP}/backend/"
 ```
 
 Sonrasında yalnız değiştirdiğin dosyaları kontrol edebilirsin:
 
 ```bash
-git diff -- backend/exercise_catalog.py backend/exercise_aliases.py backend/expert_system.py
+git diff -- backend/exercise_catalog.py backend/exercise_aliases.py backend/expert_system.py backend/expert_recommendation.py backend/expert_rule_engine.py
 ```
 
 ## 3. Yeni hareket ekleme
