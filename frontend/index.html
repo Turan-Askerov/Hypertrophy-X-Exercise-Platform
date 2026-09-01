@@ -1922,6 +1922,82 @@ canvas {
 }
 
 </style>
+
+<style id="mobile-expert-fix">
+@media (max-width: 900px) {
+  /* Prevent horizontal scrolling globally */
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+  
+  /* Make sure all expert grids collapse nicely */
+  .expert-layout,
+  .expert-gym-workspace,
+  .expert-gym-bottom-grid,
+  .expert-data-grid,
+  .expert-equipment-groups,
+  .expert-form-grid,
+  .expert-data-choice-grid,
+  .expert-data-doms-grid,
+  .expert-doms-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  
+  .expert-gym-stat-grid,
+  .expert-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  
+  @media (max-width: 480px) {
+    .expert-gym-stat-grid,
+    .expert-choice-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  .expert-equipment-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Handle inputs and buttons on mobile */
+  .expert-data-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+  
+  .expert-data-actions {
+    flex-direction: column;
+  }
+  
+  .expert-data-actions .btn {
+    width: 100% !important;
+    margin-bottom: 8px;
+    flex: none !important;
+  }
+
+  /* Prevent text and element squeezing */
+  .expert-card, .expert-equipment-group, .expert-data-card {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    word-wrap: break-word !important;
+    overflow: hidden !important;
+  }
+  
+  /* Make tables and wide content scrollable */
+  .expert-table-wrap, .table-wrap {
+    overflow-x: auto !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -7253,7 +7329,7 @@ function expertDataInjectStyles() {
     .expert-data-note{margin:12px 0 0;padding:10px 11px;border-radius:10px;background:rgba(255,183,3,.075);border-left:3px solid #ffb703;color:var(--text-secondary);font-size:11px;line-height:1.55}
     .expert-movement-toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 12px}.expert-movement-search{flex:1 1 260px;min-width:0}.expert-movement-group{margin-top:9px;border:1px solid rgba(77,171,247,.2);border-radius:12px;overflow:hidden;background:rgba(77,171,247,.03)}.expert-movement-group summary{display:flex;justify-content:space-between;gap:10px;padding:11px 12px;cursor:pointer;color:var(--text-primary);font-size:12px;font-weight:800}.expert-movement-group summary span{color:var(--text-muted);font-size:10px}.expert-movement-list{display:grid;gap:6px;padding:0 10px 10px}.expert-movement-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:7px;padding:8px 9px;border:1px solid var(--border);border-radius:9px;background:rgba(7,12,23,.16)}.expert-movement-name{min-width:0;color:var(--text-secondary);font-size:11px;font-weight:750;line-height:1.3}.expert-movement-meta{display:block;color:var(--text-muted);font-size:9px;font-weight:600;margin-top:2px}.expert-movement-button{min-height:28px;padding:5px 7px;border:1px solid rgba(77,171,247,.38);border-radius:7px;background:rgba(77,171,247,.07);color:#8bd4ff;cursor:pointer;font-size:10px;font-weight:800}.expert-movement-button.avoid{border-color:rgba(239,71,111,.43);color:#ff9caf;background:rgba(239,71,111,.07)}.expert-movement-button.active{background:rgba(38,208,206,.18);border-color:#3acdbf;color:#c9fff6}.expert-movement-button.avoid.active{background:rgba(239,71,111,.2);border-color:#ef476f;color:#ffe0e7}.expert-alternatives{display:grid;gap:6px;margin-top:8px;padding:9px;border:1px dashed rgba(77,171,247,.5);border-radius:9px;background:rgba(77,171,247,.04)}.expert-alternative-item{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;color:var(--text-secondary)}.expert-alternative-open{border:0;background:transparent;color:#7bd1ff;cursor:pointer;font-size:16px;line-height:1;padding:1px 4px}.expert-alternative-open:hover{color:#c6f1ff;transform:rotate(30deg)}
     /* HX_EXPERT_CATALOG_CLEANUP_LAYOUT_V1 */
-    .expert-gym-workspace{display:grid;gap:18px}.expert-gym-bottom-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(310px,.88fr);gap:18px;align-items:start}.expert-gym-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 16px}.expert-gym-stat-grid>div{padding:11px 12px;border:1px solid rgba(77,171,247,.18);border-radius:11px;background:linear-gradient(145deg,rgba(77,171,247,.08),rgba(10,17,31,.03))}.expert-gym-stat-grid span{display:block;color:var(--text-muted);font-size:10px;font-weight:700}.expert-gym-stat-grid strong{display:block;margin-top:4px;color:var(--text-primary);font-size:13px;line-height:1.25;overflow-wrap:anywhere}.expert-gym-guide-list{display:grid;gap:9px}.expert-gym-guide-list>div{padding:10px 11px;border-left:3px solid rgba(77,171,247,.72);border-radius:0 10px 10px 0;background:rgba(77,171,247,.055)}.expert-gym-guide-list strong{display:block;color:var(--text-primary);font-size:11px}.expert-gym-guide-list span{display:block;margin-top:3px;color:var(--text-muted);font-size:10px;line-height:1.45}@media(max-width:900px){.expert-gym-bottom-grid{grid-template-columns:1fr}.expert-gym-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr)}}
+    .expert-gym-workspace{display:grid;gap:18px}.expert-gym-bottom-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(310px,.88fr);gap:18px;align-items:start}.expert-gym-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 16px}.expert-gym-stat-grid>div{padding:11px 12px;border:1px solid rgba(77,171,247,.18);border-radius:11px;background:linear-gradient(145deg,rgba(77,171,247,.08),rgba(10,17,31,.03))}.expert-gym-stat-grid span{display:block;color:var(--text-muted);font-size:10px;font-weight:700}.expert-gym-stat-grid strong{display:block;margin-top:4px;color:var(--text-primary);font-size:13px;line-height:1.25;overflow-wrap:anywhere}.expert-gym-guide-list{display:grid;gap:9px}.expert-gym-guide-list>div{padding:10px 11px;border-left:3px solid rgba(77,171,247,.72);border-radius:0 10px 10px 0;background:rgba(77,171,247,.055)}.expert-gym-guide-list strong{display:block;color:var(--text-primary);font-size:11px}.expert-gym-guide-list span{display:block;margin-top:3px;color:var(--text-muted);font-size:10px;line-height:1.45}@media(max-width:900px){.expert-gym-bottom-grid{grid-template-columns:1fr}.expert-gym-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:760px){.expert-equipment-groups{grid-template-columns:1fr;gap:10px}.expert-equipment-column{gap:10px}.expert-equipment-group{padding:10px}.expert-equipment-toggle{min-height:56px;padding:10px 11px}.expert-data-actions .btn{flex:1 1 145px;min-height:42px}}
     @media(max-width:760px){.expert-data-hero{padding:18px}.expert-data-grid{grid-template-columns:1fr}.expert-data-card{padding:15px}.expert-data-metric-head{display:none}.expert-data-metric-row{grid-template-columns:1fr!important;gap:10px;padding:14px 4px}.expert-data-choice-grid,.expert-data-doms-grid,.expert-equipment-groups{grid-template-columns:1fr}.expert-data-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;overflow:visible;margin-right:0}.expert-data-tab{min-width:0;justify-content:center;gap:3px;padding:9px 4px;font-size:10px;white-space:nowrap;overflow:hidden}.expert-data-tab-label{font-size:0}.expert-data-tab-label::after{content:attr(data-mobile);font-size:10px}.expert-data-subtabs{gap:6px;padding-bottom:12px;margin-bottom:14px}.expert-data-subtab{flex:1;min-width:0;padding:9px 7px;font-size:11px}.expert-data-stage{min-height:0}}
   `;
