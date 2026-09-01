@@ -4951,19 +4951,19 @@ async function loadHistory(username) {
 
       html += `
         <div class="card history-card history-card-animated" id="card-${index}" style="--card-index: ${index};" onclick="handleCardClick(${index}, event)">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
-            <div>
-              <div style="font-size:16px; font-weight:700; color:var(--text);">${w.session_type || 'Antrenman'} <span class="badge badge-accent" style="font-size:10px; margin-left:6px;">${exercises.length} Hareket</span></div>
-              <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">${formatDateTR(w.date)}${w.gym_name ? ` · ${w.gym_name}` : ''}</div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:nowrap; gap:10px;">
+            <div style="min-width:0; flex:1;">
+              <div style="font-size:15px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${w.session_type || 'Antrenman'} <span class="badge badge-accent" style="font-size:10px; margin-left:6px; vertical-align:middle;">${exercises.length} Hareket</span></div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${formatDateTR(w.date)}${w.gym_name ? ` · ${w.gym_name}` : ''}</div>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
               <div style="text-align:right; margin-right:8px;">
                 <div style="font-size:14px; font-weight:700; color:var(--accent);">${Math.round(w.total_volume).toLocaleString()} kg</div>
               </div>
-              <button id="edit-btn-${index}" onclick="toggleEditMode(${index}, event)" title="Setleri Düzenle" style="background:transparent; border:none; color:var(--accent); cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
-              <button onclick="openWorkoutGeneralEdit(${index}, event)" title="Genel Düzenle" style="background:transparent; border:none; color:var(--blue); cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg></button>
+              <button id="edit-btn-${index}" onclick="toggleEditMode(${index}, event)" title="Setleri Düzenle" style="background:transparent; border:none; color:var(--accent); cursor:pointer; padding:4px; transition:0.2s;"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+              <button onclick="openWorkoutGeneralEdit(${index}, event)" title="Genel Düzenle" style="background:transparent; border:none; color:var(--blue); cursor:pointer; padding:4px; transition:0.2s;"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg></button>
               <button id="save-btn-${index}" onclick="saveEdit(${index}, ${w.id}, event)" title="Kaydet" style="display:none; background:var(--green-bg); border:1px solid var(--green); color:var(--green); font-size:12px; font-weight:700; border-radius:6px; padding:4px 10px; cursor:pointer;">Kaydet</button>
-              <button onclick="deleteWorkout(${w.id}, event)" title="Sil" style="background:transparent; border:none; color:#ef4444; cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+              <button onclick="deleteWorkout(${w.id}, event)" title="Sil" style="background:transparent; border:none; color:#ef4444; cursor:pointer; padding:4px; transition:0.2s;"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
             </div>
           </div>
 
@@ -5250,19 +5250,19 @@ async function loadNutritionHistory() {
 
       html += `
         <div class="card history-card history-card-animated" id="nutri-card-${index}" style="--card-index: ${index}; cursor:pointer; margin-bottom:12px;" onclick="toggleNutritionDetails(${index}, event)">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
-            <div>
-              <div class="nutri-view-${index}" style="font-size:15px; font-weight:700; color:var(--text);">${formatDateTR(log.date)}</div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:nowrap; gap:10px;">
+            <div style="min-width:0; flex:1;">
+              <div class="nutri-view-${index}" style="font-size:15px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${formatDateTR(log.date)}</div>
               <input type="date" class="nutri-edit-${index} edit-input" id="n-edit-date-${index}" value="${log.date}" max="${new Date().toISOString().slice(0, 10)}" aria-label="Kayıt tarihi" style="display:none; width:148px; padding:5px 7px; font-size:12px;">
-              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Günlük Beslenme Özeti</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Günlük Beslenme Özeti</div>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
               <div style="text-align:right; margin-right:8px;">
                 <span class="nutri-view-${index}" style="font-size:18px; font-weight:800; color:${calColor};">${log.calories} <span style="font-size:12px; font-weight:600; color:var(--text-muted);">kcal</span></span>
               </div>
-              <button id="n-edit-btn-${index}" onclick="toggleNutritionEditMode(${index}, event)" title="Düzenle" style="background:transparent; border:none; color:var(--accent); cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+              <button id="n-edit-btn-${index}" onclick="toggleNutritionEditMode(${index}, event)" title="Düzenle" style="background:transparent; border:none; color:var(--accent); cursor:pointer; padding:4px; transition:0.2s;"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
               <button id="n-save-btn-${index}" onclick="saveNutritionEdit(${index}, '${log.date}', event)" title="Kaydet" style="display:none; background:var(--green-bg); border:1px solid var(--green); color:var(--green); font-size:12px; font-weight:700; border-radius:6px; padding:4px 10px; cursor:pointer;">Kaydet</button>
-              <button onclick="deleteNutritionLog('${log.date}', event)" title="Sil" style="background:transparent; border:none; color:#ef4444; cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+              <button onclick="deleteNutritionLog('${log.date}', event)" title="Sil" style="background:transparent; border:none; color:#ef4444; cursor:pointer; padding:4px; transition:0.2s;"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
             </div>
           </div>
           <div id="nutri-hint-${index}" style="text-align:center; font-size:11px; color:var(--text-muted); margin-top:12px; font-weight:600;">Makro detaylarını görmek için tıkla</div>
