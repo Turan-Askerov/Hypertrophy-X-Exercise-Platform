@@ -20,16 +20,6 @@ PRIMARY_GOALS = {
     "fat_loss": "Yağ kaybı ve kas korunumu",
 }
 
-PROFILE_FIELD_LABELS = {
-    "age": "yaş",
-    "height": "boy",
-    "weight": "kilo",
-    "fitness_level": "antrenman deneyimi",
-    "goal": "profil hedefi",
-    "days_per_week": "haftalık antrenman günü",
-    "session_time_mins": "seans süresi",
-}
-
 ENGLISH_TO_UI_MUSCLE = {
     "Chest": "Göğüs",
     "Back": "Sırt",
@@ -58,18 +48,6 @@ def falling(value: float, start: float, end: float) -> float:
     if end <= start:
         return 1.0 if value <= start else 0.0
     return _clamp((end - float(value)) / (end - start))
-
-
-def triangular(value: float, left: float, peak: float, right: float) -> float:
-    """Üçgen fuzzy üyelik fonksiyonu."""
-    value = float(value)
-    if value == peak:
-        return 1.0
-    if value <= left or value >= right:
-        return 0.0
-    if value < peak:
-        return _clamp((value - left) / (peak - left))
-    return _clamp((right - value) / (right - peak))
 
 
 def normalize_muscle_group(value: object) -> str | None:
@@ -279,7 +257,7 @@ def evaluate_recovery(latest_checkin: dict[str, Any] | None, active_doms: Iterab
 
     rule_trace: list[dict[str, str]] = []
     protected_muscles: list[str] = []
-    for group, membership in doms_memberships.items():
+    for group in doms_memberships:
         severity = _float(doms_by_muscle[group].get("last_severity"), 0.0)
         if severity >= 7:
             protected_muscles.append(group)
@@ -1389,17 +1367,3 @@ def generate_dynamic_program(
         "muscle_readiness": list(unique_readiness.values()),
         "catalog_note": "Hareketler bildirilen ekipman, aktif DOMS, geçici kısıtlar ve hareket tercihlerine göre filtrelendi.",
     }
-
-
-def build_expert_result_v2(
-    profile: dict[str, Any], preferences: dict[str, Any], workouts: Iterable[dict[str, Any]],
-    latest_checkin: dict[str, Any] | None, active_doms: Iterable[dict[str, Any]],
-    exercise_pool: Iterable[dict[str, Any]], available_equipment: Iterable[object],
-    constraints: Iterable[dict[str, Any]] | None = None,
-) -> dict[str, Any]:
-    """V1 özetini koruyup V2 dinamik program önerisini yanına ekler."""
-    base = build_expert_result(profile, preferences, workouts, latest_checkin, active_doms)
-    base["dynamic_program"] = generate_dynamic_program(
-        profile, preferences, exercise_pool, available_equipment, active_doms, constraints,
-    )
-    return base

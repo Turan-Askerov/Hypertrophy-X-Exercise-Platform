@@ -179,7 +179,7 @@ def evaluate_expert_rules(context: dict[str, Any]) -> dict[str, Any]:
             produced = rule(context)
             if isinstance(produced, list):
                 findings.extend(item for item in produced if isinstance(item, dict))
-        except Exception as exc:  # Bir hatalı yeni kural tüm uzman ekranını kapatmasın.
+        except Exception:  # Bir hatalı yeni kural tüm uzman ekranını kapatmasın.
             findings.append(_finding(
                 f"{getattr(rule, '__name__', 'rule')}-error", 1, "Sistem",
                 "Kural çalıştırılamadı", "Bir kural bu değerlendirmede atlandı.",

@@ -775,7 +775,7 @@ tr:hover td { background: var(--bg-card-hover); }
   gap: 16px;
 }
 
-/* ═══ RESPONSIVE ═══ */
+/* ═══ RESPONSIVE BREAKPOINTS ═══ */
 @media (max-width: 1200px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .grid-2 { grid-template-columns: 1fr; }
@@ -783,31 +783,41 @@ tr:hover td { background: var(--bg-card-hover); }
   .profile-grid { grid-template-columns: 1fr 1fr; }
 }
 
-/* ═══ MOBILE NAVIGATION & PHONE LAYOUT ═══ */
-.mobile-menu-backdrop {
+/* ═══ MOBILE BOTTOM NAVIGATION ═══ */
+.mobile-bottom-nav {
   display: none;
 }
 
 @media (max-width: 768px) {
-  body {
-    overflow-x: hidden;
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   body.mobile-menu-open {
-    overflow: hidden;
+    overflow: hidden !important;
+  }
+  .app-layout {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
   .sidebar {
-    width: min(82vw, 320px);
+    width: min(84vw, 320px);
     max-width: 320px;
     transform: translateX(-105%);
     transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 16px 0 36px rgba(0, 0, 0, 0.38);
+    box-shadow: 16px 0 36px rgba(0, 0, 0, 0.45);
     z-index: 300;
   }
   .sidebar.mobile-open {
     transform: translateX(0);
   }
   .sidebar.collapsed {
-    width: min(82vw, 320px);
+    width: min(84vw, 320px);
   }
   .sidebar.collapsed .sidebar-brand {
     display: flex;
@@ -827,7 +837,9 @@ tr:hover td { background: var(--bg-card-hover); }
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(5, 7, 12, 0.58);
+    background: rgba(5, 7, 12, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.28s ease;
@@ -840,11 +852,22 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .main-content {
     margin-left: 0 !important;
-    min-width: 0;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
   }
   .topbar {
-    height: 58px;
+    height: 56px;
     padding: 0 14px;
+    position: sticky;
+    top: 0;
+    background: rgba(26, 29, 39, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .light-mode .topbar {
+    background: rgba(255, 255, 255, 0.94);
   }
   .topbar-left,
   .topbar-right {
@@ -852,11 +875,13 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .hamburger-btn,
   .theme-toggle {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
   }
   .user-dropdown-btn {
     padding: 4px;
+    border-radius: 10px;
   }
   #userDropdownName,
   .user-dropdown-btn > svg {
@@ -864,126 +889,335 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .dropdown-menu {
     position: fixed;
-    top: 66px;
+    top: 62px;
     right: 12px;
     width: min(280px, calc(100vw - 24px));
+    border-radius: 14px;
   }
   .page-content {
-    padding: 16px 14px 28px;
+    padding: 14px 12px calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    min-width: 0 !important;
   }
   .page-header {
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
   .page-title {
-    font-size: 22px;
+    font-size: 20px;
+    font-weight: 800;
   }
   .page-subtitle {
-    font-size: 13px;
+    font-size: 12px;
   }
+
+  /* ═══ MOBILE BOTTOM BAR ═══ */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(22, 26, 38, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    z-index: 200;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
+  }
+  .light-mode .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+  }
+  .mobile-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 5px 8px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    flex: 1;
+    max-width: 72px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-nav-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+    transition: transform 0.2s ease;
+  }
+  .mobile-nav-btn.active {
+    color: var(--accent);
+  }
+  .mobile-nav-btn.active svg {
+    transform: scale(1.12);
+    color: var(--accent);
+  }
+
+  /* ═══ MOBILE CARDS & GRIDS ═══ */
   .card,
   .stat-card {
-    padding: 16px;
-  }
-  .stats-grid,
-  .profile-grid,
-  .exercise-selector {
-    grid-template-columns: repeat(2, 1fr);
+    padding: 14px 12px;
+    border-radius: 14px;
+    min-width: 0 !important;
+    max-width: 100% !important;
   }
   .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .profile-grid {
+    grid-template-columns: 1fr;
     gap: 12px;
-    margin-bottom: 16px;
   }
   .grid-2,
   .grid-3 {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-  .chart-container {
-    height: 230px;
-  }
-  .chart-container-sm {
-    height: 200px;
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+    margin-bottom: 14px;
   }
   .stat-card .stat-value {
-    font-size: 22px;
+    font-size: 20px;
+    font-weight: 800;
   }
   .stat-card .stat-icon {
-    width: 34px; height: 34px;
-    margin-bottom: 8px;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+  }
+  .stat-card .stat-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  .stat-card .stat-label {
+    font-size: 11px;
+    font-weight: 600;
   }
   .stat-card .stat-detail {
     font-size: 10px;
+    margin-top: 2px;
   }
+
+  /* ═══ MOBILE CHARTS ═══ */
+  .chart-container {
+    height: 220px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  .chart-container-sm {
+    height: 190px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  .card-header-flex {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .timeframe-pills {
+    padding: 2px;
+    border-radius: 8px;
+    width: auto;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .tf-pill {
+    padding: 5px 9px;
+    font-size: 11px;
+  }
+
+  /* ═══ MOBILE WORKOUT & EXERCISE SELECTOR ═══ */
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+  .exercise-selector {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    grid-template-columns: none !important;
+  }
+  .muscle-list {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 6px !important;
+    padding: 4px 2px 8px !important;
+    white-space: nowrap !important;
+    scrollbar-width: none !important;
+    max-height: none !important;
+  }
+  .muscle-list::-webkit-scrollbar {
+    display: none;
+  }
+  .muscle-filter {
+    flex-shrink: 0;
+    padding: 7px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+  }
+  .muscle-filter.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(108, 99, 255, 0.4);
+  }
+  .exercise-list {
+    max-height: 240px;
+    gap: 5px;
+    padding-right: 2px;
+  }
+  .exercise-option {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  /* ═══ MOBILE SETS TABLE ═══ */
+  .selected-exercise-card {
+    padding: 12px 10px !important;
+    border-radius: 12px !important;
+    margin-bottom: 10px !important;
+  }
+  .sets-table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    margin-top: 8px !important;
+    border-collapse: separate !important;
+    border-spacing: 0 3px !important;
+  }
+  .sets-table th {
+    padding: 4px 2px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    color: var(--text-muted) !important;
+    text-align: center !important;
+  }
+  .sets-table th:nth-child(1) { width: 28px !important; }
+  .sets-table th:nth-child(2) { width: 28% !important; }
+  .sets-table th:nth-child(3) { width: 28% !important; }
+  .sets-table th:nth-child(4) { width: 22% !important; }
+  .sets-table th:nth-child(5) { width: 42px !important; }
+  .sets-table td {
+    padding: 3px 2px !important;
+    text-align: center !important;
+    border: none !important;
+  }
+  .sets-table input,
+  .sets-table select {
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 2px 4px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .sets-table select {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    font-size: 13px !important;
+  }
+  .sets-table .set-action-btn {
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+  }
+
+  /* ═══ MOBILE BUTTONS & INPUTS ═══ */
   input,
   select,
   textarea {
-    min-height: 44px;
-    font-size: 16px;
+    min-height: 42px;
+    font-size: 16px; /* Prevents iOS auto zoom */
+    border-radius: 10px;
   }
-  .btn,
-  .auth-btn {
-    min-height: 44px;
+  .btn {
+    min-height: 42px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #6c63ff, #8178ff);
+    box-shadow: 0 4px 14px rgba(108, 99, 255, 0.35);
+  }
+  #saveWorkoutButton {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 13px 20px !important;
+    font-size: 15px !important;
+  }
+
+  /* ═══ MOBILE TABLES & OVERFLOW PROTECTION ═══ */
+  .table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 10px;
   }
   .auth-overlay {
-    align-items: flex-start;
-    overflow-y: auto;
-    padding: 20px 14px;
+    padding: 14px;
   }
   .auth-card {
-    margin: auto 0;
-    padding: 28px 20px;
+    padding: 24px 16px;
+    border-radius: 16px;
   }
 }
 
 @media (max-width: 480px) {
   .page-content {
-    padding: 14px 12px 24px;
+    padding: 12px 10px calc(76px + env(safe-area-inset-bottom, 0px)) !important;
   }
-  .card-title {
-    gap: 10px;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  .table-wrap {
-    margin: 0 -4px;
-  }
-  /* Küçük telefonlarda dashboard kompakt görünüm. */
-  .stats-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
+  .card,
   .stat-card {
-    padding: 12px;
+    padding: 12px 10px;
+  }
+  .stats-grid {
+    gap: 8px;
   }
   .stat-card .stat-value {
-    font-size: 20px;
+    font-size: 18px;
   }
   .stat-card .stat-icon {
-    width: 30px; height: 30px;
-    margin-bottom: 8px;
+    width: 28px;
+    height: 28px;
   }
-  .stat-card .stat-label {
-    font-size: 11px;
-  }
-  .stat-card .stat-detail {
-    font-size: 10px;
-    margin-top: 4px;
-  }
-  .card {
-    padding: 14px;
-  }
-  .page-title {
-    font-size: 20px;
-  }
-  .chart-container {
-    height: 210px;
-  }
-  .chart-container-sm {
-    height: 180px;
-  }
-  .tf-pill {
-    padding: 6px 10px;
-    font-size: 12px;
+  .card-title {
+    font-size: 15px;
   }
 }
 
@@ -2477,6 +2711,30 @@ canvas {
 
     </div>
   </div>
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobil Alt Menü">
+    <button class="mobile-nav-btn active" data-page="dashboard" onclick="navigate('dashboard', this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      <span>Dashboard</span>
+    </button>
+    <button class="mobile-nav-btn" data-page="workout" onclick="navigate('workout', this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+      <span>Antrenman</span>
+    </button>
+    <button class="mobile-nav-btn" data-page="history" onclick="navigate('history', this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span>Geçmiş</span>
+    </button>
+    <button class="mobile-nav-btn" data-page="analyze" onclick="navigate('analyze', this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 10-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      <span>Uzman</span>
+    </button>
+    <button class="mobile-nav-btn" onclick="toggleSidebar()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <span>Menü</span>
+    </button>
+  </nav>
 </div>
 
 <!-- ═══════════════════════════════════════════════
@@ -2506,7 +2764,7 @@ const LEG_DETAIL_FILTERS = Object.freeze({
   'Hamstring': 'hamstrings',
   'Gluteus': 'glutes',
   'Calf': 'calves',
-  'Adductors': 'adductors'
+  'Adductors': ['adductors', 'hip_external_rotators', 'hip_internal_rotators']
 });
 let _selectedExercises = [];
 // Geçmişten açılan taslak yalnızca tarayıcı belleğinde tutulur. Bu değer doluyken
@@ -2760,11 +3018,16 @@ async function navigate(page, el) {
 
   // Update active nav
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (el) el.classList.add('active');
+  if (el && el.classList && el.classList.contains('nav-item')) el.classList.add('active');
   else {
     const target = document.querySelector(`.nav-item[data-page="${page}"]`);
     if (target) target.classList.add('active');
   }
+
+  // Update active mobile bottom nav
+  document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-page') === page);
+  });
 
   // Show page — page div'ini görünür yap
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -3986,13 +4249,13 @@ async function loadWorkoutPage() {
 const SESSION_MUSCLE_MAP = Object.freeze({
   push: ["Göğüs", "Omuz", "Triceps"],
   pull: ["Sırt", "Biceps"],
-  legs: ["Quadriceps", "Hamstring", "Gluteus", "Calf", "Adductors", "Rotatorlar"],
-  lower: ["Quadriceps", "Hamstring", "Gluteus", "Calf", "Adductors", "Rotatorlar"],
+  legs: ["Quadriceps", "Hamstring", "Gluteus", "Calf", "Adductors"],
+  lower: ["Quadriceps", "Hamstring", "Gluteus", "Calf", "Adductors"],
   upper: ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps", "Rotatorlar"],
   "full body": ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps", "Quadriceps", "Hamstring", "Gluteus", "Calf", "Adductors", "Rotatorlar", "Core"],
   arms: ["Biceps", "Triceps"],
   core: ["Core"],
-  rotatorlar: ["Rotatorlar"]
+  rotatorlar: ["Adductors", "Rotatorlar"]
 });
 
 function getSelectedSessionType() {
@@ -4030,7 +4293,11 @@ function exerciseMatchesMuscleFilter(exercise, muscle) {
     const primary = Array.isArray(exercise?.analysis?.primary_muscles)
       ? exercise.analysis.primary_muscles
       : [];
-    return primary.includes(targetPrimaryMuscle);
+    if (Array.isArray(targetPrimaryMuscle)) {
+      if (targetPrimaryMuscle.some(m => primary.includes(m))) return true;
+    } else if (primary.includes(targetPrimaryMuscle)) {
+      return true;
+    }
   }
   return getExerciseDisplayMuscleGroups(exercise).includes(muscle);
 }
@@ -4119,18 +4386,18 @@ function renderSelectedExercises() {
   container.innerHTML = _selectedExercises.map((ex, idx) => {
     const bodyweightOnly = ex.load_mode === 'bodyweight' || ex.is_bodyweight;
     const extraLoad = ex.load_mode === 'bodyweight_plus_external';
-    const loadLabel = extraLoad ? 'Ek yük (kg)' : 'Ağırlık (kg)';
+    const loadLabel = extraLoad ? 'Ek yük' : 'Ağırlık';
     const muscleLabel = ex.display_muscle || ex.muscle_group;
     return `
       <div class="card history-card-animated selected-exercise-card" data-exercise-index="${idx}" style="margin-bottom:12px; padding:16px; --card-index: ${idx};">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
           <div>
             <strong>${ex.exercise_name}</strong>
-            <span class="badge ${bodyweightOnly ? 'badge-green' : 'badge-accent'}" style="margin-left:8px">${muscleLabel}</span>
+            <span class="badge ${bodyweightOnly ? 'badge-green' : 'badge-accent'}" style="margin-left:6px">${muscleLabel}</span>
             ${bodyweightOnly ? '<span class="badge badge-green" style="margin-left:4px">Vücut Ağırlığı</span>' : ''}
             ${extraLoad ? '<span class="badge badge-accent" style="margin-left:4px">Vücut Ağırlığı + Ek Yük</span>' : ''}
           </div>
-          <button class="btn btn-sm btn-danger" onclick="removeExercise(${idx})">Sil</button>
+          <button class="btn btn-sm btn-danger" onclick="removeExercise(${idx})" style="padding:4px 10px;">Sil</button>
         </div>
         <table class="sets-table">
           <thead><tr><th>Set</th><th>Tekrar</th><th>${bodyweightOnly ? 'Yük' : loadLabel}</th><th title="Reps In Reserve — sette tahmini kalan tekrar">RIR</th><th></th></tr></thead>
@@ -4142,13 +4409,13 @@ function renderSelectedExercises() {
               <tr>
                 <td><strong>${si + 1}</strong></td>
                 <!-- DİKKAT: onchange yerine anlık çalışan oninput kullanıldı -->
-                <td><input type="number" id="input_${idx}_${si}_reps" value="${s.reps}" min="1" max="30" oninput="updateSet(${idx},${si},'reps',this.value)" style="width:70px" /></td>
+                <td><input type="number" inputmode="numeric" id="input_${idx}_${si}_reps" value="${s.reps}" min="1" max="30" oninput="updateSet(${idx},${si},'reps',this.value)" /></td>
                 <td>${bodyweightOnly
                   ? '<span style="opacity:.58;font-size:12px">Otomatik</span>'
-                  : `<input type="number" id="input_${idx}_${si}_weight_kg" value="${s.weight_kg}" min="0" max="500" step="0.5" style="width:80px" oninput="updateSet(${idx},${si},'weight_kg',this.value)" />`
+                  : `<input type="number" inputmode="decimal" id="input_${idx}_${si}_weight_kg" value="${s.weight_kg}" min="0" max="500" step="0.5" oninput="updateSet(${idx},${si},'weight_kg',this.value)" />`
                 }</td>
-                <td><select id="input_${idx}_${si}_rir" aria-label="${si + 1}. set RIR" oninput="updateSet(${idx},${si},'rir',this.value)" style="width:78px"><option value="" ${rir === '' ? 'selected' : ''}>—</option>${[0,1,2,3,4,5].map(value => `<option value="${value}" ${rir === value ? 'selected' : ''}>${value}</option>`).join('')}</select></td>
-                <td>${si === 0 ? `<button class="btn btn-sm btn-secondary" onclick="addSet(${idx})">+ Set</button>` : `<button class="btn btn-sm btn-danger" onclick="removeSet(${idx},${si})">X</button>`}</td>
+                <td><select id="input_${idx}_${si}_rir" aria-label="${si + 1}. set RIR" oninput="updateSet(${idx},${si},'rir',this.value)"><option value="" ${rir === '' ? 'selected' : ''}>—</option>${[0,1,2,3,4,5].map(value => `<option value="${value}" ${rir === value ? 'selected' : ''}>${value}</option>`).join('')}</select></td>
+                <td>${si === 0 ? `<button class="btn btn-sm btn-secondary set-action-btn" onclick="addSet(${idx})">+ Set</button>` : `<button class="btn btn-sm btn-danger set-action-btn" onclick="removeSet(${idx},${si})">✕</button>`}</td>
               </tr>`;
             }).join('')}
           </tbody>
@@ -4271,14 +4538,15 @@ async function saveWorkout() {
     toast('En az 1 egzersiz ekleyin', 'error');
     return;
   }
-    
-    // Eğer tarih kutusu boşsa sistemi durdur!
-    if (!selectedDateStr) {
-      toast('Lütfen geçerli bir tarih seçin!', 'error');
-      return;
-    }
+
+  const selectedDateStr = document.getElementById('workoutDate')?.value;
+  // Eğer tarih kutusu boşsa sistemi durdur!
+  if (!selectedDateStr) {
+    toast('Lütfen geçerli bir tarih seçin!', 'error');
+    return;
+  }
+
   // Kullanıcı tarihi hacklerse (geleceği girerse) engelle!
-  const selectedDateStr = document.getElementById('workoutDate').value;
   const selectedDate = new Date(selectedDateStr);
   selectedDate.setHours(0,0,0,0);
 
@@ -4290,14 +4558,14 @@ async function saveWorkout() {
     return; // Kayıt işlemini durdur!
   }
 
-  const selectedType = document.getElementById('workoutType').value;
+  const selectedType = document.getElementById('workoutType')?.value || 'Push';
   const gymSelect = document.getElementById('workoutGym');
   const selectedGym = gymSelect?.selectedOptions?.[0];
 
   const data = {
     date: selectedDateStr,
     session_type: selectedType,
-    notes: document.getElementById('workoutNotes').value,
+    notes: document.getElementById('workoutNotes')?.value || '',
     gym_id: selectedGym?.value || null,
     gym_name: selectedGym?.value ? (selectedGym.dataset.gymName || selectedGym.textContent.replace(/ · Varsayılan$/, '')) : '',
     exercises: _selectedExercises.map(ex => ({
@@ -4925,11 +5193,6 @@ function expertEscape(value) {
   return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[char]));
 }
 function expertToday() { return new Date().toISOString().slice(0, 10); }
-function expertDateLabel(value) {
-  if (!value) return '—';
-  const date = new Date(`${value}T12:00:00`);
-  return Number.isNaN(date.getTime()) ? expertEscape(value) : formatDateTR(value);
-}
 function expertGoalLabel(goal) {
   return expertSystemState?.catalog?.primary_goals?.[goal] || goal || '—';
 }
@@ -6913,10 +7176,6 @@ async function expertDataLoadAnalysis(force = false) {
   })();
 
   return expertAnalysisLoadPromise;
-}
-
-function expertDataInvalidateAnalysis() {
-  expertAnalysisState = null;
 }
 
 

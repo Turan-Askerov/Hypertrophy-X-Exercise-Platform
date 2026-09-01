@@ -129,6 +129,10 @@ EXERCISE_POOL = [
               family="row", variation="seated_cable", primary_muscles=["upper_back", "lats"],
               secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
               equipment=["cable_row_machine"], load_mode="external_load", fatigue_cost="medium"),
+    _exercise("cable-upper-back-low-row", "Cable Upper-Back Low Row", "Back", "compound", False,
+              family="row", variation="cable_upper_back_low", primary_muscles=["upper_back", "rear_delts", "traps"],
+              secondary_muscles=["lats", "biceps", "forearms"], movement_pattern="horizontal_pull",
+              equipment=["cable_station", "cable_machine"], load_mode="external_load", fatigue_cost="medium"),
     _exercise("bent-over-row", "Bent-over Row", "Back", "compound", False,
               family="row", variation="free_weight_bent_over", primary_muscles=["upper_back", "lats"],
               secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
@@ -480,9 +484,13 @@ EXERCISE_POOL = [
               family="hip_rotation", variation="standing_cable_internal", primary_muscles=["hip_internal_rotators"],
               secondary_muscles=[], movement_pattern="hip_internal_rotation",
               equipment=["cable_machine", "ankle_strap"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
+    _exercise("machine-adductor", "Seated Adductor Machine", "Legs", "isolation", False,
+              family="hip_adduction", variation="machine", primary_muscles=["adductors"],
+              secondary_muscles=[], movement_pattern="hip_adduction",
+              equipment=["adductor_machine"], load_mode="external_load", fatigue_cost="low"),
+    _exercise("cable-hip-adduction", "Cable Hip Adduction", "Legs", "isolation", False,
+              family="hip_adduction", variation="standing_cable", primary_muscles=["adductors"],
+              secondary_muscles=[], movement_pattern="hip_adduction",
+              equipment=["cable_machine", "ankle_strap"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
 
 ]
-
-# Kullanıcı arayüzü yalnızca bu sade ana kategorileri görür. Ayrıntılı kaslar
-# EXERCISE_POOL[*]["analysis"] altında kalır; Traps ayrı bir filtre değildir.
-MUSCLE_GROUPS = ["Chest", "Back", "Shoulders", "Biceps", "Triceps", "Legs", "Rotator Cuff", "Hip Rotators", "Core"]

@@ -17,11 +17,11 @@ YAPILAN DEĞİŞİKLİKLER:
 import hashlib
 import secrets
 import os
+from pathlib import Path as _Path
 import json
 import sqlite3
 import re
 import unicodedata
-import base64
 
 try:
     import psycopg
@@ -36,9 +36,8 @@ import time
 from collections import defaultdict, deque
 from threading import Lock
 
-from fastapi import FastAPI, Body, HTTPException, Query, Header, Depends, Request
+from fastapi import FastAPI, APIRouter, Body, HTTPException, Query, Header, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel, Field
@@ -53,11 +52,8 @@ from expert_system import (
     GYM_EQUIPMENT_CATALOG,
     DETAILED_MUSCLE_OPTIONS,
     PRIMARY_GOALS,
-    PROFILE_FIELD_LABELS,
     UI_MUSCLE_GROUPS,
     build_expert_result,
-    build_expert_result_v2,
-    calculate_muscle_readiness,
     eligibility as expert_eligibility,
     generate_dynamic_program,
     get_exercise_alternatives,
@@ -918,7 +914,7 @@ def generate_split(days_per_week: int, goal: str = "bulk") -> dict:
             "days": days, "rest_count": rest_count}
 
 
-from exercise_catalog import EXERCISE_META_VERSION, EXERCISE_POOL, MUSCLE_GROUPS
+from exercise_catalog import EXERCISE_META_VERSION, EXERCISE_POOL
 from exercise_aliases import EXERCISE_ALIASES
 
 # ═══════════════════════════════════════════════
@@ -2388,7 +2384,7 @@ def reschedule_missed_expert_session(
 # ═══════════════════════════════════════════════
 @app.get("/api/admin/users")
 def admin_list_users(admin_user: dict = Depends(_resolve_current_user)):
-    admin = _require_admin(admin_user)
+    _require_admin(admin_user)
     users = get_all_users()
     for u in users:
         u.pop("password_hash", None)
@@ -2965,18 +2961,21 @@ def save_custom_program(data: CustomProgramRequest,
 
 
 # İngilizce havuz grubu -> kullanıcıya gösterilecek sade Türkçe filtre adı.
-# Rotatorlar, omuz ve kalça rotasyon hareketlerini aynı filtre başlığında birleştirir.
+# Rotatorlar, omuz rotasyon hareketlerini (Rotator Cuff) kapsar.
+# Kalça/femur rotasyonları ve adduksiyon hareketleri ise Adductors altında toplanır.
 EXERCISE_MUSCLE_TR = {
     "Chest": "Göğüs", "Back": "Sırt", "Shoulders": "Omuz",
     "Legs": "Alt Vücut", "Biceps": "Biceps", "Triceps": "Triceps",
     "Traps": "Sırt", "Core": "Core",
-    "Rotator Cuff": "Rotatorlar", "Hip Rotators": "Rotatorlar",
+    "Rotator Cuff": "Rotatorlar", "Hip Rotators": "Adductors",
+    "Adductors": "Adductors",
 }
 # Leg/Lower yalnız seans türüdür. Alt kaslar primer meta veriden görünür olur.
 LEG_PRIMARY_MUSCLE_TR = {
     "quads": "Quadriceps", "hamstrings": "Hamstring", "glutes": "Gluteus",
     "gluteus_maximus": "Gluteus", "gluteus_medius": "Gluteus",
     "calves": "Calf", "adductors": "Adductors",
+    "hip_external_rotators": "Adductors", "hip_internal_rotators": "Adductors",
 }
 WORKOUT_UI_MUSCLE_GROUPS = (
     "Göğüs", "Sırt", "Omuz", "Biceps", "Triceps",
@@ -2989,11 +2988,15 @@ def _display_muscle_groups(exercise: dict, analysis: dict) -> list[str]:
     primary_muscles verisinden Quadriceps, Hamstring, Gluteus, Calf veya
     Adductors altında listelenir. Arka omuz hareketleri ise hem Omuz hem Sırt
     filtresinde görünmeye devam eder.
+    Rotatorlar seansında ise Rotator Cuff (omuz) ve Adductors (femur/kalça)
+    olarak iki ayrı bölge bulunur.
     """
     group = exercise.get("muscle_group", "")
     primary_muscles = set(analysis.get("primary_muscles", []))
-    if group in {"Rotator Cuff", "Hip Rotators"}:
+    if group == "Rotator Cuff" or any(m in primary_muscles for m in ("infraspinatus", "subscapularis", "supraspinatus", "teres_minor", "rotator_cuff")):
         return ["Rotatorlar"]
+    if group in {"Hip Rotators", "Adductors"} or any(m in primary_muscles for m in ("adductors", "hip_external_rotators", "hip_internal_rotators")):
+        return ["Adductors"]
     if "rear_delts" in primary_muscles:
         return ["Omuz", "Sırt"]
     if group == "Legs":
@@ -3965,11 +3968,6 @@ def reset_legacy_expert_data(data: ExpertLegacyResetRequest = Body(...),
         # Yeni şemada eski tablolar kurulmaz; eski üretim veritabanlarında ise
         # tamamı bulunabilir. PostgreSQL'de bulunmayan bir tabloya sorgu atmak
         # işlemi geçersiz kılacağından, silmeden önce tablo varlığı denetlenir.
-        legacy_tables = (
-            "expert_preferences", "expert_checkins", "expert_equipment",
-            "expert_constraints", "expert_program_versions", "expert_doms_cases",
-            "expert_doms_reports",
-        )
         if DATABASE_BACKEND == "postgresql":
             existing_rows = conn.execute(
                 "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
@@ -4033,8 +4031,6 @@ def health_check():
 SPA_PAGES = {"dashboard", "workout", "history", "analyze", "progress",
              "nutrition", "profile", "admin", "custom-program", "app", ""}
 
-from fastapi import APIRouter
-
 spa_router = APIRouter()
 
 
@@ -4045,7 +4041,6 @@ def spa_root():
 
 # Gerçek statik dosyalar (favicon, css, img, js) catch-all'a düşmeden
 # önce burada karşılanır — mount ile sıralama çakışmasını önler.
-from pathlib import Path as _Path
 STATIC_DIR = _Path(__file__).parent / "static"
 
 
@@ -4086,4 +4081,4 @@ app.include_router(spa_router)
 async def on_startup():
     validate_runtime_configuration()
     init_db()
-    log.info("Hypertrophy-X v5.0 hazır. Ortam: %s", APP_ENV)
+    log.info("Hypertrophy-X v4.0 hazır. Ortam: %s", APP_ENV)

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Hypertrophy-X v4.0 Başlatma Scripti
+# Hypertrophy-X Başlatma Scripti
 cd "$(dirname "$0")"
 
 # Virtual environment oluştur (eğer yoksa)
@@ -14,13 +14,7 @@ source ../venv/bin/activate
 # Bağımlılıkları yükle
 pip install -r requirements.txt
 
-# Static klasör
-mkdir -p static
-cp ../frontend/index.html static/
-
 echo "Sunucu başlatılıyor..."
-echo "Tarayıcıda http://127.0.0.1:8000/app adresini aç"
-echo ""
-echo "Admin: admin / admin"
+echo "Tarayıcıda http://127.0.0.1:8000 adresini aç"
 echo ""
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
