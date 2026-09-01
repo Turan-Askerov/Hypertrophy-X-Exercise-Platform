@@ -2057,6 +2057,21 @@ canvas {
 
 <style id="mobile-shrink-fix">
 @media (max-width: 768px) {
+  /* Toast notifications mobile shrink */
+  .toast {
+    padding: 10px 16px !important;
+    font-size: 11px !important;
+    border-radius: 20px !important;
+    gap: 6px !important;
+    max-width: 90% !important;
+    line-height: 1.3 !important;
+  }
+  .toast svg {
+    width: 16px !important;
+    height: 16px !important;
+    flex-shrink: 0 !important;
+  }
+
   /* Prevent horizontal scroll on charts and tables, force them to shrink */
   .chart-container, div:has(> canvas) {
     overflow: hidden !important;
