@@ -3422,7 +3422,6 @@ def reorder_expert_recommendation(data: dict = Body(...), user: dict = Depends(_
             
         sent_slots = [str(day.get("slot_id") or day.get("day_id") or "") for day in sent_days if isinstance(day, dict)]
         
-        # 🚀 DÜZELTME BURADA: Veritabanındaki eski içerik (current_content) YERİNE, 
         # Frontend'den gelen güncel içeriği (sent_content) kullanıyoruz!
         sent_content = {str(day.get("content_id")): _expert_content_from_day(day, str(day.get("content_id"))) for day in sent_days}
         requested_content_ids = [str(day.get("content_id") or "") for day in sent_days if isinstance(day, dict)]

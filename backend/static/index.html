@@ -1618,6 +1618,75 @@ canvas {
   .expert-alternative-apply { font-size: 9px; }
 }
 
+/* ═══════════════════════════════════════════════
+   MOBİL EKRAN İÇİN DÜZEN ONARIMLARI 
+   (Özel Program & Uzman Sistemi)
+═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  
+  /* 1. ÖZEL PROGRAMIM - KART DÜZENİ */
+  .custom-day-card-animated {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 16px !important;
+  }
+  .custom-day-card-animated > div {
+    width: 100% !important;
+    min-width: 100% !important;
+    flex: none !important;
+    align-items: flex-start !important;
+  }
+  /* Dinlenme Checkbox'ını alt satıra şık bir şekilde yatay yayar */
+  .custom-day-card-animated > div:last-child {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  }
+  .custom-day-card-animated > div:last-child label {
+    margin-bottom: 0 !important;
+    font-size: 13px !important;
+  }
+
+  /* 2. UZMAN SİSTEMİ - Öneri Kartları İçindeki Egzersiz Satırları */
+  .expert-recommendation-exercise > div:first-child {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+  /* Set sayıları ve butonların olduğu sağ kısmı alta alıp tam genişlik yapar */
+  .expert-recommendation-exercise > div:first-child > div:nth-child(2) {
+    width: 100%;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+
+  /* 3. UZMAN SİSTEMİ - Formlar, Menüler ve Izgaralar */
+  .expert-form-grid,
+  .expert-choice-grid,
+  .expert-equipment-groups,
+  .expert-alternative-options {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Ana Gün Kartının Başlığı (Örn: Pazartesi - Push) */
+  .expert-data-history-item > div {
+    gap: 10px !important;
+  }
+  
+  /* Sürükle Bırak Tutamaçlarını Parmak İçin Büyüt */
+  .expert-recommendation-drag {
+    padding-top: 2px !important;
+  }
+  .ex-drag-handle svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1865,7 +1934,6 @@ canvas {
             <div class="form-group">
               <label for="workoutGym">Antrenman Salonu</label>
               <select id="workoutGym" aria-describedby="workoutGymHelp"><option value="">Diğer / Belirtilmedi</option></select>
-              <small id="workoutGymHelp" style="display:block;margin-top:5px;color:var(--text-muted);font-size:11px">Yalnızca kayıt bağlamında tutulur; uzman programını otomatik değiştirmez.</small>
             </div>
           </div>
 
@@ -4068,16 +4136,18 @@ function renderSelectedExercises() {
           <thead><tr><th>Set</th><th>Tekrar</th><th>${bodyweightOnly ? 'Yük' : loadLabel}</th><th title="Reps In Reserve — sette tahmini kalan tekrar">RIR</th><th></th></tr></thead>
           <tbody>
             ${ex.sets_data.map((s, si) => {
-              const rir = Number.isInteger(Number(s.rir)) && Number(s.rir) >= 0 && Number(s.rir) <= 5 ? Number(s.rir) : '';
+              // RIR null ise otomatik 0 olmak yerine düz çizgi (—) kalır
+              const rir = (s.rir === null || s.rir === '') ? '' : (Number.isInteger(Number(s.rir)) && Number(s.rir) >= 0 && Number(s.rir) <= 5 ? Number(s.rir) : '');
               return `
               <tr>
                 <td><strong>${si + 1}</strong></td>
-                <td><input type="number" value="${s.reps}" min="1" max="100" onchange="updateSet(${idx},${si},'reps',this.value)" style="width:70px" /></td>
+                <!-- DİKKAT: onchange yerine anlık çalışan oninput kullanıldı -->
+                <td><input type="number" id="input_${idx}_${si}_reps" value="${s.reps}" min="1" max="30" oninput="updateSet(${idx},${si},'reps',this.value)" style="width:70px" /></td>
                 <td>${bodyweightOnly
                   ? '<span style="opacity:.58;font-size:12px">Otomatik</span>'
-                  : `<input type="number" value="${s.weight_kg}" min="0" max="500" step="0.5" style="width:80px" onchange="updateSet(${idx},${si},'weight_kg',this.value)" />`
+                  : `<input type="number" id="input_${idx}_${si}_weight_kg" value="${s.weight_kg}" min="0" max="500" step="0.5" style="width:80px" oninput="updateSet(${idx},${si},'weight_kg',this.value)" />`
                 }</td>
-                <td><select aria-label="${si + 1}. set RIR" onchange="updateSet(${idx},${si},'rir',this.value)" style="width:78px"><option value="" ${rir === '' ? 'selected' : ''}>—</option>${[0,1,2,3,4,5].map(value => `<option value="${value}" ${rir === value ? 'selected' : ''}>${value}</option>`).join('')}</select></td>
+                <td><select id="input_${idx}_${si}_rir" aria-label="${si + 1}. set RIR" oninput="updateSet(${idx},${si},'rir',this.value)" style="width:78px"><option value="" ${rir === '' ? 'selected' : ''}>—</option>${[0,1,2,3,4,5].map(value => `<option value="${value}" ${rir === value ? 'selected' : ''}>${value}</option>`).join('')}</select></td>
                 <td>${si === 0 ? `<button class="btn btn-sm btn-secondary" onclick="addSet(${idx})">+ Set</button>` : `<button class="btn btn-sm btn-danger" onclick="removeSet(${idx},${si})">X</button>`}</td>
               </tr>`;
             }).join('')}
@@ -4093,18 +4163,48 @@ function addSet(exIdx) {
   _selectedExercises[exIdx].sets_data.push({ reps: 0, weight_kg: 0, rir: null });
   renderSelectedExercises();
 }
+
 function removeSet(exIdx, setIdx) {
   if (_selectedExercises[exIdx].sets_data.length <= 1) { toast('En az 1 set olmalı', 'error'); return; }
   _selectedExercises[exIdx].sets_data.splice(setIdx, 1);
   renderSelectedExercises();
 }
+
 function updateSet(exIdx, setIdx, field, value) {
+  const setsData = _selectedExercises[exIdx].sets_data;
+
   if (field === 'rir') {
     const parsed = value === '' ? null : Number(value);
-    _selectedExercises[exIdx].sets_data[setIdx].rir = Number.isInteger(parsed) && parsed >= 0 && parsed <= 5 ? parsed : null;
+    const finalValue = Number.isInteger(parsed) && parsed >= 0 && parsed <= 5 ? parsed : null;
+    
+    const oldRir = setsData[setIdx].rir; // Anlık değişim takibi için önceki değeri kaydediyoruz
+    setsData[setIdx].rir = finalValue;
+
+    // DİNAMİK DOLDURMA (RIR için)
+    for (let i = setIdx + 1; i < setsData.length; i++) {
+      // Eğer alttaki setin RIR değeri "eski değerle aynıysa" veya henüz girilmemişse kopyalamaya devam et
+      if (setsData[i].rir === oldRir || setsData[i].rir === null || setsData[i].rir === '') {
+        setsData[i].rir = finalValue;
+        const inputEl = document.getElementById(`input_${exIdx}_${i}_rir`);
+        if (inputEl) inputEl.value = value;
+      }
+    }
     return;
   }
-  _selectedExercises[exIdx].sets_data[setIdx][field] = parseFloat(value) || 0;
+  
+  const val = parseFloat(value) || 0;
+  const oldVal = setsData[setIdx][field]; // Anlık değişim takibi için önceki değeri kaydediyoruz
+  setsData[setIdx][field] = val;
+
+  // DİNAMİK DOLDURMA (Tekrar ve Ağırlık için)
+  for (let i = setIdx + 1; i < setsData.length; i++) {
+    // Eğer alttaki setin değeri "eski değerle aynıysa" veya "0 (boş)" ise kopyalamaya devam et
+    if (setsData[i][field] === oldVal || setsData[i][field] === 0 || setsData[i][field] === '') {
+      setsData[i][field] = val;
+      const inputEl = document.getElementById(`input_${exIdx}_${i}_${field}`);
+      if (inputEl) inputEl.value = val;
+    }
+  }
 }
 function removeExercise(idx) {
   const card = document.querySelector(`#selectedExercises [data-exercise-index="${idx}"]`);
@@ -4171,7 +4271,12 @@ async function saveWorkout() {
     toast('En az 1 egzersiz ekleyin', 'error');
     return;
   }
-
+    
+    // Eğer tarih kutusu boşsa sistemi durdur!
+    if (!selectedDateStr) {
+      toast('Lütfen geçerli bir tarih seçin!', 'error');
+      return;
+    }
   // Kullanıcı tarihi hacklerse (geleceği girerse) engelle!
   const selectedDateStr = document.getElementById('workoutDate').value;
   const selectedDate = new Date(selectedDateStr);
