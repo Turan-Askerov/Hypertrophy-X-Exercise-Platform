@@ -655,26 +655,71 @@ tr:hover td { background: var(--bg-card-hover); }
 
 /* ═══ TOAST ═══ */
 .toast-container {
+  /* legacy */
+}
+.toast-top {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10000;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  align-items: center;
+  pointer-events: none;
+}
+.toast-bottom {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  align-items: center;
+  pointer-events: none;
 }
 .toast {
-  padding: 12px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-  animation: slideIn 0.3s ease;
-  box-shadow: var(--shadow);
+  padding: 14px 26px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-align: center;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.toast.success { background: var(--green); color: #fff; }
-.toast.error { background: var(--red); color: #fff; }
-.toast.info { background: var(--accent); color: #fff; }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.toast.success { background: rgba(34, 197, 94, 0.95); color: #fff; border: 1px solid rgba(34,197,94,0.4); }
+.toast.error { background: rgba(239, 68, 68, 0.95); color: #fff; border: 1px solid rgba(239,68,68,0.4); }
+.toast.info { background: rgba(108, 99, 255, 0.95); color: #fff; border: 1px solid rgba(108,99,255,0.4); }
+
+.toast-slide-down { animation: slideDownIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.toast-slide-up { animation: slideUpIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+@keyframes slideDownIn {
+  from { transform: translateY(-40px) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes slideUpIn {
+  from { transform: translateY(40px) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.toast-fade-out-down { animation: fadeOutDown 0.3s ease-in forwards !important; }
+.toast-fade-out-up { animation: fadeOutUp 0.3s ease-in forwards !important; }
+
+@keyframes fadeOutDown {
+  to { transform: translateY(-20px) scale(0.9); opacity: 0; }
+}
+@keyframes fadeOutUp {
+  to { transform: translateY(20px) scale(0.9); opacity: 0; }
+}
 
 /* ═══ BADGE ═══ */
 .badge {
@@ -943,13 +988,14 @@ tr:hover td { background: var(--bg-card-hover); }
     background: none;
     border: none;
     color: var(--text-muted);
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 600;
-    padding: 5px 8px;
+    padding: 4px 2px;
     border-radius: 10px;
     transition: all 0.2s ease;
     flex: 1;
-    max-width: 72px;
+    min-width: 0;
+    max-width: 70px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
@@ -1620,6 +1666,14 @@ canvas {
   max-width: 100% !important;
 }
 
+@media (max-width: 768px) {
+  .chart-container, div:has(> canvas) {
+    /* Grafiğin dikey alanını biraz artırarak sıkışmış hissini azaltıyoruz */
+    min-height: 340px !important; 
+  }
+}
+
+
 #page-nutrition {
   animation: pageSlideIn 0.5s ease forwards;
 }
@@ -1921,6 +1975,7 @@ canvas {
   }
 }
 
+  .prog-buttons-wrapper::-webkit-scrollbar { display: none; }
 </style>
 
 <style id="mobile-expert-fix">
@@ -1996,8 +2051,75 @@ canvas {
     -webkit-overflow-scrolling: touch !important;
   }
 }
+  .prog-buttons-wrapper::-webkit-scrollbar { display: none; }
 </style>
 
+
+<style id="mobile-shrink-fix">
+@media (max-width: 768px) {
+  /* Prevent horizontal scroll on charts and tables, force them to shrink */
+  .chart-container, div:has(> canvas) {
+    overflow: hidden !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  
+  .table-wrap {
+    overflow-x: hidden !important;
+    width: 100% !important;
+  }
+  
+  table {
+    table-layout: fixed !important;
+    width: 100% !important;
+  }
+  
+  table, th, td, table span, table div, table strong {
+    font-size: 10px !important;
+  }
+  
+  th, td {
+    padding: 6px 2px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Prevent column from being too wide and ensure date doesnt wrap */
+  th:nth-child(1), td:nth-child(1) { width: 27%; }
+  th:nth-child(2), td:nth-child(2) { width: 18%; }
+  th:nth-child(3), td:nth-child(3) { width: 13%; }
+  td:nth-child(3) { white-space: nowrap !important; }
+  th:nth-child(4), td:nth-child(4) { width: 18%; }
+  td:nth-child(4) { white-space: nowrap !important; }
+  th:nth-child(5), td:nth-child(5) { width: 24%; }
+  td:nth-child(5) { white-space: nowrap !important; }
+  
+  /* Shrink the neon muscle group badges to match the other tiny texts */
+  #prTable td span {
+    padding: 2px 4px !important;
+    font-size: 9px !important;
+    border-radius: 4px !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+  }
+
+  /* Scale down the timeframe pills so they fit side-by-side without needing scroll */
+  .prog-buttons-wrapper {
+    gap: 4px !important;
+  }
+  .timeframe-pills {
+    gap: 4px !important;
+    padding: 2px !important;
+  }
+  .tf-pill {
+    padding: 4px 6px !important;
+    font-size: 10px !important;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -2332,12 +2454,12 @@ canvas {
               <h3 style="font-size:16px; font-weight:700; color:var(--text); margin:0;">Egzersiz İlerleme Analizi</h3>
               <div id="progressChartSubtitle" style="font-size:12px; color:var(--text-muted); margin-top:2px;">Seçilen hareketin zaman içindeki kaldırdığı ağırlık değişimi — PR çizgisi ve set detayları</div>
             </div>
-            <div style="display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-              <div class="timeframe-pills" style="display:inline-flex; gap:6px;">
+            <div class="prog-buttons-wrapper" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-start; max-width:100%;">
+              <div class="timeframe-pills" style="display:inline-flex; gap:6px; flex-shrink: 0;">
                 <button id="progView_weight" class="tf-pill active" onclick="switchProgChartMode('weight')">Ağırlık</button>
                 <button id="progView_reps_weight" class="tf-pill" onclick="switchProgChartMode('reps_weight')">Ağırlık + Tekrar</button>
               </div>
-              <div class="timeframe-pills" style="display:inline-flex; gap:6px;">
+              <div class="timeframe-pills" style="display:inline-flex; gap:6px; flex-shrink: 0;">
                 <button id="progTime_monthly" class="tf-pill active" onclick="switchProgTimeframe('monthly')">Aylık</button>
                 <button id="progTime_yearly" class="tf-pill" onclick="switchProgTimeframe('yearly')">Yıllık</button>
                 <button id="progTime_all" class="tf-pill" onclick="switchProgTimeframe('all')">Genel</button>
@@ -2356,6 +2478,7 @@ canvas {
           <div style="position: relative; height: 360px; width: 100%; min-width: 0; overflow: hidden;">
             <canvas id="exerciseProgressChart"></canvas>
           </div>
+          
         </div>
 
         <div class="card" style="min-width: 0; overflow: hidden; margin-top: 20px;">
@@ -2366,8 +2489,8 @@ canvas {
                 <tr>
                   <th>Hareket</th>
                   <th>Kas Grubu</th>
-                  <th>Maks Ağırlık</th>
-                  <th>Maks Tekrar</th>
+                  <th>Ağırlık</th>
+                  <th>Tekrar</th>
                   <th>Tarih</th>
                 </tr>
               </thead>
@@ -2556,6 +2679,7 @@ canvas {
           <div style="position:relative; height:240px; width:100%; min-width: 0; overflow: hidden;">
             <canvas id="nutritionStatsChart"></canvas>
           </div>
+          
 
         </div>
 
@@ -2802,13 +2926,17 @@ canvas {
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       <span>Geçmiş</span>
     </button>
+    <button class="mobile-nav-btn" data-page="progress" onclick="navigate('progress', this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      <span>İlerleme</span>
+    </button>
+    <button class="mobile-nav-btn" data-page="nutrition" onclick="navigate('nutrition', this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+      <span>Beslenme</span>
+    </button>
     <button class="mobile-nav-btn" data-page="analyze" onclick="navigate('analyze', this)">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 10-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
       <span>Uzman</span>
-    </button>
-    <button class="mobile-nav-btn" onclick="toggleSidebar()">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      <span>Menü</span>
     </button>
   </nav>
 </div>
@@ -3281,12 +3409,31 @@ function applyDashboardPreferences(preferences) {
    TOAST
 ═══════════════════════════════════════════════ */
 function toast(msg, type='info') {
-  const c = document.getElementById('toastContainer');
+  let isInfo = (type === 'info');
+  let containerId = isInfo ? 'toastContainerBottom' : 'toastContainerTop';
+  let c = document.getElementById(containerId);
+  if (!c) {
+    c = document.createElement('div');
+    c.id = containerId;
+    c.className = `toast-container ${isInfo ? 'toast-bottom' : 'toast-top'}`;
+    document.body.appendChild(c);
+  }
+  
+  // Icon Ekleme (Modern görünüm için)
+  let icon = '';
+  if (type === 'success') icon = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>';
+  else if (type === 'error') icon = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>';
+  else icon = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+
   const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.textContent = msg;
+  t.className = `toast ${type} ${isInfo ? 'toast-slide-up' : 'toast-slide-down'}`;
+  t.innerHTML = `${icon} <span>${msg}</span>`;
   c.appendChild(t);
-  setTimeout(() => t.remove(), 3500);
+  
+  setTimeout(() => {
+    t.classList.add(isInfo ? 'toast-fade-out-up' : 'toast-fade-out-down');
+    setTimeout(() => t.remove(), 300);
+  }, 3200);
 }
 
 
@@ -4814,7 +4961,7 @@ async function loadHistory(username) {
                 <div style="font-size:14px; font-weight:700; color:var(--accent);">${Math.round(w.total_volume).toLocaleString()} kg</div>
               </div>
               <button id="edit-btn-${index}" onclick="toggleEditMode(${index}, event)" title="Setleri Düzenle" style="background:transparent; border:none; color:var(--accent); cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
-              <button onclick="openWorkoutGeneralEdit(${index}, event)" title="Genel Düzenle" class="btn btn-sm btn-secondary" style="white-space:nowrap;">Genel Düzenle</button>
+              <button onclick="openWorkoutGeneralEdit(${index}, event)" title="Genel Düzenle" style="background:transparent; border:none; color:var(--blue); cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg></button>
               <button id="save-btn-${index}" onclick="saveEdit(${index}, ${w.id}, event)" title="Kaydet" style="display:none; background:var(--green-bg); border:1px solid var(--green); color:var(--green); font-size:12px; font-weight:700; border-radius:6px; padding:4px 10px; cursor:pointer;">Kaydet</button>
               <button onclick="deleteWorkout(${w.id}, event)" title="Sil" style="background:transparent; border:none; color:#ef4444; cursor:pointer; padding:6px; transition:0.2s;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
             </div>
@@ -6021,6 +6168,11 @@ function renderExerciseProgressChart(exName, raw) {
   const metricType = _progRawData?.metric_type || 'weight_kg';
   const metricLabel = _progRawData?.metric_label || 'PR ağırlık (kg)';
   const metricSuffix = metricType === 'reps' ? ' tekrar' : ' kg';
+  const isMobileChart = window.innerWidth <= 768;
+  const tickFontSize = isMobileChart ? 9 : 12;
+  const titleFontSize = isMobileChart ? 10 : 13;
+  const pRadius = isMobileChart ? 4 : 6;
+  const pBorder = isMobileChart ? 1 : 2;
   const points = _progFilteredPoints();
   const isRepsWeightMode = _progChartMode === 'reps_weight';
 
@@ -6061,8 +6213,8 @@ function renderExerciseProgressChart(exName, raw) {
             tension: 0.28,
             pointBackgroundColor: '#6c63ff',
             pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 6,
+            pointBorderWidth: pBorder,
+            pointRadius: pRadius,
             pointHoverRadius: 9,
           },
           {
@@ -6076,8 +6228,8 @@ function renderExerciseProgressChart(exName, raw) {
             tension: 0.28,
             pointBackgroundColor: '#22c55e',
             pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 6,
+            pointBorderWidth: pBorder,
+            pointRadius: pRadius,
             pointHoverRadius: 9,
           },
         ],
@@ -6126,20 +6278,20 @@ function renderExerciseProgressChart(exName, raw) {
         scales: {
           x: {
             grid: { display: false },
-            ticks: { color: '#9ca3b4', maxRotation: 45, maxTicksLimit: 12 },
-            title: { display: true, text: 'Tarih', color: '#9ca3b4' },
+            ticks: { color: '#9ca3b4', maxRotation: 45, maxTicksLimit: 12, font: { size: tickFontSize } },
+            title: { display: true, text: 'Tarih', color: '#9ca3b4', font: { size: titleFontSize } },
           },
           yWeight: {
             type: 'linear', position: 'left', beginAtZero: false,
             grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#a9a6ff', callback: value => `${value} kg` },
-            title: { display: true, text: 'Ağırlık (kg)', color: '#a9a6ff' },
+            ticks: { color: '#a9a6ff', callback: value => `${value} kg`, font: { size: tickFontSize } },
+            title: { display: true, text: 'Ağırlık (kg)', color: '#a9a6ff', font: { size: titleFontSize } },
           },
           yReps: {
             type: 'linear', position: 'right', beginAtZero: false,
             grid: { drawOnChartArea: false },
-            ticks: { color: '#86efac', precision: 0 },
-            title: { display: true, text: 'Tekrar', color: '#86efac' },
+            ticks: { color: '#86efac', precision: 0, font: { size: tickFontSize } },
+            title: { display: true, text: 'Tekrar', color: '#86efac', font: { size: titleFontSize } },
           },
         },
       },
@@ -6175,7 +6327,7 @@ function renderExerciseProgressChart(exName, raw) {
         label: exName ? exName + ' — ' + metricLabel : metricLabel,
         data: chartPoints.length ? chartPoints.map(point => point.y) : [0],
         borderColor: '#6c63ff', borderWidth: 3, backgroundColor: gradient, fill: true, tension: 0.3,
-        pointBackgroundColor: '#22c55e', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointRadius: 6, pointHoverRadius: 9
+        pointBackgroundColor: '#22c55e', pointBorderColor: '#ffffff', pointBorderWidth: pBorder, pointRadius: pRadius, pointHoverRadius: 9
       }]
     },
     options: {
@@ -6204,8 +6356,8 @@ function renderExerciseProgressChart(exName, raw) {
         }
       },
       scales: {
-        y: { beginAtZero: false, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3b4', callback: value => `${value}${metricSuffix}` } },
-        x: { grid: { display: false }, ticks: { color: '#9ca3b4', maxRotation: 45, maxTicksLimit: 12 } }
+        y: { beginAtZero: false, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3b4', callback: value => `${value}${metricSuffix}`, font: { size: tickFontSize } } },
+        x: { grid: { display: false }, ticks: { color: '#9ca3b4', maxRotation: 45, maxTicksLimit: 12, font: { size: tickFontSize } } }
       }
     }
   });
