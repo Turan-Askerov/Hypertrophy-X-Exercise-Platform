@@ -368,7 +368,7 @@ input:focus, select:focus, textarea:focus {
 .dropdown-header {
   padding: 12px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .dropdown-header .dd-name { font-weight: 600; font-size: 14px; }
 .dropdown-header .dd-role { font-size: 12px; color: var(--text-muted); }
@@ -603,6 +603,7 @@ tr:hover td { background: var(--bg-card-hover); }
 }
 .exercise-option {
   padding: 8px 12px;
+  margin-bottom: 4px;
   border-radius: var(--radius-sm);
   font-size: 13px;
   cursor: pointer;
@@ -650,13 +651,11 @@ tr:hover td { background: var(--bg-card-hover); }
   width: 100%;
   margin-top: 12px;
 }
-.sets-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-.sets-table input { padding: 6px 8px; font-size: 13px; }
+.sets-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
+.sets-table td { text-align: center; }
+.sets-table input, .sets-table select { padding: 6px 8px; font-size: 13px; max-width: 70px; margin: 0 auto; display: block; text-align: center; }
 
 /* ═══ TOAST ═══ */
-.toast-container {
-  /* legacy */
-}
 .toast-top {
   position: fixed;
   top: 24px;
@@ -1134,6 +1133,7 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .exercise-option {
     padding: 10px 12px;
+    margin-bottom: 4px;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--border);
@@ -2395,7 +2395,13 @@ canvas {
                 </div>
               </div>
               <div>
-                <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">HAREKET LİSTESİ</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px">
+                  <div style="font-size:11px;color:var(--text-muted)">HAREKET LİSTESİ</div>
+                  <div style="display:flex; gap:6px; font-size:9px; font-weight:700; margin-right: 12px;">
+                     <span style="color: #22d3ee; background: rgba(6, 182, 212, 0.15); padding: 2px 5px; border-radius:3px; border: 1px solid rgba(6, 182, 212, 0.3);">Ana Kas</span>
+                     <span style="color: #f472b6; background: rgba(236, 72, 153, 0.15); padding: 2px 5px; border-radius:3px; border: 1px solid rgba(236, 72, 153, 0.3);">Yardımcı</span>
+                  </div>
+                </div>
                 <div class="exercise-list" id="exerciseListContainer">
                   <!-- Filled by JS -->
                 </div>
@@ -4582,13 +4588,46 @@ function renderExerciseList(muscle) {
   } else {
     filtered = _exercisePool.filter(exercise => exerciseMatchesMuscleFilter(exercise, muscle));
   }
+  
+  const muscleTr = (list) => {
+    if(!list || !Array.isArray(list)) return [];
+const map = {
+      'chest':'Göğüs', 'lats':'Kanat', 'upper_back':'Üst Sırt', 'traps':'Trapez', 'spinal_erectors':'Bel',
+      'front_delts':'Ön Omuz', 'side_delts':'Yan Omuz', 'rear_delts':'Arka Omuz', 'rotator_cuff':'Rotator',
+      'biceps':'Biceps', 'triceps':'Triceps', 'quads':'Quadriceps', 'hamstrings':'Hamstring',
+      'glutes':'Gluteus', 'calves':'Calf', 'adductors':'Adductor', 'forearms':'Ön Kol', 'core':'Core',
+      'obliques':'Oblik', 'abs':'Karın',
+      'gluteus_maximus':'Gluteus Maximus', 'gluteus_medius':'Gluteus Medius',
+      'hip_external_rotators':'Kalça Dış Rotatör', 'hip_internal_rotators':'Kalça İç Rotatör',
+      'infraspinatus':'İnfraspinatus', 'levator_scapulae':'Levator Skapula',
+      'lower_traps':'Alt Trapez', 'middle_traps':'Orta Trapez', 'mid_traps':'Orta Trapez',
+      'rhomboids':'Rhomboid', 'serratus_anterior':'Serratus Anterior',
+      'subscapularis':'Subskapularis', 'teres_minor':'Teres Minor', 'upper_traps':'Üst Trapez'
+    };
+    return list.map(m => map[m] || m);
+  };
 
   container.innerHTML = filtered.map(ex => {
     const bwLabel = ex.bw ? '<span class="bw-badge">Vücut Ağırlığı</span>' : '';
     const wtLabel = ex.weighted && !ex.bw
       ? '<span class="bw-badge" style="background:var(--blue-bg);color:var(--blue)">Ağırlıklı</span>'
       : '';
-    return `<div class="exercise-option" onclick="addExercise('${ex.id}')">${ex.name} ${bwLabel}${wtLabel}</div>`;
+      
+    const primary = muscleTr(ex.analysis?.primary_muscles);
+    const secondary = muscleTr(ex.analysis?.secondary_muscles);
+    
+    let tagsHtml = '';
+    if (primary.length) {
+        tagsHtml += primary.map(m => `<span style="padding: 2px 6px; font-size: 9px; font-weight: 700; border-radius: 4px; background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.5); box-shadow: 0 0 6px rgba(6, 182, 212, 0.4); text-transform: capitalize; white-space: nowrap;">${m}</span>`).join('');
+    }
+    if (secondary.length) {
+        tagsHtml += secondary.map(m => `<span style="padding: 2px 6px; font-size: 9px; font-weight: 700; border-radius: 4px; background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.5); box-shadow: 0 0 6px rgba(236, 72, 153, 0.4); text-transform: capitalize; white-space: nowrap;">${m}</span>`).join('');
+    }
+
+    return `<div class="exercise-option" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;" onclick="addExercise('${ex.id}')">
+      <span style="text-align: left; display: flex; align-items: center; gap: 6px;">${ex.name} ${bwLabel}${wtLabel}</span>
+      <div style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; margin-right: 12px;">${tagsHtml}</div>
+    </div>`;
   }).join('');
 
   replayWorkoutFilterAnimation(container);
@@ -4950,7 +4989,7 @@ async function loadHistory(username) {
       if (w.notes && w.notes.trim() !== '') {
         notesSection = `
           <div style="margin-top: 8px; padding: 8px 10px; background: rgba(108,99,255,0.06); border-left: 3px solid var(--accent); border-radius: 6px;">
-            <div style="font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">📝 Not</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">📝 Not</div>
             <span class="view-mode-${index}" style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">${w.notes}</span>
             <textarea class="edit-mode-${index} edit-input" data-field="notes" style="display:none; width:100%; min-height:60px; padding:6px 8px; font-size:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:var(--text); resize:vertical; outline:none;" placeholder="Antrenman notunuz...">${w.notes || ''}</textarea>
           </div>
@@ -5248,7 +5287,7 @@ async function loadNutritionHistory() {
       if (log.notes && log.notes.trim() !== '') {
         nutriNotesSection = `
           <div style="margin-top: 10px; padding: 8px 10px; background: rgba(108,99,255,0.06); border-left: 3px solid var(--accent); border-radius: 6px;">
-            <div style="font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">📝 Beslenme Notu</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">📝 Beslenme Notu</div>
             <span class="nutri-view-${index}" style="font-size: 12px; color: var(--text-muted); line-height: 1.5; display: block;">${log.notes}</span>
             <textarea class="nutri-edit-${index} edit-input" id="n-edit-notes-${index}" style="display:none; width:100%; min-height:60px; padding:6px 8px; font-size:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:var(--text); resize:vertical; outline:none;" placeholder="Beslenme notunuz...">${log.notes || ''}</textarea>
           </div>
@@ -5256,7 +5295,7 @@ async function loadNutritionHistory() {
       } else {
         nutriNotesSection = `
           <div style="margin-top: 10px; padding: 8px 10px; background: rgba(255,255,255,0.02); border-left: 3px solid rgba(255,255,255,0.1); border-radius: 6px; display:none;" class="nutri-edit-${index}">
-            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">📝 Beslenme Notu Ekle</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">📝 Beslenme Notu Ekle</div>
             <textarea class="edit-input" id="n-edit-notes-${index}" style="width:100%; min-height:60px; padding:6px 8px; font-size:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:var(--text); resize:vertical; outline:none;" placeholder="Beslenme notunuz..."></textarea>
           </div>
         `;
@@ -5977,6 +6016,24 @@ function buildExerciseDropdown(filterText = '') {
     return (aOrder < 0 ? 99 : aOrder) - (bOrder < 0 ? 99 : bOrder) || a.localeCompare(b, 'tr-TR');
   });
 
+  const muscleTr = (list) => {
+    if(!list || !Array.isArray(list)) return [];
+const map = {
+      'chest':'Göğüs', 'lats':'Kanat', 'upper_back':'Üst Sırt', 'traps':'Trapez', 'spinal_erectors':'Bel',
+      'front_delts':'Ön Omuz', 'side_delts':'Yan Omuz', 'rear_delts':'Arka Omuz', 'rotator_cuff':'Rotator',
+      'biceps':'Biceps', 'triceps':'Triceps', 'quads':'Quadriceps', 'hamstrings':'Hamstring',
+      'glutes':'Gluteus', 'calves':'Calf', 'adductors':'Adductor', 'forearms':'Ön Kol', 'core':'Core',
+      'obliques':'Oblik', 'abs':'Karın',
+      'gluteus_maximus':'Gluteus Maximus', 'gluteus_medius':'Gluteus Medius',
+      'hip_external_rotators':'Kalça Dış Rotatör', 'hip_internal_rotators':'Kalça İç Rotatör',
+      'infraspinatus':'İnfraspinatus', 'levator_scapulae':'Levator Skapula',
+      'lower_traps':'Alt Trapez', 'middle_traps':'Orta Trapez', 'mid_traps':'Orta Trapez',
+      'rhomboids':'Rhomboid', 'serratus_anterior':'Serratus Anterior',
+      'subscapularis':'Subskapularis', 'teres_minor':'Teres Minor', 'upper_traps':'Üst Trapez'
+    };
+    return list.map(m => map[m] || m);
+  };
+
   let html = '';
   groups.forEach(group => {
     const exercises = grouped.get(group).sort((a, b) => String(a.name).localeCompare(String(b.name), 'tr-TR'));
@@ -5984,7 +6041,22 @@ function buildExerciseDropdown(filterText = '') {
     exercises.forEach(exercise => {
       const encodedId = encodeURIComponent(String(exercise.id));
       const encodedName = encodeURIComponent(String(exercise.name));
-      html += `<button type="button" class="dropdown-item-option" onmousedown="event.preventDefault(); window.selectProgressExercise(decodeURIComponent('${encodedId}'), decodeURIComponent('${encodedName}'))">${_escapeProgressHtml(exercise.name)}</button>`;
+      
+      const primary = muscleTr(exercise.analysis?.primary_muscles);
+      const secondary = muscleTr(exercise.analysis?.secondary_muscles);
+      
+      let tagsHtml = '';
+      if (primary.length) {
+          tagsHtml += primary.map(m => `<span style="padding: 2px 6px; font-size: 9px; font-weight: 700; border-radius: 4px; background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.5); box-shadow: 0 0 6px rgba(6, 182, 212, 0.4); text-transform: capitalize; white-space: nowrap;">${m}</span>`).join('');
+      }
+      if (secondary.length) {
+          tagsHtml += secondary.map(m => `<span style="padding: 2px 6px; font-size: 9px; font-weight: 700; border-radius: 4px; background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.5); box-shadow: 0 0 6px rgba(236, 72, 153, 0.4); text-transform: capitalize; white-space: nowrap;">${m}</span>`).join('');
+      }
+      
+      html += `<button type="button" class="dropdown-item-option" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;" onmousedown="event.preventDefault(); window.selectProgressExercise(decodeURIComponent('${encodedId}'), decodeURIComponent('${encodedName}'))">
+        <span style="text-align: left;">${_escapeProgressHtml(exercise.name)}</span>
+        <div style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; margin-right: 12px;">${tagsHtml}</div>
+      </button>`;
     });
   });
 
