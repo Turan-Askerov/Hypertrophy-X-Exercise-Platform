@@ -66,7 +66,7 @@ from expert_system import (
     validate_preferences as validate_expert_preferences,
     validate_score as validate_expert_score,
 )
-from expert_recommendation import build_recommendation_program, format_tr_date, rpe_summary_from_rir
+from expert_system import build_recommendation_program, format_tr_date, rpe_summary_from_rir
 from program_schedule_sync import align_rest_slots, current_week_actuals, is_rest_day, reconcile_week
 
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -3258,7 +3258,7 @@ def _expert_rule_context(profile: dict, user_id: int, dashboard_preferences: obj
 
 
 def _expert_data_analysis(user: dict) -> dict:
-    from expert_rule_engine import evaluate_expert_rules
+    from expert_system import evaluate_expert_rules
     conn = get_db()
     try:
         profile = _expert_data_profile(conn, user["id"])

@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Iterable
 
+from expert_system.fuzzy_logic import _clamp, rising, falling
 UI_MUSCLE_GROUPS = (
     "Göğüs", "Sırt", "Omuz", "Biceps", "Triceps", "Bacak", "Core",
 )
@@ -30,25 +31,6 @@ ENGLISH_TO_UI_MUSCLE = {
     "Core": "Core",
     "Traps": "Sırt",
 }
-
-
-def _clamp(value: float, minimum: float = 0.0, maximum: float = 1.0) -> float:
-    return max(minimum, min(maximum, float(value)))
-
-
-def rising(value: float, start: float, end: float) -> float:
-    """start'ta 0, end'de 1 olan doğrusal fuzzy üyelik."""
-    if end <= start:
-        return 1.0 if value >= end else 0.0
-    return _clamp((float(value) - start) / (end - start))
-
-
-def falling(value: float, start: float, end: float) -> float:
-    """start'ta 1, end'de 0 olan doğrusal fuzzy üyelik."""
-    if end <= start:
-        return 1.0 if value <= start else 0.0
-    return _clamp((end - float(value)) / (end - start))
-
 
 def normalize_muscle_group(value: object) -> str | None:
     raw = str(value or "").strip()
