@@ -1,7 +1,7 @@
 <div align="center">
 
 # 🏋️ HYPERTROPHY-X
-### Profesyonel Antrenman Platformu — v5.0
+### Profesyonel Antrenman Platformu — v4.0
 
 **JWT Güvenlik • Uzman Sistem • Modern SPA Mimarisi • Production-Ready**
 
@@ -18,7 +18,7 @@
 
 ---
 
-## ✨ v5.0 Yenilikleri
+## ✨ v4.0 Yenilikleri
 
 | Özellik | Açıklama |
 |---|---|
@@ -85,7 +85,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 ### Windows (PowerShell)
 
 ```powershell
-cd Hypertrophy-X-v5.0\backend
+cd Hypertrophy-X-v4.0\backend
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt

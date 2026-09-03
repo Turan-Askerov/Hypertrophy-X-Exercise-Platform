@@ -396,9 +396,10 @@ AVAILABLE_EQUIPMENT_OPTIONS = (
     {"id": "leg_curl_machine", "label": "Leg curl makinesi"},
     {"id": "hack_squat_machine", "label": "Hack squat makinesi"},
     {"id": "smith_machine", "label": "Smith machine"},
-    {"id": "reverse_pec_deck", "label": "Reverse pec deck"},
+    {"id": "pec_deck_machine", "label": "Pec Deck / Reverse Fly Makinesi"},
     {"id": "ez_bar", "label": "EZ bar"},
     {"id": "dip_station", "label": "Dip istasyonu"},
+    {"id": "dip_belt", "label": "Zincirli Bel Kemeri (Dip Belt)"},
     {"id": "resistance_band", "label": "Direnç bandı"},
     {"id": "bodyweight", "label": "Vücut ağırlığı"},
 )
@@ -426,7 +427,7 @@ GYM_EQUIPMENT_CATALOG = (
     {"id": "barbell_bench_press_station", "label": "Barbell Bench Press", "group": "Fitness Makineleri"},
     {"id": "incline_barbell_bench_press_station", "label": "İncline Barbell Bench Press", "group": "Fitness Makineleri"},
     {"id": "decline_barbell_bench_press_station", "label": "Decline Barbell Bench Press", "group": "Fitness Makineleri"},
-    {"id": "pec_deck", "label": "Pec Deck Fly", "group": "Fitness Makineleri"},
+    {"id": "pec_deck_machine", "label": "Pec Deck / Reverse Fly Makinesi", "group": "Fitness Makineleri"},
     {"id": "cable_station", "label": "Cable Cross", "group": "Fitness Makineleri"},
     {"id": "smith_machine", "label": "Smith Machine", "group": "Fitness Makineleri"},
     {"id": "chest_press", "label": "Chest Press Machine", "group": "Fitness Makineleri"},
@@ -460,10 +461,15 @@ GYM_EQUIPMENT_CATALOG = (
     {"id": "recumbent_bike", "label": "Yatay Bisiklet", "group": "Kardiyo Aletleri"},
     {"id": "exercise_mat", "label": "Egzersiz Minderi (Yoga Matı)", "group": "Kardiyo Aletleri"},
     {"id": "cardio_area", "label": "Diğer Kardiyo Alanı", "group": "Kardiyo Aletleri"},
+
+    # Antrenman Ekipmanları
+    {"id": "dip_belt", "label": "Zincirli Bel Kemeri (Dip Belt)", "group": "Antrenman Ekipmanları"},
+    {"id": "resistance_band", "label": "Direnç Bandı", "group": "Antrenman Ekipmanları"},
 )
 
 _GYM_EQUIPMENT_IDS = {item["id"] for item in GYM_EQUIPMENT_CATALOG}
 _GYM_EQUIPMENT_ALIASES = {
+    "pec_deck": "pec_deck_machine", "reverse_pec_deck": "pec_deck_machine",
     "cable_machine": "cable_station", "cable_cross": "cable_station",
     "lat_pulldown_machine": "lat_pulldown", "cable_row_machine": "seated_cable_row",
     "chest_press_machine": "chest_press", "shoulder_press_machine": "shoulder_press",
@@ -926,8 +932,6 @@ _EXPERT_CATALOG_EXCLUDED_IDS = {
     "glute-bridge-bw",
     "bodyweight-squat",
     "inverted-row-bw",
-    # Eski reverse-pec-deck kaydı geçmişle uyum için kalır; yeni cable varyasyonu önerilir.
-    "rear-delt-fly",
 }
 
 
@@ -1093,6 +1097,42 @@ def build_session_content(
     preferred_ids, avoided_ids = _exercise_preference_sets(exercise_preferences, full_pool)
 
     blocked_targets = {muscle for muscle, severity in active_constraints.items() if severity >= 7}
+    
+    # Tendon protocol:
+    tendon_alarm_level = 0  # 1: Week 1-2 (Defer all/Target), 2: Week 3 (Limited), 3: Week 4-6 (60% weight)
+    for constraint in (constraints or []):
+        if str(constraint.get("status", "active")).lower() not in {"active", "open", "aktif"}: continue
+        if str(constraint.get("injury_type", "")) != "tendon": continue
+        try:
+            severity = float(constraint.get("severity", 0))
+        except:
+            severity = 0.0
+        if severity < 3: continue
+        
+        c_muscles = _expand_muscle_set([constraint.get("muscle_group")])
+        started_str = constraint.get("started_on")
+        days_since = 0
+        if started_str:
+            try:
+                from datetime import date
+                started_date = date.fromisoformat(started_str[:10])
+                days_since = max(0, (date.today() - started_date).days)
+            except:
+                pass
+        
+        weeks_since = days_since / 7.0
+        if weeks_since < 2.0:
+            return {
+                "status": "deferred", 
+                "reason": "Tendon sakatlığının ilk 2 haftasında olduğunuz için, sistemik dinlenme (alt vücut dahil) önerilir. Antrenman ertelendi.",
+                "exercises": [], "excluded": [], "target_muscles": sorted(target_muscles)
+            }
+        elif weeks_since < 3.0:
+            blocked_targets.update(c_muscles)
+            tendon_alarm_level = max(tendon_alarm_level, 2)
+        elif weeks_since < 6.0:
+            tendon_alarm_level = max(tendon_alarm_level, 3)
+
     if target_muscles and target_muscles.issubset(blocked_targets):
         return {
             "status": "deferred", "reason": "Bu seansın ana kasları aktif yüksek şiddetli kısıt nedeniyle ertelendi.",
@@ -1138,6 +1178,10 @@ def build_session_content(
             continue
         primary, _ = _exercise_muscles(exercise)
         reduced = bool(primary.intersection({muscle for muscle, severity in doms.items() if severity >= 4}))
+        presc = _prescription_for_exercise(exercise, goal, reduced)
+        if tendon_alarm_level == 3:
+            presc["sets"] = max(1, presc.get("sets", 3) - 1)
+            presc["effort_note"] = "Tendon geri dönüş protokolü: Eski ağırlığınızın %60'ı ile, 2-3 RIR."
         selected.append({
             "id": exercise.get("id"),
             "name": exercise.get("name"),
@@ -1145,11 +1189,12 @@ def build_session_content(
             "primary_muscles": sorted(primary),
             "primary_muscle_labels": [detailed_muscle_label(item) for item in sorted(primary)],
             "equipment": _exercise_required_equipment(exercise),
-            "prescription": _prescription_for_exercise(exercise, goal, reduced),
+            "prescription": presc,
             "adapted_for_recovery": reduced,
         })
         represented_families.add(family)
-        if len(selected) >= max(1, min(int(max_exercises or 6), 8)):
+        limit_exercises = 3 if tendon_alarm_level == 3 else max(1, min(int(max_exercises or 6), 8))
+        if len(selected) >= limit_exercises:
             break
 
     status = "ready" if selected else "limited"

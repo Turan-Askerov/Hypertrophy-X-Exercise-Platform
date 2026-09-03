@@ -614,12 +614,14 @@ tr:hover td { background: var(--bg-card-hover); }
   justify-content: space-between;
 }
 .exercise-option:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-.exercise-option .bw-badge {
-  font-size: 10px;
+.bw-badge {
+  font-size: 9px;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--green-bg);
   color: var(--green);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* ═══ WORKOUT UI MOTION ═══
@@ -2134,6 +2136,13 @@ canvas {
     font-size: 10px !important;
   }
 }
+  @media (max-width: 768px) {
+    .desktop-macro-chart { display: none !important; }
+    .mobile-macro-bar { display: block !important; }
+  }
+  @media (min-width: 769px) {
+    .mobile-macro-bar { display: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -2582,9 +2591,20 @@ canvas {
                 </div>
               </div>
 
-            </div>
+              <div class="mobile-macro-bar">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 6px;">
+                  <span style="color: var(--text);">📊 Toplam Makro Alımı</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; display: flex;">
+                  <div id="macroBarProtein" style="width: 0%; height: 100%; background: #22c55e; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);" title="Protein"></div>
+                  <div id="macroBarCarb" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);" title="Karbonhidrat"></div>
+                  <div id="macroBarFat" style="width: 0%; height: 100%; background: #3b82f6; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);" title="Yağ"></div>
+                </div>
+              </div>
 
-            <div style="position: relative; height: 160px; width: 100%; min-width: 0; overflow: hidden; margin-top: 10px;">
+            </div>
+            
+            <div class="desktop-macro-chart" style="position: relative; height: 160px; width: 100%; min-width: 0; overflow: hidden; margin-top: 10px;">
               <canvas id="macroChart"></canvas>
             </div>
           </div>
@@ -3669,7 +3689,7 @@ async function loadDashboardRPG(username) {
 
     const completedMusclesSet = new Set();
     const baselines = {};
-    const COMPOUND_KEYWORDS = ['bench', 'squat', 'deadlift', 'overhead', 'row', 'dip', 'bulgarian'];
+    const COMPOUND_KEYWORDS = ['bench', 'squat', 'deadlift', 'overhead', 'row', 'dip', 'bulgarian', 'pull ups', 'chin ups'];
     // Yeni hareket havuzundaki ayrıntılı ana kas tanımları önce kullanılır.
     // Böylece Legs gibi geniş bir görünür grup, hamstring/glute kaydını gizlemez.
     const PRIMARY_TO_RPG_MUSCLE = {
@@ -3743,7 +3763,7 @@ async function loadDashboardRPG(username) {
               baselines[exName] = weight;
             }
 
-            const isCompound = COMPOUND_KEYWORDS.some(k => exName.includes(k));
+            const isCompound = COMPOUND_KEYWORDS.some(k => exName.includes(k)) && !exName.includes('incline');
             const basePoints = isCompound ? 10 : 5;
             const multiplier = isCompound ? 1.2 : 1.5;
 
@@ -4592,7 +4612,7 @@ function renderExerciseList(muscle) {
   const muscleTr = (list) => {
     if(!list || !Array.isArray(list)) return [];
 const map = {
-      'chest':'Göğüs', 'lats':'Kanat', 'upper_back':'Üst Sırt', 'traps':'Trapez', 'spinal_erectors':'Bel',
+      'chest':'Göğüs', 'upper_chest':'Üst Göğüs', 'lats':'Kanat', 'upper_back':'Üst Sırt', 'traps':'Trapez', 'spinal_erectors':'Bel',
       'front_delts':'Ön Omuz', 'side_delts':'Yan Omuz', 'rear_delts':'Arka Omuz', 'rotator_cuff':'Rotator',
       'biceps':'Biceps', 'triceps':'Triceps', 'quads':'Quadriceps', 'hamstrings':'Hamstring',
       'glutes':'Gluteus', 'calves':'Calf', 'adductors':'Adductor', 'forearms':'Ön Kol', 'core':'Core',
@@ -4668,7 +4688,10 @@ function renderSelectedExercises() {
     return `
       <div class="card history-card-animated selected-exercise-card" data-exercise-index="${idx}" style="margin-bottom:12px; padding:16px; --card-index: ${idx};">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-          <div>
+          <div style="display:flex; align-items:center;">
+            <span class="ex-drag-handle" title="Önceliği değiştirmek için sürükle" style="cursor:grab; color:rgba(255,255,255,0.15); transition:0.2s; display:flex; align-items:center; margin-right:12px;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.15)'">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
+            </span>
             <strong>${ex.exercise_name}</strong>
             <span class="badge ${bodyweightOnly ? 'badge-green' : 'badge-accent'}" style="margin-left:6px">${muscleLabel}</span>
             ${bodyweightOnly ? '<span class="badge badge-green" style="margin-left:4px">Vücut Ağırlığı</span>' : ''}
@@ -4677,7 +4700,7 @@ function renderSelectedExercises() {
           <button class="btn btn-sm btn-danger" onclick="removeExercise(${idx})" style="padding:4px 10px;">Sil</button>
         </div>
         <table class="sets-table">
-          <thead><tr><th>Set</th><th>Tekrar</th><th>${bodyweightOnly ? 'Yük' : loadLabel}</th><th title="Reps In Reserve — sette tahmini kalan tekrar">RIR</th><th></th></tr></thead>
+          <thead><tr><th>Set</th><th>${bodyweightOnly ? 'Yük' : loadLabel}</th><th>Tekrar</th><th title="Reps In Reserve — sette tahmini kalan tekrar">RIR</th><th></th></tr></thead>
           <tbody>
             ${ex.sets_data.map((s, si) => {
               // RIR null ise otomatik 0 olmak yerine düz çizgi (—) kalır
@@ -4686,11 +4709,11 @@ function renderSelectedExercises() {
               <tr>
                 <td><strong>${si + 1}</strong></td>
                 <!-- DİKKAT: onchange yerine anlık çalışan oninput kullanıldı -->
-                <td><input type="number" inputmode="numeric" id="input_${idx}_${si}_reps" value="${s.reps}" min="1" max="30" oninput="updateSet(${idx},${si},'reps',this.value)" /></td>
                 <td>${bodyweightOnly
                   ? '<span style="opacity:.58;font-size:12px">Otomatik</span>'
                   : `<input type="number" inputmode="decimal" id="input_${idx}_${si}_weight_kg" value="${s.weight_kg}" min="0" max="500" step="0.5" oninput="updateSet(${idx},${si},'weight_kg',this.value)" />`
                 }</td>
+                <td><input type="number" inputmode="numeric" id="input_${idx}_${si}_reps" value="${s.reps}" min="1" max="30" oninput="updateSet(${idx},${si},'reps',this.value)" /></td>
                 <td><select id="input_${idx}_${si}_rir" aria-label="${si + 1}. set RIR" oninput="updateSet(${idx},${si},'rir',this.value)"><option value="" ${rir === '' ? 'selected' : ''}>—</option>${[0,1,2,3,4,5].map(value => `<option value="${value}" ${rir === value ? 'selected' : ''}>${value}</option>`).join('')}</select></td>
                 <td>${si === 0 ? `<button class="btn btn-sm btn-secondary set-action-btn" onclick="addSet(${idx})">+ Set</button>` : `<button class="btn btn-sm btn-danger set-action-btn" onclick="removeSet(${idx},${si})">✕</button>`}</td>
               </tr>`;
@@ -4701,6 +4724,44 @@ function renderSelectedExercises() {
       </div>
     `;
   }).join('');
+
+  if (typeof Sortable !== 'undefined') {
+    if (window._workoutSortable) {
+      window._workoutSortable.destroy();
+    }
+    window._workoutSortable = new Sortable(container, {
+      handle: '.ex-drag-handle',
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      onEnd: function (evt) {
+        if (evt.oldIndex !== evt.newIndex) {
+          const moved = _selectedExercises.splice(evt.oldIndex, 1)[0];
+          _selectedExercises.splice(evt.newIndex, 0, moved);
+          
+          // Kartların içindeki inputların value değerlerini data modeline yazalım ki re-renderda kaybolmasın.
+          document.querySelectorAll('.selected-exercise-card').forEach((card) => {
+             const exIdx = card.getAttribute('data-exercise-index');
+             card.querySelectorAll('.set-row, tr').forEach((row, rowIdx) => {
+                 if (rowIdx === 0 && row.closest('thead')) return; // Header row
+                 const actualRowIdx = row.closest('thead') ? -1 : rowIdx - (row.closest('table').querySelector('thead') ? 1 : 0);
+                 if (actualRowIdx < 0) return;
+                 const repInput = row.querySelector('input[id$="_reps"]');
+                 const weightInput = row.querySelector('input[id$="_weight_kg"]');
+                 const rirInput = row.querySelector('select[id$="_rir"]');
+                 
+                 if(_selectedExercises[exIdx] && _selectedExercises[exIdx].sets_data[actualRowIdx]) {
+                     if(repInput) _selectedExercises[exIdx].sets_data[actualRowIdx].reps = repInput.value || 0;
+                     if(weightInput) _selectedExercises[exIdx].sets_data[actualRowIdx].weight_kg = weightInput.value || 0;
+                     if(rirInput) _selectedExercises[exIdx].sets_data[actualRowIdx].rir = rirInput.value === '' ? null : Number(rirInput.value);
+                 }
+             });
+          });
+
+          renderSelectedExercises();
+        }
+      }
+    });
+  }
 }
 
 function addSet(exIdx) {
@@ -4736,7 +4797,10 @@ function updateSet(exIdx, setIdx, field, value) {
     return;
   }
   
-  const val = parseFloat(value) || 0;
+  let val = parseFloat(value) || 0;
+  if (field === 'reps' && val > 30) { val = 30; document.getElementById(`input_${exIdx}_${setIdx}_reps`).value = 30; }
+  if (field === 'weight_kg' && val > 500) { val = 500; document.getElementById(`input_${exIdx}_${setIdx}_weight_kg`).value = 500; }
+  
   const oldVal = setsData[setIdx][field]; // Anlık değişim takibi için önceki değeri kaydediyoruz
   setsData[setIdx][field] = val;
 
@@ -5133,9 +5197,10 @@ function toggleEditMode(index, event) {
 function buildWorkoutDraftExercise(rawExercise) {
   const raw = rawExercise && typeof rawExercise === 'object' ? rawExercise : {};
   const rawId = raw.exercise_id || raw.canonical_exercise_id || '';
-  const catalogExercise = _exercisePool.find(item =>
-    item.id === rawId || item.id === raw.canonical_exercise_id || item.name === raw.exercise_name
-  );
+  let catalogExercise = _exercisePool.find(item => item.id === rawId || item.id === raw.canonical_exercise_id);
+  if (!catalogExercise) {
+    catalogExercise = _exercisePool.find(item => item.name === raw.exercise_name);
+  }
   const isBodyweight = typeof raw.is_bodyweight === 'boolean'
     ? raw.is_bodyweight
     : Boolean(catalogExercise?.bw);
@@ -5724,7 +5789,7 @@ async function loadProgress(username) {
       if (!prs || prs.length === 0) {
         prTable.innerHTML = '<tr><td colspan="5" style="text-align:center; color:rgba(255,255,255,0.7); padding:24px;">Henüz PR verisi bulunmuyor</td></tr>';
       } else {
-        const COMPOUND_KEYWORDS = ['bench', 'squat', 'deadlift', 'Overhead Press', 'barbell row', 'bulgarian'];
+        const COMPOUND_KEYWORDS = ['bench', 'squat', 'deadlift', 'overhead press', 'barbell row', 'bulgarian', 'pull ups', 'chin ups'];
         const compoundPRs = [];
         const muscleGroupPRs = {};
 
@@ -5737,9 +5802,28 @@ async function loadProgress(username) {
           return dateStr;
         };
 
+        
+        const muscleTrPR = (list) => {
+          if(!list || !Array.isArray(list)) return [];
+          const map = {
+            'chest':'Göğüs', 'upper_chest':'Üst Göğüs', 'lats':'Kanat', 'upper_back':'Üst Sırt', 'traps':'Trapez', 'spinal_erectors':'Bel',
+            'front_delts':'Ön Omuz', 'side_delts':'Yan Omuz', 'rear_delts':'Arka Omuz', 'rotator_cuff':'Rotator',
+            'biceps':'Biceps', 'triceps':'Triceps', 'quads':'Quadriceps', 'hamstrings':'Hamstring',
+            'glutes':'Gluteus', 'calves':'Calf', 'adductors':'Adductor', 'forearms':'Ön Kol', 'core':'Core',
+            'obliques':'Oblik', 'abs':'Karın',
+            'gluteus_maximus':'Gluteus Maximus', 'gluteus_medius':'Gluteus Medius',
+            'hip_external_rotators':'Kalça Dış Rotatör', 'hip_internal_rotators':'Kalça İç Rotatör',
+            'infraspinatus':'İnfraspinatus', 'levator_scapulae':'Levator Skapula',
+            'lower_traps':'Alt Trapez', 'middle_traps':'Orta Trapez', 'mid_traps':'Orta Trapez',
+            'rhomboids':'Rhomboid', 'serratus_anterior':'Serratus Anterior',
+            'subscapularis':'Subskapularis', 'teres_minor':'Teres Minor', 'upper_traps':'Üst Trapez'
+          };
+          return list.map(m => map[m] || m);
+        };
+
         prs.forEach(r => {
           const exName = (r.exercise || "").toLowerCase();
-          const isCompound = COMPOUND_KEYWORDS.some(k => exName.includes(k));
+          const isCompound = COMPOUND_KEYWORDS.some(k => exName.includes(k)) && !exName.includes('incline');
 
           r.formattedDate = formatDateTr(r.date);
 
@@ -5854,10 +5938,10 @@ async function loadProgress(username) {
           compoundPRs.forEach(r => {
             const compBadge = `background: linear-gradient(90deg, rgba(108, 99, 255, 0.2) 0%, rgba(217, 70, 239, 0.05) 100%); color: #c084fc; border: 1px solid rgba(108, 99, 255, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block;`;
             tableHTML += `
-              <tr style="transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05);" onmouseover="this.style.background='rgba(255, 255, 255, 0.05)'" onmouseout="this.style.background='transparent'">
+              <tr style="transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05);" onmouseover="this.style.background='rgba(255, 255, 255, 0.05)'" onmouseout="this.style.background='transparent'" style="cursor:pointer;" onclick="window.scrollTo({top:0, behavior:'smooth'}); selectProgressExercise('${r.exercise_id}', '${r.exercise}')">
                 <td style="padding: 12px 16px; font-weight: 600; color: #ffffff; font-size: 13px;">${r.exercise}</td>
-                <td><span style="${compBadge}">${r.muscle}</span></td>
-                <td style="font-weight: 800; color: ${weightColor}; font-size: 14px;">${r.max_weight} kg</td>
+                <td><span style="${compBadge}">${(muscleTrPR(r.primary_muscles).join(', ') || r.muscle)}</span></td>
+                <td style="font-weight: 800; color: ${weightColor}; font-size: 14px;">${r.metric_type === 'reps' ? '<span style="font-size:12px;opacity:0.8;">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</td>
                 <td><span style="font-size: 12px; color: ${repsColor}; font-weight: 600;">${r.max_reps} Tekrar</span></td>
                 <td style="font-size: 12px; color: ${dateColor};">${r.formattedDate}</td>
               </tr>
@@ -5891,10 +5975,10 @@ async function loadProgress(username) {
 
           groupPRs.forEach(r => {
             tableHTML += `
-              <tr style="transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05);" onmouseover="this.style.background='rgba(255, 255, 255, 0.05)'" onmouseout="this.style.background='transparent'">
+              <tr style="transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05);" onmouseover="this.style.background='rgba(255, 255, 255, 0.05)'" onmouseout="this.style.background='transparent'" style="cursor:pointer;" onclick="window.scrollTo({top:0, behavior:'smooth'}); selectProgressExercise('${r.exercise_id}', '${r.exercise}')">
                 <td style="padding: 12px 16px 12px 24px; font-weight: 500; color: #ffffff; font-size: 13px;">${r.exercise}</td>
-                <td><span style="${getThemeForMuscle(r.muscle).badge}">${r.muscle}</span></td>
-                <td style="font-weight: 700; color: ${weightColor}; font-size: 13px;">${r.max_weight} kg</td>
+                <td><span style="${getThemeForMuscle(r.muscle).badge}">${(muscleTrPR(r.primary_muscles).join(', ') || r.muscle)}</span></td>
+                <td style="font-weight: 700; color: ${weightColor}; font-size: 13px;">${r.metric_type === 'reps' ? '<span style="font-size:12px;opacity:0.8;">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</td>
                 <td><span style="font-size: 12px; color: ${repsColor}; font-weight: 500;">${r.max_reps} Tekrar</span></td>
                 <td style="font-size: 12px; color: ${dateColor};">${r.formattedDate}</td>
               </tr>
@@ -5940,14 +6024,20 @@ async function loadProgress(username) {
 async function selectProgressExercise(exerciseRef, displayName = '') {
   const selected = (_exercisePool || []).find(item => item.id === exerciseRef || item.name === exerciseRef);
   const exerciseId = selected?.id || exerciseRef;
-  const exerciseName = displayName || selected?.name || String(exerciseRef || '');
+  let exerciseName = displayName || selected?.name || String(exerciseRef || '');
+  
+  if (selected) {
+    if (selected.bw) exerciseName += ' (Vücut Ağırlığı)';
+    else if (selected.weighted) exerciseName += ' (Ağırlıklı)';
+  }
+  
   const inputEl = document.getElementById('exerciseSearchInput');
   if (inputEl) inputEl.value = exerciseName;
   const dropdownEl = document.getElementById('exerciseDropdownList');
   if (dropdownEl) dropdownEl.style.display = 'none';
   try {
     const response = await apiGet('/api/progress/chart?exercise_id=' + encodeURIComponent(exerciseId));
-    renderExerciseProgressChart(response.exercise_name || exerciseName, response);
+    renderExerciseProgressChart(exerciseName, response);
   } catch (error) {
     console.error('Grafik verisi çekilirken API hatası:', error);
     renderExerciseProgressChart(exerciseName, { labels: [], data: [], details: [], metric_type: 'weight_kg', metric_label: 'PR ağırlık (kg)' });
@@ -6019,7 +6109,7 @@ function buildExerciseDropdown(filterText = '') {
   const muscleTr = (list) => {
     if(!list || !Array.isArray(list)) return [];
 const map = {
-      'chest':'Göğüs', 'lats':'Kanat', 'upper_back':'Üst Sırt', 'traps':'Trapez', 'spinal_erectors':'Bel',
+      'chest':'Göğüs', 'upper_chest':'Üst Göğüs', 'lats':'Kanat', 'upper_back':'Üst Sırt', 'traps':'Trapez', 'spinal_erectors':'Bel',
       'front_delts':'Ön Omuz', 'side_delts':'Yan Omuz', 'rear_delts':'Arka Omuz', 'rotator_cuff':'Rotator',
       'biceps':'Biceps', 'triceps':'Triceps', 'quads':'Quadriceps', 'hamstrings':'Hamstring',
       'glutes':'Gluteus', 'calves':'Calf', 'adductors':'Adductor', 'forearms':'Ön Kol', 'core':'Core',
@@ -6045,6 +6135,9 @@ const map = {
       const primary = muscleTr(exercise.analysis?.primary_muscles);
       const secondary = muscleTr(exercise.analysis?.secondary_muscles);
       
+      const bwLabel = exercise.bw ? '<span class="bw-badge">Vücut Ağırlığı</span>' : '';
+      const wtLabel = exercise.weighted && !exercise.bw ? '<span class="bw-badge" style="background:var(--blue-bg);color:var(--blue)">Ağırlıklı</span>' : '';
+      
       let tagsHtml = '';
       if (primary.length) {
           tagsHtml += primary.map(m => `<span style="padding: 2px 6px; font-size: 9px; font-weight: 700; border-radius: 4px; background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.5); box-shadow: 0 0 6px rgba(6, 182, 212, 0.4); text-transform: capitalize; white-space: nowrap;">${m}</span>`).join('');
@@ -6054,7 +6147,7 @@ const map = {
       }
       
       html += `<button type="button" class="dropdown-item-option" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;" onmousedown="event.preventDefault(); window.selectProgressExercise(decodeURIComponent('${encodedId}'), decodeURIComponent('${encodedName}'))">
-        <span style="text-align: left;">${_escapeProgressHtml(exercise.name)}</span>
+        <span style="text-align: left; display: flex; align-items: center; gap: 6px;">${_escapeProgressHtml(exercise.name)} ${bwLabel}${wtLabel}</span>
         <div style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; margin-right: 12px;">${tagsHtml}</div>
       </button>`;
     });
@@ -6629,21 +6722,35 @@ function _renderNutritionHeader(stats) {
 
 /* ---------- Makro Bar Chart (Yüzdelik) ---------- */
 function _renderMacroPie(data) {
-  const ctx = document.getElementById('macroChart');
-  if (!ctx) return;
-  if (_macroChart) _macroChart.destroy();
   const prot = data.protein || 0;
   const carb = data.carbs || 0;
   const fat = data.fat || 0;
   const total = prot + carb + fat;
+
+  const pPct = total > 0 ? (prot / total) * 100 : 0;
+  const cPct = total > 0 ? (carb / total) * 100 : 0;
+  const fPct = total > 0 ? (fat / total) * 100 : 0;
+
+  const barProt = document.getElementById('macroBarProtein');
+  const barCarb = document.getElementById('macroBarCarb');
+  const barFat = document.getElementById('macroBarFat');
+
+  if (barProt) barProt.style.width = pPct + '%';
+  if (barCarb) barCarb.style.width = cPct + '%';
+  if (barFat) barFat.style.width = fPct + '%';
+
+  const ctx = document.getElementById('macroChart');
+  if (!ctx) return;
+  if (typeof _macroChart !== 'undefined' && _macroChart) _macroChart.destroy();
+  
   _macroChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Toplam Makro Alımı'],
       datasets: [
-        { label: 'Protein', data: total > 0 ? [(prot / total) * 100] : [0], backgroundColor: '#22c55e', borderRadius: total > 0 ? { topLeft: 4, bottomLeft: 4 } : 4 },
-        { label: 'Karbonhidrat', data: total > 0 ? [(carb / total) * 100] : [0], backgroundColor: '#f59e0b' },
-        { label: 'Yağ', data: total > 0 ? [(fat / total) * 100] : [0], backgroundColor: '#3b82f6', borderRadius: total > 0 ? { topRight: 4, bottomRight: 4 } : 4 }
+        { label: 'Protein', data: total > 0 ? [(prot / total) * 100] : [0], backgroundColor: '#22c55e', borderRadius: total > 0 ? { topLeft: 4, bottomLeft: 4 } : 4, maxBarThickness: 45 },
+        { label: 'Karbonhidrat', data: total > 0 ? [(carb / total) * 100] : [0], backgroundColor: '#f59e0b', maxBarThickness: 45 },
+        { label: 'Yağ', data: total > 0 ? [(fat / total) * 100] : [0], backgroundColor: '#3b82f6', borderRadius: total > 0 ? { topRight: 4, bottomRight: 4 } : 4, maxBarThickness: 45 }
       ]
     },
     options: {
@@ -6654,9 +6761,9 @@ function _renderMacroPie(data) {
         legend: { position: 'right', labels: { color: '#9ca3b4', font: { size: 11 }, padding: 10, usePointStyle: true } },
         tooltip: {
           callbacks: {
-            label: function(ctx) {
-              const pct = ctx.parsed.x;
-              let label = ctx.dataset.label;
+            label: function(ctxInfo) {
+              const pct = ctxInfo.parsed.x;
+              let label = ctxInfo.dataset.label;
               if (label === 'Protein') label += ` (${prot}g)`;
               else if (label === 'Karbonhidrat') label += ` (${carb}g)`;
               else if (label === 'Yağ') label += ` (${fat}g)`;
@@ -6666,11 +6773,7 @@ function _renderMacroPie(data) {
         }
       },
       scales: {
-        x: {
-          stacked: true, max: 100,
-          grid: { display: false },
-          ticks: { callback: value => '%' + value, color: '#9ca3b4' }
-        },
+        x: { stacked: true, max: 100, grid: { display: false }, ticks: { callback: value => '%' + value, color: '#9ca3b4' } },
         y: { stacked: true, grid: { display: false }, ticks: { color: '#9ca3b4' } }
       }
     }
@@ -6742,10 +6845,8 @@ function clearNutritionInputs() {
   if (window._nutriTargets) {
     _updateProgressBars({ calories: 0, protein: 0, carbs: 0, fat: 0, _targets: window._nutriTargets });
   }
-  // Bugünkü makro kartını da sıfırla (yapıştırılmış kart yoksa güvenli)
-  if (_macroChart) { _macroChart.destroy(); _macroChart = null; }
-  const ctx = document.getElementById('macroChart');
-  if (ctx) _macroChart = new Chart(ctx, { type: 'bar', data: { labels: ['Toplam Makro Alımı'], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' } });
+  // Bugünkü makro kartını da sıfırla
+  _renderMacroPie({ protein: 0, carbs: 0, fat: 0 });
 }
 
 /* ---------- İstatistik Kartı Seçimi (Kalori / Protein / Karb / Yağ) ---------- */
@@ -7761,7 +7862,7 @@ function expertDataMovementPreferencesPane() {
   const preferred = new Set(expertDataMovementDraft?.preferred_exercise_ids || expertDataState?.preferred_exercise_ids || []);
   const avoided = new Set(expertDataMovementDraft?.avoid_exercise_ids || expertDataState?.avoid_exercise_ids || []);
   const groups = expertDataMovementGroups();
-  const body = Object.entries(groups).map(([group, items]) => `<details class="expert-movement-group" open><summary><strong>${expertDataEscape(group)}</strong><span>${items.length} hareket</span></summary><div class="expert-movement-list">${items.map(item => { const isPreferred = preferred.has(item.id); const isAvoided = avoided.has(item.id); const meta = (item.primary_muscles || []).map(expertDataMuscleLabel).join(' · ') || item.category || ''; return `<div class="expert-movement-row"><div class="expert-movement-name">${expertDataEscape(item.name)}<small class="expert-movement-meta">${expertDataEscape(meta)}</small></div><button type="button" class="expert-movement-button ${isPreferred ? 'active' : ''}" onclick="expertDataToggleMovementPreference('${expertDataEscape(item.id)}','preferred')">${isPreferred ? 'Tercih edildi' : 'Tercih et'}</button><button type="button" class="expert-movement-button avoid ${isAvoided ? 'active' : ''}" onclick="expertDataToggleMovementPreference('${expertDataEscape(item.id)}','avoid')">${isAvoided ? 'Önerme' : 'Önerme'}</button></div>`; }).join('')}</div></details>`).join('');
+  const body = Object.entries(groups).map(([group, items]) => `<details class="expert-movement-group" open><summary><strong>${expertDataEscape(group)}</strong><span>${items.length} hareket</span></summary><div class="expert-movement-list">${items.map(item => { const isPreferred = preferred.has(item.id); const isAvoided = avoided.has(item.id); const meta = (item.primary_muscles || []).map(expertDataMuscleLabel).join(' · ') || item.category || ''; let exName = item.name; if (item.bw) exName += ' (Vücut Ağırlığı)'; else if (item.weighted) exName += ' (Ağırlıklı)'; return `<div class="expert-movement-row"><div class="expert-movement-name">${expertDataEscape(exName)}<small class="expert-movement-meta">${expertDataEscape(meta)}</small></div><button type="button" class="expert-movement-button ${isPreferred ? 'active' : ''}" onclick="expertDataToggleMovementPreference('${expertDataEscape(item.id)}','preferred')">${isPreferred ? 'Tercih edildi' : 'Tercih et'}</button><button type="button" class="expert-movement-button avoid ${isAvoided ? 'active' : ''}" onclick="expertDataToggleMovementPreference('${expertDataEscape(item.id)}','avoid')">${isAvoided ? 'Önerme' : 'Önerme'}</button></div>`; }).join('')}</div></details>`).join('');
   return `<section class="expert-data-card" style="margin-top:18px"><div class="expert-data-cardhead"><div><h3>Hareket Tercihlerim</h3><p>Tüm kas gruplarındaki hareketler burada yer alır. Tercih ettiklerin güvenlik kurallarından sonra önce gelir; “Önerme” seçtiklerin yeni uzman taslağına hiç eklenmez.</p></div><span class="expert-data-badge">İsteğe bağlı</span></div><div class="expert-movement-toolbar"><input id="expertDataMovementSearch" class="expert-movement-search" type="search" placeholder="Hareket veya kas grubu ara" oninput="expertDataFilterMovementPreferences()"><span class="expert-data-badge">${preferred.size} tercih · ${avoided.size} önerilmesin</span></div>${body || '<div class="expert-data-empty">Aramaya uygun hareket bulunamadı.</div>'}<div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveMovementPreferences()">Hareket Tercihlerini Kaydet</button><button class="btn btn-secondary" type="button" onclick="expertDataClearMovementPreferences()">Hareket Seçimlerini Temizle</button></div><div class="expert-data-note"><strong>Not:</strong> Bu seçimler mevcut öneri programını değiştirmez. Yalnız “Öneri Programı Oluştur” veya “Taslağı Yenile” işleminden sonra yeni taslağa uygulanır.</div></section>`;
 }
 

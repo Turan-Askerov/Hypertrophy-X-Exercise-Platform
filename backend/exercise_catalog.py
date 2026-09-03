@@ -76,13 +76,13 @@ EXERCISE_POOL = [
               equipment=["dumbbell", "flat_bench"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
 
     _exercise("incline-bench-press", "Incline Bench Press", "Chest", "compound", False,
-              family="bench_press", variation="barbell_incline", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="incline_press",
+              family="bench_press", variation="barbell_incline", primary_muscles=["upper_chest", "front_delts"],
+              secondary_muscles=["triceps"], movement_pattern="incline_press",
               equipment=["barbell", "adjustable_bench"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("incline-dumbbell-press", "Incline Dumbbell Press", "Chest", "compound", False,
-              family="bench_press", variation="dumbbell_incline", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="incline_press",
+              family="bench_press", variation="dumbbell_incline", primary_muscles=["upper_chest", "front_delts"],
+              secondary_muscles=["triceps"], movement_pattern="incline_press",
               equipment=["dumbbell", "adjustable_bench"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
 
     _exercise("chest-press-machine", "Chest Press Machine", "Chest", "compound", False,
@@ -111,38 +111,33 @@ EXERCISE_POOL = [
               movement_pattern="chest_adduction", equipment=["dumbbell", "flat_bench"],
               load_mode="external_load", unilateral=True, fatigue_cost="low"),
 
+    _exercise("pec-deck-fly", "Pec Deck Fly", "Chest", "isolation", False,
+              family="chest_fly", variation="machine", primary_muscles=["chest"], secondary_muscles=["front_delts", "biceps"],
+              movement_pattern="chest_adduction", equipment=["pec_deck_machine"],
+              load_mode="external_load", unilateral=False, fatigue_cost="low"),
+
     # ── SIRT EGZERSİZLERİ ──────────────────────────────────────────
     # --- Bileşik (Compound) Egzersizler ---
-    _exercise("chin-ups-bw", "Chin Ups", "Back", "compound", True,
-              family="chin_up", variation="bodyweight_supinated", primary_muscles=["lats", "biceps"],
-              secondary_muscles=["upper_back", "rear_delts"], movement_pattern="vertical_pull",
-              equipment=["pull_up_bar", "bodyweight"], load_mode="bodyweight", fatigue_cost="medium"),
 
-    _exercise("chin-ups-weighted", "Chin Ups", "Back", "compound", False,
-              family="chin_up", variation="weighted_supinated", primary_muscles=["lats", "biceps"],
-              secondary_muscles=["upper_back", "rear_delts"], movement_pattern="vertical_pull",
-              equipment=["pull_up_bar", "bodyweight", "dip_belt_or_vest"], load_mode="bodyweight_plus_external",
-              minimum_level="intermediate", fatigue_cost="high"),
-
-    _exercise("deadlift", "Deadlift", "Back", "compound", False,
-              family="deadlift", variation="barbell_conventional", primary_muscles=["glutes", "hamstrings", "spinal_erectors"],
-              secondary_muscles=["upper_back", "traps", "quads"], movement_pattern="hip_hinge",
-              equipment=["barbell"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
-
-    _exercise("inverted-row-bw", "Inverted Row", "Back", "compound", True,
-              family="inverted_row", variation="bodyweight", primary_muscles=["upper_back", "lats"],
-              secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
-              equipment=["bar_or_suspension_trainer", "bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
+    _exercise("barbell-row", "Barbell Row", "Back", "compound", False,
+              family="row", variation="barbell_bent_over", primary_muscles=["lats"],
+              secondary_muscles=["biceps", "rear_delts", "med_trap", "spinal_erectors"], movement_pattern="horizontal_pull",
+              equipment=["barbell"], load_mode="external_load", fatigue_cost="high"),
 
     _exercise("lat-pull-down", "Lat Pull Down", "Back", "compound", False,
               family="lat_pulldown", variation="cable", primary_muscles=["lats"],
               secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
               equipment=["lat_pulldown_machine"], load_mode="external_load", fatigue_cost="medium"),
 
+    _exercise("single-arm-low-row", "Single-Arm Low Row (90-90)", "Back", "compound", False,
+              family="row", variation="single_arm_low", primary_muscles=["upper_back", "rear_delts"],
+              secondary_muscles=["biceps", "mid_trap"], movement_pattern="horizontal_pull",
+              equipment=["cable_machine_or_machine", "single_handle"], load_mode="external_load", fatigue_cost="medium"),
+
     _exercise("single-arm-pulldown", "Single-Arm Pulldown", "Back", "compound", False,
               family="lat_pulldown", variation="single_arm", primary_muscles=["lats"],
               secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
-              equipment=["cable_machine"], load_mode="external_load", fatigue_cost="medium"),
+              equipment=["cable_machine", "single_handle"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("pull-ups-bw", "Pull Ups (Barfiks)", "Back", "compound", True,
               family="pull_up", variation="bodyweight_pronated", primary_muscles=["lats"],
@@ -152,17 +147,23 @@ EXERCISE_POOL = [
     _exercise("weighted-pull-up", "Weighted Pull Up (Barfiks)", "Back", "compound", False,
               family="pull_up", variation="weighted_pronated", primary_muscles=["lats"],
               secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
-              equipment=["pull_up_bar", "bodyweight", "dip_belt_or_vest"], load_mode="bodyweight_plus_external",
+              equipment=["pull_up_bar", "bodyweight", "dip_belt"], load_mode="bodyweight_plus_external",
               minimum_level="intermediate", fatigue_cost="high"),
 
-    _exercise("barbell-row", "Barbell Row", "Back", "compound", False,
-              family="row", variation="barbell_bent_over", primary_muscles=["upper_back", "lats"],
-              secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
-              equipment=["barbell"], load_mode="external_load", fatigue_cost="high"),
+    _exercise("chin-ups-bw", "Chin Ups", "Back", "compound", True,
+              family="chin_up", variation="bodyweight_supinated", primary_muscles=["lats", "biceps"],
+              secondary_muscles=["upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              equipment=["pull_up_bar", "bodyweight"], load_mode="bodyweight", fatigue_cost="medium"),
+
+    _exercise("chin-ups-weighted", "Chin Ups", "Back", "compound", False,
+              family="chin_up", variation="weighted_supinated", primary_muscles=["lats", "biceps"],
+              secondary_muscles=["upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              equipment=["pull_up_bar", "bodyweight", "dip_belt"], load_mode="bodyweight_plus_external",
+              minimum_level="intermediate", fatigue_cost="high"),
 
     _exercise("bent-over-row", "Bent-over Row", "Back", "compound", False,
-              family="row", variation="free_weight_bent_over", primary_muscles=["upper_back", "lats"],
-              secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
+              family="row", variation="free_weight_bent_over", primary_muscles=["lats"],
+              secondary_muscles=["biceps", "rear_delts", "med_trap", "spinal_erectors"], movement_pattern="horizontal_pull",
               equipment=["barbell_or_dumbbell"], load_mode="external_load", fatigue_cost="high"),
 
     _exercise("chest-supported-cable-row", "Chest-Supported Cable Row", "Back", "compound", False,
@@ -180,17 +181,33 @@ EXERCISE_POOL = [
               secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
               equipment=["cable_row_machine"], load_mode="external_load", fatigue_cost="medium"),
 
-    _exercise("single-arm-low-row", "Single-Arm Low Row", "Back", "compound", False,
-              family="row", variation="single_arm_low", primary_muscles=["lats"],
-              secondary_muscles=["upper_back", "biceps", "rear_delts"], movement_pattern="horizontal_pull",
-              equipment=["cable_machine_or_machine"], load_mode="external_load", fatigue_cost="medium"),
-
     _exercise("t-bar-row", "T-Bar Row", "Back", "compound", False,
               family="row", variation="t_bar", primary_muscles=["upper_back", "lats"],
               secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
               equipment=["t_bar_row_machine_or_landmine"], load_mode="external_load", fatigue_cost="medium"),
 
+    _exercise("inverted-row-bw", "Inverted Row", "Back", "compound", True,
+              family="inverted_row", variation="bodyweight", primary_muscles=["upper_back", "lats"],
+              secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
+              equipment=["bar_or_suspension_trainer", "bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
+
+    _exercise("deadlift", "Deadlift", "Back", "compound", False,
+              family="deadlift", variation="barbell_conventional", primary_muscles=["glutes", "hamstrings", "spinal_erectors"],
+              secondary_muscles=["upper_back", "traps", "quads"], movement_pattern="hip_hinge",
+              equipment=["barbell"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
+
     # --- İzolasyon (Isolation) Egzersizleri ---
+
+    _exercise("barbell-shrugs", "Barbell Shrugs", "Back", "isolation", False,
+              family="shrug", variation="barbell", primary_muscles=["upper_traps"], secondary_muscles=["levator_scapulae"],
+              movement_pattern="scapular_elevation", equipment=["barbell"], load_mode="external_load",
+              fatigue_cost="low"),
+
+    _exercise("dumbbell-shrugs", "Dumbbell Shrugs", "Back", "isolation", False,
+              family="shrug", variation="dumbbell", primary_muscles=["upper_traps"], secondary_muscles=["levator_scapulae"],
+              movement_pattern="scapular_elevation", equipment=["dumbbell"], load_mode="external_load",
+              unilateral=True, fatigue_cost="low"),
+
     _exercise("hyperextension-bw", "Hyperextension", "Back", "isolation", True,
               family="hyperextension", variation="bodyweight", primary_muscles=["spinal_erectors"],
               secondary_muscles=["glutes", "hamstrings"], movement_pattern="spinal_extension",
@@ -227,16 +244,6 @@ EXERCISE_POOL = [
               secondary_muscles=[], movement_pattern="scapular_protraction",
               equipment=["cable_machine", "single_handle"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
 
-    _exercise("barbell-shrugs", "Barbell Shrugs", "Back", "isolation", False,
-              family="shrug", variation="barbell", primary_muscles=["upper_traps"], secondary_muscles=["levator_scapulae"],
-              movement_pattern="scapular_elevation", equipment=["barbell"], load_mode="external_load",
-              fatigue_cost="low"),
-
-    _exercise("dumbbell-shrugs", "Dumbbell Shrugs", "Back", "isolation", False,
-              family="shrug", variation="dumbbell", primary_muscles=["upper_traps"], secondary_muscles=["levator_scapulae"],
-              movement_pattern="scapular_elevation", equipment=["dumbbell"], load_mode="external_load",
-              unilateral=True, fatigue_cost="low"),
-
     # ── OMUZ EGZERSİZLERİ ──────────────────────────────────────────
     # --- Bileşik (Compound) Egzersizler ---
     _exercise("arnold-press", "Arnold Press", "Shoulders", "compound", False,
@@ -250,13 +257,13 @@ EXERCISE_POOL = [
               equipment=["dumbbell", "bench_optional"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
 
     _exercise("overhead-press", "Overhead Press", "Shoulders", "compound", False,
-              family="shoulder_press", variation="barbell_standing", primary_muscles=["front_delts"],
-              secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
+              family="shoulder_press", variation="barbell_standing", primary_muscles=["front_delts", "side_delts"],
+              secondary_muscles=["triceps"], movement_pattern="vertical_press",
               equipment=["barbell"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("shoulder-press", "Shoulder Press", "Shoulders", "compound", False,
-              family="shoulder_press", variation="generic", primary_muscles=["front_delts"],
-              secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
+              family="shoulder_press", variation="generic", primary_muscles=["front_delts", "side_delts"],
+              secondary_muscles=["triceps"], movement_pattern="vertical_press",
               equipment=["free_weight_or_machine"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("shoulder-press-machine", "Shoulder Press Machine", "Shoulders", "compound", False,
@@ -265,7 +272,7 @@ EXERCISE_POOL = [
               equipment=["shoulder_press_machine"], load_mode="external_load", fatigue_cost="low"),
 
     _exercise("upright-row", "Upright Row", "Shoulders", "compound", False,
-              family="upright_row", variation="bar", primary_muscles=["side_delts", "traps"],
+              family="upright_row", variation="bar", primary_muscles=["side_delts"],
               secondary_muscles=["biceps"], movement_pattern="vertical_pull_upright", equipment=["bar"],
               load_mode="external_load", minimum_level="intermediate", fatigue_cost="medium"),
 
@@ -295,9 +302,9 @@ EXERCISE_POOL = [
               movement_pattern="horizontal_abduction", equipment=["cable_machine"], load_mode="external_load",
               unilateral=True, fatigue_cost="low"),
 
-    _exercise("rear-delt-fly", "Rear Delt Fly Machine", "Shoulders", "isolation", False,
-              family="rear_delt_fly", variation="machine", primary_muscles=["rear_delts"], secondary_muscles=[("middle_traps")],
-              movement_pattern="horizontal_abduction", equipment=["reverse_pec_deck"], load_mode="external_load",
+    _exercise("rear-delt-fly", "Reverse Pec Deck Fly", "Shoulders", "isolation", False,
+              family="rear_delt_fly", variation="machine", primary_muscles=["rear_delts"], secondary_muscles=["traps", "upper_back"],
+              movement_pattern="horizontal_abduction", equipment=["pec_deck_machine"], load_mode="external_load",
               fatigue_cost="low"),
 
     _exercise("dumbbell-rear-delt-fly", "Dumbbell Reverse Fly", "Shoulders", "isolation", False,
@@ -488,7 +495,7 @@ EXERCISE_POOL = [
     _exercise("dips-weighted", "Dips", "Triceps", "compound", False,
               family="dip", variation="weighted", primary_muscles=["triceps", "chest"],
               secondary_muscles=["front_delts"], movement_pattern="vertical_press",
-              equipment=["dip_bars", "bodyweight", "dip_belt_or_vest"], load_mode="bodyweight_plus_external",
+              equipment=["dip_bars", "bodyweight", "dip_belt"], load_mode="bodyweight_plus_external",
               minimum_level="intermediate", fatigue_cost="high"),
 
     # ── BICEPS EGZERSİZLERİ ──────────────────────────────────────────

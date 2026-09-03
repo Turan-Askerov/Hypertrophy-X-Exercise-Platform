@@ -1221,6 +1221,7 @@ class ExpertInjuryDataRequest(BaseModel):
     severity: int
     is_active: bool = True
     notes: Optional[str] = ""
+    tingling_severity: Optional[int] = Field(None, ge=0, le=5, description="Sızlama ağrısı şiddeti (özellikle tendonlar için)")
 
 
 class ExpertLegacyResetRequest(BaseModel):
@@ -1432,6 +1433,8 @@ def _expert_exercise_catalog() -> list[dict]:
             "display_groups": _display_muscle_groups(exercise, analysis),
             "primary_muscles": primary,
             "category": str(exercise.get("category") or ""),
+            "bw": bool(exercise.get("is_bodyweight", False)),
+            "weighted": analysis.get("load_mode") == "bodyweight_plus_external"
         })
     return sorted(items, key=lambda item: (str(item["display_groups"][0] if item["display_groups"] else item["group"]), item["name"]))
 
@@ -2854,7 +2857,10 @@ def get_personal_records(workouts):
                 # meta verisiyle gerçek alt kas etiketi üretilir.
                 muscle = _display_muscle_groups(meta, meta.get("analysis", {}))[0]
             else:
-                muscle = entry.get("muscle_group", "Diğer")
+                m = entry.get("muscle_group", "Diğer")
+                trans = {"Back": "Sırt", "Chest": "Göğüs", "Shoulders": "Omuz", "Legs": "Bacak"}
+                muscle = trans.get(m, m)
+
             load_mode = meta.get("analysis", {}).get("load_mode", "external_load") if meta else "external_load"
             metric_type = "reps" if load_mode == "bodyweight" else "weight_kg"
             sets_list = entry.get("sets_data", [])
@@ -2874,6 +2880,8 @@ def get_personal_records(workouts):
                     "exercise_id": record_id,
                     "exercise": display_name,
                     "muscle": muscle,
+                    "primary_muscles": meta.get("analysis", {}).get("primary_muscles", []) if meta else (["upper_back"] if "upper-back" in str(record_id).lower() or "upper back" in display_name.lower() else []),
+
                     "category": meta.get("category", "") if meta else "",
                     "record_value": best_value,
                     "metric_type": metric_type,
@@ -3018,7 +3026,7 @@ def _enrich_exercise_pool(pool):
         item["muscle"] = display_groups[0]
         item["display_muscle_groups"] = display_groups
         item["bw"] = bool(exercise.get("is_bodyweight", False))
-        item["weighted"] = analysis.get("load_mode") != "bodyweight"
+        item["weighted"] = analysis.get("load_mode") == "bodyweight_plus_external"
         item["canonical_exercise_id"] = exercise["id"]
         item["analysis"] = analysis
         out.append(item)

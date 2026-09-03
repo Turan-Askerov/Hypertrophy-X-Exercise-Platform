@@ -6,10 +6,12 @@ from expert_system.rules.rule_doms_recovery import rule_doms_recovery
 from expert_system.rules.rule_rpe_effort import rule_rpe_effort
 from expert_system.rules.rule_equipment import rule_equipment
 from expert_system.rules.rule_targets import rule_targets
+from expert_system.rules.rule_tendon_injury import rule_tendon_injury
 
 Rule = Any
 # priority büyüdükçe koordinatörün kararında daha önce gösterilir.
 RULES: list[Rule] = [
+    rule_tendon_injury,
     rule_active_injury,
     rule_doms_recovery,
     rule_equipment,
