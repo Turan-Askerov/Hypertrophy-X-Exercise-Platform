@@ -1,9 +1,7 @@
 """Hypertrophy-X kural tabanlı fuzzy uzman sistemi.
 
-Bu modül üretken yapay zekâ veya dış API kullanmaz. Kararlar, görünür olgular
-(profile, antrenman geçmişi, seans kontrolü ve DOMS kayıtları) ile açık kurallardan
-üretilir. Fuzzy üyelikler 0.0–1.0 aralığındadır; kullanıcıya sonuçla birlikte
-hangi kuralların etkinleştiği de döndürülür.
+Bu modül görünür olgular (profile, antrenman geçmişi, seans kontrolü ve DOMS kayıtları) ile açık kurallardan üretilir.
+Fuzzy üyelikler 0.0–1.0 aralığındadır; kullanıcıya sonuçla birlikte hangi kuralların etkinleştiği de döndürülür.
 """
 from __future__ import annotations
 
@@ -457,7 +455,6 @@ GYM_EQUIPMENT_CATALOG = (
 
     # Kardiyo aletleri
     {"id": "treadmill", "label": "Koşu Bandı", "group": "Kardiyo Aletleri"},
-    {"id": "elliptical_bike", "label": "Eliptik Bisiklet", "group": "Kardiyo Aletleri"},
     {"id": "recumbent_bike", "label": "Yatay Bisiklet", "group": "Kardiyo Aletleri"},
     {"id": "exercise_mat", "label": "Egzersiz Minderi (Yoga Matı)", "group": "Kardiyo Aletleri"},
     {"id": "cardio_area", "label": "Diğer Kardiyo Alanı", "group": "Kardiyo Aletleri"},
@@ -1081,6 +1078,7 @@ def build_session_content(
     goal: str = "hypertrophy",
     max_exercises: int = 6,
     exercise_preferences: dict[str, Any] | None = None,
+    used_families: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     """Split seansını hareket havuzu, ekipman, DOMS ve kısıtlara göre kurar.
 
@@ -1156,8 +1154,12 @@ def build_session_content(
         if reason:
             excluded.append({"name": str(exercise.get("name", "Hareket")), "reason": reason})
             continue
+        
+        analysis = exercise.get("analysis") or {}
+        family = str(analysis.get("family") or exercise.get("id") or exercise.get("name"))
         category = str(exercise.get("category") or "").lower()
-        fatigue = str((exercise.get("analysis") or {}).get("fatigue_cost") or "medium").lower()
+        fatigue = str(analysis.get("fatigue_cost") or "medium").lower()
+        
         # Önce doğrudan hedef, sonra compound; yüksek DOMS'ta düşük yorgunluk avantajı.
         score = relevance * 10 + (4 if category == "compound" else 2)
         if fatigue == "low":
@@ -1166,22 +1168,76 @@ def build_session_content(
             score -= 5
         if exercise_id in preferred_ids:
             score += 25
+            
+        # A/B Varyasyonu: Bu hafta aynı aileden bir hareket yapıldıysa sert eksi puan ver
+        # Böylece (Squat yapıldıysa, Leg B'de Split Squat veya Leg Press öne çıkar)
+        if used_families and family in used_families:
+            score -= 40 * used_families[family]
+            
         candidates.append((score, exercise))
 
     candidates.sort(key=lambda item: (item[0], str(item[1].get("name", ""))), reverse=True)
     selected: list[dict[str, Any]] = []
     represented_families: set[str] = set()
+    total_session_sets = 0
+    muscle_set_counts: dict[str, int] = {}
+    
     for _, exercise in candidates:
         analysis = exercise.get("analysis") or {}
         family = str(analysis.get("family") or exercise.get("id") or exercise.get("name"))
+        
+        # 1) Aynı kökten hareket aynı güne eklenmesin
         if family in represented_families:
             continue
+            
+        # 2) Squat ve Split Squat / Lunge / Step-up aynı gün KESİNLİKLE OLMASIN (Sinir sistemi koruması)
+        if family in ("bulgarian_split_squat", "lunge", "step_up") and "squat" in represented_families:
+            continue
+        if family == "squat" and any(f in represented_families for f in ("bulgarian_split_squat", "lunge", "step_up")):
+            continue
+            
         primary, _ = _exercise_muscles(exercise)
         reduced = bool(primary.intersection({muscle for muscle, severity in doms.items() if severity >= 4}))
+        
+        # 3) Kasa özel yığılımlı hacim (1-2-3-4 set varyasyonu)
+        max_accumulated = max((muscle_set_counts.get(m, 0) for m in primary), default=0)
+        target_per_muscle = 4
+        allowed_for_muscle = target_per_muscle - max_accumulated
+        
+        if allowed_for_muscle <= 0:
+            continue # Bu kas grubu seansta 4 seti doldurdu, diğer kaslara geç veya bitir
+            
+        # Temel 3 set ile başla
+        base_sets = 3
+        
+        # "sadece squad 4 set olabilir oda bazen hep değil"
+        if family == "squat" and len(selected) == 0 and not reduced:
+            base_sets = 4
+            
+        # "split squad 3 setten fazla olmasın zor gelir. deadlift varyasyonları da aynı şekilde"
+        if family in ("bulgarian_split_squat", "deadlift", "romanian_deadlift"):
+            base_sets = min(base_sets, 3)
+            
+        # Harekete atanacak set, kasın kotasına göre düşebilir (örn: sırta daha önce 2 set barfiks yapıldı, şimdi chin-up'a 2 set ver)
+        sets = min(base_sets, allowed_for_muscle)
+        
+        # 4) Günlük 15 Set Sınırı
+        if total_session_sets + sets > 15:
+            sets = 15 - total_session_sets
+            if sets < 1:
+                break # 15 set doldu
+                
         presc = _prescription_for_exercise(exercise, goal, reduced)
+        presc["sets"] = sets
+        total_session_sets += sets
+        
+        for m in primary:
+            muscle_set_counts[m] = muscle_set_counts.get(m, 0) + sets
+
         if tendon_alarm_level == 3:
             presc["sets"] = max(1, presc.get("sets", 3) - 1)
             presc["effort_note"] = "Tendon geri dönüş protokolü: Eski ağırlığınızın %60'ı ile, 2-3 RIR."
+            
         selected.append({
             "id": exercise.get("id"),
             "name": exercise.get("name"),
@@ -1193,8 +1249,11 @@ def build_session_content(
             "adapted_for_recovery": reduced,
         })
         represented_families.add(family)
+        if used_families is not None:
+            used_families[family] = used_families.get(family, 0) + 1
+            
         limit_exercises = 3 if tendon_alarm_level == 3 else max(1, min(int(max_exercises or 6), 8))
-        if len(selected) >= limit_exercises:
+        if len(selected) >= limit_exercises or total_session_sets >= 15:
             break
 
     status = "ready" if selected else "limited"
@@ -1368,6 +1427,10 @@ def generate_dynamic_program(
     selected = split["selected"]
     sessions: list[dict[str, Any]] = []
     readiness: list[dict[str, Any]] = []
+    
+    # A/B Varyasyonu için o hafta içinde kullanılan hareket ailelerini takip et
+    used_exercise_families: dict[str, int] = {}
+    
     for session in selected.get("sessions", []):
         session_copy = _copy.deepcopy(session)
         if session_copy.get("is_recovery_day"):
@@ -1376,6 +1439,7 @@ def generate_dynamic_program(
             session_copy["content"] = build_session_content(
                 session_copy.get("muscles", []), available_equipment, active_doms, constraints,
                 exercise_pool=exercise_pool, goal=goal, exercise_preferences=exercise_preferences,
+                used_families=used_exercise_families
             )
             for muscle in session_copy.get("muscles", []):
                 readiness.append(calculate_muscle_readiness(muscle, active_doms or [], (last_workout_dates or {}).get(muscle)))

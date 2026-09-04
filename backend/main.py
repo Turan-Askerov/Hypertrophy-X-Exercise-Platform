@@ -3006,6 +3006,8 @@ def _display_muscle_groups(exercise: dict, analysis: dict) -> list[str]:
     if group in {"Hip Rotators", "Adductors"} or any(m in primary_muscles for m in ("adductors", "hip_external_rotators", "hip_internal_rotators")):
         return ["Adductors"]
     if "rear_delts" in primary_muscles:
+        if analysis.get("family") == "row":
+            return ["Sırt"]
         return ["Omuz", "Sırt"]
     if group == "Legs":
         detailed = [LEG_PRIMARY_MUSCLE_TR[item] for item in LEG_PRIMARY_MUSCLE_TR if item in primary_muscles]

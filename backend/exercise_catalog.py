@@ -65,11 +65,6 @@ EXERCISE_POOL = [
               secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
               equipment=["barbell", "flat_bench"], load_mode="external_load", fatigue_cost="medium"),
 
-    _exercise("decline-bench-press", "Decline Bench Press", "Chest", "compound", False,
-              family="bench_press", variation="barbell_decline", primary_muscles=["chest"],
-              secondary_muscles=["triceps", "front_delts"], movement_pattern="decline_press",
-              equipment=["barbell", "decline_bench"], load_mode="external_load", fatigue_cost="medium"),
-
     _exercise("dumbbell-bench-press", "Dumbbell Bench Press", "Chest", "compound", False,
               family="bench_press", variation="dumbbell_flat", primary_muscles=["chest"],
               secondary_muscles=["triceps", "front_delts"], movement_pattern="horizontal_press",
@@ -84,6 +79,11 @@ EXERCISE_POOL = [
               family="bench_press", variation="dumbbell_incline", primary_muscles=["upper_chest", "front_delts"],
               secondary_muscles=["triceps"], movement_pattern="incline_press",
               equipment=["dumbbell", "adjustable_bench"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
+
+    _exercise("decline-bench-press", "Decline Bench Press", "Chest", "compound", False,
+              family="bench_press", variation="barbell_decline", primary_muscles=["chest"],
+              secondary_muscles=["triceps", "front_delts"], movement_pattern="decline_press",
+              equipment=["barbell", "decline_bench"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("chest-press-machine", "Chest Press Machine", "Chest", "compound", False,
               family="chest_press", variation="selectorized_machine", primary_muscles=["chest"],
@@ -314,15 +314,35 @@ EXERCISE_POOL = [
 
     # ── BACAK EGZERSİZLERİ ──────────────────────────────────────────
     # --- Bileşik (Compound) Egzersizler ---
-    _exercise("bulgarian-split-squat-bw", "Bulgarian Split Squat", "Legs", "compound", True,
-              family="bulgarian_split_squat", variation="bodyweight", primary_muscles=["quads", "glutes"],
-              secondary_muscles=["hamstrings", "calves"], movement_pattern="single_leg_squat",
-              equipment=["bench", "bodyweight"], load_mode="bodyweight", unilateral=True, fatigue_cost="medium"),
+    _exercise("squat", "Squat", "Legs", "compound", False,
+              family="squat", variation="barbell_back", primary_muscles=["quads", "glutes"],
+              secondary_muscles=["hamstrings", "spinal_erectors"], movement_pattern="squat",
+              equipment=["barbell", "squat_rack"], load_mode="external_load", fatigue_cost="high"),
+
+    _exercise("bodyweight-squat", "Dip Squat", "Legs", "compound", True,
+              family="squat", variation="bodyweight", primary_muscles=["quads", "glutes"],
+              secondary_muscles=["hamstrings", "spinal_erectors"], movement_pattern="squat",
+              equipment=["bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
+
+    _exercise("front-squat", "Front Squat", "Legs", "compound", False,
+              family="squat", variation="barbell_front", primary_muscles=["quads"],
+              secondary_muscles=["glutes", "spinal_erectors"], movement_pattern="squat",
+              equipment=["barbell", "squat_rack"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
+
+    _exercise("dip-squat-weighted", "Dip Squat", "Legs", "compound", False,
+              family="squat", variation="weighted", primary_muscles=["quads", "glutes"],
+              secondary_muscles=["hamstrings", "spinal_erectors"], movement_pattern="squat",
+              equipment=["dumbbell_or_barbell"], load_mode="external_load", fatigue_cost="high"),
 
     _exercise("bulgarian-split-squad", "Bulgarian Split Squat", "Legs", "compound", False,
               family="bulgarian_split_squat", variation="weighted", primary_muscles=["quads", "glutes"],
               secondary_muscles=["hamstrings", "calves"], movement_pattern="single_leg_squat",
               equipment=["bench", "dumbbell_or_barbell"], load_mode="external_load", unilateral=True, fatigue_cost="high"),
+
+    _exercise("bulgarian-split-squat-bw", "Bulgarian Split Squat", "Legs", "compound", True,
+              family="bulgarian_split_squat", variation="bodyweight", primary_muscles=["quads", "glutes"],
+              secondary_muscles=["hamstrings", "calves"], movement_pattern="single_leg_squat",
+              equipment=["bench", "bodyweight"], load_mode="bodyweight", unilateral=True, fatigue_cost="medium"),
 
     _exercise("glute-bridge-bw", "Glute Bridge", "Legs", "compound", True,
               family="glute_bridge", variation="bodyweight", primary_muscles=["glutes"],
@@ -349,30 +369,10 @@ EXERCISE_POOL = [
               secondary_muscles=["spinal_erectors"], movement_pattern="hip_hinge", equipment=["barbell_or_dumbbell"],
               load_mode="external_load", fatigue_cost="high"),
 
-    _exercise("bodyweight-squat", "Dip Squat", "Legs", "compound", True,
-              family="squat", variation="bodyweight", primary_muscles=["quads", "glutes"],
-              secondary_muscles=["hamstrings", "spinal_erectors"], movement_pattern="squat",
-              equipment=["bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
-
-    _exercise("dip-squat-weighted", "Dip Squat", "Legs", "compound", False,
-              family="squat", variation="weighted", primary_muscles=["quads", "glutes"],
-              secondary_muscles=["hamstrings", "spinal_erectors"], movement_pattern="squat",
-              equipment=["dumbbell_or_barbell"], load_mode="external_load", fatigue_cost="high"),
-
-    _exercise("front-squat", "Front Squat", "Legs", "compound", False,
-              family="squat", variation="barbell_front", primary_muscles=["quads"],
-              secondary_muscles=["glutes", "spinal_erectors"], movement_pattern="squat",
-              equipment=["barbell", "squat_rack"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
-
     _exercise("goblet-squat", "Goblet Squat", "Legs", "compound", False,
               family="squat", variation="dumbbell_goblet", primary_muscles=["quads", "glutes"],
               secondary_muscles=["hamstrings"], movement_pattern="squat", equipment=["dumbbell_or_kettlebell"],
               load_mode="external_load", fatigue_cost="medium"),
-
-    _exercise("squat", "Squat", "Legs", "compound", False,
-              family="squat", variation="barbell_back", primary_muscles=["quads", "glutes"],
-              secondary_muscles=["hamstrings", "spinal_erectors"], movement_pattern="squat",
-              equipment=["barbell", "squat_rack"], load_mode="external_load", fatigue_cost="high"),
 
     _exercise("step-up", "Step-Up", "Legs", "compound", False,
               family="step_up", variation="dumbbell_or_barbell", primary_muscles=["glutes", "quads"],
