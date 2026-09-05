@@ -944,7 +944,9 @@ EXERCISE_BY_ID = {exercise['id']: exercise for exercise in EXERCISE_POOL}
 # `leg-extension`, `Leg Extension` veya `leg extension` bulunması sonucu bozmaz.
 EXERCISE_ID_BY_NORMALIZED_NAME = {}
 for _pool_exercise in EXERCISE_POOL:
-    EXERCISE_ID_BY_NORMALIZED_NAME[_normalize_exercise_text(_pool_exercise['name'])] = _pool_exercise['id']
+    _n_name = _normalize_exercise_text(_pool_exercise['name'])
+    if _n_name not in EXERCISE_ID_BY_NORMALIZED_NAME or not _pool_exercise.get('is_bodyweight'):
+        EXERCISE_ID_BY_NORMALIZED_NAME[_n_name] = _pool_exercise['id']
     EXERCISE_ID_BY_NORMALIZED_NAME[_normalize_exercise_text(_pool_exercise['id'])] = _pool_exercise['id']
 # Eski/yaygın egzersiz adlarının kanonik kimlik eşlemeleri ayrı modülde tutulur.
 # Bu sayede katalog ve geçmiş uyumluluğu, API kodundan bağımsız düzenlenebilir.

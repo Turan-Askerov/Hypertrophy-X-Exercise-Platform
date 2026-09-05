@@ -1807,6 +1807,12 @@ canvas {
   border-radius: 10px;
   background: linear-gradient(145deg, rgba(34,39,57,.98), rgba(24,28,42,.98));
   box-shadow: 0 10px 26px rgba(0,0,0,.28);
+  animation: expertMenuOpen 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: top center;
+}
+@keyframes expertMenuOpen {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .light-mode .expert-alternative-menu {
   background: linear-gradient(145deg, #ffffff, #f6f5ff);
@@ -2622,7 +2628,7 @@ canvas {
                   <span id="calProgressText" style="color: var(--text-muted);">0 / 0 kcal</span>
                 </div>
                 <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
-                  <div id="calProgressBar" style="width: 0%; height: 100%; background: var(--accent, #6c63ff); transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);"></div>
+                  <div id="calProgressBar" style="width: 0%; height: 100%; background: var(--accent, #6c63ff); transition: width 0.85s cubic-bezier(0.25, 0.8, 0.25, 1);"></div>
                 </div>
               </div>
 
@@ -2632,7 +2638,7 @@ canvas {
                   <span id="proteinProgressText" style="color: var(--text-muted);">0g / 0g</span>
                 </div>
                 <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
-                  <div id="proteinProgressBar" style="width: 0%; height: 100%; background: #22c55e; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);"></div>
+                  <div id="proteinProgressBar" style="width: 0%; height: 100%; background: #22c55e; transition: width 0.85s cubic-bezier(0.25, 0.8, 0.25, 1);"></div>
                 </div>
               </div>
 
@@ -2642,7 +2648,7 @@ canvas {
                   <span id="carbProgressText" style="color: var(--text-muted);">0g / 0g</span>
                 </div>
                 <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
-                  <div id="carbProgressBar" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);"></div>
+                  <div id="carbProgressBar" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.85s cubic-bezier(0.25, 0.8, 0.25, 1);"></div>
                 </div>
               </div>
 
@@ -2652,7 +2658,7 @@ canvas {
                   <span id="fatProgressText" style="color: var(--text-muted);">0g / 0g</span>
                 </div>
                 <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
-                  <div id="fatProgressBar" style="width: 0%; height: 100%; background: #3b82f6; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);"></div>
+                  <div id="fatProgressBar" style="width: 0%; height: 100%; background: #3b82f6; transition: width 0.85s cubic-bezier(0.25, 0.8, 0.25, 1);"></div>
                 </div>
               </div>
 
@@ -2661,9 +2667,9 @@ canvas {
                   <span style="color: var(--text);">📊 Toplam Makro Alımı</span>
                 </div>
                 <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; display: flex;">
-                  <div id="macroBarProtein" style="width: 0%; height: 100%; background: #22c55e; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);" title="Protein"></div>
-                  <div id="macroBarCarb" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);" title="Karbonhidrat"></div>
-                  <div id="macroBarFat" style="width: 0%; height: 100%; background: #3b82f6; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);" title="Yağ"></div>
+                  <div id="macroBarProtein" style="width: 0%; height: 100%; background: #22c55e; transition: width 0.85s cubic-bezier(0.25, 0.8, 0.25, 1);" title="Protein"></div>
+                  <div id="macroBarCarb" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.85s cubic-bezier(0.25, 0.8, 0.25, 1);" title="Karbonhidrat"></div>
+                  <div id="macroBarFat" style="width: 0%; height: 100%; background: #3b82f6; transition: width 0.85s cubic-bezier(0.25, 0.8, 0.25, 1);" title="Yağ"></div>
                 </div>
               </div>
 
@@ -2684,7 +2690,7 @@ canvas {
                 <div>
                   <label style="display: block; font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">Toplam Kalori (kcal)</label>
                   <input type="number" id="inputCalories" placeholder="Makrolardan otomatik hesaplanır" step="any" readonly
-                    style="width:100%; padding: 10px 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; color: rgba(255,255,255,0.4); outline: none; font-size: 13px; cursor: default;"
+                    style="width:100%; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff; font-weight: 700; outline: none; font-size: 13px; cursor: default;"
                     title="Kalori makrolardan otomatik hesaplanır"
                   >
                 </div>
@@ -2701,17 +2707,17 @@ canvas {
               <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                 <div>
                   <label style="display: block; font-size: 11px; font-weight: 700; color: #22c55e; margin-bottom: 6px; text-transform: uppercase;">Protein (g)</label>
-                  <input type="number" id="inputProtein" placeholder="Örn: 160" step="any" required
+                  <input type="number" id="inputProtein" placeholder="Örn: 160" step="any" min="0" required oninput="syncNutritionLive()"
                         style="width:100%; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; outline: none; font-size: 13px;">
                 </div>
                 <div>
                   <label style="display: block; font-size: 11px; font-weight: 700; color: #f59e0b; margin-bottom: 6px; text-transform: uppercase;">Karb (g)</label>
-                  <input type="number" id="inputCarbs" placeholder="Örn: 250" step="any" required
+                  <input type="number" id="inputCarbs" placeholder="Örn: 250" step="any" min="0" required oninput="syncNutritionLive()"
                         style="width:100%; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; outline: none; font-size: 13px;">
                 </div>
                 <div>
                   <label style="display: block; font-size: 11px; font-weight: 700; color: #3b82f6; margin-bottom: 6px; text-transform: uppercase;">Yağ (g)</label>
-                  <input type="number" id="inputFat" placeholder="Örn: 70" step="any" required
+                  <input type="number" id="inputFat" placeholder="Örn: 70" step="any" min="0" required oninput="syncNutritionLive()"
                         style="width:100%; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; outline: none; font-size: 13px;">
                 </div>
               </div>
@@ -2733,7 +2739,7 @@ canvas {
                 Girdileri Temizle
               </button>
 
-              <div id="nutriSaveStatus" style="font-size: 12px; text-align: center; min-height: 16px;"></div>
+              <div id="nutriSaveStatus" style="display: flex; align-items: center; justify-content: center; min-height: 28px; margin-top: 6px; transition: opacity 0.3s ease;"></div>
             </form>
           </div>
 
@@ -5726,11 +5732,10 @@ function expertDataPane() {
   return `${expertDataPlanningTabs()}${planningPane}`;
 }
 
-function renderExpertSystem() {
-  const content = document.getElementById('analyzeContent');
-  if (!content || !expertDataState) return;
-  expertDataInjectStyles();
-  content.innerHTML = `<div class="expert-data-shell"><header class="expert-data-hero"><span class="expert-data-eyebrow">Uzman Sistemi · Veri ve Karar Merkezi</span><h2>Verini kaydet, kuralın nedenini gör.</h2><p>DOMS, hedef kaslar, sakatlık/kısıt, ekipman ve set bazlı RPE özeti modüler kurallarla değerlendirilir. Sistem mevcut programı otomatik değiştirmez; Split ve Analiz sekmelerinde açıklanabilir taslak yönlendirmesi sunar.</p><div style="margin-top:16px; padding:12px; background:rgba(108,99,255,0.05); border:1px solid rgba(108,99,255,0.2); border-radius:10px; display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--text-secondary);"><strong style="color:var(--text-primary); width:100%;">Planlama Hiyerarşisi:</strong><span style="flex:1 1 200px;"><strong>1. Hareket Tercihi:</strong> Seçilen hareketler taslakta kesin öncelik kazanır.</span><span style="flex:1 1 200px;"><strong>2. Ekipman Tercihi:</strong> Boş bırakılmadıysa varsayılan salonun imkânlarını ezer.</span><span style="flex:1 1 200px;"><strong>3. Varsayılan Salon:</strong> Herhangi bir özel tercih girilmediğinde temel (fallback) ekipman listesi olarak baz alınır.</span></div></header>${expertDataTabs()}<div class="expert-data-stage" key="${expertDataTab}-${expertDataHealthTab}-${expertDataSetupTab}-${expertDataPlanningTab}">${expertDataPane()}</div></div>`;
+function renderExpertSystem(animate = true) {
+  if (typeof _renderExpertSystemCore === 'function') {
+    return _renderExpertSystemCore(animate);
+  }
 }
 
 window.expertSelectGoal = function(goal) { expertPreferenceDraft.primary_goal = goal; const panel = document.getElementById('expertInteractionPanel'); if (panel) panel.innerHTML = expertPreferencesForm(); else renderExpertSystem(); };
@@ -6700,33 +6705,57 @@ function _fillTodayInputs(todayLog) {
   if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
   _updateNutriDateDisplay();
   _attachCalorieAutoCalc();
-  // Hedefler tanımlıysa barları güncelle, yoksa sadece input'ları doldur
-  if (window._nutriTargets) {
-    _updateProgressBars({
-      calories: cal,
-      protein: todayLog.protein || 0,
-      carbs: todayLog.carbs || 0,
-      fat: todayLog.fat || 0,
-      _targets: window._nutriTargets
-    });
-  }
 }
 
-/* ---------- Anlık Kalori Hesaplama ---------- */
-function _attachCalorieAutoCalc() {
-  const cal = parseFloat(document.getElementById('inputCalories')?.value) || 0;
-  const prot = parseFloat(document.getElementById('inputProtein')?.value) || 0;
-  const carb = parseFloat(document.getElementById('inputCarbs')?.value) || 0;
-  const fat = parseFloat(document.getElementById('inputFat')?.value) || 0;
-  const total = (prot * 4) + (carb * 4) + (fat * 9);
+/* ---------- Anlık Kalori ve Makro Bar Senkronizasyonu ---------- */
+function syncNutritionLive() {
+  const protInput = document.getElementById('inputProtein');
+  const carbInput = document.getElementById('inputCarbs');
+  const fatInput = document.getElementById('inputFat');
   const calInput = document.getElementById('inputCalories');
-  if (calInput) calInput.value = total || '';
-  const calTarget = (window._nutriTargets && window._nutriTargets.calories);
-  const calPct = Math.min(100, (total / calTarget) * 100);
-  const calBar = document.getElementById('calProgressBar');
-  const calText = document.getElementById('calProgressText');
-  if (calBar) calBar.style.width = `${calPct}%`;
-  if (calText) calText.textContent = `${Math.round(total)}${total ? ' / ' + Math.round(calTarget) : ''} kcal`;
+
+  const protVal = (protInput?.value || '').trim();
+  const carbVal = (carbInput?.value || '').trim();
+  const fatVal = (fatInput?.value || '').trim();
+
+  const prot = Math.max(0, parseFloat(protVal) || 0);
+  const carb = Math.max(0, parseFloat(carbVal) || 0);
+  const fat = Math.max(0, parseFloat(fatVal) || 0);
+
+  const totalCal = (prot * 4) + (carb * 4) + (fat * 9);
+  const hasAnyInput = protVal !== '' || carbVal !== '' || fatVal !== '';
+
+  if (calInput) {
+    calInput.value = hasAnyInput && totalCal > 0 ? Math.round(totalCal) : (hasAnyInput ? 0 : '');
+  }
+
+  // Progress barlarını ve hedef metinlerini anlık güncelle
+  _updateProgressBars({
+    calories: totalCal,
+    protein: prot,
+    carbs: carb,
+    fat: fat,
+    _targets: window._nutriTargets
+  });
+
+  // Toplam makro alımı dağılım barını ve grafiğini anlık güncelle
+  _renderMacroPie({
+    protein: prot,
+    carbs: carb,
+    fat: fat
+  });
+}
+
+function _attachCalorieAutoCalc() {
+  ['inputProtein', 'inputCarbs', 'inputFat'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el._liveSyncAttached) {
+      el.addEventListener('input', syncNutritionLive);
+      el.addEventListener('change', syncNutritionLive);
+      el._liveSyncAttached = true;
+    }
+  });
+  syncNutritionLive();
 }
 
 /* ---------- Progress Bar Güncelle ---------- */
@@ -6734,25 +6763,31 @@ function _updateProgressBars(data) {
   const t = data._targets || window._nutriTargets || {};
   const calTarget = t.calories || 2500;
   const calPct = calTarget > 0 ? Math.min(100, ((data.calories || 0) / calTarget) * 100) : 0;
-  _setProgress('calProgressBar', 'calProgressText', calPct, data.calories || 0, calTarget, 'kcal', true);
+  _setProgress('calProgressBar', 'calProgressText', calPct, data.calories || 0, calTarget, 'kcal');
+
   const protTarget = t.protein || 150;
   const protPct = protTarget > 0 ? Math.min(100, ((data.protein || 0) / protTarget) * 100) : 0;
-  _setProgress('proteinProgressBar', 'proteinProgressText', protPct, data.protein || 0, protTarget, 'g', true);
+  _setProgress('proteinProgressBar', 'proteinProgressText', protPct, data.protein || 0, protTarget, 'g');
+
   const carbTarget = t.carbs || 300;
   const carbPct = carbTarget > 0 ? Math.min(100, ((data.carbs || 0) / carbTarget) * 100) : 0;
   _setProgress('carbProgressBar', 'carbProgressText', carbPct, data.carbs || 0, carbTarget, 'g');
+
   const fatTarget = t.fat || 70;
   const fatPct = fatTarget > 0 ? Math.min(100, ((data.fat || 0) / fatTarget) * 100) : 0;
   _setProgress('fatProgressBar', 'fatProgressText', fatPct, data.fat || 0, fatTarget, 'g');
 }
 
-function _setProgress(barId, textId, pct, current, target, unit, isMacro) {
+function _setProgress(barId, textId, pct, current, target, unit) {
   const bar = document.getElementById(barId);
   const text = document.getElementById(textId);
-  if (bar) bar.style.width = `${pct}%`;
+  if (bar) bar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
   if (text) {
-    if (isMacro) text.textContent = `${Math.round(current)}${unit} / ${Math.round(target)}${unit === 'kcal' ? ' kcal' : 'g'}`;
-    else text.textContent = `${Math.round(current)} / ${Math.round(target)} ${unit}`;
+    if (unit === 'kcal') {
+      text.textContent = `${Math.round(current)} / ${Math.round(target)} kcal`;
+    } else {
+      text.textContent = `${Math.round(current)}g / ${Math.round(target)}g`;
+    }
   }
 }
 
@@ -6810,19 +6845,40 @@ function _renderMacroPie(data) {
 
   const ctx = document.getElementById('macroChart');
   if (!ctx) return;
-  if (typeof _macroChart !== 'undefined' && _macroChart) _macroChart.destroy();
+
+  if (typeof _macroChart !== 'undefined' && _macroChart && _macroChart.ctx) {
+    _macroChart.data.datasets[0].data = total > 0 ? [pPct] : [0];
+    _macroChart.data.datasets[1].data = total > 0 ? [cPct] : [0];
+    _macroChart.data.datasets[2].data = total > 0 ? [fPct] : [0];
+    if (_macroChart.options?.plugins?.tooltip?.callbacks) {
+      _macroChart.options.plugins.tooltip.callbacks.label = function(ctxInfo) {
+        const pct = ctxInfo.parsed.x;
+        let label = ctxInfo.dataset.label;
+        if (label === 'Protein') label += ` (${Math.round(prot)}g)`;
+        else if (label === 'Karbonhidrat') label += ` (${Math.round(carb)}g)`;
+        else if (label === 'Yağ') label += ` (${Math.round(fat)}g)`;
+        return ` ${label}: %${pct.toFixed(1)}`;
+      };
+    }
+    _macroChart.update();
+    return;
+  }
   
   _macroChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Toplam Makro Alımı'],
       datasets: [
-        { label: 'Protein', data: total > 0 ? [(prot / total) * 100] : [0], backgroundColor: '#22c55e', borderRadius: total > 0 ? { topLeft: 4, bottomLeft: 4 } : 4, maxBarThickness: 45 },
-        { label: 'Karbonhidrat', data: total > 0 ? [(carb / total) * 100] : [0], backgroundColor: '#f59e0b', maxBarThickness: 45 },
-        { label: 'Yağ', data: total > 0 ? [(fat / total) * 100] : [0], backgroundColor: '#3b82f6', borderRadius: total > 0 ? { topRight: 4, bottomRight: 4 } : 4, maxBarThickness: 45 }
+        { label: 'Protein', data: total > 0 ? [pPct] : [0], backgroundColor: '#22c55e', borderRadius: total > 0 ? { topLeft: 4, bottomLeft: 4 } : 4, maxBarThickness: 45 },
+        { label: 'Karbonhidrat', data: total > 0 ? [cPct] : [0], backgroundColor: '#f59e0b', maxBarThickness: 45 },
+        { label: 'Yağ', data: total > 0 ? [fPct] : [0], backgroundColor: '#3b82f6', borderRadius: total > 0 ? { topRight: 4, bottomRight: 4 } : 4, maxBarThickness: 45 }
       ]
     },
     options: {
+      animation: {
+        duration: 850,
+        easing: 'easeOutQuart'
+      },
       responsive: true,
       maintainAspectRatio: false,
       indexAxis: 'y',
@@ -6833,9 +6889,9 @@ function _renderMacroPie(data) {
             label: function(ctxInfo) {
               const pct = ctxInfo.parsed.x;
               let label = ctxInfo.dataset.label;
-              if (label === 'Protein') label += ` (${prot}g)`;
-              else if (label === 'Karbonhidrat') label += ` (${carb}g)`;
-              else if (label === 'Yağ') label += ` (${fat}g)`;
+              if (label === 'Protein') label += ` (${Math.round(prot)}g)`;
+              else if (label === 'Karbonhidrat') label += ` (${Math.round(carb)}g)`;
+              else if (label === 'Yağ') label += ` (${Math.round(fat)}g)`;
               return ` ${label}: %${pct.toFixed(1)}`;
             }
           }
@@ -6869,7 +6925,12 @@ async function handleNutritionSubmit(e) {
     }
     const notes = document.getElementById('inputNutriNotes')?.value || '';
     if (protein === 0 && carbs === 0 && fat === 0) {
-      if (status) status.textContent = '⚠️ En az bir makro değeri gir';
+      if (status) {
+        status.innerHTML = `
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 14px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; color: #f59e0b; font-size: 12px; font-weight: 600;">
+            <span>⚠️ En az bir makro değeri gir</span>
+          </div>`;
+      }
       if (btn) btn.disabled = false;
       return;
     }
@@ -6879,12 +6940,38 @@ async function handleNutritionSubmit(e) {
       protein, carbs, fat, calories, notes
     });
     if (res.success) {
-      if (status) status.textContent = '✓ Kaydedildi';
+      if (status) {
+        status.style.opacity = '1';
+        status.innerHTML = `
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 7px 18px; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 20px; color: #4ade80; font-size: 12.5px; font-weight: 700; letter-spacing: 0.3px; box-shadow: 0 2px 12px rgba(34, 197, 94, 0.18);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Kaydedildi</span>
+          </div>`;
+        clearTimeout(window._nutriStatusTimer);
+        window._nutriStatusTimer = setTimeout(() => {
+          if (status) {
+            status.style.opacity = '0';
+            setTimeout(() => {
+              if (status.style.opacity === '0') {
+                status.innerHTML = '';
+                status.style.opacity = '1';
+              }
+            }, 300);
+          }
+        }, 4000);
+      }
       toast('Beslenme verisi kaydedildi', 'success');
       _currentNutriNote = notes;
       await loadNutrition(_currentUser.username);
     } else {
-      if (status) status.textContent = '⚠️ Kayıt başarısız';
+      if (status) {
+        status.innerHTML = `
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 14px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 20px; color: #ef4444; font-size: 12px; font-weight: 600;">
+            <span>⚠️ Kayıt başarısız: ${(res.detail || 'Bilinmeyen hata')}</span>
+          </div>`;
+      }
       toast('Kayıt başarısız: ' + (res.detail || 'Bilinmeyen hata'), 'error');
     }
   } catch (err) {
@@ -6911,11 +6998,12 @@ function clearNutritionInputs() {
   const dateInput = document.getElementById('inputNutriDate');
   if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
   _updateNutriDateDisplay();
-  if (window._nutriTargets) {
-    _updateProgressBars({ calories: 0, protein: 0, carbs: 0, fat: 0, _targets: window._nutriTargets });
+  const status = document.getElementById('nutriSaveStatus');
+  if (status) {
+    clearTimeout(window._nutriStatusTimer);
+    status.innerHTML = '';
   }
-  // Bugünkü makro kartını da sıfırla
-  _renderMacroPie({ protein: 0, carbs: 0, fat: 0 });
+  syncNutritionLive();
 }
 
 /* ---------- İstatistik Kartı Seçimi (Kalori / Protein / Karb / Yağ) ---------- */
@@ -7696,55 +7784,1167 @@ function expertDataInjectStyles() {
   const style = document.createElement('style');
   style.id = 'expertDataCollectStyles';
   style.textContent = `
+    /* ══════════════════════════════════════════════════════
+       UZMAN SİSTEMİ - MODERN ANİMASYON VE GEÇİŞ SİSTEMİ
+    ══════════════════════════════════════════════════════ */
+    .expert-data-shell {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+    .expert-data-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      border: 1px solid rgba(108,99,255,.3);
+      border-radius: 18px;
+      background: linear-gradient(120deg, rgba(108,99,255,.12), rgba(30,34,49,.6) 55%, rgba(108,99,255,.08));
+      box-shadow: 0 14px 34px rgba(0,0,0,.2), 0 0 20px rgba(108,99,255,.1);
+      animation: expertHeroFloat 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes expertHeroFloat {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .expert-data-hero:after {
+      content: '';
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -110px;
+      top: -155px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(108,99,255,.25), transparent 68%);
+      pointer-events: none;
+    }
+    .expert-data-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 9px;
+      border: 1px solid rgba(108,99,255,.4);
+      border-radius: 999px;
+      color: var(--accent-light);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      box-shadow: 0 0 10px rgba(108,99,255,.15);
+      transition: all 0.25s ease;
+    }
+    .expert-data-hero h2 {
+      position: relative;
+      margin: 11px 0 7px;
+      font-size: clamp(21px, 3vw, 30px);
+      color: var(--text-primary);
+    }
+    .expert-data-hero p {
+      position: relative;
+      max-width: 760px;
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    
+    /* Sekmeler - Tab Bar & Micro-Interactions */
+    .expert-data-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 5px 1px 8px;
+      scrollbar-width: thin;
+    }
+    .expert-data-tab {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+    .expert-data-tab:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      color: var(--text-primary);
+      box-shadow: 0 4px 15px rgba(108,99,255,.18);
+    }
+    .expert-data-tab:active {
+      transform: scale(0.96);
+    }
+    .expert-data-tab.active {
+      color: white;
+      border-color: var(--accent-light);
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      box-shadow: 0 4px 20px rgba(108,99,255,.4), 0 0 12px rgba(108,99,255,.25);
+      transform: translateY(-1px);
+    }
+    .expert-data-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 15%;
+      width: 70%;
+      height: 2px;
+      background: #fff;
+      border-radius: 999px;
+      box-shadow: 0 0 8px #fff;
+      animation: expertTabGlow 0.38s ease-out;
+    }
+    @keyframes expertTabGlow {
+      from { width: 0; opacity: 0; }
+      to { width: 70%; opacity: 1; }
+    }
+    
+    /* Alt Sekmeler (Subtabs) */
+    .expert-data-subtabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 0 0 15px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .expert-data-subtab {
+      border: 1px solid var(--border);
+      background: rgba(108,99,255,.04);
+      color: var(--text-secondary);
+      padding: 9px 13px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+    .expert-data-subtab:hover {
+      transform: translateY(-1px);
+      border-color: rgba(108,99,255,.6);
+      color: var(--text-primary);
+      box-shadow: 0 4px 12px rgba(108,99,255,.12);
+    }
+    .expert-data-subtab:active {
+      transform: scale(0.96);
+    }
+    .expert-data-subtab.active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent-light);
+      box-shadow: 0 2px 14px rgba(108,99,255,.25);
+      transform: translateY(-1px);
+    }
 
-    .expert-data-shell{max-width:1240px;margin:0 auto;display:grid;gap:18px}
-    .expert-data-hero{position:relative;overflow:hidden;padding:24px;border:1px solid rgba(108,99,255,.3);border-radius:18px;background:linear-gradient(120deg,rgba(108,99,255,.12),rgba(30,34,49,.6) 55%,rgba(108,99,255,.08));box-shadow:0 14px 34px rgba(0,0,0,.2), 0 0 20px rgba(108,99,255,.1)}
-    .expert-data-hero:after{content:'';position:absolute;width:260px;height:260px;right:-110px;top:-155px;border-radius:50%;background:radial-gradient(circle,rgba(108,99,255,.25),transparent 68%);pointer-events:none}
-    .expert-data-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border:1px solid rgba(108,99,255,.4);border-radius:999px;color:var(--accent-light);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 10px rgba(108,99,255,.15)}
-    .expert-data-hero h2{position:relative;margin:11px 0 7px;font-size:clamp(21px,3vw,30px);color:var(--text-primary);}
-    .expert-data-hero p{position:relative;max-width:760px;margin:0;color:var(--text-secondary);font-size:13px;line-height:1.65}
-    .expert-data-tabs{display:flex;gap:8px;overflow-x:auto;padding:5px 1px 8px;scrollbar-width:thin}
-    .expert-data-tab{flex:0 0 auto;display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-secondary);padding:10px 13px;border-radius:11px;font-size:12px;font-weight:750;cursor:pointer;transition:all .25s cubic-bezier(0.4,0,0.2,1)}
-    .expert-data-subtabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 0 15px;margin-bottom:18px;border-bottom:1px solid var(--border)}
-    .expert-data-subtab{border:1px solid var(--border);background:rgba(108,99,255,.04);color:var(--text-secondary);padding:9px 12px;border-radius:10px;font-size:12px;font-weight:750;cursor:pointer;transition:all .25s cubic-bezier(0.4,0,0.2,1)}
-    .expert-data-subtab:hover{transform:translateY(-1px);border-color:rgba(108,99,255,.6);color:var(--text-primary);box-shadow:0 4px 12px rgba(108,99,255,.1)}
-    .expert-data-subtab.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent-light);box-shadow:0 0 15px rgba(108,99,255,.2)}
-    .expert-data-tab:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--text-primary);box-shadow:0 4px 15px rgba(108,99,255,.15)}
-    .expert-data-tab.active{color:white;border-color:var(--accent-light);background:linear-gradient(135deg,var(--accent),var(--accent-light));box-shadow:0 0 20px rgba(108,99,255,.35)}
-    .expert-data-stage{min-height:500px;animation:expertDataSlide .34s cubic-bezier(.2,.8,.2,1) both}
-    @keyframes expertDataSlide{from{opacity:0;transform:translateY(13px) scale(.992)}to{opacity:1;transform:translateY(0) scale(1)}}
-    .expert-data-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(290px,.75fr);gap:18px;align-items:start}
-    .expert-data-card{border:1px solid var(--border);border-radius:16px;background:var(--bg-card);padding:19px;box-shadow:0 9px 23px rgba(0,0,0,.15);transition:border-color .3s ease, box-shadow .3s ease}
-    .expert-data-card:hover{border-color:rgba(108,99,255,.2);box-shadow:0 12px 30px rgba(0,0,0,.2), 0 0 15px rgba(108,99,255,.05)}
-    .expert-data-card h3{margin:0;color:var(--text-primary);font-size:16px}.expert-data-card p{color:var(--text-muted);font-size:12px;line-height:1.58}
-    .expert-data-cardhead{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:13px}
-    .expert-data-badge{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:var(--accent-bg);color:var(--accent-light);font-size:10px;font-weight:800;border:1px solid rgba(108,99,255,.3);box-shadow:0 0 10px rgba(108,99,255,.15)}
-    .expert-data-metric-head,.expert-data-metric-row{display:grid;grid-template-columns:minmax(110px,.72fr) minmax(165px,1fr) minmax(165px,1fr);align-items:center;gap:16px}
-    .expert-data-metric-head{padding:0 10px 9px;color:var(--text-muted);font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
-    .expert-data-metric-row{padding:14px 10px;border-top:1px solid var(--border);transition:background .2s ease}.expert-data-metric-row:hover{background:rgba(108,99,255,.04)}
-    .expert-data-muscle{font-weight:800;color:var(--text-primary);font-size:13px}.expert-data-sub{margin-top:4px;font-size:10px;color:var(--text-muted)}
-    .expert-data-value{display:flex;justify-content:space-between;align-items:center;gap:7px;margin-bottom:7px;font-size:11px;color:var(--text-secondary)}.expert-data-value strong{font-size:14px;color:var(--text-primary);}
-    .expert-data-track{height:7px;border-radius:999px;overflow:hidden;background:rgba(127,146,175,.15);box-shadow:inset 0 1px 2px rgba(0,0,0,.2)}
-    .expert-data-fill{display:block;height:100%;border-radius:inherit;animation:expertDataFill .68s cubic-bezier(.22,.8,.3,1) both;box-shadow:0 0 10px rgba(108,99,255,.4)}@keyframes expertDataFill{from{width:0!important}}
-    .expert-data-empty{padding:28px 12px;color:var(--text-muted);text-align:center;border:1px dashed var(--border);border-radius:12px;font-size:13px;line-height:1.6}
-    .expert-data-form{display:grid;gap:13px}.expert-data-form label{display:block;margin-bottom:6px;color:var(--text-secondary);font-size:11px;font-weight:800;letter-spacing:.02em}.expert-data-form select,.expert-data-form input,.expert-data-form textarea{width:100%}
-    .expert-data-range-wrap{padding:12px;border:1px solid var(--border);border-radius:12px;background:rgba(108,99,255,.03)}
-    .expert-data-range-title{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--text-secondary);font-size:12px;font-weight:800}.expert-data-range-score{display:inline-flex;align-items:center;justify-content:center;min-width:38px;padding:5px;border-radius:8px;background:var(--accent-bg);color:var(--accent-light);font-size:13px;border:1px solid rgba(108,99,255,.2);box-shadow:0 0 8px rgba(108,99,255,.1)}
-    .expert-data-range-wrap input[type=range]{accent-color:var(--accent);margin:12px 0 2px}.expert-data-range-labels{display:flex;justify-content:space-between;color:var(--text-muted);font-size:10px}
-    .expert-data-switch{display:inline-flex!important;align-items:center;gap:10px;margin:0!important;cursor:pointer;user-select:none}.expert-data-switch input{position:absolute;opacity:0;pointer-events:none}.expert-data-switch-track{position:relative;display:inline-block;width:42px;height:23px;flex:0 0 42px;border-radius:999px;background:rgba(127,146,175,.3);box-shadow:inset 0 1px 3px rgba(0,0,0,.3);transition:background .2s ease}.expert-data-switch-track:after{content:'';position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.4);transition:transform .2s ease}.expert-data-switch input:checked + .expert-data-switch-track{background:linear-gradient(135deg,var(--accent),var(--accent-light));box-shadow:0 0 10px rgba(108,99,255,.3)}.expert-data-switch input:checked + .expert-data-switch-track:after{transform:translateX(19px)}.expert-data-switch input:focus-visible + .expert-data-switch-track{outline:2px solid var(--accent-light);outline-offset:3px}.expert-data-switch-text{color:var(--text-secondary);font-size:12px;font-weight:750;letter-spacing:0}
-    .expert-data-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.expert-data-choice{min-height:46px;text-align:left;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text-secondary);padding:9px 10px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s ease}.expert-data-choice:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px rgba(108,99,255,.1)}.expert-data-choice.selected{color:white;border-color:var(--accent-light);background:linear-gradient(135deg,rgba(108,99,255,.25),rgba(108,99,255,.05));box-shadow:inset 0 0 0 1px rgba(108,99,255,.3), 0 0 15px rgba(108,99,255,.2);}
-    .expert-equipment-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}.expert-equipment-column{display:grid;gap:12px;align-content:start;min-width:0}.expert-equipment-group{padding:12px;border:1px solid rgba(108,99,255,.15);border-radius:13px;background:linear-gradient(145deg,rgba(108,99,255,.05),rgba(10,17,31,.05));min-width:0;transition:box-shadow .3s ease}.expert-equipment-group:hover{box-shadow:0 0 15px rgba(108,99,255,.08)}.expert-equipment-group-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.expert-equipment-group-head strong{color:var(--text-primary);font-size:12px}.expert-equipment-group-head span{padding:3px 7px;border-radius:999px;background:var(--accent-bg);color:var(--accent-light);font-size:10px;font-weight:800;border:1px solid rgba(108,99,255,.2);box-shadow:0 0 8px rgba(108,99,255,.1)}.expert-equipment-toggle-grid{display:grid;gap:7px}.expert-equipment-toggle{position:relative;display:flex!important;align-items:center;justify-content:space-between;gap:10px;min-height:52px;margin:0!important;padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:var(--bg-primary);cursor:pointer;transition:all .2s ease}.expert-equipment-toggle:hover{border-color:rgba(108,99,255,.5);background:var(--accent-bg);transform:translateY(-1px);box-shadow:0 4px 12px rgba(108,99,255,.1)}.expert-equipment-toggle input{position:absolute;opacity:0;pointer-events:none}.expert-equipment-copy{min-width:0}.expert-equipment-copy strong{display:block;color:var(--text-secondary);font-size:11px;font-weight:780;line-height:1.25;transition:all .2s ease}.expert-equipment-status{display:block;margin-top:3px;color:var(--text-muted);font-size:10px;font-weight:700}.expert-equipment-status:after{content:'Yok'}.expert-equipment-track{position:relative;display:inline-block;width:39px;height:22px;flex:0 0 39px;border-radius:999px;background:rgba(127,146,175,.3);box-shadow:inset 0 1px 3px rgba(0,0,0,.3);transition:background .2s ease}.expert-equipment-track:after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.4);transition:transform .2s ease}.expert-equipment-toggle input:checked + .expert-equipment-copy strong{color:var(--accent-light);}.expert-equipment-toggle input:checked + .expert-equipment-copy .expert-equipment-status{color:var(--green);}.expert-equipment-toggle input:checked + .expert-equipment-copy .expert-equipment-status:after{content:'Var'}.expert-equipment-toggle input:checked ~ .expert-equipment-track{background:linear-gradient(135deg,var(--accent),var(--accent-light));box-shadow:0 0 12px rgba(108,99,255,.4)}.expert-equipment-toggle input:checked ~ .expert-equipment-track:after{transform:translateX(17px)}.expert-equipment-toggle input:focus-visible ~ .expert-equipment-track{outline:2px solid var(--accent-light);outline-offset:3px}
-    .expert-data-goal-intro{padding:16px;border:1px solid rgba(108,99,255,.3);border-radius:14px;background:linear-gradient(120deg,rgba(108,99,255,.15),rgba(30,34,49,.5));margin-bottom:16px;box-shadow:0 0 15px rgba(108,99,255,.1)}.expert-data-goal-intro h3{margin:0 0 5px;font-size:17px;}.expert-data-goal-intro p{margin:0;color:var(--text-secondary)}.expert-data-profile-goal{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;margin:0 0 16px;border:1px solid rgba(108,99,255,.25);border-radius:12px;background:var(--accent-bg);box-shadow:0 0 12px rgba(108,99,255,.1)}.expert-data-profile-goal span{display:block;color:var(--text-muted);font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.expert-data-profile-goal strong{display:block;margin-top:3px;color:var(--accent-light);font-size:13px;}.expert-data-profile-goal small{max-width:220px;color:var(--text-muted);font-size:10px;line-height:1.45;text-align:right}.expert-data-priority-heading{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:8px}.expert-data-priority-heading label{margin:0!important}.expert-data-priority-count{color:var(--accent-light);font-size:11px;font-weight:800;}.expert-data-priority-grid .expert-data-choice{min-height:58px}.expert-data-goal-actions{margin-top:2px}
-    .expert-data-summary{display:grid;gap:10px}.expert-data-summary-item{padding:11px;border:1px solid var(--border);border-radius:11px;background:rgba(108,99,255,.03)}.expert-data-summary-label{font-size:10px;font-weight:800;letter-spacing:.05em;color:var(--text-muted);text-transform:uppercase}.expert-data-summary-value{margin-top:4px;color:var(--text-primary);font-size:13px;font-weight:750;line-height:1.45}
-    .expert-data-history{display:grid;gap:8px;margin-top:14px}.expert-data-history-item{padding:11px 12px;border-left:3px solid var(--accent);border-radius:0 10px 10px 0;background:var(--accent-bg);box-shadow:0 2px 10px rgba(108,99,255,.05)}.expert-data-history-item strong{color:var(--text-primary);font-size:12px}.expert-data-history-item p{margin-top:4px;color:var(--text-muted);font-size:11px;line-height:1.5}
-    .expert-data-doms-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.expert-data-doms-input{min-width:0;padding:11px;border:1px solid var(--border);border-radius:12px;background:rgba(108,99,255,.03);transition:all .2s ease}.expert-data-doms-input:hover{border-color:rgba(108,99,255,.5);background:var(--accent-bg);box-shadow:0 4px 12px rgba(108,99,255,.1)}.expert-data-doms-input-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.expert-data-doms-input-name{color:var(--text-primary);font-size:12px;font-weight:800;line-height:1.25}.expert-data-doms-input-score{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:4px 6px;border-radius:7px;background:var(--accent-bg);color:var(--accent-light);font-size:12px;font-weight:800;border:1px solid rgba(108,99,255,.2);box-shadow:0 0 8px rgba(108,99,255,.15)}.expert-data-doms-input input[type=range]{display:block;width:100%!important;min-width:100%;max-width:100%!important;box-sizing:border-box;accent-color:var(--accent);margin:12px 0 2px;cursor:pointer}.expert-data-doms-edit{padding:12px;border:1px solid rgba(108,99,255,.3);border-radius:12px;background:rgba(108,99,255,.05);box-shadow:0 0 15px rgba(108,99,255,.05)}.expert-data-doms-edit-title{margin:0 0 4px;color:var(--text-primary);font-size:14px;font-weight:800;}.expert-data-doms-edit-meta{margin:0 0 12px;color:var(--text-muted);font-size:11px}
-    .expert-data-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}.expert-data-danger{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
-    .expert-data-note{margin:12px 0 0;padding:10px 11px;border-radius:10px;background:rgba(255,183,3,.075);border-left:3px solid #ffb703;color:var(--text-secondary);font-size:11px;line-height:1.55;box-shadow:0 2px 10px rgba(255,183,3,.1)}
-    .expert-movement-toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 12px}.expert-movement-search{flex:1 1 260px;min-width:0}.expert-movement-group{margin-top:9px;border:1px solid rgba(108,99,255,.2);border-radius:12px;overflow:hidden;background:rgba(108,99,255,.03)}.expert-movement-group summary{display:flex;justify-content:space-between;gap:10px;padding:11px 12px;cursor:pointer;color:var(--text-primary);font-size:12px;font-weight:800}.expert-movement-group summary span{color:var(--text-muted);font-size:10px}.expert-movement-list{display:grid;gap:6px;padding:0 10px 10px}.expert-movement-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:7px;padding:8px 9px;border:1px solid var(--border);border-radius:9px;background:var(--bg-primary)}.expert-movement-name{min-width:0;color:var(--text-secondary);font-size:11px;font-weight:750;line-height:1.3}.expert-movement-meta{display:block;color:var(--text-muted);font-size:9px;font-weight:600;margin-top:2px}.expert-movement-button{min-height:28px;padding:5px 7px;border:1px solid rgba(108,99,255,.3);border-radius:7px;background:var(--accent-bg);color:var(--accent-light);cursor:pointer;font-size:10px;font-weight:800;transition:all .2s ease}.expert-movement-button.avoid{border-color:rgba(239,68,68,.3);color:#ef4444;background:rgba(239,68,68,.1)}.expert-movement-button.active{background:rgba(108,99,255,.25);border-color:var(--accent);color:#fff;box-shadow:0 0 10px rgba(108,99,255,.3)}.expert-movement-button.avoid.active{background:rgba(239,68,68,.25);border-color:#ef4444;color:#fff;box-shadow:0 0 10px rgba(239,68,68,.3)}.expert-alternatives{display:grid;gap:6px;margin-top:8px;padding:9px;border:1px dashed rgba(108,99,255,.4);border-radius:9px;background:rgba(108,99,255,.04)}.expert-alternative-item{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;color:var(--text-secondary)}.expert-alternative-open{border:0;background:transparent;color:var(--accent-light);cursor:pointer;font-size:16px;line-height:1;padding:1px 4px;transition:all .2s ease}.expert-alternative-open:hover{color:#fff;transform:rotate(30deg);}
-    .expert-gym-workspace{display:grid;gap:18px}.expert-gym-bottom-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(310px,.88fr);gap:18px;align-items:start}.expert-gym-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 16px}.expert-gym-stat-grid>div{padding:11px 12px;border:1px solid rgba(108,99,255,.2);border-radius:11px;background:linear-gradient(145deg,rgba(108,99,255,.08),rgba(10,17,31,.03));box-shadow:0 4px 12px rgba(108,99,255,.05)}.expert-gym-stat-grid span{display:block;color:var(--text-muted);font-size:10px;font-weight:700}.expert-gym-stat-grid strong{display:block;margin-top:4px;color:var(--text-primary);font-size:13px;line-height:1.25;overflow-wrap:anywhere;}.expert-gym-guide-list{display:grid;gap:9px}.expert-gym-guide-list>div{padding:10px 11px;border-left:3px solid var(--accent);border-radius:0 10px 10px 0;background:var(--accent-bg);box-shadow:0 2px 8px rgba(108,99,255,.05)}.expert-gym-guide-list strong{display:block;color:var(--text-primary);font-size:11px}.expert-gym-guide-list span{display:block;margin-top:3px;color:var(--text-muted);font-size:10px;line-height:1.45}@media(max-width:900px){.expert-gym-bottom-grid{grid-template-columns:1fr}.expert-gym-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:900px){.expert-data-grid{grid-template-columns:1fr}}
-    @media(max-width:760px){.expert-equipment-groups{grid-template-columns:1fr;gap:10px}.expert-equipment-column{gap:10px}.expert-equipment-group{padding:10px}.expert-equipment-toggle{min-height:56px;padding:10px 11px}.expert-data-actions .btn{flex:1 1 145px;min-height:42px}}
-    @media(max-width:760px){.expert-data-hero{padding:18px}.expert-data-grid{grid-template-columns:1fr}.expert-data-card{padding:15px}.expert-data-metric-head{display:none}.expert-data-metric-row{grid-template-columns:1fr!important;gap:10px;padding:14px 4px}.expert-data-choice-grid,.expert-data-doms-grid,.expert-equipment-groups{grid-template-columns:1fr}.expert-data-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;overflow:visible;margin-right:0}.expert-data-tab{min-width:0;justify-content:center;gap:3px;padding:9px 4px;font-size:10px;white-space:nowrap;overflow:hidden}.expert-data-tab-label{font-size:0}.expert-data-tab-label::after{content:attr(data-mobile);font-size:10px}.expert-data-subtabs{gap:6px;padding-bottom:12px;margin-bottom:14px}.expert-data-subtab{flex:1;min-width:0;padding:9px 7px;font-size:11px}.expert-data-stage{min-height:0}}
+    /* Aşama (Stage) Geçiş Animasyonu & Kademeli Kart Girişi (Stagger) */
+    .expert-data-stage {
+      min-height: 480px;
+    }
+    .expert-data-stage-animated {
+      animation: expertStageEnter 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes expertStageEnter {
+      0% { opacity: 0; transform: translateY(12px) scale(0.995); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .expert-data-stage-animated .expert-data-card,
+    .expert-data-stage-animated .expert-data-grid > section,
+    .expert-data-stage-animated .expert-data-grid > aside,
+    .expert-data-stage-animated .expert-equipment-group,
+    .expert-data-stage-animated .expert-gym-workspace > div,
+    .expert-data-stage-animated .expert-gym-workspace > section {
+      animation: expertCardFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .expert-data-stage-animated .expert-data-grid > section { animation-delay: 0.03s; }
+    .expert-data-stage-animated .expert-data-grid > aside { animation-delay: 0.08s; }
+    .expert-data-stage-animated .expert-data-history-item:nth-child(1),
+    .expert-data-stage-animated .expert-doms-unified-row:nth-child(1),
+    .expert-data-stage-animated .expert-injury-unified-row:nth-child(1) { animation: expertItemFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.04s both; }
+    .expert-data-stage-animated .expert-data-history-item:nth-child(2),
+    .expert-data-stage-animated .expert-doms-unified-row:nth-child(2),
+    .expert-data-stage-animated .expert-injury-unified-row:nth-child(2) { animation: expertItemFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both; }
+    .expert-data-stage-animated .expert-data-history-item:nth-child(3),
+    .expert-data-stage-animated .expert-doms-unified-row:nth-child(3),
+    .expert-data-stage-animated .expert-injury-unified-row:nth-child(3) { animation: expertItemFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both; }
+    .expert-data-stage-animated .expert-data-history-item:nth-child(4),
+    .expert-data-stage-animated .expert-doms-unified-row:nth-child(4),
+    .expert-data-stage-animated .expert-injury-unified-row:nth-child(4) { animation: expertItemFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both; }
+    .expert-data-stage-animated .expert-data-history-item:nth-child(5),
+    .expert-data-stage-animated .expert-doms-unified-row:nth-child(5),
+    .expert-data-stage-animated .expert-injury-unified-row:nth-child(5) { animation: expertItemFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.20s both; }
+    .expert-data-stage-animated .expert-data-history-item:nth-child(6),
+    .expert-data-stage-animated .expert-doms-unified-row:nth-child(6),
+    .expert-data-stage-animated .expert-injury-unified-row:nth-child(6) { animation: expertItemFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both; }
+    .expert-data-stage-animated .expert-data-history-item:nth-child(7),
+    .expert-data-stage-animated .expert-doms-unified-row:nth-child(7),
+    .expert-data-stage-animated .expert-injury-unified-row:nth-child(7) { animation: expertItemFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both; }
+    @keyframes expertCardFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes expertItemFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Kartlar ve Izgara */
+    .expert-data-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(290px, .75fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .expert-data-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--bg-card);
+      padding: 20px;
+      box-shadow: 0 9px 24px rgba(0,0,0,.15);
+      transition: border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .expert-data-card:hover {
+      border-color: rgba(108,99,255,.3);
+      box-shadow: 0 14px 34px rgba(0,0,0,.2), 0 0 18px rgba(108,99,255,.08);
+    }
+    .expert-data-card h3 { margin: 0; color: var(--text-primary); font-size: 16px; }
+    .expert-data-card p { color: var(--text-muted); font-size: 12px; line-height: 1.58; }
+    .expert-data-cardhead {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .expert-data-badge {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--accent-bg);
+      color: var(--accent-light);
+      font-size: 10px;
+      font-weight: 800;
+      border: 1px solid rgba(108,99,255,.3);
+      box-shadow: 0 0 10px rgba(108,99,255,.15);
+      transition: all 0.25s ease;
+    }
+
+    /* Kas Ağrısı & Metrik Satırları */
+    .expert-data-metric-head, .expert-data-metric-row {
+      display: grid;
+      grid-template-columns: minmax(110px, .72fr) minmax(165px, 1fr);
+      align-items: center;
+      gap: 16px;
+    }
+    .expert-data-metric-head {
+      padding: 0 10px 9px;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .expert-data-metric-row {
+      padding: 13px 10px;
+      border-top: 1px solid var(--border);
+      transition: background 0.22s ease, transform 0.22s ease;
+      border-radius: 8px;
+    }
+    .expert-data-metric-row:hover {
+      background: rgba(108,99,255,.06);
+      transform: translateX(2px);
+    }
+    .expert-data-muscle { font-weight: 800; color: var(--text-primary); font-size: 13px; }
+    .expert-data-sub { margin-top: 3px; font-size: 10px; color: var(--text-muted); }
+    .expert-data-value {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 7px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .expert-data-value strong { font-size: 14px; color: var(--text-primary); }
+    .expert-data-track {
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(127,146,175,.15);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.2);
+    }
+    .expert-data-fill {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      animation: expertDataFill 0.85s cubic-bezier(.25, .8, .25, 1) both;
+      box-shadow: 0 0 10px rgba(108,99,255,.4);
+      transition: width 0.85s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    @keyframes expertDataFill { from { width: 0 !important; } }
+
+    /* Birleşik Kas Ağrısı Panosu */
+    .expert-doms-unified-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .expert-doms-unified-row {
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      background: rgba(108,99,255,.03);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .expert-doms-unified-row:hover {
+      background: rgba(108,99,255,.07);
+      border-color: rgba(108,99,255,.3);
+      transform: translateX(2px);
+      box-shadow: 0 4px 14px rgba(0,0,0,.08);
+    }
+    .expert-doms-unified-row.is-editing {
+      border-color: var(--accent) !important;
+      background: rgba(108,99,255,.09) !important;
+      box-shadow: 0 0 16px rgba(108,99,255,.2) !important;
+    }
+    .expert-doms-score-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .expert-doms-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .expert-doms-btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .expert-doms-btn-action:hover {
+      background: var(--accent-bg);
+      color: var(--accent-light);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .expert-doms-btn-action.delete {
+      color: #ef476f;
+      border-color: rgba(239,71,111,.25);
+    }
+    .expert-doms-btn-action.delete:hover {
+      background: rgba(239,71,111,.1);
+      border-color: #ef476f;
+      color: #ff5c8a;
+    }
+
+    .expert-doms-save-container {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(108, 99, 255, 0.12);
+    }
+    .expert-doms-save-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #ffffff;
+      background: linear-gradient(135deg, #6c63ff 0%, #8b83ff 100%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 9px;
+      box-shadow: 0 4px 14px rgba(108, 99, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+      white-space: nowrap;
+    }
+    .expert-doms-save-btn:hover {
+      background: linear-gradient(135deg, #7c74ff 0%, #9c95ff 100%);
+      transform: translateY(-1.5px);
+      box-shadow: 0 6px 20px rgba(108, 99, 255, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+    .expert-doms-save-btn:active {
+      transform: translateY(0.5px);
+      box-shadow: 0 2px 8px rgba(108, 99, 255, 0.25);
+    }
+    .expert-doms-save-btn svg {
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+    .expert-doms-save-btn:hover svg {
+      transform: scale(1.15);
+    }
+
+    /* Birleşik Sakatlık Kayıtları */
+    .expert-injury-unified-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .expert-injury-unified-row {
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      background: rgba(108,99,255,.03);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .expert-injury-unified-row:hover {
+      background: rgba(108,99,255,.07);
+      border-color: rgba(108,99,255,.3);
+      transform: translateX(2px);
+      box-shadow: 0 4px 14px rgba(0,0,0,.08);
+    }
+    .expert-injury-unified-row.is-editing {
+      border-color: var(--accent) !important;
+      background: rgba(108,99,255,.09) !important;
+      box-shadow: 0 0 16px rgba(108,99,255,.2) !important;
+    }
+    .expert-injury-unified-row.is-passive {
+      opacity: 0.82;
+      background: rgba(127,146,175,.04);
+    }
+    .expert-injury-unified-row.is-passive:hover {
+      opacity: 1;
+    }
+    .expert-modern-select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid rgba(108,99,255,0.22);
+      border-radius: 9px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .expert-modern-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+    }
+    .expert-card-switch {
+      gap: 6px !important;
+      padding: 3px 6px;
+      border-radius: 8px;
+      background: rgba(108, 99, 255, 0.04);
+      border: 1px solid rgba(108, 99, 255, 0.12);
+      transition: all 0.2s ease;
+    }
+    .expert-card-switch:hover {
+      background: rgba(108, 99, 255, 0.08);
+      border-color: rgba(108, 99, 255, 0.25);
+    }
+    .expert-card-switch .expert-data-switch-track {
+      width: 32px;
+      height: 18px;
+      flex: 0 0 32px;
+    }
+    .expert-card-switch .expert-data-switch-track:after {
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+    }
+    .expert-card-switch input:checked + .expert-data-switch-track {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      box-shadow: 0 0 10px rgba(16,185,129,.4);
+    }
+    .expert-card-switch input:checked + .expert-data-switch-track:after {
+      transform: translateX(14px);
+    }
+
+    .expert-data-empty {
+      padding: 28px 12px;
+      color: var(--text-muted);
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .expert-data-form { display: grid; gap: 13px; }
+    .expert-data-form label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+    .expert-data-form select, .expert-data-form input, .expert-data-form textarea { width: 100%; }
+
+    /* Modern Range Slider ve Skor Göstergeleri */
+    .expert-data-range-wrap {
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(108,99,255,.03);
+      transition: border-color 0.25s ease;
+    }
+    .expert-data-range-wrap:hover {
+      border-color: rgba(108,99,255,.3);
+    }
+    .expert-data-range-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .expert-data-range-score, .expert-data-doms-input-score {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      padding: 4px 7px;
+      border-radius: 8px;
+      background: var(--accent-bg);
+      color: var(--accent-light);
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid rgba(108,99,255,.2);
+      box-shadow: 0 0 8px rgba(108,99,255,.1);
+      transition: all 0.25s ease;
+    }
+    .expert-score-pop {
+      animation: expertScorePop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes expertScorePop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.22); }
+      100% { transform: scale(1); }
+    }
+
+    /* Range Input Track & Thumb Modern Styling */
+    .expert-data-range-wrap input[type=range],
+    .expert-data-doms-input input[type=range],
+    .expert-data-form input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(127,146,175,0.2);
+      outline: none;
+      margin: 12px 0 3px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .expert-data-range-wrap input[type=range]::-webkit-slider-thumb,
+    .expert-data-doms-input input[type=range]::-webkit-slider-thumb,
+    .expert-data-form input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid var(--accent);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 10px rgba(108,99,255,0.4);
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+    .expert-data-range-wrap input[type=range]::-webkit-slider-thumb:hover,
+    .expert-data-doms-input input[type=range]::-webkit-slider-thumb:hover,
+    .expert-data-form input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.5), 0 0 15px rgba(108,99,255,0.7);
+    }
+    .expert-data-range-wrap input[type=range]::-webkit-slider-thumb:active,
+    .expert-data-doms-input input[type=range]::-webkit-slider-thumb:active,
+    .expert-data-form input[type=range]::-webkit-slider-thumb:active {
+      transform: scale(1.35);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6), 0 0 20px rgba(108,99,255,0.9);
+    }
+    .expert-data-range-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+
+    /* Switch Açma/Kapama */
+    .expert-data-switch {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 10px;
+      margin: 0 !important;
+      cursor: pointer;
+      user-select: none;
+    }
+    .expert-data-switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .expert-data-switch-track {
+      position: relative;
+      display: inline-block;
+      width: 42px;
+      height: 23px;
+      flex: 0 0 42px;
+      border-radius: 999px;
+      background: rgba(127,146,175,.3);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,.3);
+      transition: background 0.28s ease, box-shadow 0.28s ease;
+    }
+    .expert-data-switch-track:after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,.4);
+      transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .expert-data-switch input:checked + .expert-data-switch-track {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      box-shadow: 0 0 12px rgba(108,99,255,.4);
+    }
+    .expert-data-switch input:checked + .expert-data-switch-track:after {
+      transform: translateX(19px);
+    }
+    .expert-data-switch-text {
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: 0;
+      transition: color 0.2s ease;
+    }
+    .expert-data-switch:hover .expert-data-switch-text { color: var(--text-primary); }
+
+    /* Öncelikli Kas Seçim Butonları */
+    .expert-data-choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .expert-data-choice {
+      min-height: 46px;
+      text-align: left;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .expert-data-choice:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(108,99,255,.12);
+      color: var(--text-primary);
+    }
+    .expert-data-choice:active {
+      transform: scale(0.96);
+    }
+    .expert-data-choice.selected {
+      color: white;
+      border-color: var(--accent-light);
+      background: linear-gradient(135deg, rgba(108,99,255,.25), rgba(108,99,255,.05));
+      box-shadow: inset 0 0 0 1px rgba(108,99,255,.3), 0 0 16px rgba(108,99,255,.2);
+      animation: expertChoicePop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes expertChoicePop {
+      0% { transform: scale(0.94); }
+      60% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    /* Ekipman Grupları & Toggle */
+    .expert-equipment-groups {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      align-items: start;
+    }
+    .expert-equipment-column {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      min-width: 0;
+    }
+    .expert-equipment-group {
+      padding: 12px;
+      border: 1px solid rgba(108,99,255,.15);
+      border-radius: 13px;
+      background: linear-gradient(145deg, rgba(108,99,255,.05), rgba(10,17,31,.05));
+      min-width: 0;
+      transition: box-shadow 0.28s ease, border-color 0.28s ease;
+    }
+    .expert-equipment-group:hover {
+      border-color: rgba(108,99,255,.3);
+      box-shadow: 0 0 18px rgba(108,99,255,.1);
+    }
+    .expert-equipment-group-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .expert-equipment-group-head strong { color: var(--text-primary); font-size: 12px; }
+    .expert-equipment-group-head span {
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: var(--accent-bg);
+      color: var(--accent-light);
+      font-size: 10px;
+      font-weight: 800;
+      border: 1px solid rgba(108,99,255,.2);
+      box-shadow: 0 0 8px rgba(108,99,255,.1);
+    }
+    .expert-equipment-toggle-grid { display: grid; gap: 7px; }
+    .expert-equipment-toggle {
+      position: relative;
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 52px;
+      margin: 0 !important;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-primary);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .expert-equipment-toggle:hover {
+      border-color: rgba(108,99,255,.5);
+      background: var(--accent-bg);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,.2), 0 0 12px rgba(108,99,255,.15);
+    }
+    .expert-equipment-toggle:active {
+      transform: scale(0.98);
+    }
+    .expert-equipment-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+    .expert-equipment-copy { min-width: 0; }
+    .expert-equipment-copy strong {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 780;
+      line-height: 1.25;
+      transition: color 0.2s ease;
+    }
+    .expert-equipment-status {
+      display: block;
+      margin-top: 3px;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 700;
+      transition: color 0.2s ease;
+    }
+    .expert-equipment-status:after { content: 'Yok'; }
+    .expert-equipment-track {
+      position: relative;
+      display: inline-block;
+      width: 39px;
+      height: 22px;
+      flex: 0 0 39px;
+      border-radius: 999px;
+      background: rgba(127,146,175,.3);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,.3);
+      transition: background 0.28s ease, box-shadow 0.28s ease;
+    }
+    .expert-equipment-track:after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,.4);
+      transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .expert-equipment-toggle input:checked + .expert-equipment-copy strong { color: var(--accent-light); }
+    .expert-equipment-toggle input:checked + .expert-equipment-copy .expert-equipment-status { color: var(--green); }
+    .expert-equipment-toggle input:checked + .expert-equipment-copy .expert-equipment-status:after { content: 'Var'; }
+    .expert-equipment-toggle input:checked ~ .expert-equipment-track {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      box-shadow: 0 0 12px rgba(108,99,255,.4);
+    }
+    .expert-equipment-toggle input:checked ~ .expert-equipment-track:after { transform: translateX(17px); }
+
+    /* DOMS Grid Kartları */
+    .expert-data-doms-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .expert-data-doms-input {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(108,99,255,.03);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .expert-data-doms-input:hover {
+      border-color: rgba(108,99,255,.5);
+      background: var(--accent-bg);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(108,99,255,.12);
+    }
+    .expert-data-doms-input-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .expert-data-doms-input-name {
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .expert-data-doms-edit {
+      padding: 14px;
+      border: 1px solid rgba(108,99,255,.3);
+      border-radius: 14px;
+      background: rgba(108,99,255,.05);
+      box-shadow: 0 0 20px rgba(108,99,255,.06);
+    }
+    .expert-data-doms-edit-title {
+      margin: 0 0 4px;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .expert-data-doms-edit-meta {
+      margin: 0 0 12px;
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    /* Geçmiş / Kart Maddeleri */
+    .expert-data-history { display: grid; gap: 8px; margin-top: 14px; }
+    .expert-data-history-item {
+      padding: 12px 14px;
+      border-left: 3px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      background: var(--accent-bg);
+      box-shadow: 0 2px 10px rgba(108,99,255,.05);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .expert-data-history-item:hover {
+      transform: translateX(3px);
+      box-shadow: 0 4px 18px rgba(0,0,0,.15), 0 0 14px rgba(108,99,255,.08);
+    }
+    .expert-data-history-item strong { color: var(--text-primary); font-size: 12px; }
+    .expert-data-history-item p { margin-top: 4px; color: var(--text-muted); font-size: 11px; line-height: 1.5; }
+
+    /* Butonlar & Aksiyonlar */
+    .expert-data-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 4px; }
+    .expert-data-actions .btn {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .expert-data-actions .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(108,99,255,.25);
+    }
+    .expert-data-actions .btn:active {
+      transform: scale(0.96);
+    }
+
+    .expert-data-note {
+      margin: 12px 0 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255,183,3,.075);
+      border-left: 3px solid #ffb703;
+      color: var(--text-secondary);
+      font-size: 11px;
+      line-height: 1.55;
+      box-shadow: 0 2px 10px rgba(255,183,3,.1);
+      transition: all 0.22s ease;
+    }
+
+    /* Hareket Tercihleri ve Akordiyon */
+    .expert-movement-toolbar { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; margin: 0 0 12px; }
+    .expert-movement-search { flex: 1 1 260px; min-width: 0; }
+    .expert-movement-group {
+      margin-top: 9px;
+      border: 1px solid rgba(108,99,255,.2);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(108,99,255,.03);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    }
+    .expert-movement-group:hover {
+      border-color: rgba(108,99,255,.45);
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    }
+    .expert-movement-group summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 800;
+      user-select: none;
+      transition: background 0.2s ease, color 0.2s ease;
+      list-style: none;
+    }
+    .expert-movement-group summary::-webkit-details-marker {
+      display: none;
+    }
+    .expert-movement-group summary:hover {
+      background: rgba(108,99,255,.08);
+      color: var(--accent-light);
+    }
+    .expert-movement-group[open] summary {
+      border-bottom: 1px solid rgba(108,99,255,.15);
+      background: rgba(108,99,255,.05);
+    }
+    .expert-accordion-chevron {
+      width: 15px;
+      height: 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-light);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+    }
+    .expert-movement-group[open] .expert-accordion-chevron {
+      transform: rotate(180deg);
+    }
+    .expert-movement-group:not([open]) .expert-accordion-chevron {
+      transform: rotate(0deg);
+    }
+    .expert-movement-list {
+      display: grid;
+      gap: 6px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    .expert-movement-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--bg-primary);
+      transition: all 0.22s ease;
+    }
+    .expert-movement-row:hover {
+      border-color: rgba(108,99,255,.35);
+      transform: translateX(2px);
+      background: rgba(108,99,255,.04);
+    }
+    .expert-movement-name {
+      min-width: 0;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.3;
+    }
+    .expert-movement-meta { display: block; color: var(--text-muted); font-size: 9px; font-weight: 600; margin-top: 2px; }
+    .expert-movement-button {
+      min-height: 28px;
+      padding: 5px 8px;
+      border: 1px solid rgba(108,99,255,.3);
+      border-radius: 7px;
+      background: var(--accent-bg);
+      color: var(--accent-light);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .expert-movement-button:hover { transform: translateY(-1px); }
+    .expert-movement-button:active { transform: scale(0.95); }
+    .expert-movement-button.avoid { border-color: rgba(239,68,68,.3); color: #ef4444; background: rgba(239,68,68,.1); }
+    .expert-movement-button.active { background: rgba(108,99,255,.25); border-color: var(--accent); color: #fff; box-shadow: 0 0 10px rgba(108,99,255,.3); }
+    .expert-movement-button.avoid.active { background: rgba(239,68,68,.25); border-color: #ef4444; color: #fff; box-shadow: 0 0 10px rgba(239,68,68,.3); }
+    .expert-btn-pop {
+      animation: expertBtnPop 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes expertBtnPop {
+      0% { transform: scale(0.92); }
+      60% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    /* Salon İstatistikleri ve Çalışma Alanı */
+    .expert-gym-workspace { display: grid; gap: 18px; }
+    .expert-gym-bottom-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(310px, .88fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .expert-gym-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 16px;
+    }
+    .expert-gym-stat-grid > div {
+      padding: 12px 14px;
+      border: 1px solid rgba(108,99,255,.2);
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(108,99,255,.08), rgba(10,17,31,.03));
+      box-shadow: 0 4px 12px rgba(108,99,255,.05);
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .expert-gym-stat-grid > div:hover {
+      transform: translateY(-2px);
+      border-color: rgba(108,99,255,.45);
+      box-shadow: 0 8px 24px rgba(0,0,0,.2), 0 0 14px rgba(108,99,255,.12);
+    }
+    .expert-gym-stat-grid span { display: block; color: var(--text-muted); font-size: 10px; font-weight: 700; }
+    .expert-gym-stat-grid strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    /* Gün & Hareket Kartları (Öneri Programı) */
+    .expert-day-card {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease !important;
+    }
+    .expert-day-card:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.24), 0 0 20px rgba(108,99,255,0.12) !important;
+      border-color: rgba(108,99,255,0.38) !important;
+    }
+    .expert-recommendation-exercise {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .expert-recommendation-exercise:hover {
+      border-color: rgba(108,99,255,0.4) !important;
+      background: rgba(108,99,255,0.04) !important;
+      transform: translateX(3px);
+    }
+
+    /* Alternatif Menü Animasyonu */
+    .expert-alternative-menu {
+      animation: expertMenuOpen 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+      transform-origin: top center;
+    }
+    @keyframes expertMenuOpen {
+      from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .expert-alternative-options > .expert-alternative-item {
+      animation: expertAltItemSlide 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .expert-alternative-options > .expert-alternative-item:nth-child(1) { animation-delay: 0.03s; }
+    .expert-alternative-options > .expert-alternative-item:nth-child(2) { animation-delay: 0.06s; }
+    .expert-alternative-options > .expert-alternative-item:nth-child(3) { animation-delay: 0.09s; }
+    .expert-alternative-options > .expert-alternative-item:nth-child(4) { animation-delay: 0.12s; }
+    .expert-alternative-options > .expert-alternative-item:nth-child(5) { animation-delay: 0.15s; }
+    .expert-alternative-options > .expert-alternative-item:nth-child(6) { animation-delay: 0.18s; }
+    @keyframes expertAltItemSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Yüklenme Durumu (Loading Spinner) */
+    .expert-loading-spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(108, 99, 255, 0.18);
+      border-top-color: var(--accent);
+      border-right-color: var(--accent-light);
+      border-radius: 50%;
+      animation: expertSpin 0.75s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+      box-shadow: 0 0 18px rgba(108, 99, 255, 0.28);
+    }
+    @keyframes expertSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Drag & Drop Sortable Stilleri */
+    .sortable-ghost {
+      opacity: 0.38 !important;
+      border: 2px dashed var(--accent) !important;
+      background: rgba(108,99,255,0.08) !important;
+    }
+    .sortable-chosen {
+      opacity: 0.95;
+      transform: scale(1.02);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.35), 0 0 22px rgba(108,99,255,0.28) !important;
+      z-index: 999;
+    }
+
+    /* Medya Sorguları */
+    @media(max-width:900px){
+      .expert-gym-bottom-grid{grid-template-columns:1fr}
+      .expert-gym-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .expert-data-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:760px){
+      .expert-equipment-groups{grid-template-columns:1fr;gap:10px}
+      .expert-equipment-column{gap:10px}
+      .expert-equipment-group{padding:10px}
+      .expert-equipment-toggle{min-height:56px;padding:10px 11px}
+      .expert-data-actions .btn{flex:1 1 145px;min-height:42px}
+      .expert-data-hero{padding:18px}
+      .expert-data-card{padding:15px}
+      .expert-data-metric-head{display:none}
+      .expert-data-metric-row{grid-template-columns:1fr!important;gap:10px;padding:14px 4px}
+      .expert-doms-actions{width:100%;justify-content:flex-end;margin-top:6px}
+      .expert-data-choice-grid,.expert-data-doms-grid,.expert-equipment-groups{grid-template-columns:1fr}
+      .expert-data-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;overflow:visible;margin-right:0}
+      .expert-data-tab{min-width:0;justify-content:center;gap:3px;padding:9px 4px;font-size:10px;white-space:nowrap;overflow:hidden}
+      .expert-data-tab-label{font-size:0}
+      .expert-data-tab-label::after{content:attr(data-mobile);font-size:10px}
+      .expert-data-subtabs{gap:6px;padding-bottom:12px;margin-bottom:14px}
+      .expert-data-subtab{flex:1;min-width:0;padding:9px 7px;font-size:11px}
+      .expert-data-stage{min-height:0}
+    }
   `;
   document.head.appendChild(style);
 }
@@ -7783,14 +8983,52 @@ function expertDataPlanningTabs() {
   return `<nav class="expert-data-subtabs" aria-label="Split ve analiz alt sekmeleri">${children.map(([id, label]) => `<button class="expert-data-subtab ${expertDataPlanningTab === id ? 'active' : ''}" type="button" onclick="expertDataSwitchPlanningTab('${id}')">${label}</button>`).join('')}</nav>`;
 }
 
-function expertDataMetricRows() {
-  const metrics = Array.isArray(expertDataState?.metrics) ? expertDataState.metrics : [];
-  if (!metrics.length) return `<div class="expert-data-empty">Henüz bir kas ağrısı bildirimi yok.<br><span style="font-size:11px">Günlük durumunu sağdaki kısa formdan kaydedebilirsin.</span></div>`;
-      return `<div class="expert-data-metric-head" style="grid-template-columns:minmax(110px,.72fr) minmax(165px,1fr)"><span>Kas grubu</span><span>Kas ağrısı</span></div>${metrics.map(metric => {
-    const pain = Number(metric.pain_level || 0);
-    return `<div class="expert-data-metric-row" style="grid-template-columns:minmax(110px,.72fr) minmax(165px,1fr)"><div><div class="expert-data-muscle">${expertDataEscape(expertDataMuscleLabel(metric.muscle_group))}</div><div class="expert-data-sub">Son günlük bildirim</div></div><div><div class="expert-data-value"><span>Bildirim seviyesi</span><strong>${pain}/5</strong></div><div class="expert-data-track"><span class="expert-data-fill" style="width:${pain * 20}%;background:${expertDataTone(pain, 'pain')}"></span></div></div></div>`;
-  }).join('')}`;
+function expertDataUnifiedDomsBoard(history) {
+  if (!history || !history.length) {
+    return `<div class="expert-data-empty">Henüz kas ağrısı kaydı yok.<br><span style="font-size:11px">Sol taraftaki formdan bugünkü durumunu kaydedebilirsin.</span></div>`;
+  }
+  return `<div class="expert-doms-unified-list">${history.map(item => {
+    const pain = Number(item.severity || 0);
+    const tone = expertDataTone(pain, 'pain');
+    const safeDate = JSON.stringify(item.report_date);
+    const safeMuscle = JSON.stringify(item.muscle_group);
+    const isEditing = expertDataDomsEditDraft && expertDataDomsEditDraft.report_date === item.report_date && expertDataDomsEditDraft.muscle_group === item.muscle_group;
+    return `<div class="expert-doms-unified-row ${isEditing ? 'is-editing' : ''}" style="border-left-color:${tone};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div style="min-width:140px;flex:1;">
+          <div class="expert-data-muscle" style="font-size:13px;font-weight:800;color:var(--text-primary);display:flex;align-items:center;gap:7px;">
+            <span>${expertDataEscape(expertDataMuscleLabel(item.muscle_group))}</span>
+            <span class="expert-doms-score-pill" style="color:${tone};background:${tone}15;border:1px solid ${tone}33;">${pain}/5</span>
+            ${isEditing ? '<span style="font-size:10px;font-weight:700;color:var(--accent-light);background:var(--accent-bg);border:1px solid rgba(108,99,255,0.3);padding:1px 6px;border-radius:4px;">Düzenleniyor</span>' : ''}
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span style="display:inline-flex;align-items:center;gap:4px;color:var(--text-secondary);font-weight:600;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.75"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              ${expertDataDate(item.report_date)}
+            </span>
+            ${item.notes ? `<span style="color:var(--text-muted)">·</span><span style="color:var(--text-secondary);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${expertDataEscape(item.notes)}">${expertDataEscape(item.notes)}</span>` : ''}
+          </div>
+        </div>
+        <div class="expert-doms-actions">
+          <button class="expert-doms-btn-action" type="button" title="Kaydı Düzenle" onclick='expertDataEditDoms(${safeDate}, ${safeMuscle})'>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            Düzenle
+          </button>
+          <button class="expert-doms-btn-action delete" type="button" title="Kaydı Sil" onclick='expertDataDeleteDoms(${safeDate}, ${safeMuscle})'>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Sil
+          </button>
+        </div>
+      </div>
+      <div class="expert-data-track" style="margin-top:10px;height:6px;border-radius:999px;">
+        <span class="expert-data-fill" style="width:${pain * 20}%;background:${tone};"></span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
 
+function expertDataMetricRows() {
+  return expertDataUnifiedDomsBoard(expertDataDomsEntries());
 }
 
 function expertDataDomsEntries() {
@@ -7809,12 +9047,23 @@ function expertDataDomsLevelInput(muscle, entry) {
   const severity = Number(entry?.severity || 0);
   const safeId = String(muscle.id).replace(/[^a-zA-Z0-9_-]/g, '');
   const muscleId = JSON.stringify(muscle.id);
-  return `<div class="expert-data-doms-input"><div class="expert-data-doms-input-head"><span class="expert-data-doms-input-name">${expertDataEscape(muscle.label)}</span><span id="expertDataDomsScore_${safeId}" class="expert-data-doms-input-score">${severity}/5</span></div><input class="expertDataDomsMuscleInput" data-muscle="${expertDataEscape(muscle.id)}" data-notes="${expertDataEscape(entry?.notes || '')}" type="range" min="0" max="5" step="1" value="${severity}" oninput="expertDataDomsGridRangeChange(${muscleId}, this.value, this)" onchange="expertDataDomsGridRangeChange(${muscleId}, this.value, this)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div>`;
+  const pct = (severity / 5) * 100;
+  const trackColor = severity >= 4 ? '#ef476f' : severity >= 2 ? '#ffb703' : severity > 0 ? '#38bdf8' : 'var(--accent)';
+  const scoreColor = severity >= 4 ? '#ef476f' : severity >= 2 ? '#ffb703' : severity > 0 ? '#38bdf8' : 'var(--accent-light)';
+  const scoreBorder = severity > 0 ? scoreColor : 'rgba(108,99,255,.2)';
+  const scoreGlow = severity >= 4 ? '0 0 12px rgba(239,71,111,0.35)' : severity >= 2 ? '0 0 12px rgba(255,183,3,0.35)' : severity > 0 ? '0 0 10px rgba(56,189,248,0.3)' : '0 0 8px rgba(108,99,255,0.15)';
+  return `<div class="expert-data-doms-input"><div class="expert-data-doms-input-head"><span class="expert-data-doms-input-name">${expertDataEscape(muscle.label)}</span><span id="expertDataDomsScore_${safeId}" class="expert-data-doms-input-score" style="color:${scoreColor};border-color:${scoreBorder};box-shadow:${scoreGlow};transition:all 0.25s ease;">${severity}/5</span></div><input class="expertDataDomsMuscleInput" data-muscle="${expertDataEscape(muscle.id)}" data-notes="${expertDataEscape(entry?.notes || '')}" type="range" min="0" max="5" step="1" value="${severity}" style="background:linear-gradient(to right, ${trackColor} 0%, ${trackColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataDomsGridRangeChange(${muscleId}, this.value, this)" onchange="expertDataDomsGridRangeChange(${muscleId}, this.value, this)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div>`;
 }
 
 function expertDataDomsEditForm(draft) {
   const safeId = String(draft.muscle_group).replace(/[^a-zA-Z0-9_-]/g, '');
-  return `<div class="expert-data-doms-edit"><p class="expert-data-doms-edit-title">${expertDataEscape(expertDataMuscleLabel(draft.muscle_group))} kaydını düzenle</p><p class="expert-data-doms-edit-meta">Kayıt günü: ${expertDataEscape(expertDataDate(draft.report_date))}. Bu tarih değiştirilemez.</p><div class="expert-data-range-wrap"><div class="expert-data-range-title"><span>KAS AĞRISI SEVİYESİ</span><span id="expertDataDomsEditScore" class="expert-data-range-score">${Number(draft.severity || 0)}/5</span></div><input id="expertDataDomsEditSeverity" type="range" min="0" max="5" step="1" value="${Number(draft.severity || 0)}" oninput="expertDataDomsEditRangeChange(this.value)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div><div style="margin-top:12px"><label for="expertDataDomsEditNotes">KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataDomsEditNotes" rows="3" maxlength="500">${expertDataEscape(draft.notes || '')}</textarea></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveDomsEdit()">Kaydı Güncelle</button><button class="btn btn-secondary" type="button" onclick="expertDataCancelDomsEdit()">Vazgeç</button></div></div>`;
+  const severity = Number(draft.severity || 0);
+  const pct = (severity / 5) * 100;
+  const trackColor = severity >= 4 ? '#ef476f' : severity >= 2 ? '#ffb703' : severity > 0 ? '#38bdf8' : 'var(--accent)';
+  const scoreColor = severity >= 4 ? '#ef476f' : severity >= 2 ? '#ffb703' : severity > 0 ? '#38bdf8' : 'var(--accent-light)';
+  const scoreBorder = severity > 0 ? scoreColor : 'rgba(108,99,255,.2)';
+  const scoreGlow = severity >= 4 ? '0 0 12px rgba(239,71,111,0.35)' : severity >= 2 ? '0 0 12px rgba(255,183,3,0.35)' : severity > 0 ? '0 0 10px rgba(56,189,248,0.3)' : '0 0 8px rgba(108,99,255,0.15)';
+  return `<div class="expert-data-doms-edit"><p class="expert-data-doms-edit-title">${expertDataEscape(expertDataMuscleLabel(draft.muscle_group))} kaydını düzenle</p><p class="expert-data-doms-edit-meta">Kayıt günü: ${expertDataEscape(expertDataDate(draft.report_date))}. Bu tarih değiştirilemez.</p><div class="expert-data-range-wrap"><div class="expert-data-range-title"><span>KAS AĞRISI SEVİYESİ</span><span id="expertDataDomsEditScore" class="expert-data-range-score" style="color:${scoreColor};border-color:${scoreBorder};box-shadow:${scoreGlow};transition:all 0.25s ease;">${severity}/5</span></div><input id="expertDataDomsEditSeverity" type="range" min="0" max="5" step="1" value="${severity}" style="background:linear-gradient(to right, ${trackColor} 0%, ${trackColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataDomsEditRangeChange(this.value)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div><div style="margin-top:12px"><label for="expertDataDomsEditNotes">KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataDomsEditNotes" rows="3" maxlength="500">${expertDataEscape(draft.notes || '')}</textarea></div><div class="expert-doms-save-container" style="gap:10px;"><button class="expert-doms-save-btn" type="button" onclick="expertDataSaveDomsEdit()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg><span>Kaydı Güncelle</span></button><button class="btn btn-secondary" style="font-size:12px;padding:8px 14px;border-radius:9px;min-height:auto;" type="button" onclick="expertDataCancelDomsEdit()">Vazgeç</button></div></div>`;
 }
 
 function expertDataDomsPane() {
@@ -7823,13 +9072,9 @@ function expertDataDomsPane() {
   const history = expertDataDomsEntries();
   const entryForm = expertDataDomsEditDraft
     ? expertDataDomsEditForm(expertDataDomsEditDraft)
-    : `<div class="expert-data-doms-grid">${expertDataMuscles().map(muscle => expertDataDomsLevelInput(muscle, entryByMuscle.get(muscle.id))).join('')}</div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveDomsGrid()">Bugünkü Ağrı Değerlerini Kaydet</button></div>`;
+    : `<div class="expert-data-doms-grid">${expertDataMuscles().map(muscle => expertDataDomsLevelInput(muscle, entryByMuscle.get(muscle.id))).join('')}</div><div class="expert-doms-save-container"><button class="expert-doms-save-btn" type="button" onclick="expertDataSaveDomsGrid()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Bugünkü Ağrı Değerlerini Kaydet</span></button></div>`;
 
-  const records = history.length
-    ? `<div class="expert-data-history">${history.map(item => `<div class="expert-data-history-item" style="border-left-color:${expertDataTone(item.severity, 'pain')}"><strong>${expertDataEscape(expertDataMuscleLabel(item.muscle_group))} · ${Number(item.severity)}/5</strong><div>${expertDataDate(item.report_date)}${item.notes ? ` · ${expertDataEscape(item.notes)}` : ''}</div><div class="expert-data-actions" style="margin-top:8px"><button class="btn btn-secondary" style="font-size:11px;padding:6px 9px" type="button" onclick='expertDataEditDoms(${JSON.stringify(item.report_date)}, ${JSON.stringify(item.muscle_group)})'>Düzenle</button><button class="btn btn-secondary" style="font-size:11px;padding:6px 9px;color:#ef476f" type="button" onclick='expertDataDeleteDoms(${JSON.stringify(item.report_date)}, ${JSON.stringify(item.muscle_group)})'>Sil</button></div></div>`).join('')}</div>`
-    : `<div class="expert-data-empty">Henüz kas ağrısı kaydı yok.</div>`;
-
-  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>${expertDataDomsEditDraft ? 'Kas Ağrısı Kaydını Düzenle' : 'Bugünkü Kas Ağrısı Kaydı'}</h3><p>${expertDataDomsEditDraft ? 'Seçili kaydın günü korunur; yalnızca seviye ve kısa not güncellenir.' : 'Tüm kas grupları aşağıda görünür. Yalnızca ağrı hissettiğin kasların seviyesini değiştirip kaydetmen yeterlidir.'}</p></div><span class="expert-data-badge">0–5 ölçeği</span></div>${entryForm}<div class="expert-data-note"><strong>Günlük güncelleme:</strong> Kayıt günü sistem tarafından otomatik belirlenir. Aynı kası aynı gün yeniden kaydedersen eski değer güncellenir.</div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kas Ağrısı Panosu</h3><p>En güncel kas ağrısı seviyesi ve kaydedilmiş bildirimlerin burada görünür.</p></div><span class="expert-data-badge">${history.length} kayıt</span></div>${expertDataMetricRows()}<div class="expert-data-note"><strong>Kayıt yönetimi:</strong> Ağrı geçtiğinde ilgili kaydı sil. Düzeltmek istediğinde kaydı düzenle.</div><div style="margin-top:16px"><div class="expert-data-summary-label">KAS AĞRISI KAYITLARI</div>${records}</div></aside></div>`;
+  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>${expertDataDomsEditDraft ? 'Kas Ağrısı Kaydını Düzenle' : 'Bugünkü Kas Ağrısı Kaydı'}</h3><p>${expertDataDomsEditDraft ? 'Seçili kaydın günü korunur; yalnızca seviye ve kısa not güncellenir.' : 'Tüm kas grupları aşağıda görünür. Yalnızca ağrı hissettiğin kasların seviyesini değiştirip kaydetmen yeterlidir.'}</p></div><span class="expert-data-badge">0–5 ölçeği</span></div>${entryForm}<div class="expert-data-note"><strong>Günlük güncelleme:</strong> Kayıt günü sistem tarafından otomatik belirlenir. Aynı kası aynı gün yeniden kaydedersen eski değer güncellenir.</div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Kas Ağrısı Panosu</h3><p>Kayıtlı kas ağrısı seviyelerin, bildirim tarihleri ve yönetim seçenekleri burada yer alır.</p></div><span class="expert-data-badge">${history.length} kayıt</span></div>${expertDataUnifiedDomsBoard(history)}<div class="expert-data-note" style="margin-top:14px"><strong>Kayıt yönetimi:</strong> Ağrı geçtiğinde ilgili kaydı sil. Düzeltmek istediğinde kaydı düzenle.</div></aside></div>`;
 }
 
 function expertDataGoalsPane() {
@@ -7883,13 +9128,136 @@ function expertDataGoalsPane() {
   </div>`;
 }
 
+function expertDataUnifiedInjuryBoard(items) {
+  if (!items || !items.length) {
+    return `<div class="expert-data-empty">Henüz sakatlık veya geçici kısıt kaydı yok.<br><span style="font-size:11px">Sol taraftaki formdan durumunu kaydedebilirsin.</span></div>`;
+  }
+  return `<div class="expert-injury-unified-list">${items.map(item => {
+    const isActive = item.is_active !== false;
+    const severity = Number(item.severity || 0);
+    const tone = isActive ? expertDataTone(severity, 'pain') : '#7f8ea8';
+    const isEditing = expertDataInjuryDraft && expertDataInjuryDraft.id === item.id;
+    const safeId = JSON.stringify(item.id);
+    const areaName = expertDataEscape(item.area);
+    const typeLabel = expertDataEscape(expertDataCatalog().injury_types?.[item.injury_type] || 'Diğer');
+    
+    return `<div class="expert-injury-unified-row ${!isActive ? 'is-passive' : ''} ${isEditing ? 'is-editing' : ''}" style="border-left-color:${tone};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div style="min-width:160px;flex:1;">
+          <div class="expert-data-muscle" style="font-size:13px;font-weight:800;color:var(--text-primary);display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+            <span>${areaName}</span>
+            <span style="font-size:11px;font-weight:600;color:var(--text-secondary);background:rgba(127,146,175,0.12);border:1px solid rgba(127,146,175,0.22);padding:2px 7px;border-radius:6px;">${typeLabel}</span>
+            <span class="expert-doms-score-pill" style="color:${tone};background:${tone}15;border:1px solid ${tone}33;">${severity}/5</span>
+            ${isEditing ? '<span style="font-size:10px;font-weight:700;color:var(--accent-light);background:var(--accent-bg);border:1px solid rgba(108,99,255,0.3);padding:1px 6px;border-radius:4px;">Düzenleniyor</span>' : ''}
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span style="display:inline-flex;align-items:center;gap:4px;color:var(--text-secondary);font-weight:600;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.75"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              ${item.started_on ? `Aktivasyon: ${expertDataDate(item.started_on)}` : 'Kayıtlı'}
+            </span>
+            ${item.notes ? `<span style="color:var(--text-muted)">·</span><span style="color:var(--text-secondary);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${expertDataEscape(item.notes)}">${expertDataEscape(item.notes)}</span>` : ''}
+          </div>
+        </div>
+        <div class="expert-doms-actions" style="align-items:center;">
+          <label class="expert-data-switch expert-card-switch" title="${isActive ? 'Sakatlığı pasife almak için tıkla' : 'Sakatlığı aktifleştirmek için tıkla'}" style="margin-right:2px;">
+            <input type="checkbox" ${isActive ? 'checked' : ''} onchange='expertDataToggleInjuryActive(${safeId}, this.checked)'>
+            <span class="expert-data-switch-track" aria-hidden="true"></span>
+            <span class="expert-data-switch-text" style="font-size:11px;font-weight:750;color:${isActive ? '#10b981' : 'var(--text-muted)'};">
+              ${isActive ? 'Hâlen Aktif' : 'Pasif'}
+            </span>
+          </label>
+          <button class="expert-doms-btn-action" type="button" title="Kaydı Düzenle" onclick='expertDataEditInjury(${safeId})'>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            Düzenle
+          </button>
+          <button class="expert-doms-btn-action delete" type="button" title="Kaydı Sil" onclick='expertDataDeleteInjury(${safeId})'>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Sil
+          </button>
+        </div>
+      </div>
+      <div class="expert-data-track" style="margin-top:10px;height:6px;border-radius:999px;">
+        <span class="expert-data-fill" style="width:${severity * 20}%;background:${tone};"></span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
 function expertDataInjuryPane() {
   const draft = expertDataInjuryDraft || { is_active: true, severity: 0, injury_type: 'other', notes: '' };
   const activationDate = draft.started_on || expertDataToday();
   const areas = (expertDataCatalog().injury_areas || []).map(area => `<option value="${expertDataEscape(area)}" ${draft.area === area ? 'selected' : ''}>${expertDataEscape(area)}</option>`).join('');
   const types = Object.entries(expertDataCatalog().injury_types || {}).map(([id, label]) => `<option value="${expertDataEscape(id)}" ${draft.injury_type === id ? 'selected' : ''}>${expertDataEscape(label)}</option>`).join('');
   const items = (expertDataState?.injuries || []).slice().reverse();
-  return `<div class="expert-data-grid"><section class="expert-data-card"><div class="expert-data-cardhead"><div><h3>${draft.id ? 'Sakatlık Kaydını Düzenle' : 'Ağrı ve Geçici Kısıt Ekle'}</h3><p>Bu alan tıbbi tanı veya tedavi yerine geçmez. Aktif/pasif bilgisi yalnızca sakatlık kayıtları için tutulur.</p></div><span class="expert-data-badge">Kişisel bildirim</span></div><div class="expert-data-form"><div><label for="expertDataInjuryArea">BÖLGE</label><select id="expertDataInjuryArea">${areas}</select></div><div><label for="expertDataInjuryType">SAKATLIK TÜRÜ</label><select id="expertDataInjuryType">${types}</select></div><div class="expert-data-range-wrap"><div class="expert-data-range-title"><span>ETKİLENME SEVİYESİ</span><span id="expertDataInjuryScore" class="expert-data-range-score">${Number(draft.severity || 0)}/5</span></div><input id="expertDataInjurySeverity" type="range" min="0" max="5" step="1" value="${Number(draft.severity || 0)}" oninput="expertDataRangeChange('injury', this.value)"><div class="expert-data-range-labels"><span>0 · Yok</span><span>5 · Çok yüksek</span></div></div><label class="expert-data-switch" for="expertDataInjuryActive"><input id="expertDataInjuryActive" type="checkbox" ${draft.is_active !== false ? 'checked' : ''}><span class="expert-data-switch-track" aria-hidden="true"></span><span class="expert-data-switch-text">Sakatlık hâlen aktif</span></label><div><label for="expertDataInjuryActivationDate">AKTİVASYON TARİHİ</label><input id="expertDataInjuryActivationDate" type="text" value="${expertDataEscape(expertDataDate(activationDate))}" readonly aria-readonly="true" title="Bu tarih sistem tarafından otomatik belirlenir."></div><div><label for="expertDataInjuryNotes">KISA NOT · İSTEĞE BAĞLI</label><textarea id="expertDataInjuryNotes" rows="3" maxlength="500" placeholder="Örn. belirli harekette hassasiyet hissediyorum">${expertDataEscape(draft.notes || '')}</textarea></div><div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveInjury()">${draft.id ? 'Kaydı Güncelle' : 'Sakatlık Kaydet'}</button>${draft.id ? '<button class="btn btn-secondary" type="button" onclick="expertDataCancelInjuryEdit()">Vazgeç</button>' : ''}</div></div><div class="expert-data-note"><strong>Otomatik takip:</strong> Kayıt aktif edildiği gün aktivasyon tarihi sistem tarafından atanır. Kaydı pasife alırsan kapanır; yeniden aktifleştirirsen aktivasyon tarihi yeni güne güncellenir.</div><div class="expert-data-note"><strong>Güvenlik notu:</strong> Keskin, olağandışı veya günlük yaşamı etkileyen ağrıda egzersizi durdurup yetkin bir sağlık uzmanına başvur.</div></section><aside class="expert-data-card"><div class="expert-data-cardhead"><div><h3>Sakatlık Kayıtları</h3><p>Aktif ve pasif kayıtları saklanır; gerektiğinde düzenlenebilir.</p></div><span class="expert-data-badge">${items.length} kayıt</span></div>${items.length ? `<div class="expert-data-history">${items.map(item => `<div class="expert-data-history-item" style="border-left-color:${item.is_active === false ? '#7f8ea8' : expertDataTone(item.severity, 'pain')}"><strong>${expertDataEscape(item.area)} · ${expertDataEscape(expertDataCatalog().injury_types?.[item.injury_type] || 'Diğer')} · ${Number(item.severity)}/5</strong><div>${item.is_active === false ? 'Pasif' : 'Aktif'}${item.started_on ? ` · Aktivasyon: ${expertDataDate(item.started_on)}` : ''}${item.notes ? ` · ${expertDataEscape(item.notes)}` : ''}</div><div class="expert-data-actions" style="margin-top:8px"><button class="btn btn-secondary" style="font-size:11px;padding:6px 9px" type="button" onclick="expertDataEditInjury('${item.id}')">Düzenle</button>${item.is_active !== false ? `<button class="btn btn-secondary" style="font-size:11px;padding:6px 9px" type="button" onclick="expertDataResolveInjury('${item.id}')">Pasife Al</button>` : ''}<button class="btn btn-secondary" style="font-size:11px;padding:6px 9px;color:#ef476f" type="button" onclick="expertDataDeleteInjury('${item.id}')">Sil</button></div></div>`).join('')}</div>` : `<div class="expert-data-empty">Henüz sakatlık veya geçici kısıt kaydı yok.</div>`}</aside></div>`;
+  const activeCount = items.filter(i => i.is_active !== false).length;
+  const severity = Number(draft.severity || 0);
+  const pct = (severity / 5) * 100;
+  const trackColor = severity >= 4 ? '#ef476f' : severity >= 2 ? '#ffb703' : severity > 0 ? '#38bdf8' : 'var(--accent)';
+  const scoreColor = severity >= 4 ? '#ef476f' : severity >= 2 ? '#ffb703' : severity > 0 ? '#38bdf8' : 'var(--accent-light)';
+  const scoreBorder = severity > 0 ? scoreColor : 'rgba(108,99,255,.2)';
+  const scoreGlow = severity >= 4 ? '0 0 12px rgba(239,71,111,0.35)' : severity >= 2 ? '0 0 12px rgba(255,183,3,0.35)' : severity > 0 ? '0 0 10px rgba(56,189,248,0.3)' : '0 0 8px rgba(108,99,255,0.15)';
+
+  return `<div class="expert-data-grid">
+    <section class="expert-data-card">
+      <div class="expert-data-cardhead">
+        <div>
+          <h3>${draft.id ? 'Sakatlık Kaydını Düzenle' : 'Ağrı ve Geçici Kısıt Ekle'}</h3>
+          <p>Bu alan tıbbi tanı veya tedavi yerine geçmez. Aktif/pasif durumu doğrudan sağdaki panodan yönetilir.</p>
+        </div>
+        <span class="expert-data-badge">${draft.id ? 'Düzenleme' : 'Kişisel bildirim'}</span>
+      </div>
+      <div class="expert-data-form">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:12px;">
+          <div>
+            <label for="expertDataInjuryArea">BÖLGE</label>
+            <select id="expertDataInjuryArea" class="expert-modern-select">${areas}</select>
+          </div>
+          <div>
+            <label for="expertDataInjuryType">SAKATLIK TÜRÜ</label>
+            <select id="expertDataInjuryType" class="expert-modern-select">${types}</select>
+          </div>
+        </div>
+        <div class="expert-data-range-wrap">
+          <div class="expert-data-range-title">
+            <span>ETKİLENME SEVİYESİ</span>
+            <span id="expertDataInjuryScore" class="expert-data-range-score" style="color:${scoreColor};border-color:${scoreBorder};box-shadow:${scoreGlow};transition:all 0.25s ease;">${severity}/5</span>
+          </div>
+          <input id="expertDataInjurySeverity" type="range" min="0" max="5" step="1" value="${severity}" style="background:linear-gradient(to right, ${trackColor} 0%, ${trackColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataRangeChange('injury', this.value)">
+          <div class="expert-data-range-labels">
+            <span>0 · Yok</span><span>5 · Çok yüksek</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px;margin:2px 0 2px 2px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.75"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span>Kayıt günü: <strong style="color:var(--text-secondary);">${expertDataEscape(expertDataDate(activationDate))}</strong></span>
+        </div>
+        <div>
+          <label for="expertDataInjuryNotes">KISA NOT · İSTEĞE BAĞLI</label>
+          <textarea id="expertDataInjuryNotes" rows="3" maxlength="500" placeholder="Örn. belirli açıda batma veya hassasiyet hissediyorum" style="border:1px solid rgba(108,99,255,0.18);border-radius:10px;background:rgba(7,12,23,0.3);padding:10px 12px;font-size:12px;color:var(--text-primary);width:100%;box-sizing:border-box;">${expertDataEscape(draft.notes || '')}</textarea>
+        </div>
+        <div class="expert-doms-save-container" style="gap:10px;">
+          <button class="expert-doms-save-btn" type="button" onclick="expertDataSaveInjury()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>${draft.id ? 'Kaydı Güncelle' : 'Sakatlık Kaydet'}</span>
+          </button>
+          ${draft.id ? '<button class="btn btn-secondary" style="font-size:12px;padding:8px 14px;border-radius:9px;min-height:auto;" type="button" onclick="expertDataCancelInjuryEdit()">Vazgeç</button>' : ''}
+        </div>
+      </div>
+      <div class="expert-data-note"><strong>Otomatik takip:</strong> Yeni eklenen sakatlıklar doğrudan aktif olarak kaydedilir. Durumunu dilediğin an sağdaki panodaki anahtardan değiştirebilirsin.</div>
+      <div class="expert-data-note"><strong>Güvenlik notu:</strong> Keskin veya şiddetli ağrılarda egzersizi durdurup bir sağlık uzmanına başvurunuz.</div>
+    </section>
+    <aside class="expert-data-card">
+      <div class="expert-data-cardhead">
+        <div>
+          <h3>Sakatlık Kayıtları</h3>
+          <p>Aktif ve pasif kayıtların, toparlanma durumun ve kısıtların burada listelenir.</p>
+        </div>
+        <span class="expert-data-badge">${activeCount} aktif · ${items.length} toplam</span>
+      </div>
+      ${expertDataUnifiedInjuryBoard(items)}
+      <div class="expert-data-note" style="margin-top:14px"><strong>Kayıt yönetimi:</strong> Sakatlık iyileştiğinde satırdaki "Hâlen Aktif" anahtarını kapatarak pasife alabilir, nüksettiğinde tekrar açabilirsin.</div>
+    </aside>
+  </div>`;
 }
 
 function expertDataGroupedEquipment() {
@@ -8027,12 +9395,65 @@ function expertDataMovementGroups() {
   }, {});
 }
 
+function expertDataRenderMovementGroupRows(items, preferred, avoided) {
+  return items.map(item => {
+    const isPreferred = preferred.has(item.id);
+    const isAvoided = avoided.has(item.id);
+    const meta = (item.primary_muscles || []).map(expertDataMuscleLabel).join(' · ') || item.category || '';
+    let exName = item.name;
+    if (item.bw) exName += ' (Vücut Ağırlığı)';
+    else if (item.weighted) exName += ' (Ağırlıklı)';
+    return `<div class="expert-movement-row" data-exercise-id="${expertDataEscape(item.id)}">
+      <div class="expert-movement-name">
+        ${expertDataEscape(exName)}
+        <small class="expert-movement-meta">${expertDataEscape(meta)}</small>
+      </div>
+      <button type="button" class="expert-movement-button ${isPreferred ? 'active' : ''}" onclick="expertDataToggleMovementPreference('${expertDataEscape(item.id)}','preferred', this)">${isPreferred ? 'Tercih edildi' : 'Tercih et'}</button>
+      <button type="button" class="expert-movement-button avoid ${isAvoided ? 'active' : ''}" onclick="expertDataToggleMovementPreference('${expertDataEscape(item.id)}','avoid', this)">Önerme</button>
+    </div>`;
+  }).join('');
+}
+
+function expertDataRenderMovementGroups(groups, preferred, avoided) {
+  return Object.entries(groups).map(([group, items]) => `
+    <details class="expert-movement-group" open>
+      <summary>
+        <strong>${expertDataEscape(group)}</strong>
+        <span style="display:inline-flex;align-items:center;gap:7px;color:var(--text-muted);font-size:11px;font-weight:700;">
+          ${items.length} hareket
+          <svg class="expert-accordion-chevron" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </span>
+      </summary>
+      <div class="expert-movement-list">${expertDataRenderMovementGroupRows(items, preferred, avoided)}</div>
+    </details>`).join('');
+}
+
 function expertDataMovementPreferencesPane() {
   const preferred = new Set(expertDataMovementDraft?.preferred_exercise_ids || expertDataState?.preferred_exercise_ids || []);
   const avoided = new Set(expertDataMovementDraft?.avoid_exercise_ids || expertDataState?.avoid_exercise_ids || []);
   const groups = expertDataMovementGroups();
-  const body = Object.entries(groups).map(([group, items]) => `<details class="expert-movement-group" open><summary><strong>${expertDataEscape(group)}</strong><span>${items.length} hareket</span></summary><div class="expert-movement-list">${items.map(item => { const isPreferred = preferred.has(item.id); const isAvoided = avoided.has(item.id); const meta = (item.primary_muscles || []).map(expertDataMuscleLabel).join(' · ') || item.category || ''; let exName = item.name; if (item.bw) exName += ' (Vücut Ağırlığı)'; else if (item.weighted) exName += ' (Ağırlıklı)'; return `<div class="expert-movement-row"><div class="expert-movement-name">${expertDataEscape(exName)}<small class="expert-movement-meta">${expertDataEscape(meta)}</small></div><button type="button" class="expert-movement-button ${isPreferred ? 'active' : ''}" onclick="expertDataToggleMovementPreference('${expertDataEscape(item.id)}','preferred')">${isPreferred ? 'Tercih edildi' : 'Tercih et'}</button><button type="button" class="expert-movement-button avoid ${isAvoided ? 'active' : ''}" onclick="expertDataToggleMovementPreference('${expertDataEscape(item.id)}','avoid')">${isAvoided ? 'Önerme' : 'Önerme'}</button></div>`; }).join('')}</div></details>`).join('');
-  return `<section class="expert-data-card" style="margin-top:18px"><div class="expert-data-cardhead"><div><h3>Hareket Tercihlerim</h3><p>Tüm kas gruplarındaki hareketler burada yer alır. Tercih ettiklerin güvenlik kurallarından sonra önce gelir; “Önerme” seçtiklerin yeni uzman taslağına hiç eklenmez.</p></div><span class="expert-data-badge">İsteğe bağlı</span></div><div class="expert-movement-toolbar"><input id="expertDataMovementSearch" class="expert-movement-search" type="search" placeholder="Hareket veya kas grubu ara" oninput="expertDataFilterMovementPreferences()"><span class="expert-data-badge">${preferred.size} tercih · ${avoided.size} önerilmesin</span></div>${body || '<div class="expert-data-empty">Aramaya uygun hareket bulunamadı.</div>'}<div class="expert-data-actions"><button class="btn btn-primary" type="button" onclick="expertDataSaveMovementPreferences()">Hareket Tercihlerini Kaydet</button><button class="btn btn-secondary" type="button" onclick="expertDataClearMovementPreferences()">Hareket Seçimlerini Temizle</button></div><div class="expert-data-note"><strong>Not:</strong> Bu seçimler mevcut öneri programını değiştirmez. Yalnız “Öneri Programı Oluştur” veya “Taslağı Yenile” işleminden sonra yeni taslağa uygulanır.</div></section>`;
+  const body = expertDataRenderMovementGroups(groups, preferred, avoided);
+  return `<section class="expert-data-card" style="margin-top:18px">
+    <div class="expert-data-cardhead">
+      <div>
+        <h3>Hareket Tercihlerim</h3>
+        <p>Tüm kas gruplarındaki hareketler burada yer alır. Tercih ettiklerin güvenlik kurallarından sonra önce gelir; “Önerme” seçtiklerin yeni uzman taslağına hiç eklenmez.</p>
+      </div>
+      <span class="expert-data-badge">İsteğe bağlı</span>
+    </div>
+    <div class="expert-movement-toolbar">
+      <input id="expertDataMovementSearch" class="expert-movement-search" type="search" placeholder="Hareket veya kas grubu ara" oninput="expertDataFilterMovementPreferences()">
+      <span id="expertDataMovementCountBadge" class="expert-data-badge">${preferred.size} tercih · ${avoided.size} önerilmesin</span>
+    </div>
+    ${body || '<div class="expert-data-empty">Aramaya uygun hareket bulunamadı.</div>'}
+    <div class="expert-data-actions">
+      <button class="btn btn-primary" type="button" onclick="expertDataSaveMovementPreferences()">Hareket Tercihlerini Kaydet</button>
+      <button class="btn btn-secondary" type="button" onclick="expertDataClearMovementPreferences()">Hareket Seçimlerini Temizle</button>
+    </div>
+    <div class="expert-data-note"><strong>Not:</strong> Bu seçimler mevcut öneri programını değiştirmez. Yalnız “Öneri Programı Oluştur” veya “Taslağı Yenile” işleminden sonra yeni taslağa uygulanır.</div>
+  </section>`;
 }
 
 // HX_MODULAR_EXPERT_RPE_V1
@@ -8081,27 +9502,27 @@ function expertDataRecommendationDayCard(day, index) {
     const alternatives = expertDataAlternativeState?.[exerciseId];
     const alternativeView = Array.isArray(alternatives) ? `<div class="expert-alternative-menu" role="menu"><div class="expert-alternative-menu-head"><span>Uygun alternatifler</span><button class="expert-alternative-close" type="button" title="Listeyi kapat" onclick="expertDataCloseAlternativeMenus()">×</button></div>${alternatives.length ? `<div class="expert-alternative-options">${alternatives.map(alt => `<button class="expert-alternative-item" type="button" onclick="expertDataReplaceRecommendedExercise(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}', '${expertDataEscape(alt.id)}')"><span class="expert-alternative-item-main"><span class="expert-alternative-item-name">${expertDataEscape(alt.name)}${alt.is_preferred ? ' · tercih edilen' : ''}</span><small class="expert-alternative-item-meta">${expertDataEscape((alt.primary_muscle_labels || []).join(' · '))}</small></span><span class="expert-alternative-apply">Programda değiştir</span></button>`).join('')}</div>` : '<div class="expert-alternative-empty">Mevcut ekipman ve kurallara uygun alternatif bulunamadı.</div>'}</div>` : '';
 
-    return `<div class="expert-recommendation-exercise expert-alternative-shell" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 10px 14px; transition: border-color 0.2s ease;" onmouseover="this.style.borderColor='rgba(108,99,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+    return `<div class="expert-recommendation-exercise expert-alternative-shell" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 10px 14px; transition: all 0.25s cubic-bezier(0.16,1,0.3,1);" onmouseover="this.style.borderColor='rgba(108,99,255,0.45)'; this.style.background='rgba(108,99,255,0.04)'; this.style.transform='translateX(3px)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'; this.style.background='rgba(255,255,255,0.02)'; this.style.transform='translateX(0)';">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
         <div style="display:flex; align-items:center; gap: 10px;">
-          <span class="ex-drag-handle" title="Önceliği değiştirmek için sürükle" style="cursor:grab; color:rgba(255,255,255,0.15); transition:0.2s; display:flex; align-items:center;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.15)'">
+          <span class="ex-drag-handle" title="Önceliği değiştirmek için sürükle" style="cursor:grab; color:rgba(255,255,255,0.15); transition:all 0.2s ease; display:flex; align-items:center;" onmouseover="this.style.color='var(--accent)'; this.style.transform='scale(1.2)';" onmouseout="this.style.color='rgba(255,255,255,0.15)'; this.style.transform='none';">
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
           </span>
           <span style="font-size: 13px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.3px;">${expertDataEscape(item.name)}</span>
         </div>
         <div style="display:flex; align-items:center; gap: 6px;">
-          <strong style="font-size: 12px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); cursor:pointer; display:flex; align-items:center; gap:5px; transition:0.2s;" onmouseover="this.style.background='rgba(108,99,255,0.2)';" onmouseout="this.style.background='rgba(0,0,0,0.3)';" onclick="expertDataEditExerciseSetsReps(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')" title="Set ve Tekrarı Düzenle">
+          <strong style="font-size: 12px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); cursor:pointer; display:flex; align-items:center; gap:5px; transition:all 0.22s cubic-bezier(0.16,1,0.3,1);" onmouseover="this.style.background='rgba(108,99,255,0.25)'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 14px rgba(108,99,255,0.4)';" onmouseout="this.style.background='rgba(0,0,0,0.3)'; this.style.transform='none'; this.style.boxShadow='none';" onclick="expertDataEditExerciseSetsReps(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')" title="Set ve Tekrarı Düzenle">
             ${expertDataEscape(item.sets)} × ${expertDataEscape(item.reps)}
             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" style="opacity:0.6;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
           </strong>
           
           <!-- YENİLE BUTONU -->
-          <button class="expert-alternative-open" type="button" title="Uygun alternatifleri göster" onclick="expertDataLoadAlternatives('${expertDataEscape(exerciseId)}', ${occupiedArgument})" style="display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:6px; background:var(--accent-bg); color:var(--accent); border:1px solid transparent; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='var(--accent)'; this.style.color='#fff';" onmouseout="this.style.background='var(--accent-bg)'; this.style.color='var(--accent)';">
+          <button class="expert-alternative-open" type="button" title="Uygun alternatifleri göster" onclick="expertDataLoadAlternatives('${expertDataEscape(exerciseId)}', ${occupiedArgument})" style="display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:6px; background:var(--accent-bg); color:var(--accent); border:1px solid transparent; cursor:pointer; transition:all 0.25s cubic-bezier(0.16,1,0.3,1);" onmouseover="this.style.background='var(--accent)'; this.style.color='#fff'; this.style.transform='rotate(45deg) scale(1.1)';" onmouseout="this.style.background='var(--accent-bg)'; this.style.color='var(--accent)'; this.style.transform='none';">
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
           </button>
           
           <!-- SİL BUTONU -->
-          <button type="button" title="Hareketi Çıkar" onclick="expertDataRemoveRecommendedExercise(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')" style="display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:6px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid transparent; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='#fff';" onmouseout="this.style.background='rgba(239,68,68,0.1)'; this.style.color='#ef4444';">
+          <button type="button" title="Hareketi Çıkar" onclick="expertDataRemoveRecommendedExercise(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')" style="display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:6px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid transparent; cursor:pointer; transition:all 0.22s cubic-bezier(0.16,1,0.3,1);" onmouseover="this.style.background='#ef4444'; this.style.color='#fff'; this.style.transform='scale(1.12)'; this.style.boxShadow='0 0 12px rgba(239,68,68,0.4)';" onmouseout="this.style.background='rgba(239,68,68,0.1)'; this.style.color='#ef4444'; this.style.transform='none'; this.style.boxShadow='none';">
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
@@ -8115,7 +9536,7 @@ function expertDataRecommendationDayCard(day, index) {
   // YENİ EKLE BUTONU (Dinlenme günü değilse en alta eklenir)
   const addBtnHtml = !rest ? `
     <div style="margin-top: 10px;">
-      <button type="button" onclick="expertDataAddRecommendedExercise(${weekIndex}, '${expertDataEscape(slotId)}')" style="width: 100%; background: transparent; border: 1px dashed rgba(255,255,255,0.15); color: var(--text-muted); padding: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 12px; font-weight: 600; display:flex; align-items:center; justify-content:center; gap:6px;" onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='var(--text-muted)';">
+      <button type="button" onclick="expertDataAddRecommendedExercise(${weekIndex}, '${expertDataEscape(slotId)}')" style="width: 100%; background: transparent; border: 1px dashed rgba(255,255,255,0.15); color: var(--text-muted); padding: 8px; border-radius: 8px; cursor: pointer; transition: all 0.25s cubic-bezier(0.16,1,0.3,1); font-size: 12px; font-weight: 600; display:flex; align-items:center; justify-content:center; gap:6px;" onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'; this.style.background='rgba(108,99,255,0.05)'; this.style.transform='translateY(-1px)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='var(--text-muted)'; this.style.background='transparent'; this.style.transform='none';">
         <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
         Uzman Sistemden Yeni Hareket Ekle
       </button>
@@ -8130,9 +9551,9 @@ function expertDataRecommendationDayCard(day, index) {
   const badgeHtml = rest ? `<span style="font-size:10px; font-weight:700; color:#9ca3b4; background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:6px; text-transform:uppercase;">Dinlenme</span>` : `<span style="font-size:10px; font-weight:700; color:var(--accent); background:var(--accent-bg); padding:4px 10px; border-radius:6px; text-transform:uppercase; border:1px solid rgba(108,99,255,0.2);">Seans</span>`;
 
   return `
-    <article data-index="${index}" class="expert-data-history-item" style="margin:0 0 12px 0; padding:18px; background:${bgColor}; border:1px solid ${borderColor}; border-left:4px solid ${themeColor}; border-radius:12px; transition:transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+    <article data-index="${index}" class="expert-data-history-item expert-day-card" style="margin:0 0 12px 0; padding:18px; background:${bgColor}; border:1px solid ${borderColor}; border-left:4px solid ${themeColor}; border-radius:12px; transition:all 0.28s cubic-bezier(0.16,1,0.3,1);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 28px rgba(0,0,0,0.24), 0 0 20px rgba(108,99,255,0.12)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
       <div style="display:flex; align-items:start; gap:14px;">
-        <div class="expert-recommendation-drag" title="Seans içeriğini başka güne taşı" style="cursor:grab; color:rgba(255,255,255,0.15); padding-top:2px; transition:color 0.2s;" onmouseover="this.style.color='${themeColor}'" onmouseout="this.style.color='rgba(255,255,255,0.15)'">
+        <div class="expert-recommendation-drag" title="Seans içeriğini başka güne taşı" style="cursor:grab; color:rgba(255,255,255,0.15); padding-top:2px; transition:all 0.22s cubic-bezier(0.16,1,0.3,1);" onmouseover="this.style.color='${themeColor}'; this.style.transform='scale(1.15)';" onmouseout="this.style.color='rgba(255,255,255,0.15)'; this.style.transform='none';">
           <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
         </div>
         <div style="min-width:0; flex:1;">
@@ -8455,16 +9876,55 @@ function expertDataSplitDraftPane() {
   return view;
 }
 
-function renderExpertSystem() {
+function _renderExpertSystemCore(animate = true) {
   const content = document.getElementById('analyzeContent');
   if (!content || !expertDataState) return;
   expertDataInjectStyles();
-  content.innerHTML = `<div class="expert-data-shell"><header class="expert-data-hero"><span class="expert-data-eyebrow">Uzman Sistemi · Veri ve Karar Merkezi</span><h2>Verini kaydet, kuralın nedenini gör.</h2><p>DOMS, hedef kaslar, sakatlık/kısıt, ekipman ve set bazlı RPE özeti modüler kurallarla değerlendirilir. Sistem mevcut programı otomatik değiştirmez; Split ve Analiz sekmelerinde açıklanabilir taslak yönlendirmesi sunar.</p></header>${expertDataTabs()}<div class="expert-data-stage" key="${expertDataTab}-${expertDataHealthTab}-${expertDataSetupTab}-${expertDataPlanningTab}">${expertDataPane()}</div></div>`;
+
+  const shell = content.querySelector('.expert-data-shell');
+  const stageKey = `${expertDataTab}-${expertDataHealthTab}-${expertDataSetupTab}-${expertDataPlanningTab}`;
+
+  if (shell) {
+    const tabsContainer = shell.querySelector('.expert-data-tabs');
+    if (tabsContainer) {
+      tabsContainer.outerHTML = expertDataTabs();
+    }
+    const stageContainer = shell.querySelector('.expert-data-stage');
+    if (stageContainer) {
+      if (animate) {
+        stageContainer.className = 'expert-data-stage';
+        void stageContainer.offsetWidth;
+        stageContainer.className = 'expert-data-stage expert-data-stage-animated';
+      } else {
+        stageContainer.className = 'expert-data-stage';
+      }
+      stageContainer.setAttribute('key', stageKey);
+      stageContainer.innerHTML = expertDataPane();
+      return;
+    }
+  }
+
+  const stageClass = animate ? 'expert-data-stage expert-data-stage-animated' : 'expert-data-stage';
+  content.innerHTML = `<div class="expert-data-shell"><header class="expert-data-hero"><span class="expert-data-eyebrow">Uzman Sistemi · Veri ve Karar Merkezi</span><h2>Verini kaydet, kuralın nedenini gör.</h2><p>DOMS, hedef kaslar, sakatlık/kısıt, ekipman ve set bazlı RPE özeti modüler kurallarla değerlendirilir. Sistem mevcut programı otomatik değiştirmez; Split ve Analiz sekmelerinde açıklanabilir taslak yönlendirmesi sunar.</p><div style="margin-top:16px; padding:12px; background:rgba(108,99,255,0.05); border:1px solid rgba(108,99,255,0.2); border-radius:10px; display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--text-secondary);"><strong style="color:var(--text-primary); width:100%;">Planlama Hiyerarşisi:</strong><span style="flex:1 1 200px;"><strong>1. Hareket Tercihi:</strong> Seçilen hareketler taslakta kesin öncelik kazanır.</span><span style="flex:1 1 200px;"><strong>2. Ekipman Tercihi:</strong> Boş bırakılmadıysa varsayılan salonun imkânlarını ezer.</span><span style="flex:1 1 200px;"><strong>3. Varsayılan Salon:</strong> Herhangi bir özel tercih girilmediğinde temel (fallback) ekipman listesi olarak baz alınır.</span></div></header>${expertDataTabs()}<div class="${stageClass}" key="${stageKey}">${expertDataPane()}</div></div>`;
 }
+
+function renderExpertSystem(animate = true) {
+  return _renderExpertSystemCore(animate);
+}
+window.renderExpertSystem = renderExpertSystem;
 
 async function loadExpertSystem() {
   const content = document.getElementById('analyzeContent');
-  if (content) content.innerHTML = `<div class="card" style="padding:28px;text-align:center;color:var(--text-muted)">Uzman sistemi veri merkezi yükleniyor…</div>`;
+  if (content) {
+    content.innerHTML = `
+      <div class="card expert-loading-card" style="padding:48px 24px; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; border:1px solid rgba(108,99,255,0.25); background:linear-gradient(135deg, rgba(108,99,255,0.06), rgba(20,24,38,0.7)); border-radius:18px; box-shadow:0 12px 32px rgba(0,0,0,0.25); animation:expertHeroFloat 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;">
+        <div class="expert-loading-spinner"></div>
+        <div>
+          <div style="font-weight:700; font-size:15px; color:var(--text-primary); letter-spacing:0.02em;">Uzman Sistemi Yükleniyor</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Veri ve kural analiz motoru hazırlanıyor…</div>
+        </div>
+      </div>`;
+  }
   try {
     expertDataState = await apiGet('/api/expert-data');
     const target = expertDataState.target_muscles || {};
@@ -8474,9 +9934,9 @@ async function loadExpertSystem() {
     expertDataMovementDraft = { preferred_exercise_ids: [...(expertDataState.preferred_exercise_ids || [])], avoid_exercise_ids: [...(expertDataState.avoid_exercise_ids || [])] };
     expertDataAlternativeState = {};
     expertDataInjuryDraft = null;
-    renderExpertSystem();
+    renderExpertSystem(true);
   } catch (error) {
-    if (content) content.innerHTML = `<div class="card" style="padding:22px;color:var(--red)">Uzman sistemi verileri yüklenemedi: ${expertDataEscape(error.message)}</div>`;
+    if (content) content.innerHTML = `<div class="card" style="padding:24px; color:var(--red); border:1px solid rgba(239,71,111,0.3); border-radius:16px; text-align:center;">Uzman sistemi verileri yüklenemedi: ${expertDataEscape(error.message)}</div>`;
   }
 }
 
@@ -8496,7 +9956,7 @@ window.expertDataSwitchTab = function(tab) {
     return;
   }
 
-  renderExpertSystem();
+  renderExpertSystem(true);
   if (expertDataTab === 'planning') expertDataLoadAnalysis();
 };
 
@@ -8504,34 +9964,106 @@ window.expertDataSwitchHealthTab = function(tab) {
   if (!['doms', 'injuries'].includes(tab)) return;
   expertDataTab = 'health';
   expertDataHealthTab = tab;
-  renderExpertSystem();
+  renderExpertSystem(true);
 };
 window.expertDataSwitchSetupTab = function(tab) {
   if (!['goals', 'gyms', 'equipment-preferences'].includes(tab)) return;
   expertDataTab = 'setup';
   expertDataSetupTab = tab;
-  renderExpertSystem();
+  renderExpertSystem(true);
 };
 // HX_EXPERT_ANALYSIS_TAB_LOADING_FIX_V1
 window.expertDataSwitchPlanningTab = function(tab) {
   if (!['split', 'analysis'].includes(tab)) return;
   expertDataTab = 'planning';
   expertDataPlanningTab = tab;
-  renderExpertSystem();
+  renderExpertSystem(true);
   expertDataLoadAnalysis();
 };
 
-window.expertDataRangeChange = function(kind, value) { const id = kind === 'doms' ? 'expertDataDomsScore' : 'expertDataInjuryScore'; const label = document.getElementById(id); if (label) label.textContent = `${Number(value)}/5`; };
-window.expertDataTogglePriority = function(muscle) { const items = expertDataGoalDraft.priority_muscles; if (items.includes(muscle)) expertDataGoalDraft.priority_muscles = items.filter(item => item !== muscle); else if (items.length >= 3) { toast('En fazla 3 hedef kas seçebilirsiniz.', 'error'); return; } else expertDataGoalDraft.priority_muscles = [...items, muscle]; renderExpertSystem(); };
-window.expertDataClearGoalDraft = function() { expertDataGoalDraft = { primary_goal: expertDataProfileGoal(), priority_muscles: [], priority_note: '' }; renderExpertSystem(); };
-window.expertDataSaveGoals = async function() { const note = document.getElementById('expertDataGoalNote')?.value || ''; if (!expertDataGoalDraft.priority_muscles.length) { toast('En az bir öncelikli kas seçin.', 'error'); return; } try { expertDataGoalDraft.primary_goal = expertDataProfileGoal(); expertDataState = await apiPut('/api/expert-data/goals', { ...expertDataGoalDraft, priority_note: note }); expertDataGoalDraft.priority_note = note; toast('Hedeflerin kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataRangeChange = function(kind, value, inputEl) {
+  const level = Math.max(0, Math.min(5, Number(value) || 0));
+  const id = kind === 'doms' ? 'expertDataDomsScore' : 'expertDataInjuryScore';
+  const label = document.getElementById(id);
+  const input = inputEl || (kind === 'doms' ? document.getElementById('expertDataDomsSeverity') : document.getElementById('expertDataInjurySeverity'));
+  if (label) {
+    label.textContent = `${level}/5`;
+    const scoreColor = level >= 4 ? '#ef476f' : level >= 2 ? '#ffb703' : level > 0 ? '#38bdf8' : 'var(--accent-light)';
+    const scoreBorder = level > 0 ? scoreColor : 'rgba(108,99,255,.2)';
+    const scoreGlow = level >= 4 ? '0 0 12px rgba(239,71,111,0.35)' : level >= 2 ? '0 0 12px rgba(255,183,3,0.35)' : level > 0 ? '0 0 10px rgba(56,189,248,0.3)' : '0 0 8px rgba(108,99,255,0.15)';
+    label.style.color = scoreColor;
+    label.style.borderColor = scoreBorder;
+    label.style.boxShadow = scoreGlow;
+    label.classList.remove('expert-score-pop');
+    void label.offsetWidth;
+    label.classList.add('expert-score-pop');
+  }
+  if (input) {
+    const pct = (level / 5) * 100;
+    const trackColor = level >= 4 ? '#ef476f' : level >= 2 ? '#ffb703' : level > 0 ? '#38bdf8' : 'var(--accent)';
+    input.style.background = `linear-gradient(to right, ${trackColor} 0%, ${trackColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%)`;
+  }
+};
+
+window.expertDataTogglePriority = function(muscle) {
+  const items = expertDataGoalDraft.priority_muscles;
+  if (items.includes(muscle)) {
+    expertDataGoalDraft.priority_muscles = items.filter(item => item !== muscle);
+  } else if (items.length >= 3) {
+    toast('En fazla 3 hedef kas seçebilirsiniz.', 'error');
+    return;
+  } else {
+    expertDataGoalDraft.priority_muscles = [...items, muscle];
+  }
+  renderExpertSystem(false);
+};
+
+window.expertDataClearGoalDraft = function() {
+  expertDataGoalDraft = { primary_goal: expertDataProfileGoal(), priority_muscles: [], priority_note: '' };
+  renderExpertSystem(false);
+};
+
+window.expertDataSaveGoals = async function() {
+  const note = document.getElementById('expertDataGoalNote')?.value || '';
+  if (!expertDataGoalDraft.priority_muscles.length) {
+    toast('En az bir öncelikli kas seçin.', 'error');
+    return;
+  }
+  try {
+    expertDataGoalDraft.primary_goal = expertDataProfileGoal();
+    expertDataState = await apiPut('/api/expert-data/goals', { ...expertDataGoalDraft, priority_note: note });
+    expertDataGoalDraft.priority_note = note;
+    toast('Hedeflerin kaydedildi.', 'success');
+    renderExpertSystem(false);
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+};
+
 window.expertDataDomsGridRangeChange = function(muscleId, value, input) {
   const level = Math.max(0, Math.min(5, Number(value) || 0));
   const safeId = String(muscleId).replace(/[^a-zA-Z0-9_-]/g, '');
   const score = document.getElementById(`expertDataDomsScore_${safeId}`);
-  if (score) score.textContent = `${level}/5`;
-  if (input) input.setAttribute('aria-valuetext', `${level}/5`);
+  if (score) {
+    score.textContent = `${level}/5`;
+    const scoreColor = level >= 4 ? '#ef476f' : level >= 2 ? '#ffb703' : level > 0 ? '#38bdf8' : 'var(--accent-light)';
+    const scoreBorder = level > 0 ? scoreColor : 'rgba(108,99,255,.2)';
+    const scoreGlow = level >= 4 ? '0 0 12px rgba(239,71,111,0.35)' : level >= 2 ? '0 0 12px rgba(255,183,3,0.35)' : level > 0 ? '0 0 10px rgba(56,189,248,0.3)' : '0 0 8px rgba(108,99,255,0.15)';
+    score.style.color = scoreColor;
+    score.style.borderColor = scoreBorder;
+    score.style.boxShadow = scoreGlow;
+    score.classList.remove('expert-score-pop');
+    void score.offsetWidth;
+    score.classList.add('expert-score-pop');
+  }
+  if (input) {
+    input.setAttribute('aria-valuetext', `${level}/5`);
+    const pct = (level / 5) * 100;
+    const trackColor = level >= 4 ? '#ef476f' : level >= 2 ? '#ffb703' : level > 0 ? '#38bdf8' : 'var(--accent)';
+    input.style.background = `linear-gradient(to right, ${trackColor} 0%, ${trackColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%)`;
+  }
 };
+
 if (!window.__expertDataDomsSliderBound) {
   document.addEventListener('input', (event) => {
     const input = event.target;
@@ -8541,10 +10073,30 @@ if (!window.__expertDataDomsSliderBound) {
   });
   window.__expertDataDomsSliderBound = true;
 }
-window.expertDataDomsEditRangeChange = function(value) {
+
+window.expertDataDomsEditRangeChange = function(value, inputEl) {
+  const level = Math.max(0, Math.min(5, Number(value) || 0));
   const score = document.getElementById('expertDataDomsEditScore');
-  if (score) score.textContent = `${Number(value)}/5`;
+  const input = inputEl || document.getElementById('expertDataDomsEditSeverity');
+  if (score) {
+    score.textContent = `${level}/5`;
+    const scoreColor = level >= 4 ? '#ef476f' : level >= 2 ? '#ffb703' : level > 0 ? '#38bdf8' : 'var(--accent-light)';
+    const scoreBorder = level > 0 ? scoreColor : 'rgba(108,99,255,.2)';
+    const scoreGlow = level >= 4 ? '0 0 12px rgba(239,71,111,0.35)' : level >= 2 ? '0 0 12px rgba(255,183,3,0.35)' : level > 0 ? '0 0 10px rgba(56,189,248,0.3)' : '0 0 8px rgba(108,99,255,0.15)';
+    score.style.color = scoreColor;
+    score.style.borderColor = scoreBorder;
+    score.style.boxShadow = scoreGlow;
+    score.classList.remove('expert-score-pop');
+    void score.offsetWidth;
+    score.classList.add('expert-score-pop');
+  }
+  if (input) {
+    const pct = (level / 5) * 100;
+    const trackColor = level >= 4 ? '#ef476f' : level >= 2 ? '#ffb703' : level > 0 ? '#38bdf8' : 'var(--accent)';
+    input.style.background = `linear-gradient(to right, ${trackColor} 0%, ${trackColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%)`;
+  }
 };
+
 window.expertDataSaveDomsGrid = async function() {
   const existing = new Map(expertDataDomsTodayEntries().map(entry => [entry.muscle_group, entry]));
   const values = [...document.querySelectorAll('.expertDataDomsMuscleInput')].map(input => ({
@@ -8562,11 +10114,12 @@ window.expertDataSaveDomsGrid = async function() {
       expertDataState = await apiPut('/api/expert-data/doms', item);
     }
     toast('Bugünkü kas ağrısı kayıtları güncellendi.', 'success');
-    renderExpertSystem();
+    renderExpertSystem(false);
   } catch (error) {
     toast(error.message, 'error');
   }
 };
+
 window.expertDataEditDoms = function(reportDate, muscleGroup) {
   const entries = expertDataState?.doms_daily?.[reportDate] || [];
   const item = entries.find(entry => entry?.muscle_group === muscleGroup);
@@ -8575,12 +10128,14 @@ window.expertDataEditDoms = function(reportDate, muscleGroup) {
     return;
   }
   expertDataDomsEditDraft = { ...item, report_date: reportDate };
-  renderExpertSystem();
+  renderExpertSystem(true);
 };
+
 window.expertDataCancelDomsEdit = function() {
   expertDataDomsEditDraft = null;
-  renderExpertSystem();
+  renderExpertSystem(true);
 };
+
 window.expertDataSaveDomsEdit = async function() {
   const draft = expertDataDomsEditDraft;
   if (!draft) return;
@@ -8592,51 +10147,317 @@ window.expertDataSaveDomsEdit = async function() {
     expertDataState = await apiPut(`/api/expert-data/doms/${encodeURIComponent(draft.report_date)}/${encodeURIComponent(draft.muscle_group)}`, payload);
     expertDataDomsEditDraft = null;
     toast('Kas ağrısı kaydı güncellendi.', 'success');
-    renderExpertSystem();
+    renderExpertSystem(false);
   } catch (error) {
     toast(error.message, 'error');
   }
 };
+
 window.expertDataDeleteDoms = async function(reportDate, muscleGroup) {
   if (!window.confirm(`${expertDataMuscleLabel(muscleGroup)} kas ağrısı kaydı silinsin mi?`)) return;
   try {
     expertDataState = await apiDelete(`/api/expert-data/doms/${encodeURIComponent(reportDate)}/${encodeURIComponent(muscleGroup)}`);
     if (expertDataDomsEditDraft?.report_date === reportDate && expertDataDomsEditDraft?.muscle_group === muscleGroup) expertDataDomsEditDraft = null;
     toast('Kas ağrısı kaydı silindi.', 'success');
-    renderExpertSystem();
+    renderExpertSystem(false);
   } catch (error) {
     toast(error.message, 'error');
   }
 };
-window.expertDataSaveInjury = async function() { const draft = expertDataInjuryDraft || {}; const payload = { area: document.getElementById('expertDataInjuryArea')?.value, injury_type: document.getElementById('expertDataInjuryType')?.value, severity: Number(document.getElementById('expertDataInjurySeverity')?.value || 0), is_active: Boolean(document.getElementById('expertDataInjuryActive')?.checked), notes: document.getElementById('expertDataInjuryNotes')?.value || '' }; try { expertDataState = draft.id ? await apiPut(`/api/expert-data/injuries/${draft.id}`, payload) : await apiPost('/api/expert-data/injuries', payload); expertDataInjuryDraft = null; toast('Sakatlık kaydı kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataEditInjury = function(id) { const item = (expertDataState?.injuries || []).find(value => value.id === id); if (item) { expertDataInjuryDraft = { ...item }; renderExpertSystem(); } };
-window.expertDataCancelInjuryEdit = function() { expertDataInjuryDraft = null; renderExpertSystem(); };
-window.expertDataResolveInjury = async function(id) { const item = (expertDataState?.injuries || []).find(value => value.id === id); if (!item) return; const payload = { area: item.area, injury_type: item.injury_type, severity: Number(item.severity || 0), is_active: false, notes: item.notes || '' }; try { expertDataState = await apiPut(`/api/expert-data/injuries/${id}`, payload); toast('Sakatlık kaydı pasife alındı.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataDeleteInjury = async function(id) { if (!window.confirm('Bu sakatlık kaydı silinsin mi?')) return; try { expertDataState = await apiDelete(`/api/expert-data/injuries/${id}`); toast('Sakatlık kaydı silindi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataToggleMovementPreference = function(id, mode) {
+
+window.expertDataSaveInjury = async function() {
+  const draft = expertDataInjuryDraft || {};
+  const payload = {
+    area: document.getElementById('expertDataInjuryArea')?.value,
+    injury_type: document.getElementById('expertDataInjuryType')?.value,
+    severity: Number(document.getElementById('expertDataInjurySeverity')?.value || 0),
+    is_active: draft.id ? (draft.is_active !== false) : true,
+    notes: document.getElementById('expertDataInjuryNotes')?.value || '',
+  };
+  try {
+    expertDataState = draft.id ? await apiPut(`/api/expert-data/injuries/${draft.id}`, payload) : await apiPost('/api/expert-data/injuries', payload);
+    expertDataInjuryDraft = null;
+    toast(draft.id ? 'Sakatlık kaydı güncellendi.' : 'Sakatlık kaydı eklendi (aktif).', 'success');
+    renderExpertSystem(false);
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+};
+
+window.expertDataEditInjury = function(id) {
+  const item = (expertDataState?.injuries || []).find(value => value.id === id);
+  if (item) {
+    expertDataInjuryDraft = { ...item };
+    renderExpertSystem(true);
+  }
+};
+
+window.expertDataCancelInjuryEdit = function() {
+  expertDataInjuryDraft = null;
+  renderExpertSystem(true);
+};
+
+window.expertDataToggleInjuryActive = async function(id, isActive) {
+  const item = (expertDataState?.injuries || []).find(value => value.id === id);
+  if (!item) return;
+  const payload = {
+    area: item.area,
+    injury_type: item.injury_type,
+    severity: Number(item.severity || 0),
+    is_active: Boolean(isActive),
+    notes: item.notes || '',
+  };
+  try {
+    expertDataState = await apiPut(`/api/expert-data/injuries/${id}`, payload);
+    if (expertDataInjuryDraft?.id === id) {
+      expertDataInjuryDraft.is_active = Boolean(isActive);
+    }
+    toast(isActive ? 'Sakatlık kaydı aktifleştirildi.' : 'Sakatlık kaydı pasife alındı.', 'success');
+    renderExpertSystem(false);
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+};
+
+window.expertDataResolveInjury = async function(id) {
+  return window.expertDataToggleInjuryActive(id, false);
+};
+
+window.expertDataActivateInjury = async function(id) {
+  return window.expertDataToggleInjuryActive(id, true);
+};
+
+window.expertDataDeleteInjury = async function(id) {
+  if (!window.confirm('Bu sakatlık kaydı silinsin mi?')) return;
+  try {
+    expertDataState = await apiDelete(`/api/expert-data/injuries/${id}`);
+    if (expertDataInjuryDraft?.id === id) expertDataInjuryDraft = null;
+    toast('Sakatlık kaydı silindi.', 'success');
+    renderExpertSystem(false);
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+};
+
+window.expertDataToggleMovementPreference = function(id, mode, btnEl) {
   const draft = expertDataMovementDraft || { preferred_exercise_ids: [], avoid_exercise_ids: [] };
   const preferred = new Set(draft.preferred_exercise_ids || []);
   const avoided = new Set(draft.avoid_exercise_ids || []);
-  if (mode === 'preferred') { preferred.has(id) ? preferred.delete(id) : preferred.add(id); avoided.delete(id); }
-  if (mode === 'avoid') { avoided.has(id) ? avoided.delete(id) : avoided.add(id); preferred.delete(id); }
+  if (mode === 'preferred') {
+    if (preferred.has(id)) {
+      preferred.delete(id);
+    } else {
+      preferred.add(id);
+      avoided.delete(id);
+    }
+  }
+  if (mode === 'avoid') {
+    if (avoided.has(id)) {
+      avoided.delete(id);
+    } else {
+      avoided.add(id);
+      preferred.delete(id);
+    }
+  }
   expertDataMovementDraft = { preferred_exercise_ids: [...preferred], avoid_exercise_ids: [...avoided] };
-  renderExpertSystem();
+
+  // DIRECT IN-PLACE DOM UPDATE: No page reload, no DOM wipe, screen never flickers!
+  const isPref = preferred.has(id);
+  const isAv = avoided.has(id);
+
+  const rows = document.querySelectorAll(`.expert-movement-row[data-exercise-id="${CSS.escape(id)}"]`);
+  if (rows.length > 0) {
+    rows.forEach(row => {
+      const prefBtn = row.querySelector('.expert-movement-button:not(.avoid)');
+      const avoidBtn = row.querySelector('.expert-movement-button.avoid');
+      if (prefBtn) {
+        prefBtn.classList.toggle('active', isPref);
+        prefBtn.textContent = isPref ? 'Tercih edildi' : 'Tercih et';
+        if (mode === 'preferred') {
+          prefBtn.classList.remove('expert-btn-pop');
+          void prefBtn.offsetWidth;
+          prefBtn.classList.add('expert-btn-pop');
+        }
+      }
+      if (avoidBtn) {
+        avoidBtn.classList.toggle('active', isAv);
+        if (mode === 'avoid') {
+          avoidBtn.classList.remove('expert-btn-pop');
+          void avoidBtn.offsetWidth;
+          avoidBtn.classList.add('expert-btn-pop');
+        }
+      }
+    });
+  } else if (btnEl) {
+    const row = btnEl.closest('.expert-movement-row');
+    if (row) {
+      const prefBtn = row.querySelector('.expert-movement-button:not(.avoid)');
+      const avoidBtn = row.querySelector('.expert-movement-button.avoid');
+      if (prefBtn) {
+        prefBtn.classList.toggle('active', isPref);
+        prefBtn.textContent = isPref ? 'Tercih edildi' : 'Tercih et';
+      }
+      if (avoidBtn) {
+        avoidBtn.classList.toggle('active', isAv);
+      }
+    }
+  }
+
+  // Update badge counter smoothly
+  const badge = document.getElementById('expertDataMovementCountBadge');
+  if (badge) {
+    badge.textContent = `${preferred.size} tercih · ${avoided.size} önerilmesin`;
+    badge.classList.remove('expert-score-pop');
+    void badge.offsetWidth;
+    badge.classList.add('expert-score-pop');
+  }
 };
+
 window.expertDataFilterMovementPreferences = function() {
   const holder = document.querySelector('#analyzeContent .expert-data-stage');
   const query = document.getElementById('expertDataMovementSearch')?.value || '';
   const movements = Array.isArray(expertDataCatalog().exercise_preferences) ? expertDataCatalog().exercise_preferences : [];
   const preferred = new Set(expertDataMovementDraft?.preferred_exercise_ids || []);
   const avoided = new Set(expertDataMovementDraft?.avoid_exercise_ids || []);
-  const groups = movements.filter(item => !query || `${item.name} ${(item.display_groups || []).join(' ')}`.toLocaleLowerCase('tr-TR').includes(query.toLocaleLowerCase('tr-TR'))).reduce((acc, item) => { const group = (item.display_groups || [item.group || 'Diğer'])[0] || 'Diğer'; (acc[group] ||= []).push(item); return acc; }, {});
+  const groups = movements.filter(item => !query || `${item.name} ${(item.display_groups || []).join(' ')}`.toLocaleLowerCase('tr-TR').includes(query.toLocaleLowerCase('tr-TR'))).reduce((acc, item) => {
+    const group = (item.display_groups || [item.group || 'Diğer'])[0] || 'Diğer';
+    (acc[group] ||= []).push(item);
+    return acc;
+  }, {});
   const target = holder?.querySelector('.expert-movement-toolbar')?.parentElement;
   if (!target) return;
-  const list = Object.entries(groups).map(([group, items]) => `<details class="expert-movement-group" open><summary><strong>${expertDataEscape(group)}</strong><span>${items.length} hareket</span></summary><div class="expert-movement-list">${items.map(item => `<div class="expert-movement-row"><div class="expert-movement-name">${expertDataEscape(item.name)}</div><button type="button" class="expert-movement-button ${preferred.has(item.id) ? 'active' : ''}" onclick="expertDataToggleMovementPreference('${expertDataEscape(item.id)}','preferred')">${preferred.has(item.id) ? 'Tercih edildi' : 'Tercih et'}</button><button type="button" class="expert-movement-button avoid ${avoided.has(item.id) ? 'active' : ''}" onclick="expertDataToggleMovementPreference('${expertDataEscape(item.id)}','avoid')">Önerme</button></div>`).join('')}</div></details>`).join('') || '<div class="expert-data-empty">Aramaya uygun hareket bulunamadı.</div>';
+  const list = expertDataRenderMovementGroups(groups, preferred, avoided) || '<div class="expert-data-empty">Aramaya uygun hareket bulunamadı.</div>';
   target.querySelectorAll('.expert-movement-group, .expert-data-empty').forEach(item => item.remove());
   target.querySelector('.expert-data-actions')?.insertAdjacentHTML('beforebegin', list);
 };
-window.expertDataSaveMovementPreferences = async function() { try { expertDataState = await apiPut('/api/expert-data/movement-preferences', expertDataMovementDraft); expertDataMovementDraft = { preferred_exercise_ids: [...(expertDataState.preferred_exercise_ids || [])], avoid_exercise_ids: [...(expertDataState.avoid_exercise_ids || [])] }; toast('Hareket tercihleri kaydedildi. Mevcut taslak değiştirilmedi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataClearMovementPreferences = function() { expertDataMovementDraft = { preferred_exercise_ids: [], avoid_exercise_ids: [] }; renderExpertSystem(); toast('Taslak hareket seçimleri temizlendi. Kaydettiğinde değişiklik uygulanır.', 'info'); };
+
+window.expertDataSaveMovementPreferences = async function() {
+  try {
+    expertDataState = await apiPut('/api/expert-data/movement-preferences', expertDataMovementDraft);
+    expertDataMovementDraft = { preferred_exercise_ids: [...(expertDataState.preferred_exercise_ids || [])], avoid_exercise_ids: [...(expertDataState.avoid_exercise_ids || [])] };
+    toast('Hareket tercihleri kaydedildi. Mevcut taslak değiştirilmedi.', 'success');
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+};
+
+window.expertDataClearMovementPreferences = function() {
+  expertDataMovementDraft = { preferred_exercise_ids: [], avoid_exercise_ids: [] };
+  document.querySelectorAll('.expert-movement-row').forEach(row => {
+    const prefBtn = row.querySelector('.expert-movement-button:not(.avoid)');
+    const avoidBtn = row.querySelector('.expert-movement-button.avoid');
+    if (prefBtn) {
+      prefBtn.classList.remove('active');
+      prefBtn.textContent = 'Tercih et';
+    }
+    if (avoidBtn) {
+      avoidBtn.classList.remove('active');
+    }
+  });
+  const badge = document.getElementById('expertDataMovementCountBadge');
+  if (badge) {
+    badge.textContent = '0 tercih · 0 önerilmesin';
+    badge.classList.remove('expert-score-pop');
+    void badge.offsetWidth;
+    badge.classList.add('expert-score-pop');
+  }
+  toast('Taslak hareket seçimleri temizlendi. Kaydettiğinde değişiklik uygulanır.', 'info');
+};
+
+// Global smooth accordion click handler with height, opacity, and chevron transitions
+if (!window.__expertMovementAccordionBound) {
+  document.addEventListener('click', (e) => {
+    const summary = e.target.closest('.expert-movement-group summary');
+    if (!summary) return;
+    const details = summary.parentElement;
+    if (!details || details.tagName !== 'DETAILS') return;
+
+    e.preventDefault();
+
+    if (details.dataset.animating === 'true') return;
+
+    const content = details.querySelector('.expert-movement-list');
+    if (!content) {
+      details.open = !details.open;
+      return;
+    }
+
+    if (details.open) {
+      // Smooth Close Animation
+      details.dataset.animating = 'true';
+      const chevron = summary.querySelector('.expert-accordion-chevron');
+      if (chevron) chevron.style.transform = 'rotate(0deg)';
+
+      const startHeight = content.offsetHeight;
+      content.style.overflow = 'hidden';
+      content.style.boxSizing = 'border-box';
+      content.style.height = `${startHeight}px`;
+      content.style.paddingTop = '10px';
+      content.style.paddingBottom = '10px';
+      content.style.opacity = '1';
+      content.style.transform = 'translateY(0)';
+
+      void content.offsetHeight; // force reflow
+
+      content.style.transition = 'height 0.28s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease, padding 0.28s cubic-bezier(0.25, 1, 0.5, 1), transform 0.28s cubic-bezier(0.25, 1, 0.5, 1)';
+      content.style.height = '0px';
+      content.style.paddingTop = '0px';
+      content.style.paddingBottom = '0px';
+      content.style.opacity = '0';
+      content.style.transform = 'translateY(-6px)';
+
+      const finishClose = () => {
+        details.open = false;
+        details.dataset.animating = 'false';
+        content.removeAttribute('style');
+        if (chevron) chevron.removeAttribute('style');
+        content.removeEventListener('transitionend', finishClose);
+      };
+      content.addEventListener('transitionend', finishClose, { once: true });
+      setTimeout(finishClose, 340);
+    } else {
+      // Smooth Open Animation
+      details.open = true;
+      details.dataset.animating = 'true';
+      const chevron = summary.querySelector('.expert-accordion-chevron');
+      if (chevron) chevron.style.transform = 'rotate(180deg)';
+
+      // Measure target height cleanly
+      content.style.overflow = 'hidden';
+      content.style.boxSizing = 'border-box';
+      content.style.height = 'auto';
+      content.style.paddingTop = '10px';
+      content.style.paddingBottom = '10px';
+      const targetHeight = content.offsetHeight;
+
+      // Start from collapsed
+      content.style.height = '0px';
+      content.style.paddingTop = '0px';
+      content.style.paddingBottom = '0px';
+      content.style.opacity = '0';
+      content.style.transform = 'translateY(-6px)';
+
+      void content.offsetHeight; // force reflow
+
+      content.style.transition = 'height 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease, padding 0.32s cubic-bezier(0.16, 1, 0.3, 1), transform 0.32s cubic-bezier(0.16, 1, 0.3, 1)';
+      content.style.height = `${targetHeight}px`;
+      content.style.paddingTop = '10px';
+      content.style.paddingBottom = '10px';
+      content.style.opacity = '1';
+      content.style.transform = 'translateY(0)';
+
+      const finishOpen = () => {
+        details.dataset.animating = 'false';
+        content.removeAttribute('style');
+        if (chevron) chevron.removeAttribute('style');
+        content.removeEventListener('transitionend', finishOpen);
+      };
+      content.addEventListener('transitionend', finishOpen, { once: true });
+      setTimeout(finishOpen, 360);
+    }
+  });
+  window.__expertMovementAccordionBound = true;
+}
 // HX_ALTERNATIVE_REFRESH_FALLBACK_V1
 function expertDataLocalAlternatives(exerciseId, excludedExerciseIds = []) {
   const excluded = new Set((Array.isArray(excludedExerciseIds) ? excludedExerciseIds : []).map(item => String(item || '').trim()).filter(Boolean));
@@ -8783,22 +10604,22 @@ window.expertDataReplaceRecommendedExercise = async function(weekIndex, slotId, 
     // Açık olan alternatifler menüsünü temizle ve arayüzü yenile
     expertDataAlternativeState = {}; 
     toast(newEx.name + ' programa başarıyla uygulandı!', 'success');
-    renderExpertSystem();
+    renderExpertSystem(false);
     
   } catch (error) {
     toast(error.message || 'Hareket değiştirilemedi.', 'error');
   }
 };
 
-window.expertDataSaveGym = async function() { const draft = expertDataGymDraft || {}; const payload = { name: document.getElementById('expertDataGymName')?.value || '', equipment: [...document.querySelectorAll('.expertDataGymEquipment:checked')].map(item => item.value), is_default: Boolean(document.getElementById('expertDataGymDefault')?.checked) }; try { expertDataState = draft.id ? await apiPut(`/api/expert-data/gyms/${draft.id}`, payload) : await apiPost('/api/expert-data/gyms', payload); expertDataGymDraft = null; toast('Salon kaydı kaydedildi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataEditGym = function(id) { const item = (expertDataState?.gyms || []).find(value => value.id === id); if (item) { expertDataGymDraft = { ...item, equipment: [...(item.equipment || [])] }; renderExpertSystem(); } };
-window.expertDataClearGymDraft = function() { const draft = expertDataGymDraft || {}; expertDataGymDraft = draft.id ? { ...draft, name: '', equipment: [] } : { name: '', equipment: [] }; renderExpertSystem(); toast('Salon adı ve ekipman seçimleri temizlendi.', 'info'); };
-window.expertDataCancelGymEdit = function() { expertDataGymDraft = null; renderExpertSystem(); };
-window.expertDataSetDefaultGym = async function(id) { const item = (expertDataState?.gyms || []).find(value => value.id === id); if (!item) return; try { expertDataState = await apiPut(`/api/expert-data/gyms/${id}`, { name: item.name, equipment: item.equipment || [], is_default: true }); toast('Varsayılan salon güncellendi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataSaveEquipmentPreferences = async function() { const payload = { preferred_equipment: [...document.querySelectorAll('.expertDataPreferredEquipment:checked')].map(item => item.value) }; try { expertDataState = await apiPut('/api/expert-data/equipment-preferences', payload); expertDataEquipmentDraft = [...(expertDataState.preferred_equipment || [])]; toast('Ekipman tercihleri kaydedildi. Mevcut taslak değiştirilmedi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataClearEquipmentPreferences = function() { expertDataEquipmentDraft = []; renderExpertSystem(); toast('Taslak seçim temizlendi; kaydettiğinde varsayılan salon fallback kullanılır.', 'info'); };
-window.expertDataDeleteGym = async function(id) { if (!window.confirm('Bu salon kaydı silinsin mi?')) return; try { expertDataState = await apiDelete(`/api/expert-data/gyms/${id}`); toast('Salon kaydı silindi.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
-window.expertDataResetLegacy = async function() { const confirmed = window.prompt('Yalnızca bu hesaba ait uzman sistemi verilerini sıfırlamak için tam olarak şunu yazın:\nUZMAN VERİLERİNİ SIFIRLA'); if (confirmed === null) return; try { expertDataState = await apiPost('/api/expert-data/reset-legacy', { confirmation: confirmed }); expertDataGoalDraft = { primary_goal: '', priority_muscles: [], priority_note: '' }; expertDataGymDraft = null; expertDataInjuryDraft = null; expertDataDomsEditDraft = null; expertDataTab = 'health'; expertDataHealthTab = 'doms'; toast('Uzman sistemi verileri sıfırlandı. Diğer platform verileri korunmuştur.', 'success'); renderExpertSystem(); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataSaveGym = async function() { const draft = expertDataGymDraft || {}; const payload = { name: document.getElementById('expertDataGymName')?.value || '', equipment: [...document.querySelectorAll('.expertDataGymEquipment:checked')].map(item => item.value), is_default: Boolean(document.getElementById('expertDataGymDefault')?.checked) }; try { expertDataState = draft.id ? await apiPut(`/api/expert-data/gyms/${draft.id}`, payload) : await apiPost('/api/expert-data/gyms', payload); expertDataGymDraft = null; toast('Salon kaydı kaydedildi.', 'success'); renderExpertSystem(false); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataEditGym = function(id) { const item = (expertDataState?.gyms || []).find(value => value.id === id); if (item) { expertDataGymDraft = { ...item, equipment: [...(item.equipment || [])] }; renderExpertSystem(true); } };
+window.expertDataClearGymDraft = function() { const draft = expertDataGymDraft || {}; expertDataGymDraft = draft.id ? { ...draft, name: '', equipment: [] } : { name: '', equipment: [] }; renderExpertSystem(false); toast('Salon adı ve ekipman seçimleri temizlendi.', 'info'); };
+window.expertDataCancelGymEdit = function() { expertDataGymDraft = null; renderExpertSystem(true); };
+window.expertDataSetDefaultGym = async function(id) { const item = (expertDataState?.gyms || []).find(value => value.id === id); if (!item) return; try { expertDataState = await apiPut(`/api/expert-data/gyms/${id}`, { name: item.name, equipment: item.equipment || [], is_default: true }); toast('Varsayılan salon güncellendi.', 'success'); renderExpertSystem(false); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataSaveEquipmentPreferences = async function() { const payload = { preferred_equipment: [...document.querySelectorAll('.expertDataPreferredEquipment:checked')].map(item => item.value) }; try { expertDataState = await apiPut('/api/expert-data/equipment-preferences', payload); expertDataEquipmentDraft = [...(expertDataState.preferred_equipment || [])]; toast('Ekipman tercihleri kaydedildi. Mevcut taslak değiştirilmedi.', 'success'); renderExpertSystem(false); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataClearEquipmentPreferences = function() { expertDataEquipmentDraft = []; renderExpertSystem(false); toast('Taslak seçim temizlendi; kaydettiğinde varsayılan salon fallback kullanılır.', 'info'); };
+window.expertDataDeleteGym = async function(id) { if (!window.confirm('Bu salon kaydı silinsin mi?')) return; try { expertDataState = await apiDelete(`/api/expert-data/gyms/${id}`); toast('Salon kaydı silindi.', 'success'); renderExpertSystem(false); } catch (error) { toast(error.message, 'error'); } };
+window.expertDataResetLegacy = async function() { const confirmed = window.prompt('Yalnızca bu hesaba ait uzman sistemi verilerini sıfırlamak için tam olarak şunu yazın:\nUZMAN VERİLERİNİ SIFIRLA'); if (confirmed === null) return; try { expertDataState = await apiPost('/api/expert-data/reset-legacy', { confirmation: confirmed }); expertDataGoalDraft = { primary_goal: '', priority_muscles: [], priority_note: '' }; expertDataGymDraft = null; expertDataInjuryDraft = null; expertDataDomsEditDraft = null; expertDataTab = 'health'; expertDataHealthTab = 'doms'; toast('Uzman sistemi verileri sıfırlandı. Diğer platform verileri korunmuştur.', 'success'); renderExpertSystem(true); } catch (error) { toast(error.message, 'error'); } };
 
 // HX_EXPERT_FIXED_WEEK_SLOTS_V1
 // Önceki geliştirme aşamasından kalan geri dönüş kaldırıldı: Dashboard artık gerçek
