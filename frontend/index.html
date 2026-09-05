@@ -1964,18 +1964,59 @@ canvas {
     grid-template-columns: 1fr !important;
   }
 
-  /* Ana Gün Kartının Başlığı (Örn: Pazartesi - Push) */
-  .expert-data-history-item > div {
-    gap: 10px !important;
+  /* 4. UZMAN SİSTEMİ SPLİT - GÜN VE ANTRENMAN KARTLARI (MOBİL TAM GENİŞLİK) */
+  .expert-data-history-item {
+    position: relative !important;
+    padding: 14px 12px !important;
   }
-  
-  /* Sürükle Bırak Tutamaçlarını Parmak İçin Büyüt */
+
+  /* Drag handle'ın (çift paralel çizgi) sol tarafta boydan boya boşluk oluşturmasını engeller */
+  .expert-data-history-item > div:first-child {
+    display: block !important;
+    position: relative !important;
+  }
+
+  /* Çift paralel çizgi (tutamaç) başlığın hemen soluna absolute yerleşir, aşağıya doğru boşluk uzatmaz */
   .expert-recommendation-drag {
-    padding-top: 2px !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
+
+  /* Başlık drag handle'ın üzerine binmesin diye soluna temiz boşluk alır */
+  .expert-data-history-item > div:first-child > div:nth-child(2) > div:first-child {
+    padding-left: 28px !important;
+    min-height: 24px !important;
+  }
+
+  /* Antrenman kartları ve alt içerik gün kartının tüm genişliğini (sağdan sola) tam kaplar */
+  .expert-data-history-item > div:first-child > div:nth-child(2) {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  .expert-exercise-sortable {
+    width: 100% !important;
+    margin-top: 12px !important;
+  }
+
+  .expert-recommendation-exercise {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
   .ex-drag-handle svg {
-    width: 22px !important;
-    height: 22px !important;
+    width: 20px !important;
+    height: 20px !important;
   }
 }
 
@@ -2084,38 +2125,56 @@ canvas {
   }
   
   .table-wrap {
-    overflow-x: hidden !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
   }
   
-  table {
+  #page-progress table {
     table-layout: fixed !important;
-    width: 100% !important;
+    width: 125% !important;
+    min-width: 125% !important;
   }
   
-  table, th, td, table span, table div, table strong {
+  #page-progress table, #page-progress th, #page-progress td {
     font-size: 10px !important;
+    padding: 6px 3px !important;
+    line-height: 1.2 !important;
+    vertical-align: middle !important;
   }
   
-  th, td {
-    padding: 6px 2px !important;
+  /* İlk 4 kolon (Hareket, Kas Grubu, Ağırlık, Tekrar) tam ekrana (%100) sığar, sadece Tarih scroll'a kalır */
+  #page-progress th:nth-child(1), #page-progress td:nth-child(1) {
+    width: 25% !important;
     white-space: normal !important;
     word-break: break-word !important;
-    overflow-wrap: break-word !important;
-    line-height: 1.2 !important;
+  }
+  #page-progress th:nth-child(2), #page-progress td:nth-child(2) {
+    width: 24% !important;
+  }
+  #page-progress th:nth-child(3), #page-progress td:nth-child(3) {
+    width: 18% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+  #page-progress th:nth-child(4), #page-progress td:nth-child(4) {
+    width: 13% !important;
+    white-space: nowrap !important;
+  }
+  #page-progress th:nth-child(5), #page-progress td:nth-child(5) {
+    width: 20% !important;
+    white-space: nowrap !important;
   }
   
-  /* Prevent column from being too wide and ensure date doesnt wrap */
-  th:nth-child(1), td:nth-child(1) { width: 27%; }
-  th:nth-child(2), td:nth-child(2) { width: 18%; }
-  th:nth-child(3), td:nth-child(3) { width: 13%; }
-  td:nth-child(3) { white-space: nowrap !important; }
-  th:nth-child(4), td:nth-child(4) { width: 18%; }
-  td:nth-child(4) { white-space: nowrap !important; }
-  th:nth-child(5), td:nth-child(5) { width: 24%; }
-  td:nth-child(5) { white-space: nowrap !important; }
-  
-  /* Shrink the neon muscle group badges to match the other tiny texts */
+  /* Vücut Ağırlığı metninin tekrar üzerine taşmasını önleme */
+  #prTable td:nth-child(3) span {
+    font-size: 9.5px !important;
+    white-space: normal !important;
+    line-height: 1.15 !important;
+    display: inline-block !important;
+  }
+
+  /* Neon kas grubu rozetleri taşma yapmasın, şık dursun */
   #prTable td span {
     padding: 2px 4px !important;
     font-size: 9px !important;
@@ -2123,6 +2182,10 @@ canvas {
     letter-spacing: 0 !important;
     white-space: nowrap !important;
     display: inline-block !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    vertical-align: middle !important;
   }
 
   /* Scale down the timeframe pills so they fit side-by-side without needing scroll */
