@@ -783,7 +783,7 @@ tr:hover td { background: var(--bg-card-hover); }
   color: var(--text-secondary);
 }
 
-/* ── Durum Renklendirmeleri (Tamamlanan / Kaçırılan) ── */
+/* ── Durum Renklendirmeleri (Tamamlanan / Kaçırılan / Dinlenme) ── */
 .split-card.split-done {
   background: var(--green-soft, rgba(17, 250, 0, 0.05));
   border-color: rgba(64, 159, 99, 0.652);
@@ -791,6 +791,21 @@ tr:hover td { background: var(--bg-card-hover); }
 .split-card.split-missed {
   background: var(--red-soft, rgba(239, 68, 68, 0.05));
   border-color: rgba(239, 68, 68, 0.741);
+}
+.split-done-pill, .split-missed-pill, .split-rest-pill {
+  white-space: nowrap;
+}
+@media (max-width: 580px) {
+  .split-done-pill .split-done-label,
+  .split-missed-pill .split-missed-label,
+  .split-rest-pill .split-rest-label {
+    display: none;
+  }
+  .split-type.split-type-done,
+  .split-type.split-type-missed,
+  .split-type.split-type-rest {
+    margin-right: 120px !important;
+  }
 }
 .split-card.split-today {
   border-color: var(--accent);
@@ -1881,6 +1896,7 @@ canvas {
 .expert-alternative-item-name {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   color: var(--text-primary);
@@ -1971,46 +1987,28 @@ canvas {
   }
 
   /* 4. UZMAN SİSTEMİ SPLİT - GÜN VE ANTRENMAN KARTLARI (MOBİL TAM GENİŞLİK) */
-  .expert-data-history-item {
+  .expert-day-card {
     position: relative !important;
-    padding: 14px 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  /* Drag handle'ın (çift paralel çizgi) sol tarafta boydan boya boşluk oluşturmasını engeller */
-  .expert-data-history-item > div:first-child {
-    display: block !important;
-    position: relative !important;
-  }
-
-  /* Çift paralel çizgi (tutamaç) başlığın hemen soluna absolute yerleşir, aşağıya doğru boşluk uzatmaz */
   .expert-recommendation-drag {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
+    position: static !important;
     width: 24px !important;
     height: 24px !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     padding: 0 !important;
     margin: 0 !important;
-  }
-
-  /* Başlık drag handle'ın üzerine binmesin diye soluna temiz boşluk alır */
-  .expert-data-history-item > div:first-child > div:nth-child(2) > div:first-child {
-    padding-left: 28px !important;
-    min-height: 24px !important;
-  }
-
-  /* Antrenman kartları ve alt içerik gün kartının tüm genişliğini (sağdan sola) tam kaplar */
-  .expert-data-history-item > div:first-child > div:nth-child(2) {
-    width: 100% !important;
-    min-width: 100% !important;
+    flex-shrink: 0 !important;
+    cursor: grab !important;
   }
 
   .expert-exercise-sortable {
     width: 100% !important;
-    margin-top: 12px !important;
+    margin-top: 10px !important;
   }
 
   .expert-recommendation-exercise {
@@ -2021,8 +2019,8 @@ canvas {
   }
 
   .ex-drag-handle svg {
-    width: 20px !important;
-    height: 20px !important;
+    width: 16px !important;
+    height: 16px !important;
   }
 }
 
@@ -2038,6 +2036,44 @@ canvas {
     max-width: 100vw !important;
   }
   
+  #page-analyze,
+  #analyzeContent,
+  .expert-data-shell,
+  .expert-data-stage,
+  .expert-gym-workspace,
+  .expert-data-grid,
+  .expert-data-card,
+  .expert-data-form,
+  .expert-equipment-groups,
+  .expert-equipment-column,
+  .expert-equipment-group,
+  .expert-equipment-toggle-grid,
+  .expert-equipment-toggle,
+  .expert-movement-toolbar,
+  .expert-movement-group,
+  .expert-movement-list,
+  .expert-movement-row,
+  .expert-gym-bottom-grid,
+  .expert-gym-cards-grid,
+  .expert-gym-card,
+  .expert-gym-stat-grid,
+  .expert-gym-stat-card,
+  .expert-gym-default-card,
+  .expert-goal-profile-banner,
+  .expert-injury-board-card,
+  .expert-injury-unified-row,
+  .expert-split-overview-grid {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  
+  .expert-data-shell,
+  .expert-data-stage {
+    overflow-x: hidden !important;
+    width: 100% !important;
+  }
+  
   /* Make sure all expert grids collapse nicely */
   .expert-layout,
   .expert-gym-workspace,
@@ -2045,45 +2081,334 @@ canvas {
   .expert-data-grid,
   .expert-equipment-groups,
   .expert-form-grid,
-  .expert-data-choice-grid,
   .expert-data-doms-grid,
   .expert-doms-row {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
   
-  .expert-gym-stat-grid,
-  .expert-choice-grid {
+  .expert-data-choice-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-  
-  @media (max-width: 480px) {
-    .expert-gym-stat-grid,
-    .expert-choice-grid {
-      grid-template-columns: 1fr !important;
-    }
-  }
-
-  .expert-equipment-layout {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Handle inputs and buttons on mobile */
-  .expert-data-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 8px;
-  }
-  
-  .expert-data-actions {
-    flex-direction: column;
-  }
-  
-  .expert-data-actions .btn {
+    gap: 8px !important;
     width: 100% !important;
-    margin-bottom: 8px;
-    flex: none !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .expert-data-choice {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    word-break: break-word !important;
+  }
+
+  .expert-choice-name {
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    text-align: center !important;
+  }
+
+  .expert-gym-stat-grid {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+  
+  .expert-gym-stat-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .expert-gym-stat-value {
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .expert-equipment-groups {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  
+  .expert-equipment-column {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+  }
+  
+  .expert-equipment-group {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .expert-equipment-toggle-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 7px !important;
+    box-sizing: border-box !important;
+  }
+
+  .expert-equipment-toggle {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .expert-equipment-copy {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    word-break: break-word !important;
+  }
+
+  .expert-equipment-copy strong {
+    word-break: break-word !important;
+    font-size: 11.5px !important;
+  }
+
+  /* Subtabs Smooth Horizontal Scroll */
+  .expert-data-subtabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    gap: 6px !important;
+    padding: 2px 0 8px !important;
+    margin-bottom: 12px !important;
+    scrollbar-width: none !important;
+  }
+  .expert-data-subtabs::-webkit-scrollbar {
+    display: none !important;
+  }
+  .expert-data-subtab {
+    flex: 0 0 auto !important;
+    min-width: auto !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Action Buttons Full-Width Stacking on Mobile */
+  .expert-data-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+  }
+  
+  .expert-data-actions .btn,
+  .expert-data-actions button,
+  .expert-doms-save-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    flex: 1 1 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Saved Gym Cards Responsive */
+  .expert-gym-cards-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 10px !important;
+  }
+
+  .expert-gym-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 12px !important;
+  }
+
+  .expert-gym-card .expert-data-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .expert-gym-card .expert-data-actions button,
+  .expert-gym-card .expert-data-actions .expert-injury-btn {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 100% !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .gym-equipment-chips {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    gap: 5px !important;
+    box-sizing: border-box !important;
+  }
+
+  .gym-equipment-chip {
+    max-width: 100% !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Movement Preferences Toolbar & Rows */
+  .expert-movement-toolbar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  .expert-movement-toolbar > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .expert-movement-toolbar input {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #expertDataMovementCountBadge {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    justify-content: center !important;
+    text-align: center !important;
+    display: flex !important;
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .expert-movement-group {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .expert-movement-group summary {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+  }
+
+  .expert-movement-list {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+  }
+
+  .expert-movement-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 8px 10px !important;
+    gap: 8px !important;
+  }
+
+  .expert-movement-name {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    word-break: break-word !important;
+  }
+
+  .expert-movement-name strong {
+    font-size: 12px !important;
+    word-break: break-word !important;
+  }
+
+  .expert-movement-button {
+    flex: 1 1 calc(50% - 5px) !important;
+    width: calc(50% - 5px) !important;
+    max-width: calc(50% - 5px) !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    min-height: 28px !important;
+    font-size: 10.5px !important;
+    padding: 5px 8px !important;
+    text-align: center !important;
+    justify-content: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  /* Unified Boards & Cards */
+  .injury-card-top,
+  .injury-card-main,
+  .injury-card-title-row {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    flex-wrap: wrap !important;
+  }
+
+  .injury-area-title {
+    white-space: normal !important;
+    word-break: break-word !important;
+    flex-shrink: 1 !important;
+  }
+
+  .injury-card-actions {
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
+  }
+
+  .expert-hierarchy-box {
+    display: none !important;
   }
 
   /* Prevent text and element squeezing */
@@ -3570,7 +3895,107 @@ let expertRecommendationWeekIndex = 0;
 // HX_EXPERT_FIXED_WEEK_SLOTS_V1
 // Gün slotu yerinde kalır; yalnız seans/dinlenme içeriği kartlar arasında taşınır.
 const expertRecommendationWeekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-const expertRecommendationContentKeys = ['content_id', 'type', 'focus', 'isRest', 'session_id', 'content_status', 'content_reason', 'exercises'];
+const expertRecommendationContentKeys = ['content_id', 'type', 'focus', 'isRest', 'session_id', 'content_status', 'content_reason', 'exercises', 'date', 'actual_date', 'completed_date'];
+
+function formatToDMY(val) {
+  const raw = String(val ?? '').trim();
+  if (!raw) return '';
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[3]}-${iso[2]}-${iso[1]}`;
+  const dotted = raw.match(/^(\d{2})[./-](\d{2})[./-](\d{4})/);
+  if (dotted) return `${dotted[1]}-${dotted[2]}-${dotted[3]}`;
+  return raw;
+}
+
+const defaultFocusByKind = {
+  'push': 'Göğüs, Ön Omuz, Triceps',
+  'pull': 'Latissimus, Üst Sırt, Biceps',
+  'legs': 'Quadriceps, Hamstring, Gluteus, Calf',
+  'leg': 'Quadriceps, Hamstring, Gluteus, Calf',
+  'upper': 'Göğüs, Sırt, Omuz, Kollar',
+  'lower': 'Quadriceps, Hamstring, Gluteus, Calf',
+  'full': 'Tüm Vücut Bileşik Egzersizler',
+  'rest': 'Toparlanma',
+  'dinlenme': 'Toparlanma',
+};
+
+function formatDisplayWorkoutTitle(rawTitle) {
+  const text = String(rawTitle || '').trim();
+  if (!text) return 'Antrenman';
+  const lower = text.toLowerCase();
+  if (lower.includes('rest') || lower.includes('dinlenme')) return 'Dinlenme';
+  if (lower === 'push') return 'Push Day';
+  if (lower === 'pull') return 'Pull Day';
+  if (lower === 'legs' || lower === 'leg') return 'Legs Day';
+  if (lower === 'upper') return 'Upper Body';
+  if (lower === 'lower') return 'Lower Body';
+  if (!lower.includes('day') && !lower.includes('gün') && !lower.includes('body')) {
+    return `${text} Day`;
+  }
+  return text;
+}
+
+function getDefaultFocus(title) {
+  const lower = String(title || '').toLowerCase();
+  if (lower.includes('push') || lower.includes('itme')) return defaultFocusByKind['push'];
+  if (lower.includes('pull') || lower.includes('çekiş') || lower.includes('cekis')) return defaultFocusByKind['pull'];
+  if (lower.includes('leg') || lower.includes('bacak')) return defaultFocusByKind['legs'];
+  if (lower.includes('upper') || lower.includes('üst')) return defaultFocusByKind['upper'];
+  if (lower.includes('lower') || lower.includes('alt')) return defaultFocusByKind['lower'];
+  if (lower.includes('full') || lower.includes('tüm')) return defaultFocusByKind['full'];
+  if (lower.includes('rest') || lower.includes('dinlen')) return defaultFocusByKind['rest'];
+  return 'Genel antrenman';
+}
+
+function isFocusCompatibleWithType(typeStr, focusStr) {
+  if (!typeStr || !focusStr) return true;
+  const t = String(typeStr).toLowerCase();
+  const f = String(focusStr).toLowerCase();
+  if (t.includes('push') || t.includes('itme')) {
+    if (f.includes('latissimus') || f.includes('biceps') || f.includes('quadriceps') || f.includes('hamstring')) {
+      if (!f.includes('göğüs') && !f.includes('gogus') && !f.includes('triceps') && !f.includes('omuz')) return false;
+    }
+  } else if (t.includes('pull') || t.includes('çekiş') || t.includes('cekis')) {
+    if (f.includes('göğüs') || f.includes('gogus') || f.includes('quadriceps') || f.includes('hamstring') || f.includes('ön omuz')) {
+      if (!f.includes('latissimus') && !f.includes('biceps') && !f.includes('sırt') && !f.includes('sirt') && !f.includes('arka omuz') && !f.includes('trapez')) return false;
+    }
+  } else if (t.includes('leg') || t.includes('bacak')) {
+    if (f.includes('göğüs') || f.includes('gogus') || f.includes('latissimus') || f.includes('biceps') || f.includes('triceps')) {
+      if (!f.includes('quad') && !f.includes('hamstring') && !f.includes('glute') && !f.includes('bacak') && !f.includes('calf')) return false;
+    }
+  }
+  return true;
+}
+
+function formatDayFocusDisplay(focusText, options = {}) {
+  if (!focusText) return { isActual: false, text: '', html: '' };
+  const raw = String(focusText).trim();
+  const match = raw.match(/^(?:Gerçek antrenman kaydı|Antrenman yapıldı)(?:\s*[·•-]\s*(\d{4}-\d{2}-\d{2}|\d{2}[.-]\d{2}[.-]\d{4}))?/i);
+  if (match) {
+    let datePart = match[1] || '';
+    if (datePart) {
+      datePart = formatToDMY(datePart);
+    }
+    const isDashboard = Boolean(options.isDashboard);
+    const greenColor = isDashboard ? '#4ade80' : '#10b981';
+    const greenWeight = isDashboard ? '600' : '700';
+    const greenOpacity = isDashboard ? 'opacity:0.88;' : '';
+    const dateColor = isDashboard ? '#f8fafc' : '#ffffff';
+    const dateWeight = isDashboard ? '500' : '600';
+    return {
+      isActual: true,
+      message: 'Antrenman yapıldı',
+      date: datePart,
+      html: `<span style="color:${greenColor}; font-weight:${greenWeight}; ${greenOpacity}">Antrenman yapıldı</span>${datePart ? ` <span style="color:${dateColor}; font-weight:${dateWeight};">· ${datePart}</span>` : ''}`
+    };
+  }
+  return {
+    isActual: false,
+    text: raw,
+    html: typeof expertDataEscape === 'function' ? expertDataEscape(raw) : raw
+  };
+}
+
 function expertRecommendationSlotId(weekNumber, dayIndex) { return `week-${weekNumber}-day-${dayIndex + 1}`; }
 function expertRecommendationContent(day, fallbackId) {
   const content = {};
@@ -4251,7 +4676,7 @@ function queueCustomSplitOrderSave(reorderedWeek, activeWeekIndex) {
 
 
 function queueExpertRecommendationOrderSave(reorderedWeek, activeWeekIndex) {
-  const recommendation = expertRecommendationFromData(cachedUserData);
+  let recommendation = expertDataRecommendation() || expertRecommendationFromData(cachedUserData);
   if (!recommendation || !recommendation.weeks?.[activeWeekIndex]) return;
   recommendation.weeks[activeWeekIndex].days = reorderedWeek.map(day => ({ ...day }));
   if (expertDataState) expertDataState.recommendation = recommendation;
@@ -4302,6 +4727,14 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
 
   const completedDates = cachedUserData?.sessions ? cachedUserData.sessions.map(sess => sess.date) : [];
 
+  // 7 günün sabit tarihleri (Pazartesi -> Pazar)
+  const currentWeekDateStrings = [];
+  for (let k = 0; k < 7; k++) {
+    const cwd = new Date(weekStart);
+    cwd.setDate(weekStart.getDate() + k);
+    currentWeekDateStrings.push(`${cwd.getFullYear()}-${String(cwd.getMonth()+1).padStart(2, '0')}-${String(cwd.getDate()).padStart(2, '0')}`);
+  }
+
   let bgHTML = '<div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; flex-direction:column; gap:8px; z-index:1;">';
   let fgHTML = '<div id="fgSortableList" style="position:relative; z-index:2; display:flex; flex-direction:column; gap:8px;">';
 
@@ -4310,32 +4743,73 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     d.setDate(weekStart.getDate() + i);
     d.setHours(0, 0, 0, 0);
 
-    const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const dateStr = currentWeekDateStrings[i];
     const isToday = d.getTime() === today.getTime();
     const isPast = d.getTime() < today.getTime();
 
     const dayData = daysList[i] || { type: 'Rest Day', isRest: true };
-    const workoutType = dayData.type || dayData.session_type || 'Dinlenme';
-    const isRest = dayData.isRest || workoutType.toLowerCase().includes('rest') || workoutType.toLowerCase().includes('dinlenme');
+    const rawWorkoutType = dayData.type || dayData.session_type || 'Dinlenme';
+    const isRest = dayData.isRest || rawWorkoutType.toLowerCase().includes('rest') || rawWorkoutType.toLowerCase().includes('dinlenme');
+
+    // Slot tamamlanmış mı: o slota ait tarihte kaydedilmiş antrenman var mı?
+    const isCompleted = !isRest && completedDates.includes(dateStr);
 
     let statusClass = '';
     let statusIcon = `<svg style="width:18px; height:18px; color:rgba(255,255,255,0.15);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
 
     if (isRest) {
       statusClass = 'split-restday';
-      statusIcon = '';
-    } else if (completedDates.includes(dateStr)) {
+      const restDateText = formatToDMY(dateStr);
+      statusIcon = `
+        <div class="split-status-rest-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span class="split-rest-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(245,158,11,0.12); border:1px solid rgba(251,191,36,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+            <span class="split-rest-label" style="color:#fbbf24; font-weight:700;">Dinlenme</span>
+            <span style="color:#ffffff; font-weight:500;">· ${restDateText}</span>
+          </span>
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(245,158,11,0.18); border:1px solid rgba(251,191,36,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:13px; height:13px; color:#fbbf24;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+          </div>
+        </div>
+      `;
+    } else if (isCompleted) {
       statusClass = 'split-done';
-      statusIcon = `<svg style="width:20px; height:20px; color:var(--green, #22c55e);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>`;
-    } else if (isPast && !isRest) {
-      statusClass = 'split-missed';
-      statusIcon = `<svg style="width:20px; height:20px; color:var(--red, #ef4444);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+      const completedDateText = formatToDMY(dateStr);
+      statusIcon = `
+        <div class="split-status-done-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span class="split-done-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(34,197,94,0.1); border:1px solid rgba(74,222,128,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+            <span class="split-done-label" style="color:#4ade80; font-weight:700;">Antrenman yapıldı</span>
+            <span style="color:#ffffff; font-weight:500;">· ${completedDateText}</span>
+          </span>
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(34,197,94,0.18); border:1px solid rgba(74,222,128,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:13px; height:13px; color:#4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+        </div>
+      `;
     } else if (isToday) {
       statusClass = 'split-today';
       statusIcon = `<span style="font-size:10px; font-weight:700; color:var(--accent); background:var(--accent-soft); padding:3px 8px; border-radius:12px; letter-spacing:0.3px;">BUGÜN</span>`;
+    } else if (isPast && !isRest) {
+      statusClass = 'split-missed';
+      const missedDateText = formatToDMY(dateStr);
+      statusIcon = `
+        <div class="split-status-missed-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span class="split-missed-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(239,68,68,0.1); border:1px solid rgba(248,113,113,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+            <span class="split-missed-label" style="color:#f87171; font-weight:700;">Antrenman yapılmadı</span>
+            <span style="color:#ffffff; font-weight:500;">· ${missedDateText}</span>
+          </span>
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(239,68,68,0.18); border:1px solid rgba(248,113,113,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:13px; height:13px; color:#f87171;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </div>
+        </div>
+      `;
     }
 
-    // 2. ADIM: Sadece shouldAnimate "true" ise animasyon kodlarını ekliyoruz!
     const animClass = shouldAnimate ? 'animate-slide-down' : '';
     const animStyle = shouldAnimate ? `--card-index: ${i};` : '';
 
@@ -4351,29 +4825,51 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
       </div>
     `;
 
-    let displayType = workoutType;
-    if (workoutType.includes('(')) {
-        const parts = workoutType.split('(');
-        displayType = `<span style="font-size:14px; font-weight:600; color:var(--text);">${parts[0].trim()}</span>
-                       <span style="display:block; font-size:11px; color:var(--text-muted); margin-top:2px;">(${parts[1]}</span>`;
+    // Kart başlığı ve hedef kaslar (çıplak kalmaması için formatlama)
+    let displayTitle = '';
+    let displaySubtitle = '';
+    if (isRest) {
+      displayTitle = 'Rest Day';
+      displaySubtitle = 'Toparlanma';
     } else {
-        let focusSuffix = dayData.focus ? ` <span style="display:block; font-size:11px; color:var(--text-muted); margin-top:2px;">(${dayData.focus})</span>` : '';
-        displayType = `<span style="font-size:14px; font-weight:600; color:var(--text);">${workoutType}</span>${focusSuffix}`;
+      let rawT = rawWorkoutType;
+      if (rawT.includes('(')) {
+        const parts = rawT.split('(');
+        displayTitle = parts[0].trim();
+        displaySubtitle = parts[1].replace(')', '').trim();
+      } else {
+        displayTitle = rawT;
+        const rawF = String(dayData.focus || '').trim();
+        if (rawF && !rawF.startsWith('Antrenman yapıldı') && !rawF.startsWith('Gerçek antrenman kaydı') && rawF !== 'Genel antrenman' && isFocusCompatibleWithType(rawT, rawF)) {
+          displaySubtitle = rawF;
+        } else {
+          displaySubtitle = getDefaultFocus(rawT);
+        }
+      }
+      displayTitle = formatDisplayWorkoutTitle(displayTitle);
     }
 
+    const displayTypeHTML = `
+      <span style="font-size:14px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${displayTitle}</span>
+      ${displaySubtitle ? `<span style="display:block; font-size:11px; color:var(--text-muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">(${displaySubtitle})</span>` : ''}
+    `;
+
+    // Kayıt oluşturulmuş / kesinleşmiş günlerde sürükle bırak devre dışı kalır
+    const isLocked = isCompleted || isPast;
+
     fgHTML += `
-      <div data-index="${i}" class="${animClass}" style="${animStyle} height:64px; margin:0; padding:0 50px 0 82px; border-radius:10px; display:flex; align-items:center; gap:12px; transition:background 0.2s;"
+      <div data-index="${i}" class="${animClass} ${isLocked ? 'sort-disabled' : ''}" style="${animStyle} height:64px; margin:0; padding:0 16px 0 82px; border-radius:10px; display:flex; align-items:center; gap:12px; transition:background 0.2s;"
            onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
-         ${reorderContext ? `
-           <div class="drag-handle" title="Kaydırarak yer değiştir" style="cursor:grab; color:rgba(255,255,255,0.15); display:flex; align-items:center; transition:0.2s;"
+         ${(reorderContext && !isLocked) ? `
+           <div class="drag-handle" title="Kaydırarak yer değiştir" style="cursor:grab; color:rgba(255,255,255,0.15); display:flex; align-items:center; transition:0.2s; flex-shrink:0;"
                 onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.15)'">
               <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
            </div>` : '<div style="width:20px; flex:0 0 20px;"></div>'}
 
-         <div class="split-type" style="line-height:1.2; overflow:hidden;">
-            ${isRest && !dayData.type ? '<span style="font-size:14px; font-weight:600; color:var(--text);">Dinlenme</span>' : displayType}
+         <div class="split-type ${isCompleted ? 'split-type-done' : ''} ${isPast && !isRest && !isCompleted ? 'split-type-missed' : ''} ${isRest ? 'split-type-rest' : ''}" style="line-height:1.2; overflow:hidden; min-width:0; flex:1; margin-right:220px;">
+            ${displayTypeHTML}
          </div>
       </div>
     `;
@@ -4392,8 +4888,15 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     if (reorderContext && typeof Sortable !== 'undefined') {
       new Sortable(document.getElementById('fgSortableList'), {
         handle: '.drag-handle',
+        filter: '.sort-disabled',
         animation: 250,
         ghostClass: 'sortable-ghost',
+        onMove: function(evt) {
+          if (evt.related && evt.related.classList.contains('sort-disabled')) {
+            return false;
+          }
+          return true;
+        },
         onEnd: function(evt) {
           const oldIdx = evt.oldIndex;
           const newIdx = evt.newIndex;
@@ -8012,6 +8515,22 @@ function expertDataInjectStyles() {
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Hafta Gün Kartları İpeksi Geçiş Stili */
+    #expertRecommendationDays {
+      display: grid;
+      gap: 12px;
+      transition: opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1), transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform;
+      transform-origin: top center;
+    }
+
+    #expertRecommendationDays.is-switching {
+      opacity: 0 !important;
+      transform: translateY(6px) scale(0.995) !important;
+      transition: opacity 0.16s ease-out, transform 0.16s ease-out !important;
+      pointer-events: none;
+    }
+
     /* Kartlar ve Izgara */
     .expert-data-grid {
       display: grid;
@@ -10162,25 +10681,55 @@ function expertDataInjectStyles() {
       border-color: rgba(56, 189, 248, 0.55);
       box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(56,189,248,0.18);
     }
+    .expert-day-card-done {
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      border-left: 4px solid #4ade80;
+      background: linear-gradient(145deg, rgba(20, 38, 28, 0.88) 0%, rgba(14, 28, 20, 0.96) 100%);
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.24), 0 0 16px rgba(74, 222, 128, 0.08);
+    }
+    body:not(.expert-is-dragging) .expert-day-card-done:hover {
+      border-color: rgba(74, 222, 128, 0.6);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(74, 222, 128, 0.2);
+    }
+    .expert-day-card-missed {
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      border-left: 4px solid #f87171;
+      background: linear-gradient(145deg, rgba(38, 20, 24, 0.88) 0%, rgba(28, 14, 18, 0.96) 100%);
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.24), 0 0 16px rgba(248, 113, 113, 0.08);
+    }
+    body:not(.expert-is-dragging) .expert-day-card-missed:hover {
+      border-color: rgba(248, 113, 113, 0.6);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(248, 113, 113, 0.2);
+    }
     .expert-day-card-rest {
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      border-left: 4px solid rgba(148, 163, 184, 0.55);
-      background: linear-gradient(145deg, rgba(22, 27, 42, 0.72) 0%, rgba(16, 20, 32, 0.86) 100%);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      border-left: 4px solid #fbbf24;
+      background: linear-gradient(145deg, rgba(34, 30, 22, 0.82) 0%, rgba(24, 20, 16, 0.92) 100%);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), 0 0 14px rgba(251, 191, 36, 0.06);
     }
     body:not(.expert-is-dragging) .expert-day-card-rest:hover {
-      border-color: rgba(148, 163, 184, 0.4);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      border-color: rgba(251, 191, 36, 0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(251, 191, 36, 0.16);
     }
     .light-mode .expert-day-card-workout {
       background: #ffffff !important;
       border-color: rgba(56, 189, 248, 0.45) !important;
       border-left-color: #0284c7 !important;
     }
+    .light-mode .expert-day-card-done {
+      background: #f0fdf4 !important;
+      border-color: rgba(74, 222, 128, 0.5) !important;
+      border-left-color: #16a34a !important;
+    }
+    .light-mode .expert-day-card-missed {
+      background: #fef2f2 !important;
+      border-color: rgba(248, 113, 113, 0.5) !important;
+      border-left-color: #dc2626 !important;
+    }
     .light-mode .expert-day-card-rest {
-      background: #f1f5f9 !important;
-      border-color: #cbd5e1 !important;
-      border-left-color: #94a3b8 !important;
+      background: #fffbeb !important;
+      border-color: rgba(251, 191, 36, 0.45) !important;
+      border-left-color: #d97706 !important;
     }
     .expert-recommendation-exercise {
       transition: border-color 0.25s ease, background 0.25s ease;
@@ -10562,31 +11111,546 @@ function expertDataInjectStyles() {
       cursor: grabbing !important;
     }
 
-    /* Medya Sorguları */
-    @media(max-width:900px){
-      .expert-gym-bottom-grid{grid-template-columns:1fr}
-      .expert-gym-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .expert-data-grid{grid-template-columns:1fr}
+    /* ═══════════════════════════════════════════════════════════════════
+       MEDYA SORGULARI & MOBİL RESPONSIVE TASARIM (MASAÜSTÜ ETKİLENMEZ)
+    ═══════════════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .expert-gym-bottom-grid { grid-template-columns: 1fr; }
+      .expert-gym-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .expert-data-grid { grid-template-columns: 1fr; }
+      .expert-analysis-grid { grid-template-columns: 1fr; }
+      .expert-split-overview-grid { grid-template-columns: 1fr; }
+      .expert-gym-cards-grid { grid-template-columns: 1fr; }
     }
-    @media(max-width:760px){
-      .expert-equipment-groups{grid-template-columns:1fr;gap:10px}
-      .expert-equipment-column{gap:10px}
-      .expert-equipment-group{padding:10px}
-      .expert-equipment-toggle{min-height:56px;padding:10px 11px}
-      .expert-data-actions .btn{flex:1 1 145px;min-height:42px}
-      .expert-data-hero{padding:18px}
-      .expert-data-card{padding:15px}
-      .expert-data-metric-head{display:none}
-      .expert-data-metric-row{grid-template-columns:1fr!important;gap:10px;padding:14px 4px}
-      .expert-doms-actions{width:100%;justify-content:flex-end;margin-top:6px}
-      .expert-data-choice-grid,.expert-data-doms-grid,.expert-equipment-groups{grid-template-columns:1fr}
-      .expert-data-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;overflow:visible;margin-right:0}
-      .expert-data-tab{min-width:0;justify-content:center;gap:3px;padding:9px 4px;font-size:10px;white-space:nowrap;overflow:hidden}
-      .expert-data-tab-label{font-size:0}
-      .expert-data-tab-label::after{content:attr(data-mobile);font-size:10px}
-      .expert-data-subtabs{gap:6px;padding-bottom:12px;margin-bottom:14px}
-      .expert-data-subtab{flex:1;min-width:0;padding:9px 7px;font-size:11px}
-      .expert-data-stage{min-height:0}
+
+    @media (max-width: 768px) {
+      /* Ana Kapsayıcı & Hero Bölümü */
+      .expert-data-shell {
+        gap: 12px;
+        padding: 0;
+      }
+      .expert-data-hero {
+        padding: 16px 14px;
+        border-radius: 14px;
+      }
+      .expert-data-hero h2 {
+        font-size: 19px;
+        line-height: 1.25;
+        margin: 8px 0 6px;
+      }
+      .expert-data-hero p {
+        font-size: 12px;
+        line-height: 1.45;
+      }
+      .expert-data-hero > div:last-child {
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding: 10px 12px !important;
+        font-size: 11px !important;
+      }
+
+      /* Ana Sekmeler (01 Sağlık, 02 Tercihler, 03 Planlama) */
+      .expert-data-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 5px;
+        overflow: visible;
+        margin: 0 0 12px 0;
+      }
+      .expert-data-tab {
+        min-width: 0;
+        justify-content: center;
+        gap: 4px;
+        padding: 8px 4px;
+        font-size: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        border-radius: 8px;
+        min-height: 38px;
+      }
+      .expert-data-tab-label {
+        font-size: 0;
+      }
+      .expert-data-tab-label::after {
+        content: attr(data-mobile);
+        font-size: 11px;
+        font-weight: 750;
+      }
+
+      /* Alt Sekmeler (Subtabs - Yatay Kaydırılabilir Pürüzsüz Bar) */
+      .expert-data-subtabs {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 6px;
+        padding: 2px 0 8px;
+        margin-bottom: 12px;
+      }
+      .expert-data-subtabs::-webkit-scrollbar {
+        display: none;
+      }
+      .expert-data-subtab {
+        flex: 0 0 auto;
+        min-width: auto;
+        white-space: nowrap;
+        padding: 8px 12px;
+        font-size: 11.5px;
+        border-radius: 8px;
+      }
+
+      /* Kartlar ve Başlıklar */
+      .expert-data-card {
+        padding: 14px 12px;
+        border-radius: 14px;
+      }
+      .expert-data-cardhead {
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .injury-board-heading {
+        font-size: 15px !important;
+      }
+      .injury-board-sub {
+        font-size: 11.5px !important;
+      }
+      .injury-board-icon-box {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 10px !important;
+      }
+      .injury-board-icon-box svg {
+        width: 18px !important;
+        height: 18px !important;
+      }
+
+      /* İstatistik Grid */
+      .expert-gym-stat-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .expert-gym-stat-card {
+        padding: 10px 12px;
+        border-radius: 10px;
+        gap: 10px;
+      }
+      .expert-gym-stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+      }
+      .expert-gym-stat-icon svg {
+        width: 16px;
+        height: 16px;
+      }
+      .expert-gym-stat-label {
+        font-size: 10px;
+      }
+      .expert-gym-stat-value {
+        font-size: 13px;
+      }
+
+      /* Öneri Programı - Gün Kartları */
+      .expert-day-card {
+        padding: 12px 10px !important;
+        border-radius: 12px !important;
+        margin-bottom: 8px !important;
+      }
+      .expert-day-card > div {
+        gap: 8px !important;
+      }
+      .expert-day-title-text {
+        font-size: 13.5px !important;
+      }
+      .expert-day-type-text {
+        font-size: 12.5px !important;
+      }
+      .expert-day-focus-text {
+        font-size: 11.5px !important;
+      }
+      .expert-day-sets-badge {
+        font-size: 10px !important;
+        padding: 3px 7px !important;
+      }
+      .split-rest-pill, .split-done-pill, .split-missed-pill {
+        font-size: 10px !important;
+        padding: 3px 7px !important;
+      }
+      .split-status-rest-group, .split-status-done-group, .split-status-missed-group {
+        gap: 6px !important;
+      }
+      .split-status-rest-group > div, .split-status-done-group > div, .split-status-missed-group > div {
+        width: 20px !important;
+        height: 20px !important;
+      }
+      .split-status-rest-group svg, .split-status-done-group svg, .split-status-missed-group svg {
+        width: 11px !important;
+        height: 11px !important;
+      }
+      .expert-recommendation-drag svg {
+        width: 17px !important;
+        height: 17px !important;
+      }
+
+      /* Egzersiz Satırları (Mobil Optimize) */
+      .expert-exercise-row-item {
+        padding: 7px 9px !important;
+        border-radius: 8px !important;
+      }
+      .expert-exercise-name {
+        font-size: 12px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: calc(100vw - 195px) !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+      .expert-set-rep-pill {
+        padding: 4px 7px !important;
+        font-size: 11px !important;
+        gap: 4px !important;
+        border-radius: 6px !important;
+      }
+      .expert-set-rep-pill svg {
+        width: 11px !important;
+        height: 11px !important;
+      }
+      .expert-icon-action-btn {
+        width: 26px !important;
+        height: 26px !important;
+        border-radius: 6px !important;
+        flex-shrink: 0 !important;
+      }
+      .expert-icon-action-btn svg {
+        width: 13px !important;
+        height: 13px !important;
+      }
+      .ex-drag-handle svg {
+        width: 14px !important;
+        height: 14px !important;
+      }
+      .expert-add-exercise-btn {
+        padding: 8px 10px !important;
+        font-size: 11px !important;
+        border-radius: 8px !important;
+      }
+
+      /* Alternatif Menü */
+      .expert-alternative-menu {
+        padding: 10px !important;
+        border-radius: 10px !important;
+        margin: 8px 0 4px !important;
+      }
+      .expert-alternative-options {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+      }
+      .expert-alternative-item {
+        padding: 7px 8px !important;
+        font-size: 11.5px !important;
+      }
+      .expert-alternative-item-name {
+        font-size: 11.5px !important;
+      }
+
+      /* Overflow ve Kapsayıcı Genişlik Önlemleri */
+      .expert-data-shell,
+      .expert-gym-workspace,
+      .expert-data-grid,
+      .expert-data-card,
+      .expert-data-form,
+      .expert-equipment-groups,
+      .expert-equipment-column,
+      .expert-equipment-group,
+      .expert-equipment-toggle-grid,
+      .expert-equipment-toggle,
+      .expert-movement-toolbar,
+      .expert-movement-group,
+      .expert-movement-list,
+      .expert-movement-row,
+      .expert-gym-bottom-grid,
+      .expert-gym-cards-grid,
+      .expert-gym-card,
+      .expert-gym-stat-grid,
+      .expert-gym-stat-card,
+      .expert-gym-default-card,
+      .expert-goal-profile-banner,
+      .expert-injury-board-card,
+      .expert-injury-unified-row,
+      .expert-split-overview-grid {
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Planlama Hiyerarşisi Mobil Gizleme */
+      .expert-hierarchy-box {
+        display: none !important;
+      }
+
+      /* DOMS & Sakatlıklar & Formlar */
+      .expert-data-choice-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+      }
+      .expert-data-choice {
+        min-height: 56px !important;
+        padding: 8px 6px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .expert-data-choice .expert-choice-name {
+        font-size: 12px !important;
+      }
+      .expert-goal-profile-banner {
+        padding: 10px 12px !important;
+        gap: 10px !important;
+      }
+      .expert-data-doms-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
+      .expert-equipment-groups {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+      }
+      .expert-equipment-column {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        box-sizing: border-box !important;
+      }
+      .expert-equipment-group {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        padding: 10px !important;
+        border-radius: 10px !important;
+      }
+      .expert-equipment-toggle-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 7px !important;
+        box-sizing: border-box !important;
+      }
+      .expert-equipment-toggle {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        min-height: 44px !important;
+        padding: 8px 10px !important;
+        border-radius: 8px !important;
+      }
+      .expert-equipment-copy {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        word-break: break-word !important;
+      }
+      .expert-equipment-copy strong {
+        font-size: 11.5px !important;
+        word-break: break-word !important;
+      }
+      .expert-doms-unified-row,
+      .expert-injury-unified-row {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        padding: 10px 12px !important;
+        border-radius: 10px !important;
+        gap: 8px !important;
+      }
+      .injury-card-top,
+      .injury-card-main,
+      .injury-card-title-row {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+      }
+      .injury-area-title {
+        white-space: normal !important;
+        word-break: break-word !important;
+        flex-shrink: 1 !important;
+      }
+      .injury-card-actions {
+        flex-wrap: wrap !important;
+        justify-content: flex-end !important;
+        gap: 6px !important;
+      }
+      .expert-doms-actions { width: 100% !important; justify-content: flex-end !important; margin-top: 6px !important; }
+      .expert-doms-save-container { justify-content: stretch !important; margin-top: 12px !important; }
+      .expert-doms-save-btn { width: 100% !important; justify-content: center !important; padding: 10px 14px !important; font-size: 12.5px !important; text-align: center !important; }
+      .expert-data-metric-head { display: none !important; }
+      .expert-data-metric-row { grid-template-columns: 1fr !important; gap: 8px !important; padding: 12px 4px !important; }
+      .expert-data-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        box-sizing: border-box !important;
+      }
+      .expert-data-actions .btn,
+      .expert-data-actions button,
+      .expert-doms-save-btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        flex: 1 1 100% !important;
+        min-height: 40px !important;
+        justify-content: center !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+      }
+      .expert-gym-cards-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        gap: 10px !important;
+      }
+      .expert-gym-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        padding: 12px !important;
+        border-radius: 10px !important;
+      }
+      .expert-gym-card .expert-data-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+      }
+      .expert-gym-card .expert-data-actions button,
+      .expert-gym-card .expert-data-actions .expert-injury-btn {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 1 1 100% !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+      }
+      .gym-equipment-chips {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        gap: 5px !important;
+        box-sizing: border-box !important;
+      }
+      .gym-equipment-chip {
+        max-width: 100% !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        box-sizing: border-box !important;
+      }
+      
+      /* Hareket Tercihleri ve Arama Toolbar */
+      .expert-movement-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
+      }
+      .expert-movement-toolbar > div {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+      }
+      .expert-movement-toolbar #expertDataMovementCountBadge {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 6px 10px !important;
+        font-size: 11px !important;
+        box-sizing: border-box !important;
+      }
+      .expert-movement-group summary {
+        padding: 10px 12px !important;
+        font-size: 12px !important;
+      }
+      .expert-movement-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 8px 10px !important;
+        border-radius: 8px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+      }
+      .expert-movement-name {
+        flex: 1 1 100% !important;
+        min-width: 0 !important;
+        word-break: break-word !important;
+      }
+      .expert-movement-name strong {
+        font-size: 12px !important;
+      }
+      .expert-movement-button {
+        flex: 1 1 calc(50% - 5px) !important;
+        min-height: 28px !important;
+        font-size: 10.5px !important;
+        padding: 5px 8px !important;
+        text-align: center !important;
+        justify-content: center !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+      }
+      .expert-data-stage { min-height: 0 !important; }
+
+      /* Split Drag Handle Mobil */
+      .expert-recommendation-drag {
+        position: static !important;
+        width: 24px !important;
+        height: 24px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* Modallar */
+      .expert-confirm-modal-box {
+        padding: 18px 14px !important;
+        border-radius: 14px !important;
+        max-width: 92% !important;
+      }
+      .expert-confirm-title { font-size: 15px !important; }
+      .expert-confirm-desc { font-size: 12px !important; }
+      .expert-confirm-actions { flex-direction: column !important; gap: 8px !important; }
+      .expert-confirm-btn { width: 100% !important; padding: 10px !important; }
+    }
+
+    @media (max-width: 480px) {
+      .expert-data-hero { padding: 12px 10px !important; }
+      .expert-data-hero h2 { font-size: 17px !important; }
+      .expert-data-card { padding: 10px 8px !important; }
+      .expert-day-card { padding: 10px 8px !important; }
+      .expert-exercise-name { max-width: calc(100vw - 170px) !important; font-size: 11.5px !important; }
+      .expert-set-rep-pill { padding: 3px 6px !important; font-size: 10.5px !important; }
+      .expert-set-rep-pill svg { display: none !important; }
+      .expert-data-choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 6px !important; }
+      .expert-data-choice { min-height: 52px !important; padding: 6px 4px !important; }
+      .expert-data-choice .expert-choice-name { font-size: 11.5px !important; }
     }
   `;
   document.head.appendChild(style);
@@ -11036,16 +12100,16 @@ function expertDataUnifiedGoalsBoard(selectedIds, currentNote) {
   let emptySlotsHtml = '';
   if (selectedIds.length < 3) {
     for (let i = selectedIds.length + 1; i <= 3; i++) {
-      emptySlotsHtml += `<div class="expert-injury-unified-row" style="border-left-color:rgba(148,163,184,0.3);border-style:dashed;background:rgba(15,23,42,0.3);opacity:0.75;padding:12px 16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:28px;height:28px;border-radius:8px;border:1.5px dashed rgba(148,163,184,0.45);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;font-weight:800;">#${i}</div>
-            <div>
+      emptySlotsHtml += `<div class="expert-injury-unified-row" style="border-left-color:rgba(148,163,184,0.3);border-style:dashed;background:rgba(15,23,42,0.3);opacity:0.75;padding:12px 14px;max-width:100%;box-sizing:border-box;">
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-wrap:wrap;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto;">
+            <div style="width:28px;height:28px;border-radius:8px;border:1.5px dashed rgba(148,163,184,0.45);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;font-weight:800;flex-shrink:0;">#${i}</div>
+            <div style="min-width:0;">
               <div style="color:#ffffff;font-size:13px;font-weight:700;">Boş Hedef Slotu</div>
-              <div style="color:#94a3b8;font-size:11px;">Sol panelden bir kas seçerek #${i} öncelik atayabilirsin</div>
+              <div style="color:#94a3b8;font-size:11px;line-height:1.35;word-break:break-word;">Sol panelden bir kas seçerek #${i} öncelik atayabilirsin</div>
             </div>
           </div>
-          <span style="font-size:11px;font-weight:600;color:#94a3b8;border:1px dashed rgba(148,163,184,0.3);padding:3px 8px;border-radius:6px;">Boşta</span>
+          <span style="font-size:11px;font-weight:600;color:#94a3b8;border:1px dashed rgba(148,163,184,0.3);padding:3px 8px;border-radius:6px;flex-shrink:0;">Boşta</span>
         </div>
       </div>`;
     }
@@ -11161,9 +12225,9 @@ function expertDataGoalsPane() {
 
       <div class="expert-data-form">
         <div>
-          <div class="expert-data-priority-heading" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
-            <label style="font-size:11px;font-weight:750;letter-spacing:0.04em;text-transform:uppercase;color:#ffffff;display:flex;align-items:center;gap:6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <div class="expert-data-priority-heading" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <label style="font-size:11px;font-weight:750;letter-spacing:0.04em;text-transform:uppercase;color:#ffffff;display:flex;align-items:center;gap:6px;min-width:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" style="flex-shrink:0;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
               <span>KAS GRUPLARI LİSTESİ</span>
             </label>
             <span style="font-size:11px;color:#94a3b8;">Sıralama seçim sırasına göre belirlenir</span>
@@ -11174,9 +12238,9 @@ function expertDataGoalsPane() {
         </div>
 
         <div style="margin-top:16px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <label for="expertDataGoalNote" style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:750;letter-spacing:0.04em;text-transform:uppercase;color:#cbd5e1;margin:0;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+            <label for="expertDataGoalNote" style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:750;letter-spacing:0.04em;text-transform:uppercase;color:#cbd5e1;margin:0;min-width:0;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" style="flex-shrink:0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
               <span>HEDEF VE ODAK NOTU · İSTEĞE BAĞLI</span>
             </label>
             <span id="expertDataGoalNoteCounter" style="font-size:10.5px;color:#94a3b8;font-weight:600;">${currentNote.length}/100</span>
@@ -11184,12 +12248,12 @@ function expertDataGoalsPane() {
           <textarea id="expertDataGoalNote" rows="2" maxlength="100" placeholder="Örn. Üst göğüs ve arka omuz odaklı (Maks. 100 karakter)" oninput="expertDataGoalDraft.priority_note = this.value; const c = document.getElementById('expertDataGoalNoteCounter'); if(c) c.textContent = this.value.length + '/100';" style="width:100%;height:52px;min-height:48px;max-height:80px;box-sizing:border-box;border:1px solid rgba(108,99,255,0.25);border-radius:10px;background:rgba(15,23,42,0.65);color:#ffffff;padding:9px 12px;font-size:12.5px;line-height:1.4;transition:all 0.2s ease;outline:none;resize:vertical;" onfocus="this.style.borderColor='#a78bfa';this.style.boxShadow='0 0 14px rgba(167,139,250,0.25)';" onblur="this.style.borderColor='rgba(108,99,255,0.25)';this.style.boxShadow='none';">${expertDataEscape(currentNote)}</textarea>
         </div>
 
-        <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(108,99,255,0.15);display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="expert-doms-save-btn" type="button" onclick="expertDataSaveGoals()" style="flex:1;min-width:180px;">
+        <div class="expert-data-actions" style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(108,99,255,0.15);display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="expert-doms-save-btn" type="button" onclick="expertDataSaveGoals()" style="flex:1 1 200px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             <span>Hedefleri Kaydet</span>
           </button>
-          <button class="btn btn-secondary" type="button" onclick="expertDataClearGoalDraft()" style="padding:11px 20px;font-size:13px;font-weight:750;border-radius:11px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#cbd5e1;cursor:pointer;transition:all 0.2s ease;" onmouseover="this.style.background='rgba(244,63,94,0.15)';this.style.borderColor='rgba(244,63,94,0.4)';this.style.color='#fda4af';" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='#cbd5e1';">
+          <button class="btn btn-secondary" type="button" onclick="expertDataClearGoalDraft()" style="padding:11px 20px;font-size:13px;font-weight:750;border-radius:11px;display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#cbd5e1;cursor:pointer;transition:all 0.2s ease;" onmouseover="this.style.background='rgba(244,63,94,0.15)';this.style.borderColor='rgba(244,63,94,0.4)';this.style.color='#fda4af';" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='#cbd5e1';">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             <span>Seçimleri Sıfırla</span>
           </button>
@@ -11326,10 +12390,6 @@ function expertDataUnifiedInjuryBoard(items) {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
           <span style="color:#ffffff;font-weight:500;overflow:hidden;text-overflow:ellipsis;" title="${expertDataEscape(item.notes)}">${expertDataEscape(item.notes)}</span>
         </div>` : ''}
-
-      <div class="expert-data-track" style="margin-top:12px;height:5px;border-radius:999px;background:rgba(255,255,255,0.08);">
-        <span class="expert-data-fill" style="width:${severity * 20}%;background:${rowBorderColor};box-shadow:0 0 8px ${rowBorderColor};"></span>
-      </div>
 
       <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(108,99,255,0.12);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
         <label class="expert-injury-switch" title="${isActive ? 'Sakatlığı pasife almak için tıkla' : 'Sakatlığı aktifleştirmek için tıkla'}">
@@ -11469,11 +12529,7 @@ function expertDataInjuryPane() {
         </div>
       </div>
 
-      <div class="expert-injury-tip" style="margin-top:16px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.3);color:#f8fafc;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-        <div><strong style="color:#a78bfa;text-shadow:0 0 8px rgba(167,139,250,0.35);">Otomatik Planlama:</strong> Yeni sakatlıklar aktif kaydedilir ve ilgili kas/eklemi zorlayan hareketler uzman taslağında otomatik filtrelenir veya alternatiflenir.</div>
-      </div>
-      <div class="expert-injury-tip" style="margin-top:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.35);color:#f8fafc;">
+      <div class="expert-injury-tip" style="margin-top:16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.35);color:#f8fafc;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
         <div><strong style="color:#ff4d6d;text-shadow:0 0 8px rgba(255,77,109,0.35);">Güvenlik Uyarısı:</strong> Keskin, batıcı veya şiddetli ağrılarda egzersizi derhal durdurunuz ve bir fizyoterapist / hekime danışınız.</div>
       </div>
@@ -11504,6 +12560,10 @@ function expertDataInjuryPane() {
       <div class="expert-injury-tip" style="margin-top:16px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);color:#f8fafc;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
         <div><strong style="color:#38bdf8;text-shadow:0 0 8px rgba(56,189,248,0.35);">Kayıt Yönetimi:</strong> Sakatlık iyileştiğinde satırdaki anahtarı kapatıp yeşil "İyileşti" durumuna alabilir, nüksettiğinde tekrar tek tıkla kırmızı uyarıya çevirebilirsin.</div>
+      </div>
+      <div class="expert-injury-tip" style="margin-top:8px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.3);color:#f8fafc;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <div><strong style="color:#a78bfa;text-shadow:0 0 8px rgba(167,139,250,0.35);">Otomatik Planlama:</strong> Yeni sakatlıklar aktif kaydedilir ve ilgili kas/eklemi zorlayan hareketler uzman taslağında otomatik filtrelenir veya alternatiflenir.</div>
       </div>
     </aside>
   </div>`;
@@ -11671,7 +12731,7 @@ function expertDataGymsPane() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 21h18M3 7v14M21 7v14M9 21V11M15 21V11M9 7h6M12 3l9 4H3l9-4z"></path></svg>
             SALON ADI
           </label>
-          <input id="expertDataGymName" maxlength="80" value="${expertDataEscape(draft.name || '')}" placeholder="Örn. Üniversite Spor Salonu / Kadıköy Fitness Center" style="background:rgba(15,23,42,0.75);border:1.5px solid rgba(108,99,255,0.3);border-radius:10px;padding:11px 14px;color:#ffffff;font-size:13.5px;font-weight:600;width:100%;transition:all 0.2s ease;">
+          <input id="expertDataGymName" maxlength="80" value="${expertDataEscape(draft.name || '')}" placeholder="Örn. Üniversite Spor Salonu / Kadıköy Fitness Center" style="background:rgba(15,23,42,0.75);border:1.5px solid rgba(108,99,255,0.3);border-radius:10px;padding:11px 14px;color:#ffffff;font-size:13.5px;font-weight:600;width:100%;box-sizing:border-box;transition:all 0.2s ease;">
         </div>
 
         <div class="expert-gym-default-card ${draft.is_default ? 'is-active-default' : ''}" onclick="expertDataToggleGymDefaultClick(event)">
@@ -12317,48 +13377,182 @@ function expertDataAnalysisDraftPane() {
 function expertDataRecommendation() {
   return expertDataState?.recommendation || expertRecommendationFromData(cachedUserData);
 }
+let _expertWeekSwitchTimer = null;
+
 function expertDataSetRecommendationWeek(index) {
   const recommendation = expertDataRecommendation();
   if (!recommendation?.weeks?.length) return;
-  expertRecommendationWeekIndex = Math.max(0, Math.min(recommendation.weeks.length - 1, Number(index) || 0));
-  renderExpertSystem(false);
+  
+  const targetIndex = Math.max(0, Math.min(recommendation.weeks.length - 1, Number(index) || 0));
+  const oldIndex = Number(expertRecommendationWeekIndex) || 0;
+  if (targetIndex === oldIndex && document.getElementById('expertRecommendationDays') && !document.getElementById('expertRecommendationDays').classList.contains('is-switching')) return;
+  
+  expertRecommendationWeekIndex = targetIndex;
+
+  const container = document.getElementById('expertRecommendationDays');
+  const subtabsWrap = container?.closest('.expert-data-card')?.querySelector('.expert-data-subtabs') || document.querySelector('.expert-data-subtabs');
+
+  if (container) {
+    // 1. Sekme butonlarının aktiflik durumunu hemen pürüzsüz güncelle
+    if (subtabsWrap) {
+      const subtabs = subtabsWrap.querySelectorAll('.expert-data-subtab');
+      subtabs.forEach((tab, idx) => {
+        if (idx === targetIndex) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+    }
+
+    // 2. Varsa önceki zamanlayıcıyı iptal et (hızlı tıklamalarda çakışmayı önler)
+    if (_expertWeekSwitchTimer) {
+      clearTimeout(_expertWeekSwitchTimer);
+      _expertWeekSwitchTimer = null;
+    }
+
+    // 3. Mevcut kartları ipeksi bir şekilde soldur (fade-out)
+    container.classList.add('is-switching');
+
+    // 4. Kısa bir aradan sonra yeni haftanın kartlarını yükle ve yumuşakça aç (fade-in)
+    _expertWeekSwitchTimer = setTimeout(() => {
+      const week = recommendation.weeks[targetIndex] || { days: [] };
+      container.innerHTML = (week.days || []).map(expertDataRecommendationDayCard).join('');
+      
+      // Sortable ve toplam rozetleri senkronla
+      expertDataInitRecommendationSortable();
+      expertDataUpdateTotalSetsBadges();
+
+      // Bir sonraki frame'de açılma animasyonunu tetikle
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          container.classList.remove('is-switching');
+          _expertWeekSwitchTimer = null;
+        });
+      });
+    }, 160);
+  } else {
+    renderExpertSystem(false);
+  }
 }
+window.expertDataSetRecommendationWeek = expertDataSetRecommendationWeek;
 // HX_EXPERT_ALTERNATIVE_DROPDOWN_UI_V1
 function expertDataRecommendationDayCard(day, index) {
-  const exercises = Array.isArray(day?.exercises) ? day.exercises.filter(e => e && typeof e === 'object') : [];
-  const weekIndex = Math.max(0, Number(expertRecommendationWeekIndex) || 0);
-  const slotId = String(day?.slot_id || day?.day_id || `day-${index + 1}`);
-  const occupiedExerciseIds = [...new Set(exercises
+  const recommendation = expertDataRecommendation();
+  const weeksCount = Array.isArray(recommendation?.weeks) ? recommendation.weeks.length : 1;
+  const safeWeekIndex = Math.max(0, Math.min(weeksCount - 1, Number(expertRecommendationWeekIndex) || 0));
+  const slotId = String(day?.slot_id || day?.day_id || `week-${safeWeekIndex + 1}-day-${index + 1}`);
+
+  // Bulunulan aktif program haftası (takvim haftasına göre hesaplanan aktif hafta)
+  const activeProg = expertRecommendationWeek(recommendation);
+  const currentActiveWeekIndex = activeProg ? activeProg.index : 0;
+  
+  // Görüntülenen sekmedeki haftanın, aktif takvim haftasına göre bağıl farkı
+  const weekOffset = safeWeekIndex - currentActiveWeekIndex;
+
+  // Tarih ve Durum Hesaplaması
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const weekStart = new Date(today);
+  const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
+  weekStart.setDate(today.getDate() - dayOfWeek);
+
+  // Bu karta ait gerçek takvim tarihi
+  const d = new Date(weekStart);
+  d.setDate(weekStart.getDate() + (weekOffset * 7) + index);
+  d.setHours(0, 0, 0, 0);
+
+  const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const isToday = d.getTime() === today.getTime();
+  const isPast = d.getTime() < today.getTime();
+
+  const completedDates = cachedUserData?.sessions ? cachedUserData.sessions.map(sess => sess.date) : [];
+  const matchedSession = cachedUserData?.sessions ? cachedUserData.sessions.find(s => s.date === dateStr) : null;
+
+  const rawWorkoutType = day?.type || day?.session_type || (day?.isRest ? 'Rest Day' : 'Antrenman');
+  const isRest = Boolean(day?.isRest) || String(rawWorkoutType).toLowerCase().includes('dinlenme') || String(rawWorkoutType).toLowerCase().includes('rest');
+
+  // YALNIZCA o tarihte (dateStr) gerçekten kaydedilmiş bir session varsa tamamlanmış sayılır
+  const isCompleted = !isRest && (Boolean(matchedSession) || completedDates.includes(dateStr));
+  const isMissed = isPast && !isRest && !isCompleted;
+  const isLocked = isCompleted || isPast;
+
+  // Egzersiz Dizisi: Antrenman yapıldıysa veritabanındaki gerçek sıralama kullanılır
+  let rawExercises = [];
+  if (isCompleted && matchedSession?.exercises && Array.isArray(matchedSession.exercises) && matchedSession.exercises.length > 0) {
+    rawExercises = matchedSession.exercises.map((item, exIdx) => {
+      const name = item.name || item.exercise_name || 'Egzersiz';
+      const setsCount = item.sets || (Array.isArray(item.sets_data) ? item.sets_data.length : 3);
+      let repsText = item.reps;
+      if (!repsText && Array.isArray(item.sets_data) && item.sets_data.length > 0) {
+        const firstReps = item.sets_data[0]?.reps;
+        repsText = firstReps ? String(firstReps) : '8-12';
+      }
+      return {
+        id: item.id || item.exercise_id || `actual-ex-${exIdx}`,
+        name: name,
+        sets: setsCount,
+        reps: repsText || '8-12',
+      };
+    });
+  } else if (Array.isArray(day?.exercises) && day.exercises.length > 0) {
+    rawExercises = day.exercises.filter(e => e && typeof e === 'object');
+  } else if (!isRest) {
+    // Eğer bir kartın egzersiz dizisi boş kalmışsa, öneri içerisindeki aynı türdeki günlerden otomatik tamamla
+    const allWeeks = Array.isArray(recommendation?.weeks) ? recommendation.weeks : [];
+    const targetTitle = String(rawWorkoutType || '').toLowerCase();
+    for (const w of allWeeks) {
+      const candidate = (w.days || []).find(d => !d.isRest && Array.isArray(d.exercises) && d.exercises.length > 0 && (
+        String(d.type || '').toLowerCase() === targetTitle ||
+        (targetTitle.includes('push') && String(d.type || '').toLowerCase().includes('push')) ||
+        (targetTitle.includes('pull') && String(d.type || '').toLowerCase().includes('pull')) ||
+        (targetTitle.includes('leg') && String(d.type || '').toLowerCase().includes('leg'))
+      ));
+      if (candidate && Array.isArray(candidate.exercises) && candidate.exercises.length > 0) {
+        rawExercises = candidate.exercises.filter(e => e && typeof e === 'object');
+        break;
+      }
+    }
+  }
+
+  const occupiedExerciseIds = [...new Set(rawExercises
     .map(item => item ? expertDataResolveExerciseId(item?.id, item?.name) : null)
     .filter(Boolean))];
   const occupiedArgument = `[${occupiedExerciseIds.map(value => `'${String(value).replace(/[^a-zA-Z0-9_-]/g, '')}'`).join(',')}]`;
 
   // --- HAREKET SATIRLARI ---
-  const mappedExercises = exercises.map((item, exIdx) => {
+  const mappedExercises = rawExercises.map((item, exIdx) => {
     const exerciseId = expertDataResolveExerciseId(item?.id, item?.name);
     const trayId = `altTray_${expertDataEscape(slotId)}_${expertDataEscape(exerciseId)}`;
 
-    return `<div class="expert-recommendation-exercise expert-alternative-shell expert-exercise-row-item" data-exercise-id="${expertDataEscape(exerciseId)}" data-slot-id="${expertDataEscape(slotId)}">
+    const repsStr = item.reps ? String(item.reps) : '8-12';
+    const setsCount = item.sets || 3;
+    const pillText = isCompleted
+      ? `${expertDataEscape(setsCount)} Set`
+      : `${expertDataEscape(setsCount)} × ${expertDataEscape(repsStr)}`;
+
+    return `<div class="expert-recommendation-exercise expert-alternative-shell expert-exercise-row-item ${isCompleted ? 'sort-disabled' : ''}" data-exercise-id="${expertDataEscape(exerciseId)}" data-slot-id="${expertDataEscape(slotId)}" style="${isCompleted ? 'cursor:default;' : ''}">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
         <div style="display:flex; align-items:center; gap: 10px; min-width: 0;">
-          <span class="ex-drag-handle" title="Sıralamayı değiştirmek için sürükle" style="cursor:grab; color:#64748b; transition:all 0.2s ease; display:inline-flex; align-items:center; flex-shrink:0;">
+          <span class="ex-drag-handle" title="${isCompleted ? 'Antrenman tamamlandı (Sıralama kilitli)' : 'Sıralamayı değiştirmek için sürükle'}" style="cursor:${isCompleted ? 'default' : 'grab'}; color:${isCompleted ? '#334155' : '#64748b'}; opacity:${isCompleted ? '0.35' : '1'}; transition:all 0.2s ease; display:inline-flex; align-items:center; flex-shrink:0;">
             <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
           </span>
           <span class="expert-exercise-name" style="font-size: 13px; font-weight: 700; color: #ffffff; letter-spacing: 0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${expertDataEscape(item.name)}</span>
         </div>
         <div style="display:flex; align-items:center; gap: 7px; flex-shrink: 0;">
-          <button type="button" class="expert-set-rep-pill" onclick="expertDataEditExerciseSetsReps(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')" title="Set ve Tekrarı Düzenle">
-            <span class="expert-set-rep-text">${expertDataEscape(item.sets)} × ${expertDataEscape(item.reps)}</span>
-            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4" style="opacity:0.75;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+          <button type="button" class="expert-set-rep-pill" ${isCompleted ? 'disabled style="pointer-events:none; cursor:default; background:rgba(108,99,255,0.18); border-color:rgba(167,139,250,0.3);"' : `onclick="expertDataEditExerciseSetsReps(${safeWeekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')"`} title="${isCompleted ? 'Antrenman tamamlandı (Set sayısı kilitli)' : 'Set ve Tekrar Aralığını Düzenle'}">
+            <span class="expert-set-rep-text" style="color:#ffffff; font-weight:750;">${pillText}</span>
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4" style="opacity:${isCompleted ? '0.25' : '0.75'};"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
           </button>
           
-          <!-- YENİLE / ALTERNATİF BUTONU (Yumuşak Açılır Menü) -->
-          <button class="expert-alternative-open expert-icon-action-btn alt-btn" type="button" title="Uygun alternatifleri göster" onclick="expertDataToggleAlternativeTray(event, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}', ${weekIndex}, ${occupiedArgument})">
+          <!-- YENİLE / ALTERNATİF BUTONU (Tamamlandıysa Orijinal Renginde Soluk & Kilitli) -->
+          <button class="expert-icon-action-btn alt-btn" type="button" ${isCompleted ? 'disabled style="opacity:0.35; pointer-events:none; cursor:default;"' : `title="Uygun alternatifleri göster" onclick="expertDataToggleAlternativeTray(event, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}', ${safeWeekIndex}, ${occupiedArgument})"`} title="${isCompleted ? 'Antrenman tamamlandı (Alternatif devre dışı)' : 'Uygun alternatifleri göster'}">
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
           </button>
           
-          <!-- SİL BUTONU (Modern Onay Modalı ile) -->
-          <button class="expert-icon-action-btn delete-btn" type="button" title="Hareketi Çıkar" onclick="expertDataConfirmRemoveExercise(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')">
+          <!-- SİL BUTONU (Tamamlandıysa Orijinal Renginde Soluk & Kilitli) -->
+          <button class="expert-icon-action-btn delete-btn" type="button" ${isCompleted ? 'disabled style="opacity:0.35; pointer-events:none; cursor:default;"' : `title="Hareketi Çıkar" onclick="expertDataConfirmRemoveExercise(${safeWeekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')"`} title="${isCompleted ? 'Antrenman tamamlandı (Silme devre dışı)' : 'Hareketi Çıkar'}">
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
@@ -12367,49 +13561,159 @@ function expertDataRecommendationDayCard(day, index) {
     </div>`;
   }).join('');
 
-  const rest = Boolean(day?.isRest) || String(day?.type || '').toLowerCase().includes('dinlenme');
-  
-  // YENİ EKLE BUTONU (Dinlenme günü değilse en alta eklenir)
-  const addBtnHtml = !rest ? `
-    <div style="margin-top: 10px;">
-      <button type="button" class="expert-add-exercise-btn" onclick="expertDataAddRecommendedExercise(${weekIndex}, '${expertDataEscape(slotId)}')">
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-        <span>Uzman Sistemden Yeni Hareket Ekle</span>
-      </button>
-    </div>` : '';
+  // YENİ EKLE BUTONU (Dinlenme günü değilse en alta eklenir, tamamlandıysa soluk ve kilitli)
+  let addBtnHtml = '';
+  if (!isRest) {
+    if (isCompleted) {
+      addBtnHtml = `
+        <div style="margin-top: 10px;">
+          <button type="button" class="expert-add-exercise-btn" disabled style="opacity:0.4; pointer-events:none; cursor:default; border-style:dashed;" title="Antrenman tamamlandı (Yeni hareket eklenemez)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+            <span>Uzman Sistemden Yeni Hareket Ekle (Tamamlandı)</span>
+          </button>
+        </div>`;
+    } else {
+      addBtnHtml = `
+        <div style="margin-top: 10px;">
+          <button type="button" class="expert-add-exercise-btn" onclick="expertDataAddRecommendedExercise(${safeWeekIndex}, '${expertDataEscape(slotId)}')">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+            <span>Uzman Sistemden Yeni Hareket Ekle</span>
+          </button>
+        </div>`;
+    }
+  }
 
   const exerciseRows = `<div class="expert-exercise-sortable" data-day-index="${index}" style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">${mappedExercises}</div> ${addBtnHtml}`;
   const slotLabel = expertRecommendationWeekdays[index] || `Gün ${index + 1}`;
 
-  const themeColor = rest ? 'rgba(148, 163, 184, 0.8)' : '#38bdf8';
-  const badgeHtml = rest
-    ? `<span style="font-size:10.5px; font-weight:800; color:#94a3b8; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.28); padding:3.5px 10px; border-radius:7px; text-transform:uppercase;">Dinlenme</span>`
-    : `<span class="gym-badge-default" style="font-size:10.5px; padding:3.5px 10px;">Seans</span>`;
+  let statusCardClass = 'expert-day-card-workout';
+  let themeColor = '#38bdf8';
+  let badgeHtml = '';
 
-  const totalSets = (exercises && exercises.length > 0) ? exercises.reduce((sum, e) => sum + (Number(e?.sets) || 0), 0) : 0;
+  if (isRest) {
+    statusCardClass = 'expert-day-card-rest';
+    themeColor = '#fbbf24';
+    const restDateText = formatToDMY(dateStr);
+    badgeHtml = `
+      <div class="split-status-rest-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+        <span class="split-rest-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(245,158,11,0.12); border:1px solid rgba(251,191,36,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+          <span class="split-rest-label" style="color:#fbbf24; font-weight:700;">Dinlenme</span>
+          <span style="color:#ffffff; font-weight:500;">· ${restDateText}</span>
+        </span>
+        <div style="width:24px; height:24px; border-radius:50%; background:rgba(245,158,11,0.18); border:1px solid rgba(251,191,36,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <svg style="width:13px; height:13px; color:#fbbf24;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+        </div>
+      </div>
+    `;
+  } else if (isCompleted) {
+    statusCardClass = 'expert-day-card-done';
+    themeColor = '#4ade80';
+    const completedDateText = formatToDMY(dateStr);
+    badgeHtml = `
+      <div class="split-status-done-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+        <span class="split-done-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(34,197,94,0.1); border:1px solid rgba(74,222,128,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+          <span class="split-done-label" style="color:#4ade80; font-weight:700;">Antrenman yapıldı</span>
+          <span style="color:#ffffff; font-weight:500;">· ${completedDateText}</span>
+        </span>
+        <div style="width:24px; height:24px; border-radius:50%; background:rgba(34,197,94,0.18); border:1px solid rgba(74,222,128,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <svg style="width:13px; height:13px; color:#4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+      </div>
+    `;
+  } else if (isMissed) {
+    statusCardClass = 'expert-day-card-missed';
+    themeColor = '#f87171';
+    const missedDateText = formatToDMY(dateStr);
+    badgeHtml = `
+      <div class="split-status-missed-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+        <span class="split-missed-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(239,68,68,0.1); border:1px solid rgba(248,113,113,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+          <span class="split-missed-label" style="color:#f87171; font-weight:700;">Antrenman yapılmadı</span>
+          <span style="color:#ffffff; font-weight:500;">· ${missedDateText}</span>
+        </span>
+        <div style="width:24px; height:24px; border-radius:50%; background:rgba(239,68,68,0.18); border:1px solid rgba(248,113,113,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <svg style="width:13px; height:13px; color:#f87171;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </div>
+      </div>
+    `;
+  } else if (isToday) {
+    statusCardClass = 'expert-day-card-workout';
+    themeColor = 'var(--accent, #38bdf8)';
+    badgeHtml = `<span class="gym-badge-default" style="font-size:10.5px; padding:3.5px 10px; background:var(--accent-soft, rgba(56,189,248,0.16)); border-color:var(--accent, #38bdf8); color:var(--accent, #38bdf8); font-weight:700; letter-spacing:0.3px;">BUGÜN</span>`;
+  } else {
+    statusCardClass = 'expert-day-card-workout';
+    themeColor = '#38bdf8';
+    badgeHtml = `<span class="gym-badge-default" style="font-size:10.5px; padding:3.5px 10px;">Seans</span>`;
+  }
+
+  // Kart başlığı ve alt başlık (hedef kaslar)
+  let displayTitle = '';
+  let displaySubtitle = '';
+  if (isRest) {
+    displayTitle = 'Rest Day';
+    displaySubtitle = 'Toparlanma';
+  } else {
+    let rawT = rawWorkoutType;
+    if (rawT.includes('(')) {
+      const parts = rawT.split('(');
+      displayTitle = parts[0].trim();
+      displaySubtitle = parts[1].replace(')', '').trim();
+    } else {
+      displayTitle = rawT;
+      const rawF = String(day?.focus || '').trim();
+      if (rawF && !rawF.startsWith('Antrenman yapıldı') && !rawF.startsWith('Gerçek antrenman kaydı') && rawF !== 'Genel antrenman' && isFocusCompatibleWithType(rawT, rawF)) {
+        displaySubtitle = rawF;
+      } else {
+        displaySubtitle = getDefaultFocus(rawT);
+      }
+    }
+    displayTitle = formatDisplayWorkoutTitle(displayTitle);
+  }
+
+  // Seans Açıklama Notu (Yalnızca gerçekten tamamlanmış veya genel taslak notları gösterilir)
+  let displayReason = '';
+  if (day?.content_reason) {
+    const reasonText = String(day.content_reason).trim();
+    const isActualReason = reasonText.includes('Kullanıcının kaydettiği') || reasonText.includes('işlendi') || reasonText.includes('Gerçek antrenman');
+    if (isActualReason) {
+      if (isCompleted) {
+        displayReason = reasonText;
+      }
+    } else {
+      displayReason = reasonText;
+    }
+  }
+
+  const totalSets = (rawExercises && rawExercises.length > 0) ? rawExercises.reduce((sum, e) => sum + (Number(e?.sets) || 0), 0) : 0;
+
+  const dragHandleHtml = (!isLocked) ? `
+    <div class="expert-recommendation-drag" title="Seans içeriğini başka güne taşımak için sürükle" style="cursor:grab; color:#64748b; transition:all 0.22s ease; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;" onmouseover="this.style.color='${themeColor}'; this.style.transform='scale(1.18)';" onmouseout="this.style.color='#64748b'; this.style.transform='none';">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
+    </div>` : '<div style="width:18px; flex-shrink:0;"></div>';
 
   return `
-    <article data-index="${index}" data-slot-id="${expertDataEscape(slotId)}" class="expert-day-card ${rest ? 'expert-day-card-rest' : 'expert-day-card-workout'}" style="margin:0; padding:18px; border-radius:14px;">
-      <div style="display:flex; align-items:flex-start; gap:14px;">
-        <div class="expert-recommendation-drag" title="Seans içeriğini başka güne taşımak için sürükle" style="cursor:grab; color:#64748b; padding-top:2px; transition:all 0.22s ease; display:flex; align-items:center;" onmouseover="this.style.color='${themeColor}'; this.style.transform='scale(1.18)';" onmouseout="this.style.color='#64748b'; this.style.transform='none';">
-          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
-        </div>
-        <div style="min-width:0; flex:1;">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
-              <span class="expert-day-title-text" style="font-size:15px; font-weight:850; color:#ffffff; letter-spacing:0.2px;">${expertDataEscape(slotLabel)}</span>
-              <span style="color:#64748b; opacity:0.6;">•</span>
-              <span class="expert-day-type-text" style="font-size:13.5px; font-weight:750; color:${themeColor};">${expertDataEscape(day?.type || (rest ? 'Dinlenme' : 'Antrenman'))}</span>
-            </div>
-            ${badgeHtml}
+    <article data-index="${index}" data-slot-id="${expertDataEscape(slotId)}" class="expert-day-card ${statusCardClass} ${isLocked ? 'sort-disabled' : ''}" style="margin:0; padding:18px; border-radius:14px; position:relative;">
+      <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0;">
+            ${dragHandleHtml}
+            <span class="expert-day-title-text" style="font-size:15px; font-weight:850; color:#ffffff; letter-spacing:0.2px;">${expertDataEscape(slotLabel)}</span>
+            <span style="color:#64748b; opacity:0.6;">•</span>
+            <span class="expert-day-type-text" style="font-size:13.5px; font-weight:750; color:${themeColor};">${expertDataEscape(displayTitle)}</span>
           </div>
-          <div style="margin:8px 0 0; display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
-            ${day?.focus ? `<p class="expert-day-focus-text" style="color:#cbd5e1; font-size:12.5px; font-weight:500; line-height:1.5; margin:0;">${expertDataEscape(day.focus)}</p>` : ''}
-            <span class="expert-day-sets-badge gym-equipment-count-badge" style="background:rgba(168,85,247,0.16); border-color:rgba(168,85,247,0.4); color:#d8b4fe; font-weight:800; ${totalSets > 0 ? '' : 'display:none;'}">TOPLAM ${totalSets} SET</span>
-          </div>
-          ${day?.content_reason ? `<div style="margin-top:10px; padding:9px 13px; background:rgba(15,23,42,0.6); border:1px solid rgba(56,189,248,0.2); border-left:3px solid #38bdf8; border-radius:8px; display:flex; gap:9px; align-items:flex-start;"><span style="font-size:13px; flex-shrink:0;">💡</span><small style="color:#94a3b8; font-size:12px; line-height:1.45; font-weight:500;">${expertDataEscape(day.content_reason)}</small></div>` : ''}
-          ${exerciseRows}
+          ${badgeHtml}
         </div>
+        <div style="margin:0; display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+          ${displaySubtitle ? `<p class="expert-day-focus-text" style="color:#cbd5e1; font-size:12.5px; font-weight:500; line-height:1.5; margin:0;">(${expertDataEscape(displaySubtitle)})</p>` : ''}
+          <span class="expert-day-sets-badge gym-equipment-count-badge" style="background:rgba(168,85,247,0.16); border-color:rgba(168,85,247,0.4); color:#d8b4fe; font-weight:800; ${totalSets > 0 ? '' : 'display:none;'}">TOPLAM ${totalSets} SET</span>
+        </div>
+        ${displayReason ? `<div style="margin-top:2px; padding:9px 13px; background:rgba(15,23,42,0.6); border:1px solid rgba(56,189,248,0.2); border-left:3px solid #38bdf8; border-radius:8px; display:flex; gap:9px; align-items:flex-start;"><span style="font-size:13px; flex-shrink:0;">💡</span><small style="color:#94a3b8; font-size:12px; line-height:1.45; font-weight:500;">${expertDataEscape(displayReason)}</small></div>` : ''}
+        ${exerciseRows}
       </div>
     </article>
   `;
@@ -12460,14 +13764,46 @@ function expertDataRecommendationPane() {
     : [];
   const priorityDisplay = priorityLabels.length ? priorityLabels.join(', ') : 'Profilde seçilen öncelik yok';
 
-  // Haftalık toplam set ve egzersiz hesabı
+  // Haftalık toplam hacim ve hareket sayısı hesaplama
+  const activeProg = expertRecommendationWeek(recommendation);
+  const currentActiveWeekIndex = activeProg ? activeProg.index : 0;
+  const weekOffset = safeWeek - currentActiveWeekIndex;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const weekStart = new Date(today);
+  const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
+  weekStart.setDate(today.getDate() - dayOfWeek);
+
+  const completedDates = cachedUserData?.sessions ? cachedUserData.sessions.map(sess => sess.date) : [];
+
   let totalWeekSets = 0;
   let totalExercises = 0;
-  (week.days || []).forEach(d => {
-    (d?.exercises || []).forEach(e => {
-      if (!e) return;
-      totalWeekSets += Number(e.sets) || 0;
-      totalExercises++;
+
+  (week.days || []).forEach((d, dIdx) => {
+    const rawWorkoutType = d?.type || d?.session_type || (d?.isRest ? 'Rest Day' : 'Antrenman');
+    const isRest = Boolean(d?.isRest) || String(rawWorkoutType).toLowerCase().includes('dinlenme') || String(rawWorkoutType).toLowerCase().includes('rest');
+    if (isRest) return;
+
+    const curD = new Date(weekStart);
+    curD.setDate(weekStart.getDate() + (weekOffset * 7) + dIdx);
+    curD.setHours(0, 0, 0, 0);
+    const dateStr = `${curD.getFullYear()}-${String(curD.getMonth()+1).padStart(2, '0')}-${String(curD.getDate()).padStart(2, '0')}`;
+    const matchedSession = cachedUserData?.sessions ? cachedUserData.sessions.find(s => s.date === dateStr) : null;
+    const isCompleted = !isRest && (Boolean(matchedSession) || completedDates.includes(dateStr));
+
+    let rawExercises = [];
+    if (isCompleted && matchedSession?.exercises && Array.isArray(matchedSession.exercises) && matchedSession.exercises.length > 0) {
+      rawExercises = matchedSession.exercises;
+    } else if (Array.isArray(d?.exercises) && d.exercises.length > 0) {
+      rawExercises = d.exercises.filter(e => e && typeof e === 'object');
+    }
+
+    rawExercises.forEach(item => {
+      if (!item) return;
+      totalExercises += 1;
+      const s = Number(item.sets) || (Array.isArray(item.sets_data) ? item.sets_data.length : 3);
+      totalWeekSets += s;
     });
   });
 
@@ -12512,12 +13848,12 @@ function expertDataRecommendationPane() {
       </div>
 
       <div class="expert-gym-stat-card">
-        <div class="expert-gym-stat-icon" style="color:#34d399;background:rgba(16,185,129,0.16);border-color:rgba(52,211,153,0.38);">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <div class="expert-gym-stat-icon" style="color:#10b981;background:rgba(16,185,129,0.16);border-color:rgba(16,185,129,0.38);">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         </div>
         <div>
           <span class="expert-gym-stat-label">Haftalık Toplam Hacim</span>
-          <strong id="expertWeekTotalVolume" class="expert-gym-stat-value" style="color:#34d399;text-shadow:0 0 10px rgba(52,211,153,0.35);">${totalWeekSets} Set <span style="font-size:11px;color:#94a3b8;font-weight:600;">(${totalExercises} Hareket)</span></strong>
+          <strong class="expert-gym-stat-value" id="expertWeekTotalVolume" style="color:#10b981;text-shadow:0 0 10px rgba(16,185,129,0.35);">${totalWeekSets} Set <span style="font-size:11px;color:#94a3b8;font-weight:600;">(${totalExercises} Hareket)</span></strong>
         </div>
       </div>
     </div>
@@ -12564,18 +13900,50 @@ function expertDataUpdateTotalSetsBadges() {
   const week = recommendation?.weeks?.[safeWeek];
   if (!week) return;
 
+  const activeProg = expertRecommendationWeek(recommendation);
+  const currentActiveWeekIndex = activeProg ? activeProg.index : 0;
+  const weekOffset = safeWeek - currentActiveWeekIndex;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const weekStart = new Date(today);
+  const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
+  weekStart.setDate(today.getDate() - dayOfWeek);
+
+  const completedDates = cachedUserData?.sessions ? cachedUserData.sessions.map(sess => sess.date) : [];
+
   let totalWeekSets = 0;
   let totalExercises = 0;
 
   (week.days || []).forEach((d, dIdx) => {
     let daySets = 0;
-    (d?.exercises || []).forEach(e => {
-      if (!e) return;
-      const s = Number(e.sets) || 0;
-      daySets += s;
-      totalWeekSets += s;
-      totalExercises++;
-    });
+    const rawWorkoutType = d?.type || d?.session_type || (d?.isRest ? 'Rest Day' : 'Antrenman');
+    const isRest = Boolean(d?.isRest) || String(rawWorkoutType).toLowerCase().includes('dinlenme') || String(rawWorkoutType).toLowerCase().includes('rest');
+
+    const curD = new Date(weekStart);
+    curD.setDate(weekStart.getDate() + (weekOffset * 7) + dIdx);
+    curD.setHours(0, 0, 0, 0);
+    const dateStr = `${curD.getFullYear()}-${String(curD.getMonth()+1).padStart(2, '0')}-${String(curD.getDate()).padStart(2, '0')}`;
+    const matchedSession = cachedUserData?.sessions ? cachedUserData.sessions.find(s => s.date === dateStr) : null;
+    const isCompleted = !isRest && (Boolean(matchedSession) || completedDates.includes(dateStr));
+
+    let rawExercises = [];
+    if (isCompleted && matchedSession?.exercises && Array.isArray(matchedSession.exercises) && matchedSession.exercises.length > 0) {
+      rawExercises = matchedSession.exercises;
+    } else if (Array.isArray(d?.exercises) && d.exercises.length > 0) {
+      rawExercises = d.exercises.filter(e => e && typeof e === 'object');
+    }
+
+    if (!isRest) {
+      rawExercises.forEach(e => {
+        if (!e) return;
+        const s = Number(e.sets) || (Array.isArray(e.sets_data) ? e.sets_data.length : 3);
+        daySets += s;
+        totalExercises += 1;
+        totalWeekSets += s;
+      });
+    }
+
     const dayCard = document.querySelector(`.expert-day-card[data-index="${dIdx}"]`);
     if (dayCard) {
       const badge = dayCard.querySelector('.expert-day-sets-badge');
@@ -12590,9 +13958,9 @@ function expertDataUpdateTotalSetsBadges() {
     }
   });
 
-  const volEl = document.getElementById('expertWeekTotalVolume');
-  if (volEl) {
-    volEl.innerHTML = `${totalWeekSets} Set <span style="font-size:11px;color:#94a3b8;font-weight:600;">(${totalExercises} Hareket)</span>`;
+  const totalVolEl = document.getElementById('expertWeekTotalVolume');
+  if (totalVolEl) {
+    totalVolEl.innerHTML = `${totalWeekSets} Set <span style="font-size:11px;color:#94a3b8;font-weight:600;">(${totalExercises} Hareket)</span>`;
   }
 }
 
@@ -12756,7 +14124,7 @@ function expertDataEditExerciseSetsReps(weekIdx, slotId, exerciseId) {
       }
     }
     expertDataUpdateTotalSetsBadges();
-    toast('Set ve tekrar sayısı güncellendi.', 'success');
+    toast('Set ve tekrar aralığı güncellendi.', 'success');
   };
 }
 
@@ -12772,12 +14140,19 @@ function expertDataInitRecommendationSortable() {
   list._sortable = new Sortable(list, { 
     handle: '.expert-recommendation-drag', 
     draggable: '.expert-day-card',
+    filter: '.sort-disabled',
     animation: 280, 
     easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
     ghostClass: 'expert-day-ghost', 
     chosenClass: 'expert-day-chosen',
     dragClass: 'expert-day-drag',
     swapThreshold: 0.5,
+    onMove(evt) {
+      if (evt.related && evt.related.classList.contains('sort-disabled')) {
+        return false;
+      }
+      return true;
+    },
     onStart(evt) {
       document.body.classList.add('expert-is-dragging');
     },
@@ -12787,8 +14162,7 @@ function expertDataInitRecommendationSortable() {
       const days = recommendation.weeks[expertRecommendationWeekIndex].days;
       expertRecommendationMoveContents(days, evt.oldIndex, evt.newIndex);
       queueExpertRecommendationOrderSave(days, expertRecommendationWeekIndex);
-      // Sayfayı kesinlikle YENİLEMEDEN gün kartlarını yerinde pürüzsüz güncelle
-      expertDataRefreshDaysAfterDrop();
+      expertDataRefreshDaysDOM();
     }
   });
 
@@ -12797,9 +14171,14 @@ function expertDataInitRecommendationSortable() {
     if (exList._sortable) {
       exList._sortable.destroy();
     }
+    const dayCard = exList.closest('.expert-day-card');
+    if (dayCard && (dayCard.classList.contains('expert-day-card-done') || dayCard.classList.contains('sort-disabled'))) {
+      return;
+    }
     exList._sortable = new Sortable(exList, {
       handle: '.ex-drag-handle',
       draggable: '.expert-exercise-row-item',
+      filter: '.sort-disabled',
       animation: 220,
       easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
       ghostClass: 'expert-exercise-ghost',
@@ -13060,8 +14439,8 @@ window.expertDataAddRecommendedExercise = async function(weekIndex, slotId) {
             <span class="expert-exercise-name" style="font-size: 13px; font-weight: 700; color: #ffffff; letter-spacing: 0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${expertDataEscape(newEx.name)}</span>
           </div>
           <div style="display:flex; align-items:center; gap: 7px; flex-shrink: 0;">
-            <button type="button" class="expert-set-rep-pill" onclick="expertDataEditExerciseSetsReps(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')" title="Set ve Tekrarı Düzenle">
-              <span class="expert-set-rep-text">3 × 8-12</span>
+            <button type="button" class="expert-set-rep-pill" onclick="expertDataEditExerciseSetsReps(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')" title="Set ve Tekrar Aralığını Düzenle">
+              <span class="expert-set-rep-text" style="color:#ffffff; font-weight:750;">${newEx.sets || 3} × ${newEx.reps || '8-12'}</span>
               <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4" style="opacity:0.75;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
             </button>
             <button class="expert-alternative-open expert-icon-action-btn alt-btn" type="button" title="Uygun alternatifleri göster" onclick="expertDataToggleAlternativeTray(event, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}', ${weekIndex}, ${occupiedArgument})">
@@ -13088,17 +14467,7 @@ window.expertDataAddRecommendedExercise = async function(weekIndex, slotId) {
 function expertDataSplitDraftPane() {
   const analysis = expertAnalysisState || {};
   const plan = analysis.split_plan || {};
-  const focusList = Array.isArray(plan.focus) && plan.focus.length ? plan.focus : [];
-  const monitorList = Array.isArray(plan.monitor) && plan.monitor.length ? plan.monitor : [];
   const findingsList = (analysis.findings || []).slice(0, 4);
-
-  const focusChips = focusList.length
-    ? `<div class="gym-equipment-chips" style="margin-top:8px;margin-bottom:0;">${focusList.map(f => `<span class="gym-equipment-chip" style="background:rgba(56,189,248,0.15);border-color:rgba(56,189,248,0.4);color:#38bdf8;">${expertDataEscape(f)}</span>`).join('')}</div>`
-    : `<p style="margin:8px 0 0;color:#94a3b8;font-size:12px;">Henüz hedef kas seçilmedi</p>`;
-
-  const monitorChips = monitorList.length
-    ? `<div class="gym-equipment-chips" style="margin-top:8px;margin-bottom:0;">${monitorList.map(m => `<span class="gym-equipment-chip" style="background:rgba(251,191,36,0.14);border-color:rgba(251,191,36,0.38);color:#fbbf24;">${expertDataEscape(m)}</span>`).join('')}</div>`
-    : `<p style="margin:8px 0 0;color:#94a3b8;font-size:12px;">Özel takip gerektiren alan görünmüyor</p>`;
 
   const findingsHtml = findingsList.length ? findingsList.map(item => `
     <div class="expert-split-strategy-item" style="border-left:3px solid #38bdf8;padding:12px 14px;background:linear-gradient(145deg, rgba(26, 32, 54, 0.6) 0%, rgba(18, 23, 38, 0.8) 100%);">
@@ -13135,7 +14504,7 @@ function expertDataSplitDraftPane() {
       </div>
 
       <!-- 1. Stratejik Değerlendirme Özeti -->
-      <div class="expert-split-strategy-item" style="border-left:4px solid ${toneBorder};background:linear-gradient(145deg, rgba(26, 32, 54, 0.75) 0%, rgba(18, 23, 38, 0.9) 100%);margin-bottom:16px;padding:15px 18px;">
+      <div class="expert-split-strategy-item" style="border-left:4px solid ${toneBorder};background:linear-gradient(145deg, rgba(26, 32, 54, 0.75) 0%, rgba(18, 23, 38, 0.9) 100%);margin-bottom:18px;padding:15px 18px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
           <span style="font-size:15px;">⚡</span>
           <strong style="color:#ffffff;font-size:13.5px;letter-spacing:0.01em;">${expertDataEscape(plan.summary || analysis.status?.title || 'Stratejik Değerlendirme')}</strong>
@@ -13143,26 +14512,7 @@ function expertDataSplitDraftPane() {
         <p style="margin:0;color:#cbd5e1;font-size:12.5px;line-height:1.55;">${expertDataEscape(plan.approach || analysis.split_guidance || 'Tüm parametreler hipertrofi adaptasyonunu maksimize edecek şekilde dengelendi.')}</p>
       </div>
 
-      <!-- 2. Hedef Kaslar & İzlenecek Alanlar (2 Kolon) -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:14px;margin-bottom:18px;">
-        <div class="expert-split-strategy-item" style="margin:0;padding:14px 16px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
-            <strong style="color:#ffffff;font-size:12.5px;">Öne Çıkarılan Hedef Kaslar</strong>
-          </div>
-          ${focusChips}
-        </div>
-
-        <div class="expert-split-strategy-item" style="margin:0;padding:14px 16px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            <strong style="color:#ffffff;font-size:12.5px;">İzlenecek Alanlar (Kısıt & Toparlanma)</strong>
-          </div>
-          ${monitorChips}
-        </div>
-      </div>
-
-      <!-- 3. Kararın Dayanağı ve Kural Bulguları -->
+      <!-- 2. Kararın Dayanağı ve Kural Bulguları -->
       <div style="padding-top:16px;border-top:1px solid rgba(108,99,255,0.15);">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:8px;">
@@ -13221,7 +14571,7 @@ function _renderExpertSystemCore(animate = true) {
   }
 
   const stageClass = animate ? 'expert-data-stage expert-data-stage-animated' : 'expert-data-stage';
-  content.innerHTML = `<div class="expert-data-shell"><header class="expert-data-hero"><span class="expert-data-eyebrow">Uzman Sistemi · Veri ve Karar Merkezi</span><h2>Verini kaydet, kuralın nedenini gör.</h2><p>DOMS, hedef kaslar, sakatlık/kısıt, ekipman ve set bazlı RPE özeti modüler kurallarla değerlendirilir. Sistem mevcut programı otomatik değiştirmez; Split ve Analiz sekmelerinde açıklanabilir taslak yönlendirmesi sunar.</p><div style="margin-top:16px; padding:12px; background:rgba(108,99,255,0.05); border:1px solid rgba(108,99,255,0.2); border-radius:10px; display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--text-secondary);"><strong style="color:var(--text-primary); width:100%;">Planlama Hiyerarşisi:</strong><span style="flex:1 1 200px;"><strong>1. Hareket Tercihi:</strong> Seçilen hareketler taslakta kesin öncelik kazanır.</span><span style="flex:1 1 200px;"><strong>2. Ekipman Tercihi:</strong> Boş bırakılmadıysa varsayılan salonun imkânlarını ezer.</span><span style="flex:1 1 200px;"><strong>3. Varsayılan Salon:</strong> Herhangi bir özel tercih girilmediğinde temel (fallback) ekipman listesi olarak baz alınır.</span></div></header>${expertDataTabs()}<div class="${stageClass}" key="${stageKey}">${expertDataPane()}</div></div>`;
+  content.innerHTML = `<div class="expert-data-shell"><header class="expert-data-hero"><span class="expert-data-eyebrow">Uzman Sistemi · Veri ve Karar Merkezi</span><h2>Verini kaydet, kuralın nedenini gör.</h2><p>DOMS, hedef kaslar, sakatlık/kısıt, ekipman ve set bazlı RPE özeti modüler kurallarla değerlendirilir. Sistem mevcut programı otomatik değiştirmez; Split ve Analiz sekmelerinde açıklanabilir taslak yönlendirmesi sunar.</p><div class="expert-hierarchy-box" style="margin-top:16px; padding:12px; background:rgba(108,99,255,0.05); border:1px solid rgba(108,99,255,0.2); border-radius:10px; display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--text-secondary);"><strong style="color:var(--text-primary); width:100%;">Planlama Hiyerarşisi:</strong><span style="flex:1 1 200px;"><strong>1. Hareket Tercihi:</strong> Seçilen hareketler taslakta kesin öncelik kazanır.</span><span style="flex:1 1 200px;"><strong>2. Ekipman Tercihi:</strong> Boş bırakılmadıysa varsayılan salonun imkânlarını ezer.</span><span style="flex:1 1 200px;"><strong>3. Varsayılan Salon:</strong> Herhangi bir özel tercih girilmediğinde temel (fallback) ekipman listesi olarak baz alınır.</span></div></header>${expertDataTabs()}<div class="${stageClass}" key="${stageKey}">${expertDataPane()}</div></div>`;
 }
 
 function renderExpertSystem(animate = true) {

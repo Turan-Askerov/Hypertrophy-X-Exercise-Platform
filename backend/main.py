@@ -22,6 +22,7 @@ import json
 import sqlite3
 import re
 import unicodedata
+from copy import deepcopy
 
 try:
     import psycopg
@@ -67,7 +68,7 @@ from expert_system import (
     validate_score as validate_expert_score,
 )
 from expert_system import build_recommendation_program, format_tr_date, rpe_summary_from_rir
-from program_schedule_sync import align_rest_slots, current_week_actuals, is_rest_day, reconcile_week
+from program_schedule_sync import align_rest_slots, clean_non_active_week, current_week_actuals, is_rest_day, reconcile_week, session_kind
 
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -565,8 +566,6 @@ def _sync_programs_with_real_workouts(user_id: int) -> dict:
     if not user:
         return {"changed": False}
     actuals = current_week_actuals(get_workouts_by_user(user_id))
-    if not actuals:
-        return {"changed": False}
 
     today_index = date.today().weekday()
     custom_program = _read_custom_program(user.get("custom_split", "[]"))
@@ -574,16 +573,20 @@ def _sync_programs_with_real_workouts(user_id: int) -> dict:
     custom_rest_indices: set[int] = set()
     if custom_program:
         custom_week_index = _schedule_week_index(len(custom_program))
-        custom_days = custom_program[custom_week_index]
-        if isinstance(custom_days, list) and len(custom_days) == 7:
-            reconciled, custom_changed = reconcile_week(custom_days, actuals, today_index)
-            if custom_changed:
-                custom_program[custom_week_index] = reconciled
-            current_custom_days = custom_program[custom_week_index]
-            if isinstance(current_custom_days, list) and len(current_custom_days) == 7:
-                custom_rest_indices = {
-                    index for index, item in enumerate(current_custom_days) if is_rest_day(item)
-                }
+        for c_idx, c_days in enumerate(custom_program):
+            if isinstance(c_days, list) and len(c_days) == 7:
+                if c_idx == custom_week_index:
+                    reconciled, c_changed = reconcile_week(c_days, actuals, today_index)
+                else:
+                    reconciled, c_changed = clean_non_active_week(c_days, c_idx)
+                if c_changed:
+                    custom_program[c_idx] = reconciled
+                    custom_changed = True
+        current_custom_days = custom_program[custom_week_index] if custom_week_index < len(custom_program) else []
+        if isinstance(current_custom_days, list) and len(current_custom_days) == 7:
+            custom_rest_indices = {
+                index for index, item in enumerate(current_custom_days) if is_rest_day(item)
+            }
 
     preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
     recommendation = preferences.get("expert_recommendation")
@@ -593,19 +596,37 @@ def _sync_programs_with_real_workouts(user_id: int) -> dict:
         if weeks:
             recommendation = _expert_normalize_recommendation_slots(recommendation)
             week_index = _schedule_week_index(len(weeks))
-            active_week = recommendation.get("weeks", [])[week_index]
-            if isinstance(active_week, dict) and isinstance(active_week.get("days"), list):
-                expert_days = active_week.get("days")
-                if len(expert_days) == 7:
-                    # Özel programdaki kullanıcı seçimi (ör. Salı dinlenme) uzman
-                    # taslağında da öncelikle korunur. Gerçek antrenman yine üstündür.
-                    rest_aligned = align_rest_slots(expert_days, custom_rest_indices)
-                    reconciled, reconciled_changed = reconcile_week(
-                        expert_days, actuals, today_index, protected_rest_indices=custom_rest_indices
-                    )
-                    if rest_aligned or reconciled_changed:
-                        active_week["days"] = reconciled
-                        expert_changed = True
+
+            # Referans egzersiz havuzu (dolu olan günlerden topla)
+            exercise_reference_pool: dict[str, list[dict]] = {}
+            for w in weeks:
+                if isinstance(w, dict) and isinstance(w.get("days"), list):
+                    for d in w.get("days", []):
+                        if not is_rest_day(d):
+                            k = session_kind(d.get("type"))
+                            exs = d.get("exercises", [])
+                            if k and exs and len(exs) > 0 and k not in exercise_reference_pool:
+                                exercise_reference_pool[k] = deepcopy(exs)
+
+            for w_idx, week_obj in enumerate(weeks):
+                if isinstance(week_obj, dict) and isinstance(week_obj.get("days"), list):
+                    expert_days = week_obj.get("days")
+                    if len(expert_days) == 7:
+                        if w_idx == week_index:
+                            rest_aligned = align_rest_slots(expert_days, custom_rest_indices)
+                            reconciled, rec_changed = reconcile_week(
+                                expert_days, actuals, today_index, protected_rest_indices=custom_rest_indices
+                            )
+                            if rest_aligned or rec_changed:
+                                week_obj["days"] = reconciled
+                                expert_changed = True
+                        else:
+                            reconciled, rec_changed = clean_non_active_week(
+                                expert_days, w_idx, reference_pool=exercise_reference_pool
+                            )
+                            if rec_changed:
+                                week_obj["days"] = reconciled
+                                expert_changed = True
 
     if not custom_changed and not expert_changed:
         return {"changed": False}
@@ -2679,7 +2700,14 @@ def dashboard(user: dict = Depends(_resolve_current_user)):
 
     stats = calculate_stats(user)
     sessions_data = [
-        {"date": w["date"], "type": w.get("session_type", "Workout")} for w in workouts
+        {
+            "id": w.get("id"),
+            "date": w["date"],
+            "type": w.get("session_type", "Workout"),
+            "notes": w.get("notes", ""),
+            "exercises": w.get("exercises") or [],
+        }
+        for w in workouts
     ]
     conn = get_db()
     try:
@@ -3422,34 +3450,31 @@ def reorder_expert_recommendation(data: dict = Body(...), user: dict = Depends(_
     recommendation = _expert_normalize_recommendation_slots(recommendation)
     current_weeks = recommendation.get("weeks") or []
     
-    if len(current_weeks) != len(requested_weeks) or not 1 <= len(current_weeks) <= 3:
-        raise HTTPException(status_code=400, detail="Geçersiz öneri hafta sırası.")
+    if not current_weeks:
+        raise HTTPException(status_code=400, detail="Geçersiz öneri programı.")
         
     for index, current_week in enumerate(current_weeks, start=1):
-        current_days = current_week.get("days") or []
+        if index - 1 >= len(requested_weeks):
+            continue
         sent_week = requested_weeks[index - 1] if isinstance(requested_weeks[index - 1], dict) else {}
         sent_days = sent_week.get("days") if isinstance(sent_week, dict) else None
         expected_slots = [_expert_slot_id(index, day_index) for day_index in range(7)]
         
-        if not isinstance(sent_days, list) or len(current_days) != 7 or len(sent_days) != 7:
-            raise HTTPException(status_code=400, detail="Her öneri haftası yedi sabit gün içermelidir.")
+        if not isinstance(sent_days, list) or len(sent_days) != 7:
+            continue
             
-        sent_slots = [str(day.get("slot_id") or day.get("day_id") or "") for day in sent_days if isinstance(day, dict)]
-        
-        # Frontend'den gelen güncel içeriği (sent_content) kullanıyoruz!
-        sent_content = {str(day.get("content_id")): _expert_content_from_day(day, str(day.get("content_id"))) for day in sent_days}
-        requested_content_ids = [str(day.get("content_id") or "") for day in sent_days if isinstance(day, dict)]
-        
-        current_content_ids = {str(day.get("content_id") or "") for day in current_days}
-        
-        if sent_slots != expected_slots or len(current_content_ids) != 7 or set(requested_content_ids) != current_content_ids:
-            raise HTTPException(status_code=400, detail="Yalnız mevcut seans veya dinlenme kartları sabit günler arasında taşınabilir.")
-            
-        # Artık sisteme Frontend'in yolladığı yeni/değiştirilmiş egzersizleri kaydediyoruz
-        current_week["days"] = [
-            {"day_id": slot_id, "slot_id": slot_id, "day": _EXPERT_WEEKDAY_LABELS[day_index], **sent_content[requested_content_ids[day_index]]}
-            for day_index, slot_id in enumerate(expected_slots)
-        ]
+        updated_days = []
+        for day_index, slot_id in enumerate(expected_slots):
+            sent_day = sent_days[day_index] if isinstance(sent_days[day_index], dict) else {}
+            fallback_cid = f"week-{index}-content-{day_index + 1}"
+            content = _expert_content_from_day(sent_day, fallback_cid)
+            updated_days.append({
+                "day_id": slot_id,
+                "slot_id": slot_id,
+                "day": _EXPERT_WEEKDAY_LABELS[day_index],
+                **content,
+            })
+        current_week["days"] = updated_days
         
     preferences = _save_expert_recommendation(user, recommendation)
     return {"success": True, "recommendation": recommendation, "dashboard_preferences": preferences}
