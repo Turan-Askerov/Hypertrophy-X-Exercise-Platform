@@ -3367,8 +3367,7 @@ def _expert_content_from_day(day: dict, fallback_content_id: str) -> dict:
     content["content_id"] = str(content.get("content_id") or day.get("day_id") or fallback_content_id)
     content["type"] = str(content.get("type") or "Dinlenme")
     content["focus"] = str(content.get("focus") or ("Toparlanma" if content.get("isRest") else "Genel antrenman"))
-    content["isRest"] = bool(content.get("isRest"))
-    content["exercises"] = list(content.get("exercises") or [])
+    content["exercises"] = [ex for ex in (content.get("exercises") or []) if isinstance(ex, dict)]
     return content
 
 

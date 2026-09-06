@@ -244,6 +244,17 @@ EXERCISE_POOL = [
               secondary_muscles=[], movement_pattern="scapular_protraction",
               equipment=["cable_machine", "single_handle"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
 
+    _exercise("scapular-pull-ups-bw", "Scapular Pull Ups", "Back", "isolation", True,
+              family="scapular_pull_up", variation="bodyweight", primary_muscles=["lower_traps", "lats"],
+              secondary_muscles=["rhomboids", "mid_traps", "upper_back"], movement_pattern="scapular_depression",
+              equipment=["pull_up_bar", "bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
+
+    _exercise("scapular-pull-ups-weighted", "Scapular Pull Ups", "Back", "isolation", False,
+              family="scapular_pull_up", variation="weighted", primary_muscles=["lower_traps", "lats"],
+              secondary_muscles=["rhomboids", "mid_traps", "upper_back"], movement_pattern="scapular_depression",
+              equipment=["pull_up_bar", "bodyweight", "dip_belt"], load_mode="bodyweight_plus_external",
+              minimum_level="intermediate", fatigue_cost="medium"),
+
     # ── OMUZ EGZERSİZLERİ ──────────────────────────────────────────
     # --- Bileşik (Compound) Egzersizler ---
     _exercise("arnold-press", "Arnold Press", "Shoulders", "compound", False,
