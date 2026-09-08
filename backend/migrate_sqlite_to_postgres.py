@@ -34,7 +34,7 @@ WORKOUT_COLUMNS = (
 )
 PROFILE_COLUMNS = (
     "target_muscles_json", "doms_daily_json", "gym_equipment_json", "injuries_json",
-    "created_at", "updated_at",
+    "rpe_checkins_json", "created_at", "updated_at",
 )
 # Yalnız otomatik zaman damgası farkı, içerik değişikliği sayılmaz.
 USER_COMPARE_COLUMNS = tuple(column for column in USER_COLUMNS if column not in {"created_at", "updated_at"})
@@ -47,7 +47,7 @@ DEFAULTS: dict[str, Any] = {
     "custom_split": "[]", "dashboard_preferences": "{}", "daily_nutrition": "{}",
     "is_admin": 0, "notes": "", "gym_id": None, "gym_name": "", "total_volume": 0.0, "exercises": "[]",
     "target_muscles_json": "{}", "doms_daily_json": "{}",
-    "gym_equipment_json": "[]", "injuries_json": "[]",
+    "gym_equipment_json": "[]", "injuries_json": "[]", "rpe_checkins_json": "[]",
 }
 
 
