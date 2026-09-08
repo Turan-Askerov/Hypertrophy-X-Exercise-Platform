@@ -2819,7 +2819,14 @@ def get_exercise_chart_data(
         raise HTTPException(status_code=400, detail="Egzersiz seçimi geçersiz")
 
     load_mode = target.get("analysis", {}).get("load_mode", "external_load") if target else "external_load"
-    metric_type = "reps" if load_mode == "bodyweight" else "weight_kg"
+    is_bw = (
+        (target and target.get("is_bodyweight") is True)
+        or (load_mode == "bodyweight")
+        or ("(vücut ağırlığı)" in str(exercise or exercise_id or "").lower())
+        or ("bodyweight" in str(exercise_id or "").lower())
+        or ("-bw" in str(exercise_id or "").lower())
+    )
+    metric_type = "reps" if (is_bw and load_mode != "bodyweight_plus_external") else ("reps" if load_mode == "bodyweight" else "weight_kg")
     metric_label = "En yüksek tekrar" if metric_type == "reps" else "PR ağırlık (kg)"
     historical_name = str(exercise or exercise_id or "Eski hareket")
 
@@ -2828,13 +2835,24 @@ def get_exercise_chart_data(
     for workout in workouts:
         for entry in workout.get("exercises", []):
             resolved = _canonical_exercise_from_entry(entry)
+            matched = False
             if target:
-                if not resolved or resolved["id"] != target["id"]:
-                    continue
+                if resolved and resolved["id"] == target["id"]:
+                    matched = True
+                else:
+                    entry_id = str(entry.get("canonical_exercise_id") or entry.get("exercise_id") or "").strip()
+                    entry_name = str(entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name") or "").strip()
+                    if entry_id and entry_id == target["id"]:
+                        matched = True
+                    elif entry_name and _normalize_exercise_text(entry_name) == _normalize_exercise_text(target["name"]):
+                        matched = True
             elif _legacy_exercise_key(
                 entry.get("canonical_exercise_id") or entry.get("exercise_id"),
                 entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name"),
-            ) != historical_key:
+            ) == historical_key:
+                matched = True
+
+            if not matched:
                 continue
 
             historical_name = str(entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name") or historical_name)
@@ -2847,7 +2865,7 @@ def get_exercise_chart_data(
                     weight = float(set_data.get("weight_kg", 0))
                 except (TypeError, ValueError):
                     continue
-                value = reps if metric_type == "reps" else weight
+                value = reps if metric_type == "reps" else (reps if (is_bw and weight <= 0) else weight)
                 if value <= 0:
                     continue
                 labels.append(formatted_date)
@@ -2864,6 +2882,7 @@ def get_exercise_chart_data(
         "exercise_name": target["name"] if target else historical_name,
         "metric_type": metric_type,
         "metric_label": metric_label,
+        "is_bodyweight": is_bw,
         "is_legacy_exercise": not bool(target),
         "labels": labels,
         "data": values,
