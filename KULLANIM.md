@@ -53,7 +53,7 @@ DATABASE_URL='' ../venv/bin/python -m uvicorn main:app --reload --host 127.0.0.1
 
 ## Özellikler
 
-### 1. Dashboard
+### 1. Kontrol Paneli
 - Haftalık/Aylık/Toplam antrenman + seri gün + dinlenme süresi
 - Antrenman programı (split bilgisi)
 - BMI + fiziksel durum

@@ -17,7 +17,7 @@ YAPILAN DEĞİŞİKLİKLER:
 import hashlib
 import secrets
 import os
-from pathlib import Path as _Path
+from pathlib import Path, Path as _Path
 import json
 import sqlite3
 import re
@@ -1118,6 +1118,15 @@ class AdminEditUser(BaseModel):
     days_per_week: Optional[int] = None
     session_time_mins: Optional[int] = None
     new_password: Optional[str] = None
+
+
+class AdminSqlQuery(BaseModel):
+    query: str
+
+
+class AdminMigrateRequest(BaseModel):
+    database_url: Optional[str] = None
+    dry_run: Optional[bool] = False
 
 
 class AnalyzeRequest(BaseModel):
@@ -2519,6 +2528,531 @@ def admin_delete_user(user_id: int,
     conn.commit()
     conn.close()
     return {"message": "Kullanıcı ve antrenmanları silindi"}
+
+
+# ═══════════════════════════════════════════════
+# VERİTABANI YÖNETİMİ & SQL TERMİNALİ
+# ═══════════════════════════════════════════════
+@app.get("/api/admin/db/info")
+def admin_get_db_info(admin: dict = Depends(_resolve_current_user)):
+    """Admin: Veritabanı motoru, boyutu, tabloları ve durum bilgilerini getir."""
+    _require_admin(admin)
+    conn = get_db()
+    cur = conn.cursor()
+    
+    tables_info = []
+    total_records = 0
+
+    if DATABASE_BACKEND == "postgresql":
+        cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name")
+        table_names = [row["table_name"] if isinstance(row, dict) else row[0] for row in cur.fetchall()]
+    else:
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
+        table_names = [row["name"] if isinstance(row, dict) or isinstance(row, sqlite3.Row) else row[0] for row in cur.fetchall()]
+
+    for tname in table_names:
+        try:
+            cur.execute(f'SELECT COUNT(*) FROM "{tname}"')
+            cnt_row = cur.fetchone()
+            cnt = cnt_row[0] if not isinstance(cnt_row, dict) else list(cnt_row.values())[0]
+            tables_info.append({"name": tname, "rows": int(cnt)})
+            total_records += int(cnt)
+        except Exception:
+            tables_info.append({"name": tname, "rows": 0})
+
+    conn.close()
+
+    # DB File size
+    file_size_bytes = 0
+    file_size_formatted = "-"
+    if DATABASE_BACKEND != "postgresql":
+        db_file = Path(DB_PATH).resolve()
+        if db_file.is_file():
+            file_size_bytes = db_file.stat().st_size
+            if file_size_bytes < 1024 * 1024:
+                file_size_formatted = f"{file_size_bytes / 1024:.1f} KB"
+            else:
+                file_size_formatted = f"{file_size_bytes / (1024 * 1024):.2f} MB"
+
+    masked_url = ""
+    if DATABASE_URL:
+        import re
+        masked_url = re.sub(r':([^@]+)@', r':***@', DATABASE_URL)
+
+    return {
+        "backend": DATABASE_BACKEND,
+        "db_path": DB_PATH,
+        "db_size_bytes": file_size_bytes,
+        "db_size_formatted": file_size_formatted,
+        "database_url_configured": bool(DATABASE_URL),
+        "database_url_masked": masked_url,
+        "tables": tables_info,
+        "total_records": total_records,
+        "status": "online"
+    }
+
+
+@app.post("/api/admin/db/query")
+def admin_execute_sql_query(data: AdminSqlQuery = Body(...),
+                           admin: dict = Depends(_resolve_current_user)):
+    """Admin: İnteraktif SQL Terminalinden sorgu çalıştır."""
+    _require_admin(admin)
+    raw_query = (data.query or "").strip()
+    if not raw_query:
+        raise HTTPException(status_code=400, detail="Boş sorgu gönderilemez.")
+
+    import time
+    start_time = time.perf_counter()
+    conn = get_db()
+    cur = conn.cursor()
+
+    try:
+        is_select = raw_query.upper().startswith(("SELECT", "PRAGMA", "EXPLAIN", "SHOW", "WITH"))
+        
+        cur.execute(raw_query)
+        execution_time_ms = round((time.perf_counter() - start_time) * 1000, 2)
+
+        if is_select:
+            columns = [desc[0] for desc in cur.description] if cur.description else []
+            raw_rows = cur.fetchmany(500)
+            
+            rows = []
+            for r in raw_rows:
+                if isinstance(r, dict):
+                    row_dict = r
+                elif isinstance(r, sqlite3.Row):
+                    row_dict = dict(r)
+                else:
+                    row_dict = {columns[i]: r[i] for i in range(len(columns))}
+                
+                serialized_row = {}
+                for k, v in row_dict.items():
+                    if isinstance(v, (bytes, bytearray)):
+                        serialized_row[k] = "<BLOB>"
+                    elif hasattr(v, "isoformat"):
+                        serialized_row[k] = v.isoformat()
+                    else:
+                        serialized_row[k] = v
+                rows.append(serialized_row)
+
+            conn.close()
+            return {
+                "success": True,
+                "is_select": True,
+                "columns": columns,
+                "rows": rows,
+                "row_count": len(rows),
+                "execution_time_ms": execution_time_ms
+            }
+        else:
+            conn.commit()
+            affected = cur.rowcount if hasattr(cur, "rowcount") else 0
+            conn.close()
+            return {
+                "success": True,
+                "is_select": False,
+                "affected_rows": affected,
+                "execution_time_ms": execution_time_ms,
+                "message": f"Sorgu başarıyla çalıştırıldı. Etkilenen satır: {affected}"
+            }
+    except Exception as e:
+        conn.close()
+        execution_time_ms = round((time.perf_counter() - start_time) * 1000, 2)
+        return {
+            "success": False,
+            "error": str(e),
+            "execution_time_ms": execution_time_ms
+        }
+
+
+@app.get("/api/admin/db/tables")
+def admin_get_db_tables(admin: dict = Depends(_resolve_current_user)):
+    """Admin: Veritabanındaki tüm tabloları ve şemalarını getir."""
+    _require_admin(admin)
+    conn = get_db()
+    cur = conn.cursor()
+
+    result = []
+    if DATABASE_BACKEND == "postgresql":
+        cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name")
+        table_names = [row["table_name"] if isinstance(row, dict) else row[0] for row in cur.fetchall()]
+        for tname in table_names:
+            cur.execute("""
+                SELECT column_name, data_type, is_nullable, column_default
+                FROM information_schema.columns
+                WHERE table_name = %s
+                ORDER BY ordinal_position
+            """, (tname,))
+            cols = []
+            for c in cur.fetchall():
+                c_dict = c if isinstance(c, dict) else {"column_name": c[0], "data_type": c[1], "is_nullable": c[2], "column_default": c[3]}
+                cols.append({
+                    "name": c_dict["column_name"],
+                    "type": c_dict["data_type"],
+                    "notnull": c_dict["is_nullable"] == "NO",
+                    "default": str(c_dict["column_default"]) if c_dict["column_default"] is not None else None,
+                    "pk": False
+                })
+            cur.execute(f'SELECT COUNT(*) FROM "{tname}"')
+            cnt = cur.fetchone()
+            cnt_val = cnt[0] if not isinstance(cnt, dict) else list(cnt.values())[0]
+            result.append({"name": tname, "rows": int(cnt_val), "columns": cols})
+    else:
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
+        table_names = [row["name"] if isinstance(row, dict) or isinstance(row, sqlite3.Row) else row[0] for row in cur.fetchall()]
+        for tname in table_names:
+            cur.execute(f'PRAGMA table_info("{tname}")')
+            col_rows = cur.fetchall()
+            cols = []
+            for c in col_rows:
+                c_dict = dict(c) if isinstance(c, sqlite3.Row) else c
+                cols.append({
+                    "name": c_dict["name"],
+                    "type": c_dict["type"],
+                    "notnull": bool(c_dict["notnull"]),
+                    "default": str(c_dict["dflt_value"]) if c_dict["dflt_value"] is not None else None,
+                    "pk": bool(c_dict["pk"])
+                })
+            cur.execute(f'SELECT COUNT(*) FROM "{tname}"')
+            cnt = cur.fetchone()
+            cnt_val = cnt[0] if not isinstance(cnt, dict) else list(cnt.values())[0]
+            result.append({"name": tname, "rows": int(cnt_val), "columns": cols})
+
+    conn.close()
+    return result
+
+
+@app.get("/api/admin/db/table-data/{table_name}")
+def admin_get_table_data(table_name: str,
+                         limit: int = 50,
+                         offset: int = 0,
+                         admin: dict = Depends(_resolve_current_user)):
+    """Admin: Belirli bir tablonun satır verilerini getir."""
+    _require_admin(admin)
+    limit = min(max(1, limit), 200)
+    offset = max(0, offset)
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    if DATABASE_BACKEND == "postgresql":
+        cur.execute("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name=%s", (table_name,))
+    else:
+        cur.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+    
+    if not cur.fetchone():
+        conn.close()
+        raise HTTPException(status_code=404, detail="Tablo bulunamadı")
+
+    cur.execute(f'SELECT COUNT(*) FROM "{table_name}"')
+    total_row = cur.fetchone()
+    total_count = total_row[0] if not isinstance(total_row, dict) else list(total_row.values())[0]
+
+    cur.execute(f'SELECT * FROM "{table_name}" LIMIT {limit} OFFSET {offset}')
+    columns = [desc[0] for desc in cur.description] if cur.description else []
+    raw_rows = cur.fetchall()
+
+    rows = []
+    for r in raw_rows:
+        if isinstance(r, dict):
+            row_dict = r
+        elif isinstance(r, sqlite3.Row):
+            row_dict = dict(r)
+        else:
+            row_dict = {columns[i]: r[i] for i in range(len(columns))}
+        
+        serialized_row = {}
+        for k, v in row_dict.items():
+            if isinstance(v, (bytes, bytearray)):
+                serialized_row[k] = "<BLOB>"
+            elif hasattr(v, "isoformat"):
+                serialized_row[k] = v.isoformat()
+            else:
+                serialized_row[k] = v
+        rows.append(serialized_row)
+
+    conn.close()
+    return {
+        "table": table_name,
+        "total_rows": int(total_count),
+        "limit": limit,
+        "offset": offset,
+        "columns": columns,
+        "rows": rows
+    }
+
+
+@app.post("/api/admin/db/vacuum")
+def admin_vacuum_db(admin: dict = Depends(_resolve_current_user)):
+    """Admin: Veritabanını optimize et ve alan geri kazanımı sağla."""
+    _require_admin(admin)
+    import time
+    t0 = time.perf_counter()
+    if DATABASE_BACKEND == "postgresql":
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute("ANALYZE")
+            conn.close()
+        except Exception as e:
+            conn.close()
+            raise HTTPException(status_code=500, detail=str(e))
+    else:
+        db_path = Path(DB_PATH).resolve()
+        raw_conn = sqlite3.connect(db_path, isolation_level=None)
+        raw_conn.execute("VACUUM")
+        raw_conn.execute("ANALYZE")
+        raw_conn.close()
+
+    elapsed = round((time.perf_counter() - t0) * 1000, 2)
+    return {"message": "Veritabanı başarıyla optimize edildi (VACUUM & ANALYZE tamamlandı)", "time_ms": elapsed}
+
+
+@app.get("/api/admin/db/backup")
+def admin_db_backup(admin: dict = Depends(_resolve_current_user)):
+    """Admin: Tüm veritabanının anlık JSON yedeğini üret."""
+    _require_admin(admin)
+    from datetime import datetime
+    conn = get_db()
+    cur = conn.cursor()
+
+    if DATABASE_BACKEND == "postgresql":
+        cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name")
+        tables = [row["table_name"] if isinstance(row, dict) else row[0] for row in cur.fetchall()]
+    else:
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
+        tables = [row["name"] if isinstance(row, dict) or isinstance(row, sqlite3.Row) else row[0] for row in cur.fetchall()]
+
+    backup_data = {
+        "meta": {
+            "app": "Hypertrophy-X",
+            "version": "v4.0",
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "backend": DATABASE_BACKEND
+        },
+        "tables": {}
+    }
+
+    for t in tables:
+        cur.execute(f'SELECT * FROM "{t}"')
+        columns = [desc[0] for desc in cur.description] if cur.description else []
+        rows = []
+        for r in cur.fetchall():
+            row_dict = r if isinstance(r, dict) else (dict(r) if isinstance(r, sqlite3.Row) else {columns[i]: r[i] for i in range(len(columns))})
+            clean_row = {}
+            for k, v in row_dict.items():
+                if hasattr(v, "isoformat"):
+                    clean_row[k] = v.isoformat()
+                elif isinstance(v, (bytes, bytearray)):
+                    clean_row[k] = "<BLOB>"
+                else:
+                    clean_row[k] = v
+            rows.append(clean_row)
+        backup_data["tables"][t] = rows
+
+    conn.close()
+    return backup_data
+
+
+@app.post("/api/admin/db/migrate/sqlite-to-postgres")
+def admin_migrate_sqlite_to_postgres(data: AdminMigrateRequest = Body(...),
+                                     admin: dict = Depends(_resolve_current_user)):
+    """Admin: SQLite verilerini PostgreSQL'e güvenle aktar ve birleştir."""
+    _require_admin(admin)
+    db_url = (data.database_url or "").strip() or os.environ.get("DATABASE_URL", "")
+    if not db_url:
+        raise HTTPException(status_code=400, detail="Hedef PostgreSQL bağlantı adresi (DATABASE_URL) belirtilmelidir.")
+    if not db_url.startswith(("postgres://", "postgresql://")):
+        raise HTTPException(status_code=400, detail="Geçersiz PostgreSQL bağlantı şeması (postgres:// veya postgresql:// ile başlamalıdır).")
+
+    try:
+        import psycopg
+    except ImportError:
+        raise HTTPException(status_code=500, detail="psycopg paketi kurulu değil. 'pip install psycopg[binary]' gereklidir.")
+
+    sqlite_path = Path(DB_PATH).resolve()
+    if not sqlite_path.is_file():
+        raise HTTPException(status_code=404, detail=f"Kaynak SQLite dosyası bulunamadı: {sqlite_path}")
+
+    from postgres_schema import POSTGRES_SCHEMA_STATEMENTS
+    import migrate_sqlite_to_postgres as m_sq2pg
+
+    logs = []
+    def log(msg):
+        logs.append(msg)
+
+    source = sqlite3.connect(f"file:{sqlite_path}?mode=ro", uri=True)
+    source.row_factory = sqlite3.Row
+    try:
+        users = m_sq2pg.read_rows(source, "users", {"id", "username"}, m_sq2pg.USER_COLUMNS)
+        workouts = m_sq2pg.read_rows(source, "workouts", {"id", "user_id"}, m_sq2pg.WORKOUT_COLUMNS)
+        profiles = m_sq2pg.read_rows(source, "expert_profiles", {"user_id"}, m_sq2pg.PROFILE_COLUMNS)
+    finally:
+        source.close()
+
+    log(f"Kaynak SQLite okundu: {len(users)} kullanıcı, {len(workouts)} antrenman, {len(profiles)} uzman profili.")
+    if data.dry_run:
+        log("Dry-run modu aktif: Hedef PostgreSQL'e yazma işlemi yapılmadı.")
+        return {
+            "success": True,
+            "dry_run": True,
+            "logs": logs,
+            "source_counts": {
+                "users": len(users),
+                "workouts": len(workouts),
+                "profiles": len(profiles)
+            }
+        }
+
+    summary = {
+        "users": {"inserted": 0, "updated": 0, "unchanged": 0},
+        "workouts": {"inserted": 0, "updated": 0, "unchanged": 0},
+        "profiles": {"inserted": 0, "updated": 0, "unchanged": 0},
+    }
+    user_id_map = {}
+    migration_key = "hypertrophy-x-v4.1"
+
+    try:
+        with psycopg.connect(db_url) as target:
+            with target.cursor() as cursor:
+                for statement in POSTGRES_SCHEMA_STATEMENTS:
+                    if "DROP COLUMN" not in statement.upper():
+                        cursor.execute(statement)
+                m_sq2pg.create_mapping_table(cursor)
+
+                for row in users:
+                    target_user_id, action = m_sq2pg.upsert_user(cursor, row)
+                    user_id_map[int(row["id"])] = target_user_id
+                    m_sq2pg.increment(summary, "users", action)
+
+                for row in workouts:
+                    source_user_id = int(row["user_id"])
+                    if source_user_id not in user_id_map:
+                        continue
+                    action = m_sq2pg.merge_workout(
+                        cursor, migration_key, int(row["id"]), user_id_map[source_user_id], row
+                    )
+                    m_sq2pg.increment(summary, "workouts", action)
+
+                for row in profiles:
+                    source_user_id = int(row["user_id"])
+                    if source_user_id not in user_id_map:
+                        continue
+                    action = m_sq2pg.upsert_profile(cursor, user_id_map[source_user_id], row)
+                    m_sq2pg.increment(summary, "profiles", action)
+
+                cursor.execute("SELECT COUNT(*) FROM users")
+                target_users = int(cursor.fetchone()[0])
+                cursor.execute("SELECT COUNT(*) FROM workouts")
+                target_workouts = int(cursor.fetchone()[0])
+                cursor.execute("SELECT COUNT(*) FROM expert_profiles")
+                target_profiles = int(cursor.fetchone()[0])
+
+        log(f"Kullanıcılar: {summary['users']['inserted']} eklendi, {summary['users']['updated']} güncellendi, {summary['users']['unchanged']} değişmedi (PostgreSQL Toplam: {target_users})")
+        log(f"Antrenmanlar: {summary['workouts']['inserted']} eklendi, {summary['workouts']['updated']} güncellendi, {summary['workouts']['unchanged']} değişmedi (PostgreSQL Toplam: {target_workouts})")
+        log(f"Uzman Profilleri: {summary['profiles']['inserted']} eklendi, {summary['profiles']['updated']} güncellendi, {summary['profiles']['unchanged']} değişmedi (PostgreSQL Toplam: {target_profiles})")
+        log("SQLite -> PostgreSQL aktarımı ve birleştirmesi başarıyla tamamlandı!")
+
+        return {
+            "success": True,
+            "dry_run": False,
+            "summary": summary,
+            "target_totals": {
+                "users": target_users,
+                "workouts": target_workouts,
+                "profiles": target_profiles
+            },
+            "logs": logs
+        }
+    except Exception as e:
+        log(f"Hata: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"PostgreSQL aktarımı başarısız: {str(e)}")
+
+
+@app.post("/api/admin/db/migrate/postgres-to-sqlite")
+def admin_migrate_postgres_to_sqlite(data: AdminMigrateRequest = Body(...),
+                                     admin: dict = Depends(_resolve_current_user)):
+    """Admin: PostgreSQL verilerini yerel SQLite'a çek ve senkronize et."""
+    _require_admin(admin)
+    db_url = (data.database_url or "").strip() or os.environ.get("DATABASE_URL", "")
+    if not db_url:
+        raise HTTPException(status_code=400, detail="Kaynak PostgreSQL bağlantı adresi (DATABASE_URL) belirtilmelidir.")
+
+    try:
+        import psycopg
+    except ImportError:
+        raise HTTPException(status_code=500, detail="psycopg paketi kurulu değil. 'pip install psycopg[binary]' gereklidir.")
+
+    import migrate_postgres_to_sqlite as m_pg2sq
+
+    sqlite_path = Path(DB_PATH).resolve()
+    logs = []
+    def log(msg):
+        logs.append(msg)
+
+    log("PostgreSQL veritabanına bağlanılıyor...")
+    try:
+        with psycopg.connect(db_url) as pg_conn:
+            with pg_conn.cursor() as pg_cur:
+                pg_cur.execute("SELECT id, " + ", ".join(m_pg2sq.USER_COLUMNS) + " FROM users")
+                pg_users = [[m_pg2sq._adapt_for_sqlite(v) for v in row] for row in pg_cur.fetchall()]
+
+                pg_cur.execute("SELECT id, user_id, " + ", ".join(m_pg2sq.WORKOUT_COLUMNS) + " FROM workouts")
+                pg_workouts = [[m_pg2sq._adapt_for_sqlite(v) for v in row] for row in pg_cur.fetchall()]
+
+                pg_cur.execute("SELECT user_id, " + ", ".join(m_pg2sq.PROFILE_COLUMNS) + " FROM expert_profiles")
+                pg_profiles = [[m_pg2sq._adapt_for_sqlite(v) for v in row] for row in pg_cur.fetchall()]
+
+        log(f"PostgreSQL okundu: {len(pg_users)} kullanıcı, {len(pg_workouts)} antrenman, {len(pg_profiles)} profil.")
+
+        sl_conn = sqlite3.connect(sqlite_path)
+        sl_cur = sl_conn.cursor()
+
+        sl_cur.execute("SELECT id FROM users")
+        sl_user_ids = {row[0] for row in sl_cur.fetchall()}
+        added_users = 0
+        for row in pg_users:
+            if row[0] not in sl_user_ids:
+                sl_cur.execute(f"INSERT INTO users (id, {','.join(m_pg2sq.USER_COLUMNS)}) VALUES ({','.join(['?'] * len(row))})", row)
+                added_users += 1
+
+        sl_cur.execute("SELECT id FROM workouts")
+        sl_workout_ids = {row[0] for row in sl_cur.fetchall()}
+        added_workouts = 0
+        for row in pg_workouts:
+            if row[0] not in sl_workout_ids:
+                sl_cur.execute(f"INSERT INTO workouts (id, user_id, {','.join(m_pg2sq.WORKOUT_COLUMNS)}) VALUES ({','.join(['?'] * len(row))})", row)
+                added_workouts += 1
+
+        sl_cur.execute("SELECT user_id FROM expert_profiles")
+        sl_profile_ids = {row[0] for row in sl_cur.fetchall()}
+        added_profiles = 0
+        for row in pg_profiles:
+            if row[0] not in sl_profile_ids:
+                sl_cur.execute(f"INSERT INTO expert_profiles (user_id, {','.join(m_pg2sq.PROFILE_COLUMNS)}) VALUES ({','.join(['?'] * len(row))})", row)
+                added_profiles += 1
+
+        sl_conn.commit()
+        sl_conn.close()
+
+        log(f"SQLite'a aktarılan yeni kayıtlar: {added_users} kullanıcı, {added_workouts} antrenman, {added_profiles} profil.")
+        log("PostgreSQL -> SQLite aktarımı başarıyla tamamlandı!")
+
+        return {
+            "success": True,
+            "added_users": added_users,
+            "added_workouts": added_workouts,
+            "added_profiles": added_profiles,
+            "source_totals": {
+                "users": len(pg_users),
+                "workouts": len(pg_workouts),
+                "profiles": len(pg_profiles)
+            },
+            "logs": logs
+        }
+    except Exception as e:
+        log(f"Hata: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"SQLite aktarımı başarısız: {str(e)}")
 
 
 # ═══════════════════════════════════════════════
@@ -4084,7 +4618,9 @@ def health_check():
 # API istekleri ve gerçek dosyalar (css/js/img) mount tarafından sunulur.
 # ═══════════════════════════════════════════════
 SPA_PAGES = {"dashboard", "workout", "history", "analyze", "progress",
-             "nutrition", "profile", "admin", "custom-program", "app", ""}
+             "nutrition", "profile", "admin", "admin-overview", "admin-users", "admin-workouts", "admin-diagnostics",
+             "custom-program", "app",
+             "db-management", "db-overview", "db-terminal", "db-migration", "db-tables", "db-maintenance", ""}
 
 spa_router = APIRouter()
 
