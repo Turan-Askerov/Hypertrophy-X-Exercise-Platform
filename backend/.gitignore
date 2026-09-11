@@ -3,7 +3,7 @@
 .env.local
 admin.env
 .env.example
-
+.local-backups
 # Veritabanı (kullanıcı verileri sunucuya özgü)
 *.db
 backend/hypertrophy.db

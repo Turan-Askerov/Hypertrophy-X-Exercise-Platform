@@ -951,6 +951,7 @@ def _normalize_exercise_text(value: object) -> str:
                  .replace('ü', 'u').replace('ş', 's').replace('ö', 'o').replace('ç', 'c'))
     text = unicodedata.normalize('NFKD', text)
     text = ''.join(ch for ch in text if not unicodedata.combining(ch))
+    text = re.sub(r'\s*\(\s*(?:vucut agirligi|agirlikli|bodyweight|weighted)\s*\)', '', text)
     # Eski kayıt ve kullanıcı araması için yaygın yazım farklılıkları.
     text = text.replace('dumbell', 'dumbbell').replace('dumbel', 'dumbbell')
     text = text.replace('barfiks', 'pull up').replace('pull-up', 'pull up')
@@ -977,7 +978,11 @@ def resolve_exercise_metadata(exercise_id: object = None, exercise_name: object 
     if raw_id in EXERCISE_BY_ID:
         return EXERCISE_BY_ID[raw_id]
 
-    for reference in (raw_id, exercise_name):
+    clean_id = re.sub(r'\s*\((?:vücut ağırlığı|vucut agirligi|ağırlıklı|agirlikli|bodyweight|weighted)\)', '', raw_id, flags=re.IGNORECASE).strip()
+    if clean_id in EXERCISE_BY_ID:
+        return EXERCISE_BY_ID[clean_id]
+
+    for reference in (raw_id, clean_id, exercise_name):
         normalized = _normalize_exercise_text(reference)
         if not normalized:
             continue

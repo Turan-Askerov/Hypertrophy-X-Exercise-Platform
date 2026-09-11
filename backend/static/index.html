@@ -108,8 +108,8 @@ input:focus, select:focus, textarea:focus {
   width: 100%;
   max-width: 440px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(108, 99, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
   animation: pageSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .auth-card.auth-card-wide {
@@ -386,8 +386,8 @@ input:focus, select:focus, textarea:focus {
   transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
   box-shadow: 4px 0 32px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
 }
 .sidebar.collapsed { width: var(--sidebar-collapsed); }
 
@@ -444,8 +444,6 @@ input:focus, select:focus, textarea:focus {
   flex: 1;
   padding: 12px 10px;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(108, 99, 255, 0.25) transparent;
 }
 .sidebar-nav::-webkit-scrollbar {
   width: 4px;
@@ -464,6 +462,7 @@ input:focus, select:focus, textarea:focus {
   padding: 16px 12px 6px;
   white-space: nowrap;
   overflow: hidden;
+  -webkit-user-select: none;
   user-select: none;
 }
 .sidebar.collapsed .nav-section-title { text-align: center; padding: 16px 0 8px; }
@@ -484,6 +483,7 @@ input:focus, select:focus, textarea:focus {
   overflow: hidden;
   position: relative;
   border: 1px solid transparent;
+  -webkit-user-select: none;
   user-select: none;
 }
 .nav-item:hover {
@@ -545,6 +545,7 @@ input:focus, select:focus, textarea:focus {
   overflow: hidden;
   position: relative;
   border: 1px solid transparent;
+  -webkit-user-select: none;
   user-select: none;
 }
 .nav-sub-item:hover {
@@ -611,8 +612,8 @@ input:focus, select:focus, textarea:focus {
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
 .topbar-left {
@@ -723,8 +724,8 @@ input:focus, select:focus, textarea:focus {
   border: 1px solid rgba(139, 92, 246, 0.32);
   border-radius: 16px;
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.60), 0 0 28px rgba(108, 99, 255, 0.22);
-  backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
   padding: 10px 10px 12px;
   z-index: 200;
   display: none;
@@ -836,8 +837,8 @@ input:focus, select:focus, textarea:focus {
   position: relative;
   overflow: hidden;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   transition: all 0.26s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
@@ -991,12 +992,69 @@ input:focus, select:focus, textarea:focus {
   border-radius: 18px !important;
   box-shadow: 0 16px 42px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
   padding: 22px !important;
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .dash-card:hover {
   border-color: rgba(167, 139, 250, 0.38) !important;
+}
+
+.dash-muscle-chart-wrap {
+  position: relative;
+  height: 220px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Tüm panellerde butonların (timeframe-pills) her zaman sağ tarafta kalmasını sağlar */
+.card-header-flex .timeframe-pills {
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .card-header-flex {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .card-header-flex .timeframe-pills {
+    margin-left: auto;
+  }
+  .dash-card {
+    padding: 14px 14px !important;
+    border-radius: 14px !important;
+  }
+  .dash-muscle-card {
+    padding: 12px 14px !important;
+  }
+  .dash-muscle-card .card-header-flex {
+    margin-bottom: 6px;
+  }
+  .dash-muscle-chart-wrap {
+    height: 150px !important;
+    min-height: 150px !important;
+    max-height: 150px !important;
+  }
+  #muscleChart {
+    max-height: 150px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-card {
+    padding: 12px 12px !important;
+  }
+  .dash-muscle-card {
+    padding: 10px 12px !important;
+  }
+  .dash-muscle-chart-wrap {
+    height: 135px !important;
+    min-height: 135px !important;
+    max-height: 135px !important;
+  }
+  #muscleChart {
+    max-height: 135px !important;
+  }
 }
 
 .dash-card-icon {
@@ -1041,8 +1099,8 @@ input:focus, select:focus, textarea:focus {
   background: linear-gradient(160deg, rgba(22, 27, 48, 0.88) 0%, rgba(14, 18, 34, 0.96) 100%) !important;
   border-radius: 20px !important;
   box-shadow: 0 16px 42px rgba(0, 0, 0, 0.45) !important;
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   animation: pageSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -1192,8 +1250,6 @@ tr:hover td { background: var(--bg-card-hover); }
   max-height: 240px;
   overflow-y: auto;
   padding-right: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(139, 92, 246, 0.35) transparent;
 }
 .muscle-list::-webkit-scrollbar {
   width: 5px;
@@ -1243,8 +1299,6 @@ tr:hover td { background: var(--bg-card-hover); }
   max-height: 240px;
   overflow-y: auto;
   padding-right: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(139, 92, 246, 0.35) transparent;
 }
 .exercise-list::-webkit-scrollbar {
   width: 5px;
@@ -1442,8 +1496,8 @@ tr:hover td { background: var(--bg-card-hover); }
   font-weight: 750;
   letter-spacing: 0.1px;
   box-shadow: 0 12px 36px rgba(0,0,0,0.45), 0 0 18px rgba(0,0,0,0.25);
-  backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   text-align: center;
   pointer-events: auto;
   display: flex;
@@ -1597,7 +1651,6 @@ tr:hover td { background: var(--bg-card-hover); }
   border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 14px;
   overflow-x: auto;
-  scrollbar-width: none;
 }
 .admin-nav-tabs::-webkit-scrollbar { display: none; }
 
@@ -2026,10 +2079,42 @@ tr:hover td { background: var(--bg-card-hover); }
   border-color: rgba(248, 113, 113, 0.45);
   box-shadow: 0 4px 14px rgba(239, 68, 68, 0.15);
 }
+.split-fg-row {
+  padding: 0 16px 0 78px;
+}
+
+.split-type {
+  line-height: 1.25;
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
+}
+
+.split-type.split-type-done,
+.split-type.split-type-missed,
+.split-type.split-type-rest {
+  margin-right: 210px;
+}
+
+.split-type.split-type-today {
+  margin-right: 75px;
+}
+
+.split-type.split-type-upcoming {
+  margin-right: 35px;
+}
+
 .split-done-pill, .split-missed-pill, .split-rest-pill {
   white-space: nowrap;
 }
-@media (max-width: 580px) {
+
+@media (max-width: 768px) {
+  .split-card {
+    padding: 0 12px !important;
+  }
+  .split-fg-row {
+    padding: 0 12px 0 68px !important;
+  }
   .split-done-pill .split-done-label,
   .split-missed-pill .split-missed-label,
   .split-rest-pill .split-rest-label {
@@ -2038,7 +2123,33 @@ tr:hover td { background: var(--bg-card-hover); }
   .split-type.split-type-done,
   .split-type.split-type-missed,
   .split-type.split-type-rest {
-    margin-right: 120px !important;
+    margin-right: 92px !important;
+  }
+  .split-type.split-type-today {
+    margin-right: 64px !important;
+  }
+  .split-type.split-type-upcoming {
+    margin-right: 28px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .split-card {
+    padding: 0 10px !important;
+  }
+  .split-fg-row {
+    padding: 0 8px 0 58px !important;
+  }
+  .split-type.split-type-done,
+  .split-type.split-type-missed,
+  .split-type.split-type-rest {
+    margin-right: 80px !important;
+  }
+  .split-type.split-type-today {
+    margin-right: 56px !important;
+  }
+  .split-type.split-type-upcoming {
+    margin-right: 24px !important;
   }
 }
 .split-card.split-today {
@@ -2455,6 +2566,7 @@ tr:hover td { background: var(--bg-card-hover); }
 }
 .profile-input-wrap select {
   cursor: pointer;
+  -webkit-appearance: none;
   appearance: none;
 }
 .profile-input-icon {
@@ -2632,8 +2744,8 @@ tr:hover td { background: var(--bg-card-hover); }
   width: 100vw;
   height: 100vh;
   background: rgba(5, 7, 15, 0.85);
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   z-index: 999999;
   display: flex;
   align-items: center;
@@ -2724,6 +2836,7 @@ tr:hover td { background: var(--bg-card-hover); }
   border: 1px solid rgba(239, 68, 68, 0.35);
   padding: 1px 7px;
   border-radius: 5px;
+  -webkit-user-select: all;
   user-select: all;
 }
 .expert-reset-input {
@@ -2768,6 +2881,7 @@ tr:hover td { background: var(--bg-card-hover); }
   justify-content: center;
   gap: 7px;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-user-select: none;
   user-select: none;
 }
 .expert-reset-btn.cancel {
@@ -2822,8 +2936,8 @@ tr:hover td { background: var(--bg-card-hover); }
   width: 100vw;
   height: 100vh;
   background: rgba(5, 7, 15, 0.85);
-  backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   z-index: 999999;
   display: flex;
   align-items: center;
@@ -2965,6 +3079,7 @@ tr:hover td { background: var(--bg-card-hover); }
   justify-content: center;
   gap: 7px;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-user-select: none;
   user-select: none;
 }
 .expert-doms-delete-btn.cancel {
@@ -3011,6 +3126,7 @@ tr:hover td { background: var(--bg-card-hover); }
   gap: 6px;
   box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-user-select: none;
   user-select: none;
 }
 .expert-btn-add-injury:hover {
@@ -3498,8 +3614,8 @@ tr:hover td { background: var(--bg-card-hover); }
   inset: 0;
   z-index: 99999;
   background: rgba(6, 10, 18, 0.76);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3653,6 +3769,7 @@ tr:hover td { background: var(--bg-card-hover); }
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  -webkit-user-select: none;
   user-select: none;
 }
 .nutri-cal-day:hover:not(.disabled):not(.selected) {
@@ -3893,6 +4010,13 @@ tr:hover td { background: var(--bg-card-hover); }
 /* ═══════════════════════════════════════════════
    PROGRESS (İLERLEME) PAGE - MODERN EXPERT PLATFORM GRADE
 ═══════════════════════════════════════════════ */
+.mobile-txt {
+  display: none !important;
+}
+.desktop-txt {
+  display: inline !important;
+}
+
 .prog-hero-banner {
   display: flex;
   justify-content: space-between;
@@ -4186,6 +4310,7 @@ tr:hover td { background: var(--bg-card-hover); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   padding: 4px 10px;
   border-radius: 7px;
   font-size: 12px;
@@ -4206,47 +4331,275 @@ tr:hover td { background: var(--bg-card-hover); }
 
 /* RESPONSIVE MEDIA QUERIES FOR PROGRESS PAGE */
 @media (max-width: 768px) {
+  .mobile-txt {
+    display: inline !important;
+  }
+  .desktop-txt {
+    display: none !important;
+  }
   #page-progress {
-    padding: 14px 12px 90px 12px;
+    padding: 12px 10px 90px 10px !important;
   }
   .prog-hero-banner {
-    padding: 16px 14px;
-    gap: 12px;
+    padding: 14px 12px !important;
+    gap: 12px !important;
+    margin-bottom: 14px !important;
+    border-radius: 14px !important;
   }
-  .prog-glass-card {
-    padding: 16px 14px;
-  }
-}
-@media (max-width: 580px) {
-  #page-progress {
-    padding: 10px 8px 90px 8px;
-  }
-  .prog-hero-banner {
-    padding: 14px 12px;
-    border-radius: 13px;
+  .prog-hero-main {
+    gap: 12px !important;
   }
   .prog-hero-icon-box {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+  }
+  .prog-hero-icon-box svg {
+    width: 22px !important;
+    height: 22px !important;
   }
   .prog-hero-title {
-    font-size: 15px;
+    font-size: 15.5px !important;
   }
   .prog-hero-desc {
-    font-size: 11px;
+    font-size: 11.5px !important;
+    line-height: 1.4 !important;
+  }
+  .prog-badge-purple {
+    padding: 3px 8px !important;
+    font-size: 10px !important;
   }
   .prog-glass-card {
-    padding: 14px 12px;
-    border-radius: 13px;
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
+    margin-bottom: 14px !important;
+  }
+  .prog-card-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 14px !important;
+  }
+  .prog-card-title-group {
+    gap: 10px !important;
+  }
+  .prog-card-icon-box {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 9px !important;
+  }
+  .prog-card-icon-box svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+  .prog-card-title {
+    font-size: 14.5px !important;
+  }
+  .prog-card-subtitle {
+    font-size: 11px !important;
+  }
+  .prog-badge-pr-total {
+    align-self: flex-end !important;
+    margin-left: auto !important;
+    padding: 4px 10px !important;
+    border-radius: 8px !important;
+    gap: 6px !important;
+  }
+  .prog-badge-pr-dot {
+    width: 6px !important;
+    height: 6px !important;
+  }
+  .prog-badge-pr-label {
+    font-size: 11px !important;
+  }
+  .prog-badge-pr-val {
+    font-size: 12px !important;
   }
   .prog-buttons-wrapper {
-    width: 100%;
-    justify-content: space-between;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
   }
   .prog-segmented-group {
-    width: 100%;
-    justify-content: space-around;
+    width: 100% !important;
+    display: flex !important;
+    gap: 3px !important;
+    padding: 3px !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+  }
+  .prog-segmented-group .tf-pill {
+    flex: 1 1 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 6px 4px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+    white-space: nowrap !important;
+  }
+  .prog-search-box {
+    margin-bottom: 12px !important;
+  }
+  .prog-search-input {
+    height: 39px !important;
+    padding: 0 32px 0 36px !important;
+    font-size: 12.5px !important;
+    border-radius: 9px !important;
+  }
+  .prog-search-icon {
+    left: 11px !important;
+  }
+  .prog-search-icon svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+  .prog-chart-container {
+    height: auto !important;
+  }
+  .prog-chart-scroll-wrap {
+    width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding-bottom: 6px !important;
+  }
+  .prog-chart-inner {
+    height: 290px !important;
+    min-width: 100% !important;
+    position: relative !important;
+  }
+  .prog-chart-scroll-hint {
+    display: flex;
+  }
+  #page-progress .prog-table-wrap {
+    border-radius: 10px !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+  }
+  #page-progress .prog-table {
+    width: max-content !important;
+    min-width: 500px !important;
+    table-layout: auto !important;
+  }
+  #page-progress .prog-table th:nth-child(1), #page-progress .prog-table td:nth-child(1) { width: auto !important; min-width: 130px !important; }
+  #page-progress .prog-table th:nth-child(2), #page-progress .prog-table td:nth-child(2) { width: auto !important; min-width: 80px !important; }
+  #page-progress .prog-table th:nth-child(3), #page-progress .prog-table td:nth-child(3) { width: auto !important; min-width: 100px !important; }
+  #page-progress .prog-table th:nth-child(4), #page-progress .prog-table td:nth-child(4) { width: auto !important; min-width: 75px !important; }
+  #page-progress .prog-table th:nth-child(5), #page-progress .prog-table td:nth-child(5) { width: auto !important; min-width: 90px !important; }
+
+  .prog-table thead th {
+    padding: 9px 5px !important;
+    font-size: 10px !important;
+    white-space: nowrap !important;
+  }
+  .prog-pr-row td {
+    padding: 8px 4px !important;
+    font-size: 11.5px !important;
+  }
+  .prog-muscle-badge {
+    padding: 2.5px 6px !important;
+    font-size: 10px !important;
+    white-space: nowrap !important;
+    letter-spacing: 0.2px !important;
+    display: inline-block !important;
+  }
+  .prog-pr-weight-badge {
+    padding: 3px 6px !important;
+    font-size: 10.5px !important;
+    border-radius: 5px !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+  }
+  .prog-bw-text {
+    white-space: nowrap !important;
+    font-size: 9.5px !important;
+    letter-spacing: -0.2px !important;
+  }
+  .prog-pr-reps-badge {
+    padding: 3px 6px !important;
+    font-size: 10.5px !important;
+    border-radius: 5px !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+  }
+  .prog-pr-date {
+    font-size: 10px !important;
+    white-space: nowrap !important;
+  }
+}
+@media (max-width: 480px) {
+  #page-progress {
+    padding: 10px 6px 90px 6px !important;
+  }
+  .prog-hero-banner {
+    padding: 12px 10px !important;
+  }
+  .prog-hero-icon-box {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
+  }
+  .prog-hero-title {
+    font-size: 13.5px !important;
+  }
+  .prog-hero-desc {
+    font-size: 10.5px !important;
+  }
+  .prog-glass-card {
+    padding: 12px 8px !important;
+    border-radius: 12px !important;
+  }
+  .prog-segmented-group .tf-pill {
+    padding: 5px 2px !important;
+    font-size: 10px !important;
+  }
+  .prog-chart-container {
+    height: auto !important;
+  }
+  .prog-chart-inner {
+    height: 270px !important;
+  }
+  #page-progress .prog-table {
+    width: max-content !important;
+    min-width: 480px !important;
+    table-layout: auto !important;
+  }
+  #page-progress .prog-table th:nth-child(1), #page-progress .prog-table td:nth-child(1) { width: auto !important; min-width: 125px !important; }
+  #page-progress .prog-table th:nth-child(2), #page-progress .prog-table td:nth-child(2) { width: auto !important; min-width: 75px !important; }
+  #page-progress .prog-table th:nth-child(3), #page-progress .prog-table td:nth-child(3) { width: auto !important; min-width: 95px !important; }
+  #page-progress .prog-table th:nth-child(4), #page-progress .prog-table td:nth-child(4) { width: auto !important; min-width: 70px !important; }
+  #page-progress .prog-table th:nth-child(5), #page-progress .prog-table td:nth-child(5) { width: auto !important; min-width: 85px !important; }
+
+  .prog-table thead th {
+    padding: 7px 3px !important;
+    font-size: 9px !important;
+  }
+  .prog-pr-row td {
+    padding: 7px 3px !important;
+    font-size: 10.5px !important;
+  }
+  .prog-muscle-badge {
+    padding: 2px 5px !important;
+    font-size: 9px !important;
+  }
+  .prog-pr-weight-badge {
+    padding: 2px 4px !important;
+    font-size: 9.5px !important;
+  }
+  .prog-bw-text {
+    font-size: 8.5px !important;
+    letter-spacing: -0.3px !important;
+  }
+  .prog-pr-reps-badge {
+    padding: 2px 5px !important;
+    font-size: 9.5px !important;
+  }
+  .prog-pr-date {
+    font-size: 9px !important;
   }
 }
 
@@ -4774,8 +5127,8 @@ tr:hover td { background: var(--bg-card-hover); }
   width: 100vw !important;
   height: 100vh !important;
   background: rgba(8, 10, 18, 0.78);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   z-index: 999999 !important;
   display: flex;
   align-items: center;
@@ -5088,6 +5441,7 @@ tr:hover td { background: var(--bg-card-hover); }
   color: #c084fc;
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.1);
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-user-select: none;
   user-select: none;
   box-sizing: border-box;
 }
@@ -5270,8 +5624,8 @@ tr:hover td { background: var(--bg-card-hover); }
     position: fixed;
     inset: 0;
     background: rgba(5, 7, 12, 0.65);
-    backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.28s ease;
@@ -5295,8 +5649,8 @@ tr:hover td { background: var(--bg-card-hover); }
     position: sticky;
     top: 0;
     background: rgba(26, 29, 39, 0.94);
-    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
   }
   .light-mode .topbar {
     background: rgba(255, 255, 255, 0.94);
@@ -5354,8 +5708,8 @@ tr:hover td { background: var(--bg-card-hover); }
     height: calc(60px + env(safe-area-inset-bottom, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
     background: rgba(22, 26, 38, 0.92);
-    backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     border-top: 1px solid var(--border);
     z-index: 200;
     justify-content: space-around;
@@ -5473,10 +5827,108 @@ tr:hover td { background: var(--bg-card-hover); }
     font-size: 11px;
   }
 
-  /* ═══ MOBILE WORKOUT & EXERCISE SELECTOR ═══ */
-  .form-row {
+  /* ═══ MOBILE WORKOUT PAGE (ANTRENMAN KAYDI) ═══ */
+  #page-workout .page-header {
+    margin-bottom: 12px !important;
+    gap: 10px !important;
+  }
+  #workoutPageTitle {
+    font-size: 20px !important;
+    letter-spacing: -0.3px !important;
+  }
+  #workoutPageSubtitle {
+    font-size: 12px !important;
+  }
+  #workoutLiveSummaryBadge {
+    padding: 6px 12px !important;
+    font-size: 11.5px !important;
+    border-radius: 8px !important;
+  }
+
+  .workout-main-card {
+    padding: 14px 12px !important;
+    border-radius: 16px !important;
+  }
+  .workout-section-head {
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+  .workout-section-icon {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 8px !important;
+  }
+  .workout-section-icon svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+  .workout-section-head h3 {
+    font-size: 13.5px !important;
+  }
+  .workout-section-head p {
+    font-size: 11px !important;
+  }
+
+  .workout-meta-grid {
     grid-template-columns: 1fr !important;
-    gap: 10px;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+  }
+  #page-workout .workout-meta-grid .form-group label {
+    font-size: 11.5px !important;
+    margin-bottom: 4px !important;
+  }
+  #workoutDate,
+  #workoutType,
+  #workoutGym {
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Exercise Selector Section */
+  .workout-selector-box {
+    padding: 12px 10px !important;
+    border-radius: 14px !important;
+    margin-bottom: 16px !important;
+  }
+  .workout-selector-box > div:first-child {
+    margin-bottom: 10px !important;
+    gap: 8px !important;
+  }
+  .workout-selector-box h4 {
+    font-size: 13px !important;
+  }
+  .workout-selector-box p {
+    font-size: 10.5px !important;
+  }
+  .workout-search-header-right {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-top: 4px !important;
+  }
+  .workout-search-wrap {
+    flex: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+  #workoutExerciseSearch {
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 5px 10px 5px 30px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+  .workout-search-badges {
+    flex-shrink: 0 !important;
+  }
+  .workout-search-badges span {
+    font-size: 9px !important;
+    padding: 3px 6px !important;
   }
   .exercise-selector {
     display: flex !important;
@@ -5488,105 +5940,235 @@ tr:hover td { background: var(--bg-card-hover); }
     display: flex !important;
     flex-direction: row !important;
     overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
     gap: 6px !important;
-    padding: 4px 2px 8px !important;
+    padding: 2px 2px 6px !important;
     white-space: nowrap !important;
-    scrollbar-width: none !important;
     max-height: none !important;
   }
   .muscle-list::-webkit-scrollbar {
     display: none;
   }
   .muscle-filter {
-    flex-shrink: 0;
-    padding: 7px 13px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border);
-    transition: all 0.2s ease;
+    flex-shrink: 0 !important;
+    padding: 6px 11px !important;
+    border-radius: 16px !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid var(--border) !important;
+    transition: all 0.2s ease !important;
   }
   .muscle-filter.active {
-    background: var(--accent);
-    color: #ffffff;
-    border-color: var(--accent);
-    box-shadow: 0 2px 8px rgba(108, 99, 255, 0.4);
+    background: var(--accent) !important;
+    color: #ffffff !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 2px 8px rgba(108, 99, 255, 0.4) !important;
   }
   .exercise-list {
-    max-height: 240px;
-    gap: 5px;
-    padding-right: 2px;
+    max-height: 180px !important;
+    gap: 4px !important;
+    padding-right: 2px !important;
   }
   .exercise-option {
-    padding: 10px 12px;
-    margin-bottom: 4px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border);
-    font-size: 13px;
+    padding: 8px 10px !important;
+    margin-bottom: 3px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid var(--border) !important;
+    font-size: 12px !important;
   }
 
-  /* ═══ MOBILE SETS TABLE ═══ */
+  /* ═══ MOBILE SELECTED EXERCISES & SETS TABLE ═══ */
   .selected-exercise-card {
-    padding: 12px 10px !important;
+    padding: 10px 8px !important;
     border-radius: 12px !important;
-    margin-bottom: 10px !important;
+    margin-bottom: 12px !important;
   }
+  .selected-ex-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 8px !important;
+    gap: 6px !important;
+  }
+  .selected-ex-header-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+  .selected-ex-name {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    line-height: 1.25 !important;
+  }
+  .selected-ex-header .badge {
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+    border-radius: 5px !important;
+  }
+  .ex-remove-btn {
+    padding: 4px 8px !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+    min-height: 26px !important;
+    height: 26px !important;
+    gap: 3px !important;
+    flex-shrink: 0 !important;
+  }
+  .ex-remove-btn svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+
   .sets-table {
     width: 100% !important;
+    min-width: 0 !important;
     table-layout: fixed !important;
-    margin-top: 8px !important;
+    margin-top: 4px !important;
     border-collapse: separate !important;
     border-spacing: 0 3px !important;
   }
   .sets-table th {
-    padding: 4px 2px !important;
+    padding: 4px 1px !important;
     font-size: 10px !important;
-    font-weight: 700 !important;
-    color: var(--text-muted) !important;
+    font-weight: 800 !important;
+    color: #c084fc !important;
     text-align: center !important;
+    letter-spacing: 0.2px !important;
   }
-  .sets-table th:nth-child(1) { width: 28px !important; }
-  .sets-table th:nth-child(2) { width: 28% !important; }
-  .sets-table th:nth-child(3) { width: 28% !important; }
-  .sets-table th:nth-child(4) { width: 22% !important; }
-  .sets-table th:nth-child(5) { width: 42px !important; }
+  .sets-table th:nth-child(1),
+  .sets-table td:nth-child(1) { width: 26px !important; max-width: 26px !important; }
+  .sets-table th:nth-child(2),
+  .sets-table td:nth-child(2) { width: 33% !important; }
+  .sets-table th:nth-child(3),
+  .sets-table td:nth-child(3) { width: 29% !important; }
+  .sets-table th:nth-child(4),
+  .sets-table td:nth-child(4) { width: 23% !important; }
+  .sets-table th:nth-child(5),
+  .sets-table td:nth-child(5) { width: 40px !important; max-width: 44px !important; }
+
   .sets-table td {
-    padding: 3px 2px !important;
+    padding: 2px 1px !important;
     text-align: center !important;
     border: none !important;
   }
+
+  /* Set inputs & selects shrunk down for clean mobile fit */
+  #page-workout .sets-table input.workout-set-input,
+  #page-workout .sets-table select.workout-set-select,
   .sets-table input,
   .sets-table select {
-    min-height: 38px !important;
-    height: 38px !important;
-    padding: 2px 4px !important;
-    font-size: 15px !important;
-    font-weight: 700 !important;
+    min-height: 31px !important;
+    height: 31px !important;
+    max-height: 31px !important;
+    padding: 2px 3px !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
     text-align: center !important;
-    border-radius: 8px !important;
+    border-radius: 7px !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
+    line-height: normal !important;
   }
+  #page-workout .sets-table select.workout-set-select,
   .sets-table select {
-    padding-left: 2px !important;
-    padding-right: 2px !important;
-    font-size: 13px !important;
+    padding-left: 1px !important;
+    padding-right: 1px !important;
+    font-size: 12px !important;
   }
+
+  .set-num-badge {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    border-radius: 6px !important;
+  }
+
   .sets-table .set-action-btn {
-    min-height: 38px !important;
-    height: 38px !important;
-    padding: 0 !important;
+    min-height: 31px !important;
+    height: 31px !important;
+    max-height: 31px !important;
+    padding: 0 4px !important;
     width: 100% !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
+    font-size: 11px !important;
+    font-weight: 750 !important;
+    border-radius: 7px !important;
+    gap: 3px !important;
+    box-sizing: border-box !important;
+  }
+  .sets-table .set-action-btn svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+
+  .selected-exercise-card .expert-injury-tip {
+    font-size: 10.5px !important;
+    padding: 6px 8px !important;
+    margin-top: 8px !important;
     border-radius: 8px !important;
+    line-height: 1.35 !important;
+    gap: 6px !important;
+  }
+  .selected-exercise-card .expert-injury-tip svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  /* Workout Notes */
+  #workoutNotes {
+    min-height: 54px !important;
+    font-size: 12.5px !important;
+    padding: 8px 10px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Workout Action Buttons */
+  .workout-actions-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding-top: 14px !important;
+    width: 100% !important;
+  }
+  .workout-btn-save {
+    width: 100% !important;
+    min-height: 42px !important;
+    height: 42px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    border-radius: 10px !important;
+    justify-content: center !important;
+    order: 1 !important;
+  }
+  .workout-btn-clear {
+    width: 100% !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+    justify-content: center !important;
+    order: 2 !important;
+  }
+  .workout-btn-cancel {
+    width: 100% !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+    justify-content: center !important;
+    order: 3 !important;
   }
 
   /* ═══ MOBILE BUTTONS & INPUTS ═══ */
@@ -5607,17 +6189,10 @@ tr:hover td { background: var(--bg-card-hover); }
     background: linear-gradient(135deg, #6c63ff, #8178ff);
     box-shadow: 0 4px 14px rgba(108, 99, 255, 0.35);
   }
-  #saveWorkoutButton {
-    width: 100% !important;
-    justify-content: center !important;
-    padding: 13px 20px !important;
-    font-size: 15px !important;
-  }
 
   /* ═══ MOBILE TABLES & OVERFLOW PROTECTION ═══ */
   .table-wrap {
     overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
@@ -5652,6 +6227,49 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .card-title {
     font-size: 15px;
+  }
+
+  /* ═══ EXTRA COMPACT WORKOUT PAGE (<= 480px) ═══ */
+  .workout-main-card {
+    padding: 10px 8px !important;
+    border-radius: 14px !important;
+  }
+  .selected-exercise-card {
+    padding: 8px 6px !important;
+    border-radius: 10px !important;
+  }
+  .sets-table th:nth-child(1),
+  .sets-table td:nth-child(1) { width: 22px !important; max-width: 22px !important; }
+  .sets-table th:nth-child(5),
+  .sets-table td:nth-child(5) { width: 34px !important; max-width: 36px !important; }
+
+  #page-workout .sets-table input.workout-set-input,
+  #page-workout .sets-table select.workout-set-select,
+  .sets-table input,
+  .sets-table select {
+    min-height: 28px !important;
+    height: 28px !important;
+    max-height: 28px !important;
+    font-size: 12px !important;
+    padding: 1px 2px !important;
+    border-radius: 6px !important;
+  }
+  .sets-table .set-action-btn {
+    min-height: 28px !important;
+    height: 28px !important;
+    max-height: 28px !important;
+    font-size: 10px !important;
+    border-radius: 6px !important;
+    padding: 0 2px !important;
+  }
+  .set-num-badge {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    font-size: 10px !important;
+  }
+  .selected-ex-name {
+    font-size: 12.5px !important;
   }
 }
 
@@ -6130,29 +6748,368 @@ tr:hover td { background: var(--bg-card-hover); }
     padding: 16px 14px;
     gap: 12px;
   }
+
+  /* ═══ TABS & NEON COUNT BADGE (RIGHT ALIGNED ON MOBILE) ═══ */
+  .hist-tabs-wrapper {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+  .hist-tabs-wrapper .prog-segmented-group {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .hist-badge-total-count {
+    margin-left: auto !important;
+    font-size: 11px !important;
+    padding: 4px 11px !important;
+    border-radius: 8px !important;
+  }
+  .hist-count-val {
+    font-size: 12.5px !important;
+  }
+
+  /* ═══ COMPACT HISTORY CARDS & ELEGANT TYPOGRAPHY ═══ */
+  .history-card {
+    padding: 12px 10px !important;
+    border-radius: 14px !important;
+    margin-bottom: 10px !important;
+  }
+  .hist-card-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+  }
+  .hist-card-header-left {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+  .hist-card-header-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    flex-shrink: 0 !important;
+  }
+  .hist-card-title {
+    font-size: 13.5px !important;
+    font-weight: 800 !important;
+    gap: 6px !important;
+    line-height: 1.25 !important;
+  }
+  .hist-badge-purple {
+    font-size: 9.5px !important;
+    padding: 1.5px 6px !important;
+    border-radius: 5px !important;
+  }
+  .hist-card-sub {
+    font-size: 11px !important;
+    gap: 4px !important;
+    margin-top: 2px !important;
+    color: #94a3b8 !important;
+    line-height: 1.2 !important;
+  }
+  .hist-card-sub svg {
+    width: 11px !important;
+    height: 11px !important;
+    flex-shrink: 0 !important;
+  }
+  .hist-badge-volume {
+    font-size: 11px !important;
+    padding: 3px 7px !important;
+    border-radius: 6px !important;
+    gap: 4px !important;
+    font-weight: 800 !important;
+  }
+  .hist-volume-dot {
+    width: 5px !important;
+    height: 5px !important;
+  }
+  .hist-badge-cal {
+    font-size: 13px !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+  }
+  .hist-action-btn {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    border-radius: 7px !important;
+    padding: 0 !important;
+  }
+  .hist-action-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+  .hist-save-btn {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    border-radius: 7px !important;
+  }
+  .hist-hint-bar {
+    font-size: 10px !important;
+    margin-top: 8px !important;
+  }
+
+  /* Summary exercise rows */
+  .hist-summary-item {
+    padding: 6px 8px !important;
+    margin-bottom: 4px !important;
+    border-radius: 7px !important;
+  }
+  .hist-ex-name {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+  }
+  .hist-badge-cyan {
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+    border-radius: 5px !important;
+  }
+  .hist-badge-neon-bw {
+    font-size: 9px !important;
+    padding: 2px 5px !important;
+    border-radius: 5px !important;
+  }
+  .hist-btn-more {
+    padding: 7px 10px !important;
+    font-size: 11px !important;
+    margin-top: 8px !important;
+    border-radius: 7px !important;
+  }
+  .hist-notes-box {
+    padding: 8px 10px !important;
+    margin-top: 8px !important;
+    border-radius: 7px !important;
+  }
+  .hist-notes-title {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
+  }
+
+  /* ═══ DETAILED SETS TABLE — NO HORIZONTAL SCROLL, COMPACT SINGLE-LINE BADGES ═══ */
+  .hist-sets-card {
+    margin-bottom: 8px !important;
+    padding: 8px 6px !important;
+    border-radius: 9px !important;
+    background: rgba(10, 15, 26, 0.45) !important;
+  }
+  .hist-sets-header {
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    margin-bottom: 6px !important;
+    letter-spacing: 0.2px !important;
+  }
+  .hist-table-wrap, .hist-sets-card .prog-table-wrap {
+    overflow-x: hidden !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-sizing: border-box !important;
+  }
+  .hist-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    margin: 0 !important;
+  }
+  .hist-table thead th {
+    padding: 6px 2px !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    letter-spacing: 0.02em !important;
+    background: rgba(15, 23, 42, 0.95) !important;
+    box-sizing: border-box !important;
+  }
+  .hist-table thead th:nth-child(1),
+  .hist-table tbody td:nth-child(1) {
+    width: 18% !important;
+    max-width: 18% !important;
+    min-width: 0 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    color: #94a3b8 !important;
+    text-align: center !important;
+    padding: 5px 2px !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+  .hist-table thead th:nth-child(2),
+  .hist-table tbody td:nth-child(2) {
+    width: 35% !important;
+    max-width: 35% !important;
+    min-width: 0 !important;
+    text-align: center !important;
+    padding: 5px 2px !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+  .hist-table thead th:nth-child(3),
+  .hist-table tbody td:nth-child(3) {
+    width: 27% !important;
+    max-width: 27% !important;
+    min-width: 0 !important;
+    text-align: center !important;
+    padding: 5px 2px !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+  .hist-table thead th:nth-child(4),
+  .hist-table tbody td:nth-child(4) {
+    width: 20% !important;
+    max-width: 20% !important;
+    min-width: 0 !important;
+    text-align: center !important;
+    padding: 5px 2px !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+  .hist-table tbody td {
+    padding: 5px 2px !important;
+    text-align: center !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+  }
+  .hist-table .prog-pr-weight-badge {
+    font-size: 10px !important;
+    padding: 2px 4px !important;
+    border-radius: 5px !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    letter-spacing: normal !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .hist-table .prog-pr-reps-badge {
+    font-size: 10px !important;
+    padding: 2px 4px !important;
+    border-radius: 5px !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    letter-spacing: normal !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .hist-rir-badge {
+    font-size: 10px !important;
+    padding: 2px 4px !important;
+    border-radius: 5px !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: normal !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .hist-table .edit-input {
+    width: 100% !important;
+    max-width: 48px !important;
+    height: 25px !important;
+    min-height: 25px !important;
+    font-size: 10.5px !important;
+    padding: 2px 2px !important;
+    border-radius: 5px !important;
+  }
 }
-@media (max-width: 580px) {
+
+@media (max-width: 480px) {
   #page-history {
     padding: 10px 8px 90px 8px;
   }
-  .hist-hero-banner {
-    padding: 14px 12px;
-    border-radius: 13px;
-  }
-  .hist-hero-icon-box {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-  }
-  .hist-hero-title {
-    font-size: 15px;
-  }
-  .hist-hero-desc {
-    font-size: 11px;
-  }
   .history-card {
-    padding: 14px 12px;
-    border-radius: 13px;
+    padding: 10px 8px !important;
+    border-radius: 12px !important;
+    margin-bottom: 8px !important;
+  }
+  .hist-card-title {
+    font-size: 13px !important;
+  }
+  .hist-card-sub {
+    font-size: 10.5px !important;
+  }
+  .hist-action-btn {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    border-radius: 6px !important;
+  }
+  .hist-action-btn svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+  .hist-badge-volume {
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+  }
+  .hist-badge-cal {
+    font-size: 12px !important;
+    padding: 2px 6px !important;
+  }
+  .hist-sets-card {
+    padding: 6px 3px !important;
+  }
+  .hist-table thead th {
+    padding: 5px 1px !important;
+    font-size: 9.5px !important;
+  }
+  .hist-table thead th:nth-child(1),
+  .hist-table tbody td:nth-child(1) {
+    width: 18% !important;
+    max-width: 18% !important;
+    min-width: 0 !important;
+    font-size: 9.5px !important;
+    padding: 4px 1px !important;
+  }
+  .hist-table thead th:nth-child(2),
+  .hist-table tbody td:nth-child(2) {
+    width: 35% !important;
+    max-width: 35% !important;
+    min-width: 0 !important;
+    padding: 4px 1px !important;
+  }
+  .hist-table thead th:nth-child(3),
+  .hist-table tbody td:nth-child(3) {
+    width: 27% !important;
+    max-width: 27% !important;
+    min-width: 0 !important;
+    padding: 4px 1px !important;
+  }
+  .hist-table thead th:nth-child(4),
+  .hist-table tbody td:nth-child(4) {
+    width: 20% !important;
+    max-width: 20% !important;
+    min-width: 0 !important;
+    padding: 4px 1px !important;
+  }
+  .hist-table tbody td {
+    padding: 4px 1px !important;
+  }
+  .hist-table .prog-pr-weight-badge,
+  .hist-table .prog-pr-reps-badge,
+  .hist-rir-badge {
+    font-size: 9px !important;
+    padding: 2px 3px !important;
+    white-space: nowrap !important;
+    letter-spacing: -0.1px !important;
   }
 }
 
@@ -6351,8 +7308,8 @@ tr:hover td { background: var(--bg-card-hover); }
   border: 1px solid rgba(139, 92, 246, 0.25);
   padding: 3px;
   border-radius: 10px;
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 /* Kapsül İçindeki Butonlar */
@@ -6488,7 +7445,7 @@ canvas {
 }
 
 @media (max-width: 768px) {
-  .chart-container, div:has(> canvas) {
+  .chart-container, div:has(> canvas):not(.dash-muscle-chart-wrap):not(.dash-card div):not(#page-dashboard div) {
     /* Grafiğin dikey alanını biraz artırarak sıkışmış hissini azaltıyoruz */
     min-height: 340px !important; 
   }
@@ -6989,7 +7946,6 @@ canvas {
     display: flex !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
@@ -6997,7 +7953,6 @@ canvas {
     gap: 6px !important;
     padding: 2px 0 8px !important;
     margin-bottom: 12px !important;
-    scrollbar-width: none !important;
   }
   .expert-data-subtabs::-webkit-scrollbar {
     display: none !important;
@@ -7228,7 +8183,6 @@ canvas {
   .expert-table-wrap, .table-wrap {
     overflow-x: auto !important;
     width: 100% !important;
-    -webkit-overflow-scrolling: touch !important;
   }
 }
   .prog-buttons-wrapper::-webkit-scrollbar { display: none; }
@@ -7237,18 +8191,38 @@ canvas {
 
 <style id="mobile-shrink-fix">
 @media (max-width: 768px) {
-  /* Toast notifications mobile shrink */
+  /* Toast notifications mobile shrink & overflow protection */
+  .toast-container {
+    width: 92% !important;
+    max-width: 420px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
   .toast {
-    padding: 10px 16px !important;
-    font-size: 11px !important;
-    border-radius: 20px !important;
-    gap: 6px !important;
-    max-width: 90% !important;
-    line-height: 1.3 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    max-width: 100% !important;
+    width: auto !important;
+    padding: 9px 15px !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    border-radius: 14px !important;
+    gap: 8px !important;
+    text-align: left !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+  .toast span {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
   }
   .toast svg {
-    width: 16px !important;
-    height: 16px !important;
+    width: 17px !important;
+    height: 17px !important;
     flex-shrink: 0 !important;
   }
 
@@ -7261,79 +8235,100 @@ canvas {
   
   .table-wrap {
     overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
   }
   
-  #page-progress table {
-    table-layout: fixed !important;
-    width: 125% !important;
-    min-width: 125% !important;
+  /* Progress page mobile table styling - horizontal scroll for dates */
+  #page-progress .prog-table-wrap {
+    width: 100% !important;
+    overflow-x: auto !important;
   }
-  
-  #page-progress table, #page-progress th, #page-progress td {
-    font-size: 10px !important;
-    padding: 6px 3px !important;
-    line-height: 1.2 !important;
-    vertical-align: middle !important;
+  #page-progress table.prog-table {
+    width: max-content !important;
+    min-width: 490px !important;
+    table-layout: auto !important;
   }
-  
-  /* İlk 4 kolon (Hareket, Kas Grubu, Ağırlık, Tekrar) tam ekrana (%100) sığar, sadece Tarih scroll'a kalır */
-  #page-progress th:nth-child(1), #page-progress td:nth-child(1) {
-    width: 25% !important;
+  #page-progress .prog-table th:nth-child(1), #page-progress .prog-table td:nth-child(1) {
+    width: auto !important;
+    min-width: 125px !important;
     white-space: normal !important;
-    word-break: break-word !important;
   }
-  #page-progress th:nth-child(2), #page-progress td:nth-child(2) {
-    width: 24% !important;
-  }
-  #page-progress th:nth-child(3), #page-progress td:nth-child(3) {
-    width: 18% !important;
-    white-space: normal !important;
-    word-break: break-word !important;
-  }
-  #page-progress th:nth-child(4), #page-progress td:nth-child(4) {
-    width: 13% !important;
+  #page-progress .prog-table th:nth-child(2), #page-progress .prog-table td:nth-child(2) {
+    width: auto !important;
+    min-width: 75px !important;
     white-space: nowrap !important;
   }
-  #page-progress th:nth-child(5), #page-progress td:nth-child(5) {
-    width: 20% !important;
+  #page-progress .prog-table th:nth-child(3), #page-progress .prog-table td:nth-child(3) {
+    width: auto !important;
+    min-width: 95px !important;
     white-space: nowrap !important;
   }
-  
-  /* Vücut Ağırlığı metninin tekrar üzerine taşmasını önleme */
-  #prTable td:nth-child(3) span {
+  #page-progress .prog-table th:nth-child(4), #page-progress .prog-table td:nth-child(4) {
+    width: auto !important;
+    min-width: 70px !important;
+    white-space: nowrap !important;
+  }
+  #page-progress .prog-table th:nth-child(5), #page-progress .prog-table td:nth-child(5) {
+    width: auto !important;
+    min-width: 85px !important;
+    white-space: nowrap !important;
+  }
+  #prTable td span.prog-pr-reps-badge {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 3px 6px !important;
+    font-size: 10.5px !important;
+  }
+  #prTable td span.prog-pr-weight-badge {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    display: inline-flex !important;
+    padding: 3px 6px !important;
+    font-size: 10.5px !important;
+  }
+  #prTable td span.prog-bw-text {
+    white-space: nowrap !important;
     font-size: 9.5px !important;
-    white-space: normal !important;
-    line-height: 1.15 !important;
-    display: inline-block !important;
+    display: inline !important;
   }
-
-  /* Neon kas grubu rozetleri taşma yapmasın, şık dursun */
-  #prTable td span {
-    padding: 2px 4px !important;
-    font-size: 9px !important;
-    border-radius: 4px !important;
-    letter-spacing: 0 !important;
+  #prTable td span.prog-muscle-badge {
     white-space: nowrap !important;
     display: inline-block !important;
-    max-width: 100% !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    vertical-align: middle !important;
+    padding: 2.5px 6px !important;
+    font-size: 10px !important;
+  }
+  #page-progress .prog-chart-scroll-wrap {
+    width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  #page-progress #progChartInner {
+    overflow: visible !important;
+    min-width: 100% !important;
   }
 
-  /* Scale down the timeframe pills so they fit side-by-side without needing scroll */
-  .prog-buttons-wrapper {
-    gap: 4px !important;
+  /* History page detailed sets table - fit completely without horizontal scroll */
+  #page-history .hist-table-wrap,
+  #page-history .hist-sets-card .prog-table-wrap {
+    overflow-x: hidden !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
   }
-  .timeframe-pills {
-    gap: 4px !important;
-    padding: 2px !important;
-  }
-  .tf-pill {
-    padding: 4px 6px !important;
-    font-size: 10px !important;
+  #page-history table.hist-table,
+  #page-history .hist-sets-card table.prog-table {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
   }
 }
   @media (max-width: 768px) {
@@ -7416,7 +8411,6 @@ canvas {
       gap: 8px;
       overflow-x: auto;
       padding: 5px 1px 8px;
-      scrollbar-width: thin;
     }
     .expert-data-tab {
       flex: 0 0 auto;
@@ -7434,6 +8428,7 @@ canvas {
       position: relative;
       overflow: hidden;
       transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      -webkit-user-select: none;
       user-select: none;
     }
     .expert-data-tab:hover {
@@ -7490,6 +8485,7 @@ canvas {
       cursor: pointer;
       position: relative;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      -webkit-user-select: none;
       user-select: none;
     }
     .expert-data-subtab:hover {
@@ -7746,9 +8742,15 @@ canvas {
       display: flex;
       align-items: center;
       justify-content: flex-start;
+      gap: 10px;
       margin-top: 14px;
       padding-top: 14px;
       border-top: 1px solid rgba(108, 99, 255, 0.12);
+    }
+    .expert-doms-btn-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
     }
     /* ══════════════════════════════════════════════════════
        MODERN UZMAN SİSTEMİ ANA PANO BUTONLARI (KAYDET / TEMİZLE / VAZGEÇ / DÜZENLE)
@@ -7772,6 +8774,7 @@ canvas {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
       cursor: pointer;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      -webkit-user-select: none;
       user-select: none;
       white-space: nowrap;
       box-sizing: border-box;
@@ -7821,6 +8824,7 @@ canvas {
       border-radius: 9px;
       cursor: pointer;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      -webkit-user-select: none;
       user-select: none;
       white-space: nowrap;
       box-sizing: border-box;
@@ -7895,6 +8899,7 @@ canvas {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
       cursor: pointer;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      -webkit-user-select: none;
       user-select: none;
       white-space: nowrap;
       box-sizing: border-box;
@@ -7933,8 +8938,8 @@ canvas {
       border: 1px solid rgba(108, 99, 255, 0.15);
       border-radius: var(--radius);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
-      backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
     }
     .light-mode .expert-injury-board-card {
       background: linear-gradient(160deg, rgba(255, 255, 255, 0.95) 0%, rgba(246, 248, 252, 0.95) 100%);
@@ -8061,8 +9066,8 @@ canvas {
       background: linear-gradient(145deg, rgba(30, 34, 49, 0.72) 0%, rgba(22, 26, 38, 0.85) 100%);
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.04);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
     }
     .light-mode .expert-injury-unified-row {
       background: linear-gradient(145deg, #ffffff 0%, #f7f9fd 100%);
@@ -8217,9 +9222,9 @@ canvas {
       margin-left: 2px;
     }
     .injury-segment {
-      width: 6px;
-      height: 10px;
-      border-radius: 2px;
+      width: 4.5px;
+      height: 7.5px;
+      border-radius: 1.5px;
       background: rgba(255, 255, 255, 0.12);
       transition: all 0.2s ease;
     }
@@ -8292,6 +9297,7 @@ canvas {
       align-items: center;
       gap: 9px;
       cursor: pointer;
+      -webkit-user-select: none;
       user-select: none;
       padding: 5px 11px;
       border-radius: 10px;
@@ -8375,6 +9381,7 @@ canvas {
       cursor: pointer;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
       white-space: nowrap;
+      -webkit-user-select: none;
       user-select: none;
       box-sizing: border-box;
       text-decoration: none;
@@ -8544,6 +9551,7 @@ canvas {
       font-size: 11px;
       letter-spacing: 0.05em;
       text-transform: uppercase;
+      -webkit-user-select: none;
       user-select: none;
     }
     .light-mode .injury-select-label {
@@ -8563,9 +9571,9 @@ canvas {
       color: #ffffff;
       outline: none;
       cursor: pointer;
-      appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
+      appearance: none;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .injury-select-box.area-select {
@@ -8778,11 +9786,11 @@ canvas {
     .expert-data-form input[type=range] {
       -webkit-appearance: none;
       appearance: none;
-      height: 6px;
+      height: 3.5px;
       border-radius: 999px;
       background: rgba(127,146,175,0.2);
       outline: none;
-      margin: 12px 0 3px;
+      margin: 10px 0 4px;
       cursor: pointer;
       transition: all 0.25s ease;
     }
@@ -8790,12 +9798,12 @@ canvas {
     .expert-data-form input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 18px;
-      height: 18px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: #ffffff;
       border: 2px solid var(--accent);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 10px rgba(108,99,255,0.4);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.4), 0 0 8px rgba(108,99,255,0.4);
       cursor: pointer;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
     }
@@ -8823,6 +9831,7 @@ canvas {
       gap: 10px;
       margin: 0 !important;
       cursor: pointer;
+      -webkit-user-select: none;
       user-select: none;
     }
     .expert-data-switch input { position: absolute; opacity: 0; pointer-events: none; }
@@ -9229,11 +10238,11 @@ canvas {
       -webkit-appearance: none;
       appearance: none;
       width: 100%;
-      height: 4px;
+      height: 2.5px;
       border-radius: 999px;
       background: rgba(127, 146, 175, 0.18);
       outline: none;
-      margin: 4px 0 2px;
+      margin: 3px 0 2px;
       cursor: pointer;
       display: block;
       transition: all 0.2s ease;
@@ -9241,30 +10250,30 @@ canvas {
     .expert-data-doms-input input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 13px;
-      height: 13px;
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
       background: #ffffff;
       border: 2px solid var(--accent);
-      box-shadow: 0 1px 6px rgba(0,0,0,0.45), 0 0 8px rgba(108,99,255,0.5);
+      box-shadow: 0 1px 5px rgba(0,0,0,0.45), 0 0 6px rgba(108,99,255,0.45);
       cursor: pointer;
       transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease;
     }
     .expert-data-doms-input input[type=range]::-webkit-slider-thumb:hover {
-      transform: scale(1.25);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 12px rgba(108,99,255,0.8);
+      transform: scale(1.22);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 10px rgba(108,99,255,0.7);
     }
     .expert-data-doms-input input[type=range]::-webkit-slider-thumb:active {
-      transform: scale(1.35);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.6), 0 0 14px rgba(108,99,255,1);
+      transform: scale(1.3);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.6), 0 0 12px rgba(108,99,255,0.9);
     }
     .expert-data-doms-input input[type=range]::-moz-range-thumb {
-      width: 13px;
-      height: 13px;
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
       background: #ffffff;
       border: 2px solid var(--accent);
-      box-shadow: 0 1px 6px rgba(0,0,0,0.45), 0 0 8px rgba(108,99,255,0.5);
+      box-shadow: 0 1px 5px rgba(0,0,0,0.45), 0 0 6px rgba(108,99,255,0.45);
       cursor: pointer;
     }
     .expert-data-doms-ticks {
@@ -9283,6 +10292,7 @@ canvas {
       border-radius: 3px;
       transition: all 0.15s ease;
       line-height: 1;
+      -webkit-user-select: none;
       user-select: none;
     }
     .doms-tick:hover {
@@ -9412,6 +10422,7 @@ canvas {
       color: #ffffff;
       font-size: 13px;
       font-weight: 800;
+      -webkit-user-select: none;
       user-select: none;
       transition: background 0.2s ease, color 0.2s ease;
       list-style: none;
@@ -9500,6 +10511,7 @@ canvas {
       font-weight: 800;
       letter-spacing: 0.02em;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      -webkit-user-select: none;
       user-select: none;
     }
     .expert-movement-button:hover {
@@ -9611,6 +10623,7 @@ canvas {
       border: 1.5px solid rgba(108, 99, 255, 0.22) !important;
       margin-top: 14px !important;
       cursor: pointer !important;
+      -webkit-user-select: none !important;
       user-select: none !important;
       position: relative !important;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -10166,8 +11179,8 @@ canvas {
       width: 100vw;
       height: 100vh;
       background: rgba(8, 10, 18, 0.82);
-      backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       z-index: 999999;
       display: flex;
       align-items: center;
@@ -10261,6 +11274,7 @@ canvas {
       justify-content: center;
       gap: 7px;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      -webkit-user-select: none;
       user-select: none;
     }
     .expert-confirm-btn.cancel {
@@ -10348,8 +11362,8 @@ canvas {
     body.expert-is-dragging,
     body.expert-is-dragging * {
       cursor: grabbing !important;
-      user-select: none !important;
       -webkit-user-select: none !important;
+      user-select: none !important;
     }
     .sortable-ghost,
     .expert-day-ghost {
@@ -10393,8 +11407,8 @@ canvas {
     .expert-recommendation-drag,
     .ex-drag-handle {
       touch-action: none;
-      user-select: none;
       -webkit-user-select: none;
+      user-select: none;
       transition: all 0.2s cubic-bezier(0.2, 1, 0.3, 1);
     }
     .expert-recommendation-drag:hover {
@@ -10481,8 +11495,6 @@ canvas {
         display: flex;
         flex-wrap: nowrap;
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
         gap: 6px;
         padding: 2px 0 8px;
         margin-bottom: 12px;
@@ -10709,109 +11721,240 @@ canvas {
         padding: 10px 12px !important;
         gap: 10px !important;
       }
+      /* DOMS & Sakatlıklar & Formlar Mobil Düzenlemeleri */
+      .expert-data-cardhead {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .expert-data-cardhead > div:first-child {
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+      .injury-board-heading {
+        font-size: 15px !important;
+        line-height: 1.3 !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+      }
+      .injury-board-sub {
+        font-size: 11.5px !important;
+        line-height: 1.4 !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+        margin-top: 3px !important;
+      }
+      .expert-data-badge {
+        font-size: 10.5px !important;
+        padding: 3px 8px !important;
+        align-self: flex-start !important;
+      }
+
+      /* DOMS Kart Listesi & Bar İnceliği */
       .expert-data-doms-grid {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+      }
+      .expert-data-doms-input {
+        padding: 8px 10px 7px !important;
+        border-radius: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .expert-data-doms-input-head {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 6px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+      .expert-data-doms-input-head > div:first-child {
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+      }
+      .expert-data-doms-input-name {
+        font-size: 11px !important;
+        padding: 2.5px 6px !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+        line-height: 1.25 !important;
+        max-width: 100% !important;
+      }
+      .expert-data-doms-input-score {
+        font-size: 10px !important;
+        padding: 2px 6px !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        letter-spacing: normal !important;
+      }
+      .expert-data-doms-bar-container {
+        margin-top: 3px !important;
+      }
+      .expert-data-doms-input input[type=range] {
+        height: 2.5px !important;
+        margin: 3px 0 2px !important;
+      }
+      .expert-data-doms-input input[type=range]::-webkit-slider-thumb {
+        width: 11px !important;
+        height: 11px !important;
+      }
+      .expert-data-doms-ticks {
+        margin-top: 2px !important;
+        padding: 0 2px !important;
+      }
+      .doms-tick {
+        font-size: 9.5px !important;
+        padding: 1px 4px !important;
+        min-width: 16px !important;
+        text-align: center !important;
+      }
+
+      /* Form İçi Range Sliderlar (Ağrı Düzenleme & Sakatlık Ekleme) */
+      .expert-data-range-wrap {
+        padding: 10px 12px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+      }
+      .expert-data-range-title {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 6px !important;
+        flex-wrap: wrap !important;
+      }
+      .expert-data-range-score {
+        font-size: 10.5px !important;
+        padding: 2px 6px !important;
+        min-width: auto !important;
+        flex-shrink: 0 !important;
+      }
+      .expert-data-range-wrap input[type=range],
+      .expert-data-form input[type=range] {
+        height: 3px !important;
+        margin: 8px 0 3px !important;
+      }
+      .expert-data-range-wrap input[type=range]::-webkit-slider-thumb,
+      .expert-data-form input[type=range]::-webkit-slider-thumb {
+        width: 13px !important;
+        height: 13px !important;
+      }
+      .expert-data-range-labels {
+        display: flex !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        padding: 0 2px !important;
+        margin-top: 3px !important;
+        box-sizing: border-box !important;
+      }
+      .expert-data-range-labels span {
+        font-size: 9.5px !important;
+        text-align: center !important;
+      }
+
+      /* Sakatlık Formu Dropdownlar & Textarea */
+      .injury-select-grid {
         grid-template-columns: 1fr !important;
         gap: 10px !important;
       }
-      .expert-equipment-groups {
-        display: flex !important;
-        flex-direction: column !important;
+      .injury-select-box {
+        height: 42px !important;
+        font-size: 12.5px !important;
+        padding: 0 34px 0 10px !important;
         width: 100% !important;
-        gap: 10px !important;
-      }
-      .expert-equipment-column {
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        gap: 8px !important;
         box-sizing: border-box !important;
       }
-      .expert-equipment-group {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
+      .injury-notes-textarea {
+        font-size: 12px !important;
         padding: 10px !important;
-        border-radius: 10px !important;
+        min-height: 65px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
       }
-      .expert-equipment-toggle-grid {
+
+      /* Buton Konumlandırmaları - Kaydet Tam Satır, Temizle & Vazgeç Yan Yana */
+      .expert-doms-save-container {
         display: flex !important;
         flex-direction: column !important;
         width: 100% !important;
-        gap: 7px !important;
-        box-sizing: border-box !important;
-      }
-      .expert-equipment-toggle {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
-        min-height: 44px !important;
-        padding: 8px 10px !important;
-        border-radius: 8px !important;
-      }
-      .expert-equipment-copy {
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
-        word-break: break-word !important;
-      }
-      .expert-equipment-copy strong {
-        font-size: 11.5px !important;
-        word-break: break-word !important;
-      }
-      .expert-doms-unified-row,
-      .expert-injury-unified-row {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
-        padding: 10px 12px !important;
-        border-radius: 10px !important;
         gap: 8px !important;
-      }
-      .injury-card-top,
-      .injury-card-main,
-      .injury-card-title-row {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
-        flex-wrap: wrap !important;
-      }
-      .injury-area-title {
-        white-space: normal !important;
-        word-break: break-word !important;
-        flex-shrink: 1 !important;
-      }
-      .injury-card-actions {
-        flex-wrap: wrap !important;
-        justify-content: flex-end !important;
-        gap: 6px !important;
-      }
-      .expert-doms-actions { width: 100% !important; justify-content: flex-end !important; margin-top: 6px !important; }
-      .expert-doms-save-container { justify-content: stretch !important; margin-top: 12px !important; }
-      .expert-doms-save-btn { width: 100% !important; justify-content: center !important; padding: 10px 14px !important; font-size: 12.5px !important; text-align: center !important; }
-      .expert-data-metric-head { display: none !important; }
-      .expert-data-metric-row { grid-template-columns: 1fr !important; gap: 8px !important; padding: 12px 4px !important; }
-      .expert-data-actions {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        gap: 8px !important;
+        margin-top: 14px !important;
+        padding-top: 12px !important;
         box-sizing: border-box !important;
       }
-      .expert-data-actions .btn,
-      .expert-data-actions button,
-      .expert-doms-save-btn {
+      .expert-doms-save-container .expert-doms-save-btn,
+      .expert-doms-save-container .expert-btn-save-green,
+      .expert-doms-save-container .expert-btn-save {
         width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        flex: 1 1 100% !important;
-        min-height: 40px !important;
+        min-height: 42px !important;
+        font-size: 13px !important;
+        font-weight: 800 !important;
         justify-content: center !important;
         text-align: center !important;
         box-sizing: border-box !important;
+        margin: 0 !important;
+      }
+      .expert-doms-btn-group {
+        display: flex !important;
+        width: 100% !important;
+        gap: 8px !important;
+        box-sizing: border-box !important;
+      }
+      .expert-doms-btn-group .expert-btn-action {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        min-height: 38px !important;
+        font-size: 12px !important;
+        padding: 8px 10px !important;
+        justify-content: center !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+      }
+
+      /* Pano Başlıkları & Segment Çubukları */
+      .expert-injury-board-header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+      }
+      .injury-board-title-group {
+        width: 100% !important;
+      }
+      .injury-header-badges {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 5px !important;
+        width: 100% !important;
+      }
+      .expert-btn-add-injury {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 9px 14px !important;
+        font-size: 12px !important;
+      }
+      .injury-segment {
+        width: 4px !important;
+        height: 7px !important;
+        border-radius: 1.5px !important;
+      }
+      .injury-severity-pill {
+        font-size: 10.5px !important;
+        padding: 3px 7px !important;
+      }
+      .expert-injury-tip {
+        font-size: 11.5px !important;
+        line-height: 1.45 !important;
+        padding: 9px 12px !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
       }
       .expert-gym-cards-grid {
         display: flex !important;
@@ -10950,6 +12093,23 @@ canvas {
       .expert-data-choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 6px !important; }
       .expert-data-choice { min-height: 52px !important; padding: 6px 4px !important; }
       .expert-data-choice .expert-choice-name { font-size: 11.5px !important; }
+      .expert-data-doms-input { padding: 7px 8px 6px !important; }
+      .expert-data-doms-input-name { font-size: 10.5px !important; padding: 2px 5px !important; }
+      .expert-data-doms-input-score { font-size: 9.5px !important; padding: 1.5px 5px !important; }
+      .injury-board-heading { font-size: 14px !important; }
+      .injury-board-sub { font-size: 11px !important; }
+      .injury-select-box { height: 40px !important; font-size: 12px !important; }
+      .expert-doms-save-container .expert-doms-save-btn,
+      .expert-doms-save-container .expert-btn-save-green {
+        font-size: 12px !important;
+        padding: 9px 10px !important;
+        min-height: 40px !important;
+      }
+      .expert-doms-btn-group .expert-btn-action {
+        font-size: 11.5px !important;
+        padding: 7px 8px !important;
+        min-height: 36px !important;
+      }
     }
   
 </style>
@@ -11212,26 +12372,26 @@ canvas {
 
         <!-- Charts & Progression Grid -->
         <div class="grid-2 mb-20">
-          <div class="card dash-card" style="margin-top:0; padding: 16px 18px !important; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; overflow: hidden;">
+          <div class="card dash-card dash-rpg-card" style="margin-top:0; padding: 16px 18px !important; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; overflow: hidden;">
             <div class="card-header-flex" style="margin-bottom: 6px;">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <div class="dash-card-icon" style="width:30px; height:30px; background:linear-gradient(135deg, rgba(139, 92, 246, 0.24) 0%, rgba(99, 102, 241, 0.12) 100%); border:1px solid rgba(167, 139, 250, 0.35); color:#c084fc; box-shadow:0 0 10px rgba(139, 92, 246, 0.2);">
+              <div style="display:flex; align-items:center; gap:8px; min-width: 0;">
+                <div class="dash-card-icon" style="width:30px; height:30px; background:linear-gradient(135deg, rgba(139, 92, 246, 0.24) 0%, rgba(99, 102, 241, 0.12) 100%); border:1px solid rgba(167, 139, 250, 0.35); color:#c084fc; box-shadow:0 0 10px rgba(139, 92, 246, 0.2); flex-shrink:0;">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 </div>
-                <div>
+                <div style="min-width: 0;">
                   <div style="display:flex; align-items:center; gap:6px;">
-                    <h3 style="font-size:14px; font-weight:800; color:#f8fafc; margin:0; letter-spacing:0.2px;">Gelişim Seviyesi</h3>
-                    <span id="rpgLevelBadge" class="badge badge-accent" style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; letter-spacing:0.3px;">LVL 1</span>
+                    <h3 style="font-size:14px; font-weight:800; color:#f8fafc; margin:0; letter-spacing:0.2px; white-space:nowrap;">Gelişim Seviyesi</h3>
+                    <span id="rpgLevelBadge" class="badge badge-accent" style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; letter-spacing:0.3px; flex-shrink:0;">LVL 1</span>
                   </div>
-                  <div id="rpgSubtitle" style="font-size:11px; color:#94a3b8; margin-top:1px;">
+                  <div id="rpgSubtitle" style="font-size:11px; color:#94a3b8; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px;">
                     <span id="rpgTitle" style="color:#c084fc; font-weight:750;">KAS GRUBU TAMAMLAMA</span> · <span id="rpgNextLevelText">Hesaplanıyor...</span>
                   </div>
                 </div>
               </div>
-              <div class="timeframe-pills">
+              <div class="timeframe-pills" style="margin-left: auto;">
                 <button class="tf-pill" onclick="filterXpChart('weekly', this)">Haftalık</button>
                 <button class="tf-pill" onclick="filterXpChart('monthly', this)">Aylık</button>
-                <button class="tf-pill active" onclick="filterXpChart('all', this)">Tüm Zamanlar</button>
+                <button class="tf-pill active" onclick="filterXpChart('all', this)">Genel</button>
               </div>
             </div>
 
@@ -11271,22 +12431,22 @@ canvas {
             </div>
           </div>
 
-          <div class="card dash-card" style="margin-top:0; min-width: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="card dash-card dash-muscle-card" style="margin-top:0; min-width: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
             <div class="card-header-flex">
               <div style="display:flex; align-items:center; gap:8px;">
                 <div class="dash-card-icon" style="width:30px; height:30px; background:linear-gradient(135deg, rgba(108, 99, 255, 0.24) 0%, rgba(59, 130, 246, 0.12) 100%); border:1px solid rgba(167, 139, 250, 0.35); color:#c084fc; box-shadow:0 0 10px rgba(108, 99, 255, 0.2);">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
                 </div>
-                <div class="card-title" style="margin: 0; font-size: 14px; font-weight: 800; color: #f8fafc; letter-spacing: 0.2px;">Kas Grubu Dağılımı</div>
+                <div class="card-title" id="muscleChartTitle" style="margin: 0; font-size: 14px; font-weight: 800; color: #f8fafc; letter-spacing: 0.2px;">Genel Set Dağılımı</div>
               </div>
               <div class="timeframe-pills">
                 <button class="tf-pill" onclick="filterMuscleChart('weekly', this)">Haftalık</button>
                 <button class="tf-pill" onclick="filterMuscleChart('monthly', this)">Aylık</button>
-                <button class="tf-pill active" onclick="filterMuscleChart('all', this)">Tüm Zamanlar</button>
+                <button class="tf-pill active" onclick="filterMuscleChart('all', this)">Genel</button>
               </div>
             </div>
 
-            <div style="position: relative; height: 220px; width: 100%; min-width: 0;">
+            <div class="dash-muscle-chart-wrap">
               <canvas id="muscleChart"></canvas>
             </div>
           </div>
@@ -11409,12 +12569,12 @@ canvas {
                   <p style="font-size: 11px; color: #94a3b8; margin: 1px 0 0 0;">Kas grubuna göre filtreleyin veya doğrudan arayın</p>
                 </div>
               </div>
-              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <div style="position: relative; width: 220px;">
+              <div class="workout-search-header-right" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div class="workout-search-wrap" style="position: relative; width: 220px;">
                   <svg style="position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                   <input id="workoutExerciseSearch" type="search" placeholder="Hareket ara..." oninput="renderExerciseList(_currentWorkoutMuscleFilter)" style="padding: 7px 12px 7px 32px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(139, 92, 246, 0.3); border-radius: 10px; color: #ffffff; font-size: 12.5px; width: 100%; transition: all 0.2s ease;">
                 </div>
-                <div style="display:flex; gap:6px; font-size:9.5px; font-weight:750;">
+                <div class="workout-search-badges" style="display:flex; gap:6px; font-size:9.5px; font-weight:750;">
                   <span style="color: #22d3ee; background: rgba(6, 182, 212, 0.14); padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(6, 182, 212, 0.4); box-shadow: 0 0 8px rgba(6, 182, 212, 0.2);">Ana Kas</span>
                   <span style="color: #f472b6; background: rgba(236, 72, 153, 0.14); padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(236, 72, 153, 0.4); box-shadow: 0 0 8px rgba(236, 72, 153, 0.2);">Yardımcı</span>
                 </div>
@@ -11452,7 +12612,7 @@ canvas {
           </div>
 
           <!-- Action Buttons -->
-          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid rgba(139, 92, 246, 0.18);">
+          <div class="workout-actions-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid rgba(139, 92, 246, 0.18);">
             <button class="workout-btn-save" id="saveWorkoutButton" onclick="saveWorkout()" type="button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
               <span id="saveWorkoutButtonLabel">Kaydet</span>
@@ -11585,8 +12745,15 @@ canvas {
             </div>
           </div>
 
-          <div style="position: relative; height: 360px; width: 100%; min-width: 0; overflow: hidden;">
-            <canvas id="exerciseProgressChart"></canvas>
+          <div class="prog-chart-scroll-wrap" id="progChartScrollWrap" style="position: relative; width: 100%; min-width: 0; overflow-x: auto; overflow-y: hidden;">
+            <div class="prog-chart-inner" id="progChartInner" style="position: relative; height: 360px; width: 100%; min-width: 100%;">
+              <canvas id="exerciseProgressChart"></canvas>
+            </div>
+          </div>
+          <div id="progChartScrollHint" class="prog-chart-scroll-hint" style="display: none; align-items: center; justify-content: flex-end; gap: 5px; margin-top: 6px; font-size: 11px; color: #a78bfa; font-weight: 600;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Tüm tarihleri görmek için kaydırın</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </div>
         </div>
 
@@ -14040,6 +15207,8 @@ async function loadDashboard(username) {
   }
 
   if (data.muscle_distribution && data.muscle_distribution.all && document.getElementById('muscleChart')) {
+    const titleEl = document.getElementById('muscleChartTitle');
+    if (titleEl) titleEl.textContent = 'Genel Set Dağılımı';
     const musLabels = Object.keys(data.muscle_distribution.all);
     const musValues = Object.values(data.muscle_distribution.all);
     const musDetails = data.muscle_distribution_details?.all || {};
@@ -14058,11 +15227,23 @@ async function loadDashboard(username) {
 
 // Butonlara tıklanınca çalışacak grafik filtreleme motoru
 window.filterMuscleChart = function(timeframe, btnEl) {
-  const parent = btnEl.parentElement;
-  if (parent) {
-    parent.querySelectorAll('.tf-pill').forEach(button => button.classList.remove('active'));
+  const titleMap = {
+    'weekly': 'Haftalık Set Dağılımı',
+    'monthly': 'Aylık Set Dağılımı',
+    'all': 'Genel Set Dağılımı'
+  };
+  const titleEl = document.getElementById('muscleChartTitle');
+  if (titleEl && titleMap[timeframe]) {
+    titleEl.textContent = titleMap[timeframe];
   }
-  btnEl.classList.add('active');
+
+  if (btnEl) {
+    const parent = btnEl.parentElement;
+    if (parent) {
+      parent.querySelectorAll('.tf-pill').forEach(button => button.classList.remove('active'));
+    }
+    btnEl.classList.add('active');
+  }
 
   if (!cachedUserData || !cachedUserData.muscle_distribution) return;
   const distData = cachedUserData.muscle_distribution[timeframe] || {};
@@ -14972,8 +16153,8 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     const animStyle = shouldAnimate ? `--card-index: ${i};` : '';
 
     bgHTML += `
-      <div class="split-card ${statusClass} ${animClass}" style="${animStyle} height:64px; margin:0; padding:0 16px; border-radius:12px; display:flex; align-items:center; justify-content:space-between;">
-         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:50px;">
+      <div class="split-card ${statusClass} ${animClass}" style="${animStyle} height:64px; margin:0; border-radius:12px; display:flex; align-items:center; justify-content:space-between;">
+         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:46px;">
             <span style="font-size:13px; font-weight:700; white-space:nowrap;">Gün ${i+1}</span>
             <span style="font-size:10px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">${daysName[i]}</span>
          </div>
@@ -15023,25 +16204,32 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     }
 
     const displayTypeHTML = `
-      <span style="font-size:14px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${displayTitle}</span>
-      ${displaySubtitle ? `<span style="display:block; font-size:11px; color:var(--text-muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">(${displaySubtitle})</span>` : ''}
+      <span style="font-size:13.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">${displayTitle}</span>
+      ${displaySubtitle ? `<span style="display:block; font-size:11px; color:var(--text-muted); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">(${displaySubtitle})</span>` : ''}
     `;
 
     // Kayıt oluşturulmuş / kesinleşmiş günlerde sürükle bırak devre dışı kalır
     const isLocked = isCompleted || isPast;
 
+    let statusModifier = '';
+    if (isRest) statusModifier = 'split-type-rest';
+    else if (isCompleted) statusModifier = 'split-type-done';
+    else if (isToday) statusModifier = 'split-type-today';
+    else if (isPast) statusModifier = 'split-type-missed';
+    else statusModifier = 'split-type-upcoming';
+
     fgHTML += `
-      <div data-index="${i}" class="${animClass} ${isLocked ? 'sort-disabled' : ''}" style="${animStyle} height:64px; margin:0; padding:0 16px 0 82px; border-radius:12px; display:flex; align-items:center; gap:12px; transition:background 0.2s;"
+      <div data-index="${i}" class="${animClass} ${isLocked ? 'sort-disabled' : ''} split-fg-row" style="${animStyle} height:64px; margin:0; border-radius:12px; display:flex; align-items:center; gap:8px; transition:background 0.2s;"
            onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
          ${(reorderContext && !isLocked) ? `
-           <div class="drag-handle" title="Kaydırarak yer değiştir" style="cursor:grab; color:rgba(255,255,255,0.15); display:flex; align-items:center; transition:0.2s; flex-shrink:0;"
+           <div class="drag-handle" title="Kaydırarak yer değiştir" style="cursor:grab; color:rgba(255,255,255,0.15); display:flex; align-items:center; transition:0.2s; flex-shrink:0; width:18px;"
                 onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.15)'">
-              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
-           </div>` : '<div style="width:20px; flex:0 0 20px;"></div>'}
+           </div>` : '<div style="width:14px; flex:0 0 14px;"></div>'}
 
-         <div class="split-type ${isCompleted ? 'split-type-done' : ''} ${isPast && !isRest && !isCompleted ? 'split-type-missed' : ''} ${isRest ? 'split-type-rest' : ''}" style="line-height:1.2; overflow:hidden; min-width:0; flex:1; margin-right:220px;">
+         <div class="split-type ${statusModifier}">
             ${displayTypeHTML}
          </div>
       </div>
@@ -15136,6 +16324,8 @@ function renderMuscleChart(labels, data, details = {}) {
     return;
   }
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
   // 2. SAYFA İLK YÜKLENDİĞİNDE ÇALIŞAN KISIM
   window._muscleChart = new Chart(ctx, {
     type: 'doughnut',
@@ -15155,14 +16345,19 @@ function renderMuscleChart(labels, data, details = {}) {
       plugins: {
         legend: {
           position: 'right',
-          labels: { color: '#9ca3b4', font: { size: 11 } }
+          labels: {
+            color: '#9ca3b4',
+            font: { size: isMobile ? 10 : 11 },
+            boxWidth: isMobile ? 10 : 12,
+            padding: isMobile ? 5 : 10
+          }
         },
         // Grafik görünümü aynı kalır; yalnız dilim üzerine gelindiğinde
         // alt kas dağılımı ek bilgi olarak görünür.
         tooltip: {
           callbacks: {
             label(context) {
-              return `${context.label}: ${formatSet(context.raw)} hareket`;
+              return `${context.label}: ${formatSet(context.raw)} set`;
             },
             afterLabel(context) {
               const hoverGroups = new Set([
@@ -15173,7 +16368,7 @@ function renderMuscleChart(labels, data, details = {}) {
               const detailMap = context.dataset.muscleDetails?.[context.label] || {};
               const items = Object.entries(detailMap);
               if (!items.length) return '';
-              return ['Alt kaslar:', ...items.map(([name, count]) => `• ${name}: ${formatSet(count)} hareket`)];
+              return ['Alt kaslar:', ...items.map(([name, count]) => `• ${name}: ${formatSet(count)} set`)];
             }
           }
         }
@@ -15503,23 +16698,23 @@ function renderSelectedExercises() {
     const muscleLabel = ex.display_muscle || ex.muscle_group;
     return `
       <div class="card history-card-animated selected-exercise-card" data-exercise-index="${idx}" style="margin-bottom: 16px; padding: 18px; border-radius: 16px; background: linear-gradient(160deg, rgba(22, 27, 48, 0.9) 0%, rgba(15, 19, 36, 0.95) 100%); border: 1px solid rgba(139, 92, 246, 0.28); box-shadow: 0 8px 24px rgba(0,0,0,0.25); --card-index: ${idx};">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
-          <div style="display:flex; align-items:center; gap: 8px; flex-wrap: wrap;">
+        <div class="selected-ex-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+          <div class="selected-ex-header-left" style="display:flex; align-items:center; gap: 8px; flex-wrap: wrap;">
             <span class="ex-drag-handle" title="Önceliği değiştirmek için sürükle" style="cursor:grab; color:#94a3b8; transition:0.2s; display:flex; align-items:center; padding:4px; border-radius:6px; background:rgba(255,255,255,0.04);" onmouseover="this.style.color='#c084fc';this.style.background='rgba(108,99,255,0.15)'" onmouseout="this.style.color='#94a3b8';this.style.background='rgba(255,255,255,0.04)'">
               <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
             </span>
-            <span style="font-size: 15px; font-weight: 800; color: #ffffff; letter-spacing: 0.2px;">${ex.exercise_name}</span>
+            <span class="selected-ex-name" style="font-size: 15px; font-weight: 800; color: #ffffff; letter-spacing: 0.2px;">${ex.exercise_name}</span>
             <span class="badge ${bodyweightOnly ? 'badge-green' : 'badge-accent'}" style="font-size: 11px; font-weight: 750; padding: 3px 8px; border-radius: 6px;">${muscleLabel}</span>
             ${bodyweightOnly ? '<span class="badge badge-green" style="font-size: 11px; font-weight: 750; padding: 3px 8px; border-radius: 6px;">Vücut Ağırlığı</span>' : ''}
             ${extraLoad ? '<span class="badge badge-accent" style="font-size: 11px; font-weight: 750; padding: 3px 8px; border-radius: 6px;">Vücut Ağırlığı + Ek Yük</span>' : ''}
           </div>
-          <button class="btn btn-sm btn-danger" onclick="removeExercise(${idx})" style="padding: 5px 12px; font-size: 11.5px; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; background: rgba(244, 63, 94, 0.14); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.35); box-shadow: 0 0 10px rgba(244, 63, 94, 0.15); transition: all 0.2s ease;">
+          <button class="btn btn-sm btn-danger ex-remove-btn" onclick="removeExercise(${idx})" style="padding: 5px 12px; font-size: 11.5px; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; background: rgba(244, 63, 94, 0.14); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.35); box-shadow: 0 0 10px rgba(244, 63, 94, 0.15); transition: all 0.2s ease;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             <span>Kaldır</span>
           </button>
         </div>
-        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-          <table class="sets-table" style="width: 100%; border-collapse: separate; border-spacing: 0 6px; min-width: 320px;">
+        <div style="overflow-x: auto;">
+          <table class="sets-table" style="width: 100%; border-collapse: separate; border-spacing: 0 6px;">
             <thead>
               <tr style="background: rgba(139, 92, 246, 0.1); border-radius: 8px;">
                 <th style="padding: 8px; font-size: 11px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; border-radius: 8px 0 0 8px;">Set</th>
@@ -15535,7 +16730,7 @@ function renderSelectedExercises() {
                 return `
                 <tr style="background: rgba(15, 23, 42, 0.55); border-radius: 10px;">
                   <td style="padding: 6px; text-align: center;">
-                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(108, 99, 255, 0.15); color: #c084fc; font-weight: 800; font-size: 12px; border: 1px solid rgba(167, 139, 250, 0.35);">${si + 1}</span>
+                    <span class="set-num-badge" style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(108, 99, 255, 0.15); color: #c084fc; font-weight: 800; font-size: 12px; border: 1px solid rgba(167, 139, 250, 0.35);">${si + 1}</span>
                   </td>
                   <td style="padding: 6px; text-align: center;">${bodyweightOnly
                     ? '<span style="display:inline-block;padding:4px 9px;border-radius:7px;background:rgba(34,197,94,0.12);color:#4ade80;font-weight:700;font-size:11px;border:1px solid rgba(34,197,94,0.3);">Vücut Ağırlığı</span>'
@@ -15910,12 +17105,12 @@ async function loadHistory(username) {
         sets.forEach((s, sIdx) => {
           let weightCellHTML = '';
           if (isBw) {
-            weightCellHTML = `<span class="prog-pr-weight-badge" style="font-size:11px; padding:2.5px 8px;">Vücut Ağırlığı</span>`;
+            weightCellHTML = `<span class="prog-pr-weight-badge" style="font-size:11px; padding:2.5px 6px;"><span class="desktop-txt">Vücut Ağırlığı</span><span class="mobile-txt">V. Ağ.</span></span>`;
           } else {
             const wKg = parseFloat(s.weight_kg) || 0;
             weightCellHTML = `
-              <span class="view-mode-${index} prog-pr-weight-badge" style="font-size:11.5px; padding:2.5px 8px;">${wKg} kg</span>
-              <input type="number" step="0.5" class="edit-mode-${index} edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="weight_kg" value="${s.weight_kg || 0}" style="display:none; width:64px; font-size:12px;">
+              <span class="view-mode-${index} prog-pr-weight-badge" style="font-size:11.5px; padding:2.5px 6px;">${wKg} kg</span>
+              <input type="number" step="0.5" class="edit-mode-${index} edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="weight_kg" value="${s.weight_kg || 0}" style="display:none; width:52px; font-size:11px;">
             `;
           }
 
@@ -15926,12 +17121,12 @@ async function loadHistory(username) {
                 ${weightCellHTML}
               </td>
               <td>
-                <span class="view-mode-${index} prog-pr-reps-badge" style="font-size:11.5px; padding:2.5px 8px;">${s.reps || 0} Tekrar</span>
-                <input type="number" class="edit-mode-${index} edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="reps" value="${s.reps || 0}" style="display:none; width:56px; font-size:12px;">
+                <span class="view-mode-${index} prog-pr-reps-badge" style="font-size:11.5px; padding:2.5px 6px;">${s.reps || 0}<span class="desktop-txt">&nbsp;Tekrar</span><span class="mobile-txt">&nbsp;Tkr</span></span>
+                <input type="number" class="edit-mode-${index} edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="reps" value="${s.reps || 0}" style="display:none; width:48px; font-size:11px;">
               </td>
               <td>
                 <span class="view-mode-${index} hist-rir-badge">${s.rir === 0 || s.rir ? `${s.rir} RIR` : '—'}</span>
-                <input type="number" min="0" max="5" class="edit-mode-${index} edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="rir" value="${s.rir === 0 || s.rir ? s.rir : ''}" placeholder="—" style="display:none; width:52px; font-size:12px;">
+                <input type="number" min="0" max="5" class="edit-mode-${index} edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="rir" value="${s.rir === 0 || s.rir ? s.rir : ''}" placeholder="—" style="display:none; width:44px; font-size:11px;">
               </td>
             </tr>
           `;
@@ -15940,9 +17135,9 @@ async function loadHistory(username) {
         fullExHTML += `
           <div class="hist-sets-card">
             <div class="hist-sets-header">${exIdx + 1}. ${ex.exercise_name}</div>
-            <div class="prog-table-wrap">
-              <table class="prog-table hist-table">
-                <thead><tr><th style="width:20%;">Set</th><th style="width:30%;">Ağırlık</th><th style="width:30%;">Tekrar</th><th style="width:20%;">RIR</th></tr></thead>
+            <div class="hist-table-wrap prog-table-wrap">
+              <table class="hist-table prog-table">
+                <thead><tr><th style="width:18%;">Set</th><th style="width:35%;">Ağırlık</th><th style="width:27%;">Tekrar</th><th style="width:20%;">RIR</th></tr></thead>
                 <tbody>${setsRows}</tbody>
               </table>
             </div>
@@ -15972,12 +17167,12 @@ async function loadHistory(username) {
 
       html += `
         <div class="card history-card history-card-animated" id="card-${index}" style="--card-index: ${index};" onclick="handleCardClick(${index}, event)">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:nowrap; gap:10px;">
-            <div style="min-width:0; flex:1;">
+          <div class="hist-card-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:nowrap; gap:10px;">
+            <div class="hist-card-header-left" style="min-width:0; flex:1;">
               <div class="hist-card-title">${w.session_type || 'Antrenman'} <span class="hist-badge-purple">${exercises.length} Hareket</span></div>
               <div class="hist-card-sub"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> ${formatDateTR(w.date)}${w.gym_name ? ` · 📍 ${w.gym_name}` : ''}</div>
             </div>
-            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+            <div class="hist-card-header-right" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
               <div style="text-align:right;">
                 <div class="hist-badge-volume"><span class="hist-volume-dot"></span><span>${Math.round(w.total_volume).toLocaleString()} kg</span></div>
               </div>
@@ -16277,13 +17472,13 @@ async function loadNutritionHistory() {
 
       html += `
         <div class="card history-card history-card-animated" id="nutri-card-${index}" style="--card-index: ${index}; cursor:pointer;" onclick="toggleNutritionDetails(${index}, event)">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:nowrap; gap:10px;">
-            <div style="min-width:0; flex:1;">
+          <div class="hist-card-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:nowrap; gap:10px;">
+            <div class="hist-card-header-left" style="min-width:0; flex:1;">
               <div class="hist-card-title nutri-view-${index}">${formatDateTR(log.date)}</div>
               <input type="date" class="nutri-edit-${index} edit-input" id="n-edit-date-${index}" value="${log.date}" max="${new Date().toISOString().slice(0, 10)}" aria-label="Kayıt tarihi" style="display:none; width:148px; padding:5px 7px; font-size:12px; text-align:left;">
               <div class="hist-card-sub"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg> Günlük Beslenme Özeti</div>
             </div>
-            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+            <div class="hist-card-header-right" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
               <div style="text-align:right;">
                 <div class="hist-badge-cal ${calClass}"><span>${log.calories}</span> <small>kcal</small></div>
               </div>
@@ -16662,6 +17857,19 @@ let _progChartMode = 'weight';
 
 // 1. İlerleme Sayfası Yüklendiğinde
 async function loadProgress(username) {
+  // Önce egzersiz havuzunu çekip dropdown ve eşleştirmeyi hazırla
+  if (!_exercisePool || _exercisePool.length === 0) {
+    try {
+      const exData = await apiGet('/api/exercises');
+      _exercisePool = exData.exercises || [];
+      buildExerciseDropdown();
+    } catch(e) {
+      console.warn("Egzersiz havuzu çekilemedi, arama menüsü boş kalabilir.");
+    }
+  } else {
+    buildExerciseDropdown();
+  }
+
   // ── A: GENEL VERİLER (PR Tablosu ve Eski Grafik) ──
   try {
     const data = await apiGet(`/api/progress`);
@@ -16691,7 +17899,11 @@ async function loadProgress(username) {
       defaultExercise = data.personal_records[0].exercise_id || data.personal_records[0].exercise;
       defaultExerciseName = data.personal_records[0].exercise || '';
     } else if (_exercisePool && _exercisePool.length > 0) {
-      defaultExercise = _exercisePool[0].name;
+      defaultExercise = _exercisePool[0].id || _exercisePool[0].name;
+      defaultExerciseName = _exercisePool[0].name || '';
+    } else {
+      defaultExercise = 'bench-press';
+      defaultExerciseName = 'Bench Press';
     }
     if (defaultExercise) {
       await selectProgressExercise(defaultExercise, defaultExerciseName);
@@ -16855,12 +18067,15 @@ async function loadProgress(username) {
 
           compoundPRs.forEach(r => {
             const compBadge = `background: linear-gradient(90deg, rgba(139, 92, 246, 0.25) 0%, rgba(6, 182, 212, 0.12) 100%); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.45); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 750; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(139, 92, 246, 0.25);`;
+            const primaryList = muscleTrPR(r.primary_muscles);
+            const fullMuscleText = primaryList.join(', ') || r.muscle || 'Diğer';
+            const singleMuscleText = r.muscle || primaryList[0] || 'Diğer';
             tableHTML += `
               <tr class="prog-pr-row" onclick="window.scrollTo({top:0, behavior:'smooth'}); selectProgressExercise('${r.exercise_id}', '${r.exercise}')">
                 <td style="padding: 13px 16px; font-weight: 700; color: #ffffff; font-size: 13.5px;">${r.exercise}</td>
-                <td><span style="${compBadge}">${(muscleTrPR(r.primary_muscles).join(', ') || r.muscle)}</span></td>
-                <td><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span style="font-size:11px;opacity:0.85;">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
-                <td><span class="prog-pr-reps-badge">${r.max_reps} Tekrar</span></td>
+                <td><span class="prog-muscle-badge" style="${compBadge}"><span class="desktop-txt">${fullMuscleText}</span><span class="mobile-txt">${singleMuscleText}</span></span></td>
+                <td><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span class="prog-bw-text">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
+                <td><span class="prog-pr-reps-badge">${r.max_reps}<span class="desktop-txt">&nbsp;Tekrar</span><span class="mobile-txt">&nbsp;Tkr</span></span></td>
                 <td><span class="prog-pr-date">${r.formattedDate}</span></td>
               </tr>
             `;
@@ -16892,12 +18107,15 @@ async function loadProgress(username) {
           `;
 
           groupPRs.forEach(r => {
+            const primaryList = muscleTrPR(r.primary_muscles);
+            const fullMuscleText = primaryList.join(', ') || r.muscle || 'Diğer';
+            const singleMuscleText = r.muscle || primaryList[0] || 'Diğer';
             tableHTML += `
               <tr class="prog-pr-row" onclick="window.scrollTo({top:0, behavior:'smooth'}); selectProgressExercise('${r.exercise_id}', '${r.exercise}')">
                 <td style="padding: 13px 16px 13px 22px; font-weight: 650; color: #f1f5f9; font-size: 13.5px;">${r.exercise}</td>
-                <td><span style="${getThemeForMuscle(r.muscle).badge}">${(muscleTrPR(r.primary_muscles).join(', ') || r.muscle)}</span></td>
-                <td><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span style="font-size:11px;opacity:0.85;">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
-                <td><span class="prog-pr-reps-badge">${r.max_reps} Tekrar</span></td>
+                <td><span class="prog-muscle-badge" style="${getThemeForMuscle(r.muscle).badge}"><span class="desktop-txt">${fullMuscleText}</span><span class="mobile-txt">${singleMuscleText}</span></span></td>
+                <td><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span class="prog-bw-text">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
+                <td><span class="prog-pr-reps-badge">${r.max_reps}<span class="desktop-txt">&nbsp;Tekrar</span><span class="mobile-txt">&nbsp;Tkr</span></span></td>
                 <td><span class="prog-pr-date">${r.formattedDate}</span></td>
               </tr>
             `;
@@ -16912,26 +18130,17 @@ async function loadProgress(username) {
   }
 
   // ── B: YENİ EGZERSİZ ZAMAN SERİSİ (Arama Menüsü İçin) ──
-  try {
-    const exData = await apiGet('/api/exercises');
-    _exercisePool = exData.exercises || [];
-    buildExerciseDropdown(); // Dropdown'ı hazırla
-  } catch(e) {
-    console.warn("Egzersiz havuzu çekilemedi, arama menüsü boş kalabilir.");
-  }
-
   // Dışarı tıklandığında dropdown'ı kapatma olayı
-  document.addEventListener('click', function(e) {
-    const input = document.getElementById('exerciseSearchInput');
-    const dropdown = document.getElementById('exerciseDropdownList');
-    if (input && dropdown && !input.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.style.display = 'none';
-    }
-  });
-
-  // Varsayılan hareketi, mevcut seçim varsa koruyarak yükle.
-  const selectedExercise = document.getElementById('exerciseSearchInput')?.value?.trim() || 'Bench Press';
-  selectProgressExercise(selectedExercise);
+  if (!window._progDropdownClickBound) {
+    window._progDropdownClickBound = true;
+    document.addEventListener('click', function(e) {
+      const input = document.getElementById('exerciseSearchInput');
+      const dropdown = document.getElementById('exerciseDropdownList');
+      if (input && dropdown && !input.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -16940,13 +18149,23 @@ async function loadProgress(username) {
 
 // 1. Egzersiz Seçim Fonksiyonu (Hem normal hem de window kapsamına tanımlıyoruz)
 async function selectProgressExercise(exerciseRef, displayName = '') {
-  const selected = (_exercisePool || []).find(item => item.id === exerciseRef || item.name === exerciseRef);
-  const exerciseId = selected?.id || exerciseRef;
-  let exerciseName = displayName || selected?.name || String(exerciseRef || '');
+  const cleanRef = String(exerciseRef || '').replace(/\s*\((?:vücut ağırlığı|vucut agirligi|ağırlıklı|agirlikli|bodyweight|weighted)\)/gi, '').trim();
+  const selected = (_exercisePool || []).find(item => 
+    item.id === exerciseRef || 
+    item.name === exerciseRef ||
+    item.id === cleanRef || 
+    item.name === cleanRef ||
+    String(item.name).toLowerCase() === cleanRef.toLowerCase()
+  );
+  const exerciseId = selected?.id || cleanRef || exerciseRef;
+  let exerciseName = displayName || selected?.name || cleanRef || String(exerciseRef || '');
   
   if (selected) {
-    if (selected.bw) exerciseName += ' (Vücut Ağırlığı)';
-    else if (selected.weighted) exerciseName += ' (Ağırlıklı)';
+    const hasSuffix = /\((?:vücut ağırlığı|vucut agirligi|ağırlıklı|agirlikli)\)/i.test(exerciseName);
+    if (!hasSuffix) {
+      if (selected.bw) exerciseName += ' (Vücut Ağırlığı)';
+      else if (selected.weighted) exerciseName += ' (Ağırlıklı)';
+    }
   }
   
   const inputEl = document.getElementById('exerciseSearchInput');
@@ -17300,11 +18519,14 @@ function renderExerciseProgressChart(exName, raw) {
   }
 
   const isMobileChart = window.innerWidth <= 768;
-  const tickFontSize = isMobileChart ? 9 : 12;
-  const titleFontSize = isMobileChart ? 10 : 13;
-  const pRadius = isMobileChart ? 4 : 6;
-  const pBorder = isMobileChart ? 1 : 2;
+  const tickFontSize = isMobileChart ? 10 : 12;
+  const titleFontSize = isMobileChart ? 11 : 13;
+  const pRadius = isMobileChart ? 4.5 : 6;
+  const pBorder = isMobileChart ? 1.5 : 2;
   const points = _progFilteredPoints();
+  const scrollWrap = document.getElementById('progChartScrollWrap');
+  const innerEl = document.getElementById('progChartInner');
+  const scrollHint = document.getElementById('progChartScrollHint');
 
   // Vücut ağırlıklı hareket seçilmişse hem "Ağırlık" hem de "Ağırlık + Tekrar" modunda aynı tekrar ekranı yüklenir.
   const isDualAxisMode = !isBodyweight && _progChartMode === 'reps_weight';
@@ -17328,6 +18550,19 @@ function renderExerciseProgressChart(exName, raw) {
       daySummaries.push({ ...group, maxWeight, repsAtMaxWeight });
     }
     const hasData = daySummaries.length > 0;
+    const numDates = daySummaries.length;
+    const isScrollable = isMobileChart && numDates > 4;
+    if (innerEl) {
+      if (isScrollable) {
+        const containerW = scrollWrap ? scrollWrap.clientWidth : 340;
+        const targetW = Math.max(containerW, numDates * 70);
+        innerEl.style.width = targetW + 'px';
+        if (scrollHint) scrollHint.style.display = 'flex';
+      } else {
+        innerEl.style.width = '100%';
+        if (scrollHint) scrollHint.style.display = 'none';
+      }
+    }
     _exerciseProgressChart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -17409,7 +18644,14 @@ function renderExerciseProgressChart(exName, raw) {
         scales: {
           x: {
             grid: { display: false },
-            ticks: { color: '#9ca3b4', maxRotation: 45, maxTicksLimit: 12, font: { size: tickFontSize } },
+            ticks: {
+              color: '#9ca3b4',
+              maxRotation: isScrollable ? 0 : 45,
+              autoSkip: !isScrollable,
+              maxTicksLimit: isScrollable ? undefined : 12,
+              font: { size: tickFontSize },
+              padding: 6
+            },
             title: { display: true, text: 'Tarih', color: '#9ca3b4', font: { size: titleFontSize, weight: '700' } },
           },
           yWeight: {
@@ -17439,6 +18681,11 @@ function renderExerciseProgressChart(exName, raw) {
       },
     });
     _playHxBeamReveal(_exerciseProgressChart, '#22c55e');
+    if (isScrollable && scrollWrap) {
+      setTimeout(() => {
+        scrollWrap.scrollLeft = scrollWrap.scrollWidth;
+      }, 60);
+    }
     return;
   }
 
@@ -17461,6 +18708,20 @@ function renderExerciseProgressChart(exName, raw) {
   }
 
   const hasSingleData = chartPoints.length > 0;
+  const numDates = chartPoints.length;
+  const isScrollable = isMobileChart && numDates > 4;
+  if (innerEl) {
+    if (isScrollable) {
+      const containerW = scrollWrap ? scrollWrap.clientWidth : 340;
+      const targetW = Math.max(containerW, numDates * 70);
+      innerEl.style.width = targetW + 'px';
+      if (scrollHint) scrollHint.style.display = 'flex';
+    } else {
+      innerEl.style.width = '100%';
+      if (scrollHint) scrollHint.style.display = 'none';
+    }
+  }
+
   const gradient = ctx.createLinearGradient(0, 0, 0, 400);
   if (isBodyweight) {
     gradient.addColorStop(0, 'rgba(34, 197, 94, 0.35)');
@@ -17558,13 +18819,25 @@ function renderExerciseProgressChart(exName, raw) {
         },
         x: {
           grid: { display: false },
-          ticks: { color: '#9ca3b4', maxRotation: 45, maxTicksLimit: 12, font: { size: tickFontSize } },
+          ticks: {
+            color: '#9ca3b4',
+            maxRotation: isScrollable ? 0 : 45,
+            autoSkip: !isScrollable,
+            maxTicksLimit: isScrollable ? undefined : 12,
+            font: { size: tickFontSize },
+            padding: 6
+          },
           title: { display: true, text: 'Tarih', color: '#9ca3b4', font: { size: titleFontSize, weight: '700' } }
         }
       }
     }
   });
   _playHxBeamReveal(_exerciseProgressChart, isBodyweight ? '#22c55e' : '#6c63ff');
+  if (isScrollable && scrollWrap) {
+    setTimeout(() => {
+      scrollWrap.scrollLeft = scrollWrap.scrollWidth;
+    }, 60);
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -20239,28 +21512,30 @@ function expertDataDomsEditForm(draft, hasDoms = true) {
       </div>
       <input id="expertDataDomsEditSeverity" type="range" min="0" max="5" step="1" value="${severity}" style="background:linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataDomsEditRangeChange(this.value)">
       <div class="expert-data-range-labels">
-        <span style="color:#a78bfa;font-weight:750;">0 · Yok</span>
-        <span style="color:#22d3ee;font-weight:750;">1 · Çok Hafif</span>
-        <span style="color:#34d399;font-weight:750;">2 · Hafif</span>
-        <span style="color:#fbbf24;font-weight:750;">3 · Orta</span>
-        <span style="color:#fb923c;font-weight:750;">4 · Belirgin</span>
-        <span style="color:#f43f5e;font-weight:750;">5 · Şiddetli</span>
+        <span style="color:#a78bfa;font-weight:750;">0<span class="desktop-txt">&nbsp;· Yok</span></span>
+        <span style="color:#22d3ee;font-weight:750;">1<span class="desktop-txt">&nbsp;· Çok Hafif</span></span>
+        <span style="color:#34d399;font-weight:750;">2<span class="desktop-txt">&nbsp;· Hafif</span></span>
+        <span style="color:#fbbf24;font-weight:750;">3<span class="desktop-txt">&nbsp;· Orta</span></span>
+        <span style="color:#fb923c;font-weight:750;">4<span class="desktop-txt">&nbsp;· Belirgin</span></span>
+        <span style="color:#f43f5e;font-weight:750;">5<span class="desktop-txt">&nbsp;· Şiddetli</span></span>
       </div>
     </div>
 
-    <div class="expert-doms-save-container" style="gap:10px;margin-top:16px;">
+    <div class="expert-doms-save-container">
       <button class="expert-doms-save-btn" type="button" onclick="expertDataSaveDomsEdit()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
         <span>Kaydı Güncelle</span>
       </button>
-      <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataClearDomsEditDraft()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path></svg>
-        <span>Temizle</span>
-      </button>
-      <button class="expert-btn-action expert-btn-cancel" type="button" onclick="expertDataCancelDomsAction()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        <span>${hasDoms ? 'Panoya Dön' : 'Vazgeç'}</span>
-      </button>
+      <div class="expert-doms-btn-group">
+        <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataClearDomsEditDraft()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path></svg>
+          <span>Temizle</span>
+        </button>
+        <button class="expert-btn-action expert-btn-cancel" type="button" onclick="expertDataCancelDomsAction()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          <span>${hasDoms ? 'Panoya Dön' : 'Vazgeç'}</span>
+        </button>
+      </div>
     </div>
   </div>`;
 }
@@ -20331,20 +21606,22 @@ function expertDataDomsPane() {
   const entryForm = expertDataDomsEditDraft
     ? expertDataDomsEditForm(expertDataDomsEditDraft, hasDoms)
     : `<div class="expert-data-doms-grid">${expertDataMuscles().map(muscle => expertDataDomsLevelInput(muscle, entryByMuscle.get(muscle.id))).join('')}</div>
-       <div class="expert-doms-save-container" style="gap:10px;margin-top:16px;">
+       <div class="expert-doms-save-container">
          <button class="expert-doms-save-btn" type="button" onclick="expertDataSaveDomsGrid()">
            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
            <span>Bugünkü Ağrı Değerlerini Kaydet</span>
          </button>
-         <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataClearDomsGrid()">
-           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path></svg>
-           <span>Verileri Temizle</span>
-         </button>
-         ${hasDoms ? `
-         <button class="expert-btn-action expert-btn-cancel" type="button" onclick="expertDataCancelDomsAction()">
-           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-           <span>Panoya Dön</span>
-         </button>` : ''}
+         <div class="expert-doms-btn-group">
+           <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataClearDomsGrid()">
+             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path></svg>
+             <span>Verileri Temizle</span>
+           </button>
+           ${hasDoms ? `
+           <button class="expert-btn-action expert-btn-cancel" type="button" onclick="expertDataCancelDomsAction()">
+             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+             <span>Panoya Dön</span>
+           </button>` : ''}
+         </div>
        </div>`;
 
   return `<div class="expert-data-grid">
@@ -20946,7 +22223,7 @@ function expertDataInjuryPane() {
       </div>
 
       <div class="expert-data-form" style="margin-top:16px;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:14px;">
+        <div class="injury-select-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:14px;">
           <div class="injury-select-wrap">
             <label for="expertDataInjuryArea" class="injury-select-label">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
@@ -20983,12 +22260,12 @@ function expertDataInjuryPane() {
           </div>
           <input id="expertDataInjurySeverity" type="range" min="0" max="5" step="1" value="${severity}" style="background:linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataRangeChange('injury', this.value)">
           <div class="expert-data-range-labels">
-            <span style="color:#a78bfa;font-weight:750;">0 · Yok</span>
-            <span style="color:#22d3ee;font-weight:750;">1 · Çok Hafif</span>
-            <span style="color:#34d399;font-weight:750;">2 · Hafif</span>
-            <span style="color:#fbbf24;font-weight:750;">3 · Orta</span>
-            <span style="color:#fb923c;font-weight:750;">4 · Belirgin</span>
-            <span style="color:#f43f5e;font-weight:750;">5 · Şiddetli</span>
+            <span style="color:#a78bfa;font-weight:750;">0<span class="desktop-txt">&nbsp;· Kısıt Yok</span></span>
+            <span style="color:#22d3ee;font-weight:750;">1<span class="desktop-txt">&nbsp;· Çok Hafif</span></span>
+            <span style="color:#34d399;font-weight:750;">2<span class="desktop-txt">&nbsp;· Hafif</span></span>
+            <span style="color:#fbbf24;font-weight:750;">3<span class="desktop-txt">&nbsp;· Orta</span></span>
+            <span style="color:#fb923c;font-weight:750;">4<span class="desktop-txt">&nbsp;· Belirgin</span></span>
+            <span style="color:#f43f5e;font-weight:750;">5<span class="desktop-txt">&nbsp;· Şiddetli</span></span>
           </div>
         </div>
 
@@ -21005,19 +22282,21 @@ function expertDataInjuryPane() {
           <textarea id="expertDataInjuryNotes" class="injury-notes-textarea" rows="3" maxlength="500" placeholder="Örn. belirli açılarda batma, dambıl pres sırasında omuz önünde hassasiyet hissediyorum">${expertDataEscape(draft.notes || '')}</textarea>
         </div>
 
-        <div class="expert-doms-save-container" style="gap:10px;margin-top:14px;">
-          <button class="expert-btn-action expert-btn-save-green" type="button" onclick="expertDataSaveInjury()">
+        <div class="expert-doms-save-container">
+          <button class="expert-doms-save-btn expert-btn-save-green" type="button" onclick="expertDataSaveInjury()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             <span>${draft.id ? 'Kaydı Güncelle' : 'Sakatlık Kaydet'}</span>
           </button>
-          <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataClearInjuryDraft()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path></svg>
-            <span>Temizle</span>
-          </button>
-          ${(hasInjuries || draft.id) ? `<button class="expert-btn-action expert-btn-cancel" type="button" onclick="expertDataCancelInjuryEdit()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            <span>${hasInjuries ? 'Panoya Dön' : 'Vazgeç'}</span>
-          </button>` : ''}
+          <div class="expert-doms-btn-group">
+            <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataClearInjuryDraft()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path></svg>
+              <span>Temizle</span>
+            </button>
+            ${(hasInjuries || draft.id) ? `<button class="expert-btn-action expert-btn-cancel" type="button" onclick="expertDataCancelInjuryEdit()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              <span>${hasInjuries ? 'Panoya Dön' : 'Vazgeç'}</span>
+            </button>` : ''}
+          </div>
         </div>
       </div>
 
@@ -21370,7 +22649,7 @@ function expertDataEquipmentPreferencesPane() {
               </strong>
               <span style="font-size:10.5px;padding:2px 8px;background:rgba(108,99,255,0.16);color:#c084fc;border:1px solid rgba(167,139,250,0.45);border-radius:10px;font-weight:750;box-shadow:0 0 8px rgba(108,99,255,0.2);white-space:nowrap;">${items.length} Ekipman</span>
             </div>
-            <div class="gym-equipment-chips" style="gap:6px;max-height:130px;overflow-y:auto;padding-right:2px;scrollbar-width:thin;scrollbar-color:rgba(167,139,250,0.35) transparent;">
+            <div class="gym-equipment-chips" style="gap:6px;max-height:130px;overflow-y:auto;padding-right:2px;">
               ${items.map(name => `
                 <span class="gym-equipment-chip" style="background:rgba(108,99,255,0.08);color:#f3e8ff;border:1px solid rgba(167,139,250,0.3);box-shadow:0 0 6px rgba(108,99,255,0.08);font-size:11px;padding:3.5px 8px;border-radius:6px;font-weight:600;">
                   ${expertDataEscape(name)}
@@ -23148,7 +24427,7 @@ function _renderExpertSystemCore(animate = true) {
   }
 
   const stageClass = animate ? 'expert-data-stage expert-data-stage-animated' : 'expert-data-stage';
-  content.innerHTML = `<div class="expert-data-shell"><header class="expert-data-hero"><span class="expert-data-eyebrow">Uzman Sistemi · Veri ve Karar Merkezi</span><h2>Verini kaydet, kuralın nedenini gör.</h2><p>DOMS, hedef kaslar, sakatlık/kısıt, ekipman ve set bazlı RPE özeti modüler kurallarla değerlendirilir. Sistem mevcut programı otomatik değiştirmez; Split ve Analiz sekmelerinde açıklanabilir taslak yönlendirmesi sunar.</p><div class="expert-hierarchy-box" style="margin-top:16px; padding:12px; background:rgba(108,99,255,0.05); border:1px solid rgba(108,99,255,0.2); border-radius:10px; display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--text-secondary);"><strong style="color:var(--text-primary); width:100%;">Planlama Hiyerarşisi:</strong><span style="flex:1 1 200px;"><strong>1. Hareket Tercihi:</strong> Seçilen hareketler taslakta kesin öncelik kazanır.</span><span style="flex:1 1 200px;"><strong>2. Ekipman Tercihi:</strong> Boş bırakılmadıysa varsayılan salonun imkânlarını ezer.</span><span style="flex:1 1 200px;"><strong>3. Varsayılan Salon:</strong> Herhangi bir özel tercih girilmediğinde temel (fallback) ekipman listesi olarak baz alınır.</span></div></header>${expertDataTabs()}<div class="${stageClass}" key="${stageKey}">${expertDataPane()}</div></div>`;
+  content.innerHTML = `<div class="expert-data-shell">${expertDataTabs()}<div class="${stageClass}" key="${stageKey}">${expertDataPane()}</div></div>`;
 }
 
 function renderExpertSystem(animate = true) {
