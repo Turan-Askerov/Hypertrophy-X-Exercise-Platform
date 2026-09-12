@@ -566,9 +566,9 @@ def get_user_by_username(username: str):
                COALESCE(ap.days_per_week, u.days_per_week) as days_per_week,
                COALESCE(ap.session_time_mins, u.session_time_mins) as session_time_mins,
                COALESCE(ap.stagnation_detected, u.stagnation_detected) as stagnation_detected,
-               COALESCE(ap.custom_split, u.custom_split) as custom_split,
-               COALESCE(ap.dashboard_preferences, u.dashboard_preferences) as dashboard_preferences,
-               COALESCE(ap.daily_nutrition, u.daily_nutrition) as daily_nutrition,
+               COALESCE(NULLIF(u.custom_split, '[]'), NULLIF(ap.custom_split, '[]'), '[]') as custom_split,
+               COALESCE(NULLIF(u.dashboard_preferences, '{}'), NULLIF(ap.dashboard_preferences, '{}'), '{}') as dashboard_preferences,
+               COALESCE(NULLIF(u.daily_nutrition, '{}'), NULLIF(ap.daily_nutrition, '{}'), '{}') as daily_nutrition,
                ar.role_title as admin_role_title, ar.permissions_json as admin_permissions
         FROM users u
         LEFT JOIN athlete_profiles ap ON u.id = ap.user_id
@@ -601,9 +601,9 @@ def get_user_by_id(user_id: int):
                COALESCE(ap.days_per_week, u.days_per_week) as days_per_week,
                COALESCE(ap.session_time_mins, u.session_time_mins) as session_time_mins,
                COALESCE(ap.stagnation_detected, u.stagnation_detected) as stagnation_detected,
-               COALESCE(ap.custom_split, u.custom_split) as custom_split,
-               COALESCE(ap.dashboard_preferences, u.dashboard_preferences) as dashboard_preferences,
-               COALESCE(ap.daily_nutrition, u.daily_nutrition) as daily_nutrition,
+               COALESCE(NULLIF(u.custom_split, '[]'), NULLIF(ap.custom_split, '[]'), '[]') as custom_split,
+               COALESCE(NULLIF(u.dashboard_preferences, '{}'), NULLIF(ap.dashboard_preferences, '{}'), '{}') as dashboard_preferences,
+               COALESCE(NULLIF(u.daily_nutrition, '{}'), NULLIF(ap.daily_nutrition, '{}'), '{}') as daily_nutrition,
                ar.role_title as admin_role_title, ar.permissions_json as admin_permissions
         FROM users u
         LEFT JOIN athlete_profiles ap ON u.id = ap.user_id
@@ -712,8 +712,31 @@ def _parse_dashboard_preferences(raw_preferences) -> dict:
 # HX_REAL_WORKOUT_SCHEDULE_SYNC_V1
 # Antrenman geçmişi gerçekleşen gerçektir. Takvimdeki Pazartesi–Pazar slotları
 # sabit kalır; yalnız seans/dinlenme içerikleri uygun slotlar arasında taşınır.
-def _schedule_week_index(total_weeks: int) -> int:
-    return date.today().isocalendar().week % max(1, total_weeks)
+def _schedule_week_index(total_weeks: int, start_date: date | datetime | str | None = None) -> int:
+    if total_weeks <= 1:
+        return 0
+    if not start_date:
+        return 0
+    try:
+        if isinstance(start_date, str):
+            clean_str = start_date.replace("Z", "+00:00")
+            parsed_date = datetime.fromisoformat(clean_str).date()
+        elif isinstance(start_date, datetime):
+            parsed_date = start_date.date()
+        elif isinstance(start_date, date):
+            parsed_date = start_date
+        else:
+            return 0
+    except Exception:
+        return 0
+
+    today = date.today()
+    start_monday = parsed_date - timedelta(days=parsed_date.weekday())
+    today_monday = today - timedelta(days=today.weekday())
+    elapsed = (today_monday - start_monday).days // 7
+    if elapsed < 0:
+        return 0
+    return elapsed % max(1, total_weeks)
 
 
 def _read_custom_program(raw_program: object) -> list:
@@ -735,18 +758,32 @@ def _sync_programs_with_real_workouts(user_id: int) -> dict:
     user = get_user_by_id(user_id)
     if not user:
         return {"changed": False}
-    actuals = current_week_actuals(get_workouts_by_user(user_id))
-
+    user_workouts = get_workouts_by_user(user_id)
     today_index = date.today().weekday()
+
     custom_program = _read_custom_program(user.get("custom_split", "[]"))
     custom_changed = False
     custom_rest_indices: set[int] = set()
+    custom_start_date = None
+    custom_start_weekday = 0
+    if user.get("created_at"):
+        try:
+            u_created = datetime.fromisoformat(str(user["created_at"]).replace("Z", "+00:00"))
+            custom_start_date = u_created.date()
+            u_week_start = date.today() - timedelta(days=today_index)
+            if custom_start_date >= u_week_start:
+                custom_start_weekday = u_created.weekday()
+        except Exception:
+            pass
+
+    custom_actuals = current_week_actuals(user_workouts, min_date=custom_start_date)
+
     if custom_program:
-        custom_week_index = _schedule_week_index(len(custom_program))
+        custom_week_index = _schedule_week_index(len(custom_program), custom_start_date)
         for c_idx, c_days in enumerate(custom_program):
             if isinstance(c_days, list) and len(c_days) == 7:
                 if c_idx == custom_week_index:
-                    reconciled, c_changed = reconcile_week(c_days, actuals, today_index)
+                    reconciled, c_changed = reconcile_week(c_days, custom_actuals, today_index, start_weekday=custom_start_weekday)
                 else:
                     reconciled, c_changed = clean_non_active_week(c_days, c_idx)
                 if c_changed:
@@ -765,14 +802,36 @@ def _sync_programs_with_real_workouts(user_id: int) -> dict:
         weeks = recommendation.get("weeks") or []
         if weeks:
             recommendation = _expert_normalize_recommendation_slots(recommendation)
-            week_index = _schedule_week_index(len(weeks))
+
+            rec_start_date = None
+            rec_start_weekday = 0
+            gen_at = recommendation.get("generated_at")
+            if gen_at:
+                try:
+                    gen_dt = datetime.fromisoformat(str(gen_at).replace("Z", "+00:00"))
+                    rec_start_date = gen_dt.date()
+                    week_start_date = date.today() - timedelta(days=today_index)
+                    if rec_start_date >= week_start_date:
+                        rec_start_weekday = gen_dt.weekday()
+                except Exception:
+                    pass
+            elif custom_start_date:
+                rec_start_date = custom_start_date
+                rec_start_weekday = custom_start_weekday
+
+            week_index = _schedule_week_index(len(weeks), rec_start_date)
+            rec_actuals = current_week_actuals(user_workouts, min_date=rec_start_date)
 
             # Referans egzersiz havuzu (dolu olan günlerden topla)
             exercise_reference_pool: dict[str, list[dict]] = {}
             for w in weeks:
                 if isinstance(w, dict) and isinstance(w.get("days"), list):
                     for d in w.get("days", []):
-                        if not is_rest_day(d):
+                        if (
+                            not is_rest_day(d)
+                            and not str(d.get("content_id", "")).startswith("actual-workout")
+                            and not str(d.get("session_id", "")).startswith("actual-workout")
+                        ):
                             k = session_kind(d.get("type"))
                             exs = d.get("exercises", [])
                             if k and exs and len(exs) > 0 and k not in exercise_reference_pool:
@@ -785,14 +844,21 @@ def _sync_programs_with_real_workouts(user_id: int) -> dict:
                         if w_idx == week_index:
                             rest_aligned = align_rest_slots(expert_days, custom_rest_indices)
                             reconciled, rec_changed = reconcile_week(
-                                expert_days, actuals, today_index, protected_rest_indices=custom_rest_indices
+                                expert_days,
+                                rec_actuals,
+                                today_index,
+                                protected_rest_indices=custom_rest_indices,
+                                exercise_reference_pool=exercise_reference_pool,
+                                start_weekday=rec_start_weekday,
                             )
                             if rest_aligned or rec_changed:
                                 week_obj["days"] = reconciled
                                 expert_changed = True
                         else:
                             reconciled, rec_changed = clean_non_active_week(
-                                expert_days, w_idx, reference_pool=exercise_reference_pool
+                                expert_days,
+                                w_idx,
+                                reference_pool=exercise_reference_pool,
                             )
                             if rec_changed:
                                 week_obj["days"] = reconciled
@@ -804,15 +870,25 @@ def _sync_programs_with_real_workouts(user_id: int) -> dict:
     conn = get_db()
     try:
         if custom_changed:
+            c_json = json.dumps(custom_program, ensure_ascii=False)
             conn.execute(
                 "UPDATE users SET custom_split = ? WHERE id = ?",
-                (json.dumps(custom_program, ensure_ascii=False), user_id),
+                (c_json, user_id),
+            )
+            conn.execute(
+                "UPDATE athlete_profiles SET custom_split = ? WHERE user_id = ?",
+                (c_json, user_id),
             )
         if expert_changed:
             preferences["expert_recommendation"] = recommendation
+            p_json = json.dumps(preferences, ensure_ascii=False)
             conn.execute(
                 "UPDATE users SET dashboard_preferences = ? WHERE id = ?",
-                (json.dumps(preferences, ensure_ascii=False), user_id),
+                (p_json, user_id),
+            )
+            conn.execute(
+                "UPDATE athlete_profiles SET dashboard_preferences = ? WHERE user_id = ?",
+                (p_json, user_id),
             )
         conn.commit()
     except Exception:
@@ -3938,10 +4014,15 @@ def save_pr_targets(data: DashboardPreferencesRequest,
     preferences["schema_version"] = 1
 
     conn = get_db()
+    pref_json = json.dumps(preferences, ensure_ascii=False)
     try:
         conn.execute(
             "UPDATE users SET dashboard_preferences = ? WHERE id = ?",
-            (json.dumps(preferences, ensure_ascii=False), current_user["id"]),
+            (pref_json, current_user["id"]),
+        )
+        conn.execute(
+            "UPDATE athlete_profiles SET dashboard_preferences = ? WHERE user_id = ?",
+            (pref_json, current_user["id"]),
         )
         conn.commit()
     except Exception:
@@ -3967,6 +4048,8 @@ def save_custom_program(data: CustomProgramRequest,
     cur = conn.cursor()
     try:
         cur.execute("UPDATE users SET custom_split = ? WHERE id = ?",
+                    (program_json, current_user["id"]))
+        cur.execute("UPDATE athlete_profiles SET custom_split = ? WHERE user_id = ?",
                     (program_json, current_user["id"]))
         conn.commit()
         return {"success": True,
@@ -4398,8 +4481,18 @@ def _build_expert_recommendation(user: dict) -> dict:
     planner_profile = dict(user)
     planner_profile["days_per_week"] = days_per_week
     movement_preferences = _exercise_preference_selection(user.get("dashboard_preferences", "{}"))
+    raw_goal = str(targets.get("primary_goal") or user.get("goal") or "hypertrophy").strip().lower()
+    goal_map = {
+        "bulk": "hypertrophy",
+        "cut": "fat_loss",
+        "maintain": "hypertrophy",
+        "strength": "strength",
+        "hypertrophy": "hypertrophy",
+        "fat_loss": "fat_loss",
+    }
+    normalized_goal = goal_map.get(raw_goal, "hypertrophy")
     preferences = {
-        "primary_goal": targets.get("primary_goal") or user.get("goal") or "hypertrophy",
+        "primary_goal": normalized_goal,
         "priority_muscles": list(targets.get("priority_muscles") or []),
         "exercise_preferences": movement_preferences,
     }
@@ -4431,11 +4524,16 @@ def _save_expert_recommendation(user: dict, recommendation: dict) -> dict:
     preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
     preferences["schema_version"] = max(2, int(preferences.get("schema_version") or 1))
     preferences["expert_recommendation"] = recommendation
+    pref_json = json.dumps(preferences, ensure_ascii=False)
     conn = get_db()
     try:
         conn.execute(
             "UPDATE users SET dashboard_preferences = ? WHERE id = ?",
-            (json.dumps(preferences, ensure_ascii=False), user["id"]),
+            (pref_json, user["id"]),
+        )
+        conn.execute(
+            "UPDATE athlete_profiles SET dashboard_preferences = ? WHERE user_id = ?",
+            (pref_json, user["id"]),
         )
         conn.commit()
     finally:
@@ -4462,7 +4560,28 @@ def _expert_content_from_day(day: dict, fallback_content_id: str) -> dict:
     content["content_id"] = str(content.get("content_id") or day.get("day_id") or fallback_content_id)
     content["type"] = str(content.get("type") or "Dinlenme")
     content["focus"] = str(content.get("focus") or ("Toparlanma" if content.get("isRest") else "Genel antrenman"))
-    content["exercises"] = [ex for ex in (content.get("exercises") or []) if isinstance(ex, dict)]
+    normalized_exs = []
+    for ex in (content.get("exercises") or []):
+        if not isinstance(ex, dict):
+            continue
+        ex_dict = dict(ex)
+        ex_name = ex_dict.get("name") or ex_dict.get("exercise_name") or "Egzersiz"
+        ex_id = ex_dict.get("id") or ex_dict.get("exercise_id") or "exercise"
+        ex_dict["name"] = str(ex_name)
+        ex_dict["exercise_name"] = str(ex_name)
+        ex_dict["id"] = str(ex_id)
+        ex_dict["exercise_id"] = str(ex_id)
+        if not ex_dict.get("sets"):
+            sets_d = ex_dict.get("sets_data")
+            ex_dict["sets"] = str(len(sets_d)) if isinstance(sets_d, list) and sets_d else "3"
+        if not ex_dict.get("reps"):
+            sets_d = ex_dict.get("sets_data")
+            if isinstance(sets_d, list) and sets_d and isinstance(sets_d[0], dict) and sets_d[0].get("reps"):
+                ex_dict["reps"] = str(sets_d[0]["reps"])
+            else:
+                ex_dict["reps"] = "8-12"
+        normalized_exs.append(ex_dict)
+    content["exercises"] = normalized_exs
     return content
 
 
@@ -4501,6 +4620,10 @@ def generate_expert_recommendation(user: dict = Depends(_resolve_current_user)):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     preferences = _save_expert_recommendation(user, recommendation)
+    sync_result = _sync_programs_with_real_workouts(user["id"])
+    if sync_result.get("changed"):
+        preferences = sync_result.get("dashboard_preferences") or preferences
+        recommendation = preferences.get("expert_recommendation") or recommendation
     return {"success": True, "recommendation": recommendation, "dashboard_preferences": preferences}
 
 
@@ -4864,7 +4987,9 @@ def save_expert_equipment_preferences(data: ExpertEquipmentPreferencesRequest = 
         row = conn.execute("SELECT dashboard_preferences FROM users WHERE id = ?", (user["id"],)).fetchone()
         preferences = _parse_dashboard_preferences((dict(row) if row else {}).get("dashboard_preferences", "{}"))
         preferences["equipment_preferences"] = {"preferred_equipment": preferred, "updated_at": datetime.now().isoformat(timespec="seconds")}
-        conn.execute("UPDATE users SET dashboard_preferences = ? WHERE id = ?", (json.dumps(preferences, ensure_ascii=False), user["id"]))
+        pref_json = json.dumps(preferences, ensure_ascii=False)
+        conn.execute("UPDATE users SET dashboard_preferences = ? WHERE id = ?", (pref_json, user["id"]))
+        conn.execute("UPDATE athlete_profiles SET dashboard_preferences = ? WHERE user_id = ?", (pref_json, user["id"]))
         conn.commit()
     finally:
         conn.close()
@@ -4894,7 +5019,9 @@ def save_expert_movement_preferences(data: ExpertMovementPreferencesRequest = Bo
             "avoid_exercise_ids": avoided,
             "updated_at": datetime.now().isoformat(timespec="seconds"),
         }
-        conn.execute("UPDATE users SET dashboard_preferences = ? WHERE id = ?", (json.dumps(preferences, ensure_ascii=False), user["id"]))
+        pref_json = json.dumps(preferences, ensure_ascii=False)
+        conn.execute("UPDATE users SET dashboard_preferences = ? WHERE id = ?", (pref_json, user["id"]))
+        conn.execute("UPDATE athlete_profiles SET dashboard_preferences = ? WHERE user_id = ?", (pref_json, user["id"]))
         conn.commit()
     finally:
         conn.close()

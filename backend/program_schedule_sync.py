@@ -138,6 +138,26 @@ def _actual_content(actual: dict[str, Any], fallback_focus: str | None = None) -
     focus_text = format_session_focus(raw_type, fallback_focus or actual.get("focus") or actual.get("notes"))
     workout_date = str(actual.get("date") or "")
     token = actual.get("id") or workout_date or "record"
+    normalized_exercises = []
+    for ex in actual.get("exercises") or []:
+        if not isinstance(ex, dict):
+            continue
+        ex_name = ex.get("name") or ex.get("exercise_name") or "Egzersiz"
+        ex_id = ex.get("id") or ex.get("exercise_id") or "exercise"
+        sets_data = ex.get("sets_data") or []
+        sets_count = ex.get("sets") or (len(sets_data) if isinstance(sets_data, list) and sets_data else 3)
+        reps = ex.get("reps")
+        if not reps and isinstance(sets_data, list) and sets_data and isinstance(sets_data[0], dict):
+            reps = sets_data[0].get("reps")
+        normalized_exercises.append({
+            "id": str(ex_id),
+            "exercise_id": str(ex_id),
+            "name": str(ex_name),
+            "exercise_name": str(ex_name),
+            "sets": str(sets_count),
+            "reps": str(reps or "8-12"),
+            "effort": "RIR 1–3 aralığını hedefleyin.",
+        })
     return {
         "content_id": f"actual-workout-{token}",
         "type": session_title,
@@ -146,12 +166,16 @@ def _actual_content(actual: dict[str, Any], fallback_focus: str | None = None) -
         "session_id": f"actual-workout-{token}",
         "content_status": "completed",
         "content_reason": f"Kullanıcının kaydettiği {session_title} bu güne işlendi.",
-        "exercises": actual.get("exercises") or [],
+        "exercises": normalized_exercises,
         "date": workout_date,
     }
 
 
-def current_week_actuals(workouts: list[dict[str, Any]], today: date | None = None) -> dict[int, dict[str, Any]]:
+def current_week_actuals(
+    workouts: list[dict[str, Any]],
+    today: date | None = None,
+    min_date: date | None = None,
+) -> dict[int, dict[str, Any]]:
     """Bugünün ISO haftasındaki, türü belirlenebilen son gerçek seansları döndürür."""
     reference = today or date.today()
     target_year, target_week, _ = reference.isocalendar()
@@ -160,6 +184,8 @@ def current_week_actuals(workouts: list[dict[str, Any]], today: date | None = No
         try:
             workout_date = date.fromisoformat(str(workout.get("date") or "")[:10])
         except (TypeError, ValueError):
+            continue
+        if min_date and workout_date < min_date:
             continue
         year, week, weekday = workout_date.isocalendar()
         if (year, week) != (target_year, target_week) or workout_date > reference:
@@ -197,6 +223,8 @@ def reconcile_week(
     actual_by_slot: dict[int, dict[str, Any]],
     today_index: int,
     protected_rest_indices: set[int] | None = None,
+    exercise_reference_pool: dict[str, list[dict]] | None = None,
+    start_weekday: int = 0,
 ) -> tuple[list[dict[str, Any]], bool]:
     """Gerçek seansı gününe işler ve yalnız mümkünse kaçırılan seansı ileri dinlenmeye taşır."""
     result = [deepcopy(item) if isinstance(item, dict) else {} for item in (days or [])[:WEEKDAY_COUNT]]
@@ -206,7 +234,7 @@ def reconcile_week(
     protected = set(protected_rest_indices or set())
     actual_slots = set(actual_by_slot)
 
-    # Adım 0: Önceki haftalardan kalmış bayat gerçek antrenman etiketlerini temizle
+    # Adım 0: Önceki haftalardan kalmış veya program öncesi bayat gerçek antrenman etiketlerini temizle
     valid_actual_dates = {str(act.get("date") or "")[:10] for act in actual_by_slot.values()}
     for i, item in enumerate(result):
         if not isinstance(item, dict):
@@ -222,10 +250,11 @@ def reconcile_week(
         )
         if is_actual:
             matched = False
-            for d in valid_actual_dates:
-                if d and (d in focus_str or d in content_id or d in session_id or _format_day_month_year(d) in focus_str):
-                    matched = True
-                    break
+            if i >= start_weekday:
+                for d in valid_actual_dates:
+                    if d and (d in focus_str or d in content_id or d in session_id or _format_day_month_year(d) in focus_str):
+                        matched = True
+                        break
             if not matched:
                 item.pop("content_status", None)
                 item.pop("content_reason", None)
@@ -239,6 +268,8 @@ def reconcile_week(
 
     # Öncelik 1: Kaydedilen gerçek antrenman, ait olduğu günün içeriğini belirler.
     for source_index in sorted(actual_by_slot):
+        if source_index < start_weekday:
+            continue
         actual = actual_by_slot[source_index]
         actual_kind = session_kind(actual.get("session_type"))
         if not actual_kind or actual_kind == "rest" or not 0 <= source_index < WEEKDAY_COUNT:
@@ -282,7 +313,7 @@ def reconcile_week(
 
     # Öncelik 2: Yalnız bitmiş günlerdeki gerçek kayıtsız planlı seanslar telafi edilir.
     # Bugün henüz bitmediği için otomatik olarak "kaçırıldı" sayılmaz.
-    for missed_index in range(max(0, min(today_index, WEEKDAY_COUNT - 1))):
+    for missed_index in range(max(0, start_weekday), max(0, min(today_index, WEEKDAY_COUNT - 1))):
         if missed_index in actual_slots or is_rest_day(result[missed_index]) or missed_index in protected:
             continue
         rest_target = next(
@@ -334,6 +365,12 @@ def clean_non_active_week(
             changed = True
 
         # 3. content_id ve session_id temizliği
+        was_actual = (
+            content_id.startswith("actual-workout")
+            or session_id.startswith("actual-workout")
+            or "Kullanıcının kaydettiği" in content_reason
+            or "Gerçek antrenman" in content_reason
+        )
         if content_id.startswith("actual-workout"):
             item["content_id"] = f"week-{week_index + 1}-content-{i + 1}"
             changed = True
@@ -352,9 +389,9 @@ def clean_non_active_week(
             item["focus"] = new_focus
             changed = True
 
-        # 6. Boş kalan egzersiz listesini doldur (şablon veya referans havuzundan)
-        if not rest and (not item.get("exercises") or len(item.get("exercises")) == 0):
-            kind = session_kind(item.get("type"))
+        # 6. Gerçek antrenmanla ezilmiş veya boş kalan egzersiz listesini şablon havuzundan geri yükle
+        kind = session_kind(item.get("type"))
+        if not rest and (was_actual or not item.get("exercises") or len(item.get("exercises")) == 0):
             fallback_exs = next(
                 (deepcopy(other.get("exercises")) for other in result
                  if not is_rest_day(other) and session_kind(other.get("type")) == kind and other.get("exercises")),
@@ -365,6 +402,34 @@ def clean_non_active_week(
             if fallback_exs:
                 item["exercises"] = fallback_exs
                 changed = True
+
+        # 7. Egzersiz anahtarlarını normalize et (name, id, sets, reps güvencesi)
+        if not rest and item.get("exercises"):
+            for ex in item["exercises"]:
+                if isinstance(ex, dict):
+                    if not ex.get("name") and ex.get("exercise_name"):
+                        ex["name"] = ex["exercise_name"]
+                        changed = True
+                    if not ex.get("exercise_name") and ex.get("name"):
+                        ex["exercise_name"] = ex["name"]
+                        changed = True
+                    if not ex.get("id") and ex.get("exercise_id"):
+                        ex["id"] = ex["exercise_id"]
+                        changed = True
+                    if not ex.get("exercise_id") and ex.get("id"):
+                        ex["exercise_id"] = ex["id"]
+                        changed = True
+                    if not ex.get("sets"):
+                        sets_d = ex.get("sets_data")
+                        ex["sets"] = str(len(sets_d)) if isinstance(sets_d, list) and sets_d else "3"
+                        changed = True
+                    if not ex.get("reps"):
+                        sets_d = ex.get("sets_data")
+                        if isinstance(sets_d, list) and sets_d and isinstance(sets_d[0], dict) and sets_d[0].get("reps"):
+                            ex["reps"] = str(sets_d[0]["reps"])
+                        else:
+                            ex["reps"] = "8-12"
+                        changed = True
 
     return result, changed
 
