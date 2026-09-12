@@ -1,5 +1,102 @@
+# ==============================================================================
+# Hypertrophy-X — Git Ignore Kuralları
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Python Sanal Ortamları (Virtual Environments)
+# ------------------------------------------------------------------------------
 venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ------------------------------------------------------------------------------
+# 2. Python Derleme & Önbellek Dosyaları (Bytecode & Cache)
+# ------------------------------------------------------------------------------
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.mypy_cache/
 .ruff_cache/
+
+# ------------------------------------------------------------------------------
+# 3. Ortam Değişkenleri & Gizli Anahtarlar (Secrets & Credentials)
+# ASLA commit edilmemeli! Şifreler, API anahtarları, JWT secret vb.
+# ------------------------------------------------------------------------------
+.env
+.env.*
+*.env
+backend/.env
+backend/.env.*
+admin.env
+secrets.json
+
+# Şablon ortam dosyalarına izin ver
+!.env.example
+!backend/.env.example
+
+# ------------------------------------------------------------------------------
+# 4. Veritabanı & Yerel Veri Dosyaları (Databases)
+# ------------------------------------------------------------------------------
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+hypertrophy.db
+backend/hypertrophy.db
+
+# ------------------------------------------------------------------------------
+# 5. Log & Geçici Dosyalar (Logs & Temp Files)
+# ------------------------------------------------------------------------------
+*.log
+*.log.*
+logs/
+nohup.out
+*.tmp
+*.temp
 .local-backups/
+
+# ------------------------------------------------------------------------------
+# 6. İşletim Sistemi Kalıntıları (OS Generated)
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ------------------------------------------------------------------------------
+# 7. Editör & IDE Ayarları (Editors & IDEs)
+# ------------------------------------------------------------------------------
+.idea/
+*.swp
+*.swo
+*~
+
+# VS Code - Paylaşılan ayarlar hariç yerel yapılandırmaları yok say
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json

@@ -48,8 +48,39 @@ POSTGRES_SCHEMA_STATEMENTS = (
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS dashboard_preferences TEXT NOT NULL DEFAULT '{}'",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_nutrition TEXT NOT NULL DEFAULT '{}'",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'athlete'",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active INTEGER NOT NULL DEFAULT 1",
     "ALTER TABLE workouts ADD COLUMN IF NOT EXISTS gym_id TEXT DEFAULT NULL",
     "ALTER TABLE workouts ADD COLUMN IF NOT EXISTS gym_name TEXT DEFAULT ''",
+    """
+    CREATE TABLE IF NOT EXISTS athlete_profiles (
+        user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        age INTEGER NOT NULL DEFAULT 0,
+        gender TEXT NOT NULL DEFAULT 'male',
+        height DOUBLE PRECISION NOT NULL DEFAULT 170.0,
+        weight DOUBLE PRECISION NOT NULL DEFAULT 70.0,
+        fitness_level TEXT NOT NULL DEFAULT 'Beginner',
+        goal TEXT NOT NULL DEFAULT 'bulk',
+        days_per_week INTEGER NOT NULL DEFAULT 4,
+        session_time_mins INTEGER NOT NULL DEFAULT 60,
+        stagnation_detected INTEGER NOT NULL DEFAULT 0,
+        custom_split TEXT NOT NULL DEFAULT '[]',
+        dashboard_preferences TEXT NOT NULL DEFAULT '{}',
+        daily_nutrition TEXT NOT NULL DEFAULT '{}',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS admin_roles (
+        user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        role_title TEXT NOT NULL DEFAULT 'Sistem Yöneticisi',
+        permissions_json TEXT NOT NULL DEFAULT '["all"]',
+        last_login TIMESTAMPTZ DEFAULT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+    """,
     """
     CREATE TABLE IF NOT EXISTS expert_profiles (
         user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,

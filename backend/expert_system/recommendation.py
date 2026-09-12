@@ -50,6 +50,7 @@ def rpe_summary_from_rir(recent_rir: dict[str, Any] | None) -> dict[str, Any] | 
         "highest_rpe": 10 - lowest_rir,
         "high_effort_sets": max(0, int(_number(recent_rir.get("near_failure_sets")))),
         "derivation": "Set bazlı RIR kayıtlarından türetildi",
+        "total_volume": float(recent_rir.get("total_volume") or 0.0),
     }
 
 

@@ -39,20 +39,20 @@
 Hypertrophy-X-v5.0/
 ├── backend/
 │   ├── main.py              # TÜM endpoint'ler + JWT + uzman sistem (tek dosya mimarisi)
-│   ├── requirements.txt     # Python bağımlılıkları
-│   ├── .env.example         # Ortam değişkenleri şablonu
-│   ├── admin.env            # (İlk kurulum) admin şifresi ve JWT anahtarı buradan okunur
-│   ├── Procfile             # Render/Heroku
-│   ├── railway.toml         # Railway
+│   ├── requirements.txt     # Python bağımlılıkları (FastAPI, psycopg, uvicorn...)
+│   ├── Procfile             # Render/Heroku deploy
+│   ├── railway.toml         # Railway deploy
 │   ├── render.yaml          # Render Blueprint
 │   ├── start.sh             # Yerel başlatma scripti (Linux/macOS)
 │   └── static/
 │       └── index.html       # Tek sayfa frontend (SPA)
 ├── frontend/
-│   └── index.html           # Frontend kaynağı (static ile aynı)
-├── README.md                # Bu dosya
-├── KULLANIM.md              # Detaylı kullanım kılavuzu
-└── modern_platform_mimarisi_rehberi.md   # Detaylı mimari rehberi (ana dizinde)
+│   └── index.html           # Frontend kaynak kodu
+├── docs/                    # Detaylı kılavuzlar & mimari rehberleri
+│   ├── KULLANIM.md          # Detaylı kullanım kılavuzu
+│   ├── MIGRATION_REHBERI.md # Veritabanı geçiş kılavuzu
+│   └── REFERANSLAR.md       # Bilimsel literatür ve formüller
+└── README.md                # Ana dokümantasyon
 ```
 
 > **Mimari not:** Backend ve frontend bağlantısı tek `main.py` üzerinde toplanmıştır. Frontend'deki tüm API çağrıları `apiGet()` / `apiPost()` yardımcı fonksiyonları üzerinden `Authorization: Bearer <token>` başlığıyla yapılır. Yeni bir sayfa eklerken sadece frontend'de yeni bir `page-*` div ve `navigate()` kaydı eklemen yeterlidir — backend'e dokunmaya gerek kalmaz.
