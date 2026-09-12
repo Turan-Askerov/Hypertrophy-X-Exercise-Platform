@@ -7020,6 +7020,11 @@ tr:hover td { background: var(--bg-card-hover); }
   border-color: rgba(248, 113, 113, 0.45);
   box-shadow: 0 4px 14px rgba(239, 68, 68, 0.15);
 }
+.split-card.split-neutral {
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.08) 0%, rgba(15, 23, 42, 0.65) 100%);
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: 0 4px 14px rgba(148, 163, 184, 0.1);
+}
 .split-fg-row {
   padding: 0 16px 0 78px;
 }
@@ -7033,7 +7038,8 @@ tr:hover td { background: var(--bg-card-hover); }
 
 .split-type.split-type-done,
 .split-type.split-type-missed,
-.split-type.split-type-rest {
+.split-type.split-type-rest,
+.split-type.split-type-neutral {
   margin-right: 210px;
 }
 
@@ -10225,8 +10231,13 @@ tr:hover td { background: var(--bg-card-hover); }
       color: #475569 !important;
     }
     .expert-day-card {
-      animation: none !important;
+      animation: none;
       transition: box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    }
+    .expert-day-card.history-card-animated {
+      opacity: 0;
+      animation: slideDownHistoryCard 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+      animation-delay: calc(var(--card-index, 0) * 0.09s) !important;
     }
     body:not(.expert-is-dragging) .expert-day-card:hover {
       transform: translateY(-2px);
@@ -10273,6 +10284,36 @@ tr:hover td { background: var(--bg-card-hover); }
       border-color: rgba(251, 191, 36, 0.5);
       box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(251, 191, 36, 0.16);
     }
+    .expert-day-card-neutral {
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-left: 4px solid #94a3b8;
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.65) 0%, rgba(15, 23, 42, 0.85) 100%);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    }
+    body:not(.expert-is-dragging) .expert-day-card-neutral:hover {
+      border-color: rgba(148, 163, 184, 0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(148, 163, 184, 0.16);
+    }
+    .expert-day-card-today {
+      border: 1px solid rgba(56, 189, 248, 0.48);
+      border-left: 4px solid #38bdf8;
+      background: linear-gradient(145deg, rgba(14, 34, 56, 0.92) 0%, rgba(10, 22, 38, 0.98) 100%);
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28), 0 0 18px rgba(56, 189, 248, 0.22);
+    }
+    body:not(.expert-is-dragging) .expert-day-card-today:hover {
+      border-color: rgba(56, 189, 248, 0.75);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 24px rgba(56, 189, 248, 0.35);
+    }
+    .expert-day-card-purple {
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      border-left: 4px solid #a855f7;
+      background: linear-gradient(145deg, rgba(32, 22, 54, 0.9) 0%, rgba(20, 14, 38, 0.97) 100%);
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.24), 0 0 16px rgba(168, 85, 247, 0.16);
+    }
+    body:not(.expert-is-dragging) .expert-day-card-purple:hover {
+      border-color: rgba(192, 132, 252, 0.65);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 22px rgba(168, 85, 247, 0.28);
+    }
     .light-mode .expert-day-card-workout {
       background: #ffffff !important;
       border-color: rgba(56, 189, 248, 0.45) !important;
@@ -10292,6 +10333,21 @@ tr:hover td { background: var(--bg-card-hover); }
       background: #fffbeb !important;
       border-color: rgba(251, 191, 36, 0.45) !important;
       border-left-color: #d97706 !important;
+    }
+    .light-mode .expert-day-card-neutral {
+      background: #f8fafc !important;
+      border-color: rgba(148, 163, 184, 0.45) !important;
+      border-left-color: #64748b !important;
+    }
+    .light-mode .expert-day-card-today {
+      background: #f0f9ff !important;
+      border-color: rgba(56, 189, 248, 0.6) !important;
+      border-left-color: #0284c7 !important;
+    }
+    .light-mode .expert-day-card-purple {
+      background: #faf5ff !important;
+      border-color: rgba(168, 85, 247, 0.5) !important;
+      border-left-color: #9333ea !important;
     }
     .expert-recommendation-exercise {
       transition: border-color 0.25s ease, background 0.25s ease;
@@ -18487,6 +18543,7 @@ let customSplitSaveQueue = Promise.resolve();
 let customSplitSaveVersion = 0;
 let expertRecommendationSaveQueue = Promise.resolve();
 let expertRecommendationWeekIndex = 0;
+let expertSplitViewMode = localStorage.getItem('expertSplitViewMode') || 'tracking';
 
 // HX_EXPERT_FIXED_WEEK_SLOTS_V1
 // Gün slotu yerinde kalır; yalnız seans/dinlenme içeriği kartlar arasında taşınır.
@@ -18496,6 +18553,106 @@ const expertRecommendationContentKeys = ['content_id', 'type', 'focus', 'isRest'
 /* ──────────────────────────────────────────────────────────────────────────
    ALT BÖLÜM 13.1: DASHBOARD TARİH VE FORMATLAMA YARDIMCILARI
 ────────────────────────────────────────────────────────────────────────── */
+function expertNormalizeDateStr(rawDate) {
+  if (!rawDate) return '';
+  const s = String(rawDate).trim();
+  if (s.length >= 10 && /^\d{4}-\d{2}-\d{2}/.test(s)) {
+    return s.slice(0, 10);
+  }
+  try {
+    const d = new Date(rawDate);
+    if (!isNaN(d.getTime())) {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+  } catch (_) {}
+  return s;
+}
+
+function expertGetAllUserSessions() {
+  if (Array.isArray(expertDataState?.sessions) && expertDataState.sessions.length > 0) {
+    return expertDataState.sessions;
+  }
+  if (Array.isArray(cachedUserData?.sessions) && cachedUserData.sessions.length > 0) {
+    return cachedUserData.sessions;
+  }
+  if (Array.isArray(cachedUserData?.workouts) && cachedUserData.workouts.length > 0) {
+    return cachedUserData.workouts;
+  }
+  return [];
+}
+
+function getExpertRecommendationDates(recommendation, weekIndex = 0) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let genDate = null;
+  const genAt = recommendation?.generated_at;
+  if (genAt) {
+    const parsed = new Date(genAt);
+    if (!isNaN(parsed.getTime())) genDate = parsed;
+  }
+  if (!genDate && cachedUserData?.user?.created_at) {
+    const parsed = new Date(cachedUserData.user.created_at);
+    if (!isNaN(parsed.getTime())) genDate = parsed;
+  }
+  if (!genDate) {
+    genDate = new Date(today);
+  }
+  const genDateDay = new Date(genDate);
+  genDateDay.setHours(0, 0, 0, 0);
+
+  const genDayOfWeek = genDateDay.getDay() === 0 ? 6 : genDateDay.getDay() - 1;
+  const genMonday = new Date(genDateDay);
+  genMonday.setDate(genDateDay.getDate() - genDayOfWeek);
+
+  const targetWeekIdx = Math.max(0, Number(weekIndex) || 0);
+  const weekMonday = new Date(genMonday);
+  weekMonday.setDate(genMonday.getDate() + (targetWeekIdx * 7));
+
+  return { today, genDateDay, genMonday, weekMonday };
+}
+
+function setExpertSplitViewMode(mode) {
+  expertSplitViewMode = mode === 'template' ? 'template' : 'tracking';
+  try {
+    localStorage.setItem('expertSplitViewMode', expertSplitViewMode);
+  } catch (_) {}
+
+  const container = document.getElementById('expertRecommendationDays');
+  if (container) {
+    if (typeof expertDataRefreshDaysDOM === 'function') {
+      expertDataRefreshDaysDOM();
+    }
+    document.querySelectorAll('.expert-viewmode-btn').forEach(btn => {
+      const isBtnTemplate = btn.getAttribute('data-mode') === 'template';
+      const isActive = (expertSplitViewMode === 'template' && isBtnTemplate) || (expertSplitViewMode !== 'template' && !isBtnTemplate);
+      if (isActive) {
+        btn.classList.add('active');
+        if (isBtnTemplate) {
+          btn.style.borderColor = 'rgba(168,85,247,0.5)';
+          btn.style.background = 'linear-gradient(135deg, rgba(168,85,247,0.25) 0%, rgba(147,51,234,0.18) 100%)';
+          btn.style.color = '#c084fc';
+          btn.style.boxShadow = '0 0 12px rgba(168,85,247,0.25)';
+        } else {
+          btn.style.borderColor = 'rgba(74,222,128,0.5)';
+          btn.style.background = 'linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(16,185,129,0.18) 100%)';
+          btn.style.color = '#4ade80';
+          btn.style.boxShadow = '0 0 12px rgba(74,222,128,0.2)';
+        }
+      } else {
+        btn.classList.remove('active');
+        btn.style.borderColor = 'transparent';
+        btn.style.background = 'transparent';
+        btn.style.color = '#94a3b8';
+        btn.style.boxShadow = 'none';
+      }
+    });
+  } else if (typeof renderExpertSystem === 'function') {
+    renderExpertSystem();
+  }
+}
+window.setExpertSplitViewMode = setExpertSplitViewMode;
+
 function formatToDMY(val) {
   const raw = String(val ?? '').trim();
   if (!raw) return '';
@@ -18665,28 +18822,19 @@ function expertRecommendationWeek(recommendation, index = null) {
   if (!weeks.length) return { index: 0, days: [] };
   let safeIndex = 0;
   if (index !== null && index !== undefined && !isNaN(Number(index))) {
-    safeIndex = ((Number(index) % weeks.length) + weeks.length) % weeks.length;
+    safeIndex = Math.max(0, Math.min(weeks.length - 1, Number(index)));
   } else {
-    const genAt = recommendation?.generated_at;
-    if (genAt) {
-      try {
-        const genDate = new Date(genAt);
-        if (!isNaN(genDate.getTime())) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          genDate.setHours(0, 0, 0, 0);
-          const genDay = genDate.getDay() === 0 ? 6 : genDate.getDay() - 1;
-          const todayDay = today.getDay() === 0 ? 6 : today.getDay() - 1;
-          const genMonday = new Date(genDate);
-          genMonday.setDate(genDate.getDate() - genDay);
-          const todayMonday = new Date(today);
-          todayMonday.setDate(today.getDate() - todayDay);
-          const elapsed = Math.floor((todayMonday.getTime() - genMonday.getTime()) / (7 * 24 * 60 * 60 * 1000));
-          safeIndex = elapsed >= 0 ? (elapsed % weeks.length) : 0;
-        }
-      } catch (_) {
-        safeIndex = 0;
-      }
+    try {
+      const dates = getExpertRecommendationDates(recommendation, 0);
+      const today = dates.today;
+      const genMonday = dates.genMonday;
+      const todayDay = today.getDay() === 0 ? 6 : today.getDay() - 1;
+      const todayMonday = new Date(today);
+      todayMonday.setDate(today.getDate() - todayDay);
+      const elapsed = Math.floor((todayMonday.getTime() - genMonday.getTime()) / (7 * 24 * 60 * 60 * 1000));
+      safeIndex = Math.max(0, Math.min(weeks.length - 1, elapsed >= 0 ? elapsed : 0));
+    } catch (_) {
+      safeIndex = 0;
     }
   }
   return { index: safeIndex, days: Array.isArray(weeks[safeIndex]?.days) ? weeks[safeIndex].days : [] };
@@ -19664,6 +19812,11 @@ function queueExpertRecommendationOrderSave(reorderedWeek, activeWeekIndex) {
   if (!recommendation || !recommendation.weeks?.[activeWeekIndex]) return;
   recommendation.weeks[activeWeekIndex].days = reorderedWeek.map(day => ({ ...day }));
   if (expertDataState) expertDataState.recommendation = recommendation;
+  if (cachedUserData) {
+    if (!cachedUserData.dashboard_preferences) cachedUserData.dashboard_preferences = {};
+    cachedUserData.dashboard_preferences.expert_recommendation = recommendation;
+  }
+  if (typeof refreshDashboardProgramStat === 'function') refreshDashboardProgramStat('expert');
   expertRecommendationSaveQueue = expertRecommendationSaveQueue.then(async () => {
     try {
       const result = await apiPut('/api/expert-data/recommendation/reorder', { weeks: recommendation.weeks });
@@ -19671,6 +19824,7 @@ function queueExpertRecommendationOrderSave(reorderedWeek, activeWeekIndex) {
         cachedUserData.dashboard_preferences = result.dashboard_preferences || cachedUserData.dashboard_preferences;
       }
       if (expertDataState) expertDataState.recommendation = result.recommendation || recommendation;
+      if (typeof refreshDashboardProgramStat === 'function') refreshDashboardProgramStat('expert');
       toast('Uzman önerisi sıra düzeni kaydedildi.', 'success');
     } catch (error) {
       toast(error.message || 'Uzman önerisi sırası kaydedilemedi.', 'error');
@@ -19709,7 +19863,9 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
   const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
   weekStart.setDate(today.getDate() - dayOfWeek);
 
-  const completedDates = cachedUserData?.sessions ? cachedUserData.sessions.map(sess => sess.date) : [];
+  const allUserSessions = Array.isArray(cachedUserData?.sessions)
+    ? cachedUserData.sessions
+    : (Array.isArray(cachedUserData?.workouts) ? cachedUserData.workouts : []);
 
   // 7 günün sabit tarihleri (Pazartesi -> Pazar)
   const currentWeekDateStrings = [];
@@ -19735,6 +19891,12 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     const rawWorkoutType = dayData.type || dayData.session_type || 'Dinlenme';
     const isRest = dayData.isRest || rawWorkoutType.toLowerCase().includes('rest') || rawWorkoutType.toLowerCase().includes('dinlenme');
 
+    const matchedSession = allUserSessions.find(s => {
+      const sDate = expertNormalizeDateStr(s?.date);
+      return sDate && sDate === dateStr;
+    }) || null;
+    const hasWorkout = Boolean(matchedSession) || allUserSessions.some(s => expertNormalizeDateStr(s?.date) === dateStr);
+
     let programGenDate = null;
     if (reorderContext?.kind === 'expert-recommendation') {
       const rec = expertRecommendationFromData(cachedUserData);
@@ -19751,8 +19913,9 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     );
 
     // Slot tamamlanmış mı: o slota ait tarihte kaydedilmiş antrenman var mı?
-    const isCompleted = !isRest && !isBeforeProgram && completedDates.includes(dateStr);
-    const isMissed = !isBeforeProgram && isPast && !isRest && !isCompleted;
+    const isCompleted = !isRest && hasWorkout;
+    const isNeutral = !isRest && !hasWorkout && isBeforeProgram;
+    const isMissed = !isRest && !hasWorkout && !isBeforeProgram && isPast;
 
     let statusClass = '';
     let statusIcon = `<svg style="width:18px; height:18px; color:rgba(255,255,255,0.15);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
@@ -19785,6 +19948,22 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
           <div style="width:24px; height:24px; border-radius:50%; background:rgba(34,197,94,0.18); border:1px solid rgba(74,222,128,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
             <svg style="width:13px; height:13px; color:#4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+        </div>
+      `;
+    } else if (isNeutral) {
+      statusClass = 'split-neutral';
+      const preDateText = formatToDMY(dateStr);
+      statusIcon = `
+        <div class="split-status-neutral-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span class="split-neutral-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+            <span style="color:#94a3b8; font-weight:700;">Plan Öncesi</span>
+            <span style="color:#cbd5e1; font-weight:500;">· ${preDateText}</span>
+          </span>
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(148,163,184,0.16); border:1px solid rgba(148,163,184,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:13px; height:13px; color:#94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
         </div>
@@ -19828,7 +20007,6 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     // Kart başlığı ve hedef kaslar (çıplak kalmaması için formatlama)
     let displayTitle = '';
     let displaySubtitle = '';
-    const matchedSession = (cachedUserData?.sessions || cachedUserData?.workouts || []).find(sess => sess.date === dateStr || String(sess.date || '').slice(0, 10) === dateStr);
     const sessionNote = String(matchedSession?.notes || '').trim();
     const customFocus = String(dayData.focus || '').trim();
 
@@ -19870,11 +20048,12 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     `;
 
     // Kayıt oluşturulmuş / kesinleşmiş günlerde sürükle bırak devre dışı kalır
-    const isLocked = isCompleted || isPast;
+    const isLocked = isCompleted || (isPast && !isNeutral);
 
     let statusModifier = '';
     if (isRest) statusModifier = 'split-type-rest';
     else if (isCompleted) statusModifier = 'split-type-done';
+    else if (isNeutral) statusModifier = 'split-type-neutral';
     else if (isToday) statusModifier = 'split-type-today';
     else if (isPast) statusModifier = 'split-type-missed';
     else statusModifier = 'split-type-upcoming';
@@ -23948,8 +24127,9 @@ async function loadProfile(username) {
 }
 
 async function saveProfile() {
+  const uname = _currentUser?.username || window._currentUsername || localStorage.getItem('hx_user');
   const data = {
-    username: _currentUser.username,
+    username: uname,
     age: parseInt(document.getElementById('profAge').value) || 0,
     gender: document.getElementById('profGender').value,
     height: parseFloat(document.getElementById('profHeight').value) || 170,
@@ -23960,9 +24140,16 @@ async function saveProfile() {
     session_time_mins: parseInt(document.getElementById('profSession').value) || 60
   };
   try {
-    await apiPost('/api/user', data);
+    const updated = await apiPost('/api/user', data);
+    if (updated) {
+      _currentUser = Object.assign({}, _currentUser || {}, updated);
+      if (typeof cachedUserData !== 'undefined' && cachedUserData) {
+        if (!cachedUserData.user) cachedUserData.user = {};
+        Object.assign(cachedUserData.user, updated);
+      }
+    }
     updateProfileLiveMetrics();
-    toast('Profil kaydedildi!', 'success');
+    toast('Biyometrik profil başarıyla kaydedildi ve senkronlandı!', 'success');
   } catch(e) {
     toast('Hata: ' + e.message, 'error');
   }
@@ -27690,7 +27877,7 @@ function expertDataEquipmentPreferencesPane() {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
         <span>Tercihleri Düzenle</span>
       </button>
-      <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataClearEquipmentPreferences()">
+      <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataConfirmClearEquipmentPreferences()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path></svg>
         <span>Seçimleri Sıfırla (Varsayılan Salona Dön)</span>
       </button>
@@ -27734,7 +27921,7 @@ function expertDataEquipmentPreferencesPane() {
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
         <span>Ekipman Tercihlerini Kaydet</span>
       </button>
-      <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataToggleAllPreferredEquipment(false)">
+      <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataConfirmClearEquipmentPreferences()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path></svg>
         <span>Seçimleri Sıfırla</span>
       </button>
@@ -28705,6 +28892,7 @@ function expertDataSetRecommendationWeek(index) {
   const oldIndex = Number(expertRecommendationWeekIndex) || 0;
   if (targetIndex === oldIndex && document.getElementById('expertRecommendationDays') && !document.getElementById('expertRecommendationDays').classList.contains('is-switching')) return;
   
+  window._expertRecommendationWeekExplicitlySelected = true;
   expertRecommendationWeekIndex = targetIndex;
 
   const container = document.getElementById('expertRecommendationDays');
@@ -28740,6 +28928,11 @@ function expertDataSetRecommendationWeek(index) {
       // Sortable ve toplam rozetleri senkronla
       expertDataInitRecommendationSortable();
       expertDataUpdateTotalSetsBadges();
+      setTimeout(() => {
+        if (container) {
+          container.querySelectorAll('.expert-day-card.history-card-animated').forEach(el => el.classList.remove('history-card-animated'));
+        }
+      }, 1000);
 
       // Bir sonraki frame'de açılma animasyonunu tetikle
       requestAnimationFrame(() => {
@@ -28764,58 +28957,103 @@ function expertDataRecommendationDayCard(day, index) {
   const safeWeekIndex = Math.max(0, Math.min(weeksCount - 1, Number(expertRecommendationWeekIndex) || 0));
   const slotId = String(day?.slot_id || day?.day_id || `week-${safeWeekIndex + 1}-day-${index + 1}`);
 
-  // Bulunulan aktif program haftası (takvim haftasına göre hesaplanan aktif hafta)
-  const activeProg = expertRecommendationWeek(recommendation);
-  const currentActiveWeekIndex = activeProg ? activeProg.index : 0;
-  
-  // Görüntülenen sekmedeki haftanın, aktif takvim haftasına göre bağıl farkı
-  const weekOffset = safeWeekIndex - currentActiveWeekIndex;
+  const isTemplateMode = expertSplitViewMode === 'template';
 
-  // Tarih ve Durum Hesaplaması
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // 1. Program başlangıcı ve hafta tarihlerinin sabit, deterministik hesabı
+  const dateInfo = getExpertRecommendationDates(recommendation, safeWeekIndex);
+  const today = dateInfo.today;
+  const genDateDay = dateInfo.genDateDay;
 
-  const weekStart = new Date(today);
-  const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
-  weekStart.setDate(today.getDate() - dayOfWeek);
-
-  // Bu karta ait gerçek takvim tarihi
-  const d = new Date(weekStart);
-  d.setDate(weekStart.getDate() + (weekOffset * 7) + index);
+  // Bu karta ait takvim tarihi (genMonday + safeWeekIndex * 7 + index)
+  const d = new Date(dateInfo.genMonday);
+  d.setDate(dateInfo.genMonday.getDate() + (safeWeekIndex * 7) + index);
   d.setHours(0, 0, 0, 0);
 
   const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const isToday = d.getTime() === today.getTime();
   const isPast = d.getTime() < today.getTime();
 
-  const completedDates = cachedUserData?.sessions ? cachedUserData.sessions.map(sess => sess.date) : [];
-  const matchedSession = cachedUserData?.sessions ? cachedUserData.sessions.find(s => s.date === dateStr) : null;
-
-  const rawWorkoutType = day?.type || day?.session_type || (day?.isRest ? 'Rest Day' : 'Antrenman');
-  const isRest = Boolean(day?.isRest) || String(rawWorkoutType).toLowerCase().includes('dinlenme') || String(rawWorkoutType).toLowerCase().includes('rest');
-
-  // Program veya hesap başlangıç tarihi kontrolü:
-  // Program oluşturulmadan veya hesap açılmadan önceki geçmiş günler "kaçırılan seans" sayılamaz.
-  const programGenDateStr = recommendation?.generated_at;
-  const programGenDate = programGenDateStr ? new Date(programGenDateStr) : null;
-  if (programGenDate) programGenDate.setHours(0, 0, 0, 0);
-
-  const userRegDateStr = cachedUserData?.user?.created_at;
-  const userRegDate = userRegDateStr ? new Date(userRegDateStr) : null;
-  if (userRegDate) userRegDate.setHours(0, 0, 0, 0);
+  let programGenDate = null;
+  if (recommendation?.generated_at) {
+    const parsed = new Date(recommendation.generated_at);
+    if (!isNaN(parsed.getTime())) {
+      programGenDate = parsed;
+      programGenDate.setHours(0, 0, 0, 0);
+    }
+  }
+  let userRegDate = null;
+  const userRegDateStr = cachedUserData?.user?.created_at || expertDataState?.user?.created_at;
+  if (userRegDateStr) {
+    const parsed = new Date(userRegDateStr);
+    if (!isNaN(parsed.getTime())) {
+      userRegDate = parsed;
+      userRegDate.setHours(0, 0, 0, 0);
+    }
+  }
 
   const isBeforeProgram = Boolean(
     (programGenDate && d.getTime() < programGenDate.getTime()) ||
     (userRegDate && d.getTime() < userRegDate.getTime())
   );
 
-  // YALNIZCA program başlangıcından sonra ve o tarihte (dateStr) gerçekten kaydedilmiş bir session varsa tamamlanmış sayılır
-  const isCompleted = !isRest && !isBeforeProgram && (Boolean(matchedSession) || completedDates.includes(dateStr));
-  const isMissed = !isBeforeProgram && isPast && !isRest && !isCompleted;
-  // Taslak seansları serbestçe düzenlenebilmeli ve sıralanabilmelidir; yalnızca gerçekten tamamlanmış seanslar kilitlenir
-  const isLocked = isCompleted;
+  // 2. Kullanıcının bu tarihte yaptığı antrenmanın tespiti
+  const allUserSessions = expertGetAllUserSessions();
 
-  // Egzersiz Dizisi: Antrenman yapıldıysa veritabanındaki gerçek sıralama kullanılır
+  const matchedSession = allUserSessions.find(s => {
+    const sDate = expertNormalizeDateStr(s?.date);
+    return sDate && sDate === dateStr;
+  }) || null;
+
+  const hasWorkout = Boolean(matchedSession) || allUserSessions.some(s => expertNormalizeDateStr(s?.date) === dateStr);
+
+  const rawWorkoutType = day?.type || day?.session_type || (day?.isRest ? 'Rest Day' : 'Antrenman');
+  const isTemplateRest = Boolean(day?.isRest) || String(rawWorkoutType).toLowerCase().includes('dinlenme') || String(rawWorkoutType).toLowerCase().includes('rest');
+  const isRest = isTemplateMode ? isTemplateRest : (!hasWorkout && isTemplateRest);
+
+  // 3. Durum Hesaplamaları
+  let isCompleted = false;
+  let isMissed = false;
+  let isNeutralPreProgram = false;
+
+  if (isTemplateMode) {
+    // Saf taslak modunda antrenman takibi renklendirmeleri kapalıdır
+    isCompleted = false;
+    isMissed = false;
+    isNeutralPreProgram = false;
+  } else {
+    // Antrenman Takip Durumu Modu:
+    if (hasWorkout) {
+      // Veritabanında o gün kayıt varsa (geçmiş veya bugün) seans tamamlandı: YEŞİL
+      isCompleted = true;
+      isMissed = false;
+    } else if (isRest) {
+      // Dinlenme günü: SARI
+      isCompleted = false;
+      isMissed = false;
+    } else if (isBeforeProgram) {
+      // Program oluşturulmadan veya kullanıcı kayıt olmadan önceki geçmiş günler kaçırılan seans sayılamaz: NÖTR (Plan Öncesi Gün)
+      isNeutralPreProgram = true;
+      isCompleted = false;
+      isMissed = false;
+    } else if (isToday) {
+      // Bugün henüz yapılmamış seans: CYAN vurgulu kart
+      isCompleted = false;
+      isMissed = false;
+    } else if (isPast) {
+      // Geçmişte kalmış ve veritabanında kaydı olmayan seans: KIRMIZI
+      isCompleted = false;
+      isMissed = true;
+    } else {
+      // Gelecek seans: MOR
+      isCompleted = false;
+      isMissed = false;
+    }
+  }
+
+  // Kilit durumu: Yalnızca takip modunda ve gerçekten tamamlanmış seanslar kilitlenir; şablon modunda her şey düzenlenebilir
+  const isLocked = !isTemplateMode && isCompleted;
+
+  // Egzersiz Dizisi: Takip modunda antrenman yapıldıysa veritabanındaki gerçek kayıt kullanılır, aksi halde öneri taslağı
   let rawExercises = [];
   if (isCompleted && matchedSession?.exercises && Array.isArray(matchedSession.exercises) && matchedSession.exercises.length > 0) {
     rawExercises = matchedSession.exercises.map((item, exIdx) => {
@@ -28848,6 +29086,9 @@ function expertDataRecommendationDayCard(day, index) {
       ));
       if (candidate && Array.isArray(candidate.exercises) && candidate.exercises.length > 0) {
         rawExercises = candidate.exercises.filter(e => e && typeof e === 'object');
+        if (!Array.isArray(day.exercises) || day.exercises.length === 0) {
+          day.exercises = rawExercises.map(e => ({ ...e }));
+        }
         break;
       }
     }
@@ -28876,27 +29117,27 @@ function expertDataRecommendationDayCard(day, index) {
       ? `${expertDataEscape(setsCount)} Set`
       : `${expertDataEscape(setsCount)} × ${expertDataEscape(repsStr)}`;
 
-    return `<div class="expert-recommendation-exercise expert-alternative-shell expert-exercise-row-item ${isCompleted ? 'sort-disabled' : ''}" data-exercise-id="${expertDataEscape(exerciseId)}" data-slot-id="${expertDataEscape(slotId)}" style="${isCompleted ? 'cursor:default;' : ''}">
+    return `<div class="expert-recommendation-exercise expert-alternative-shell expert-exercise-row-item ${isLocked ? 'sort-disabled' : ''}" data-exercise-id="${expertDataEscape(exerciseId)}" data-slot-id="${expertDataEscape(slotId)}" style="${isLocked ? 'cursor:default;' : ''}">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
         <div style="display:flex; align-items:center; gap: 10px; min-width: 0;">
-          <span class="ex-drag-handle" title="${isCompleted ? 'Antrenman tamamlandı (Sıralama kilitli)' : 'Sıralamayı değiştirmek için sürükle'}" style="cursor:${isCompleted ? 'default' : 'grab'}; color:${isCompleted ? '#334155' : '#64748b'}; opacity:${isCompleted ? '0.35' : '1'}; transition:all 0.2s ease; display:inline-flex; align-items:center; flex-shrink:0;">
+          <span class="ex-drag-handle" title="${isLocked ? 'Antrenman tamamlandı (Sıralama kilitli)' : 'Sıralamayı değiştirmek için sürükle'}" style="cursor:${isLocked ? 'default' : 'grab'}; color:${isLocked ? '#334155' : '#64748b'}; opacity:${isLocked ? '0.35' : '1'}; transition:all 0.2s ease; display:inline-flex; align-items:center; flex-shrink:0;">
             <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
           </span>
           <span class="expert-exercise-name" style="font-size: 13px; font-weight: 700; color: #ffffff; letter-spacing: 0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${expertDataEscape(exName)}</span>
         </div>
         <div style="display:flex; align-items:center; gap: 7px; flex-shrink: 0;">
-          <button type="button" class="expert-set-rep-pill" ${isCompleted ? 'disabled style="pointer-events:none; cursor:default; background:rgba(108,99,255,0.18); border-color:rgba(167,139,250,0.3);"' : `onclick="expertDataEditExerciseSetsReps(${safeWeekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')"`} title="${isCompleted ? 'Antrenman tamamlandı (Set sayısı kilitli)' : 'Set ve Tekrar Aralığını Düzenle'}">
+          <button type="button" class="expert-set-rep-pill" ${isLocked ? 'disabled style="pointer-events:none; cursor:default; background:rgba(108,99,255,0.18); border-color:rgba(167,139,250,0.3);"' : `onclick="expertDataEditExerciseSetsReps(${safeWeekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')"`} title="${isLocked ? 'Antrenman tamamlandı (Set sayısı kilitli)' : 'Set ve Tekrar Aralığını Düzenle'}">
             <span class="expert-set-rep-text" style="color:#ffffff; font-weight:750;">${pillText}</span>
-            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4" style="opacity:${isCompleted ? '0.25' : '0.75'};"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4" style="opacity:${isLocked ? '0.25' : '0.75'};"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
           </button>
           
-          <!-- YENİLE / ALTERNATİF BUTONU (Tamamlandıysa Orijinal Renginde Soluk & Kilitli) -->
-          <button class="expert-icon-action-btn alt-btn" type="button" ${isCompleted ? 'disabled style="opacity:0.35; pointer-events:none; cursor:default;"' : `title="Uygun alternatifleri göster" onclick="expertDataToggleAlternativeTray(event, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}', ${safeWeekIndex}, ${occupiedArgument})"`} title="${isCompleted ? 'Antrenman tamamlandı (Alternatif devre dışı)' : 'Uygun alternatifleri göster'}">
+          <!-- YENİLE / ALTERNATİF BUTONU -->
+          <button class="expert-icon-action-btn alt-btn" type="button" ${isLocked ? 'disabled style="opacity:0.35; pointer-events:none; cursor:default;"' : `title="Uygun alternatifleri göster" onclick="expertDataToggleAlternativeTray(event, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}', ${safeWeekIndex}, ${occupiedArgument})"`} title="${isLocked ? 'Antrenman tamamlandı (Alternatif devre dışı)' : 'Uygun alternatifleri göster'}">
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
           </button>
           
-          <!-- SİL BUTONU (Tamamlandıysa Orijinal Renginde Soluk & Kilitli) -->
-          <button class="expert-icon-action-btn delete-btn" type="button" ${isCompleted ? 'disabled style="opacity:0.35; pointer-events:none; cursor:default;"' : `title="Hareketi Çıkar" onclick="expertDataConfirmRemoveExercise(${safeWeekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')"`} title="${isCompleted ? 'Antrenman tamamlandı (Silme devre dışı)' : 'Hareketi Çıkar'}">
+          <!-- SİL BUTONU -->
+          <button class="expert-icon-action-btn delete-btn" type="button" ${isLocked ? 'disabled style="opacity:0.35; pointer-events:none; cursor:default;"' : `title="Hareketi Çıkar" onclick="expertDataConfirmRemoveExercise(${safeWeekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')"`} title="${isLocked ? 'Antrenman tamamlandı (Silme devre dışı)' : 'Hareketi Çıkar'}">
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
@@ -28905,10 +29146,10 @@ function expertDataRecommendationDayCard(day, index) {
     </div>`;
   }).join('');
 
-  // YENİ EKLE BUTONU (Dinlenme günü değilse en alta eklenir, tamamlandıysa soluk ve kilitli)
+  // YENİ EKLE BUTONU
   let addBtnHtml = '';
   if (!isRest) {
-    if (isCompleted) {
+    if (isLocked) {
       addBtnHtml = `
         <div style="margin-top: 10px;">
           <button type="button" class="expert-add-exercise-btn" disabled style="opacity:0.4; pointer-events:none; cursor:default; border-style:dashed;" title="Antrenman tamamlandı (Yeni hareket eklenemez)">
@@ -28934,61 +29175,121 @@ function expertDataRecommendationDayCard(day, index) {
   let themeColor = '#38bdf8';
   let badgeHtml = '';
 
-  if (isRest) {
-    statusCardClass = 'expert-day-card-rest';
-    themeColor = '#fbbf24';
-    const restDateText = formatToDMY(dateStr);
-    badgeHtml = `
-      <div class="split-status-rest-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-        <span class="split-rest-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(245,158,11,0.12); border:1px solid rgba(251,191,36,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
-          <span class="split-rest-label" style="color:#fbbf24; font-weight:700;">Dinlenme</span>
-          <span style="color:#ffffff; font-weight:500;">· ${restDateText}</span>
-        </span>
-        <div style="width:24px; height:24px; border-radius:50%; background:rgba(245,158,11,0.18); border:1px solid rgba(251,191,36,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-          <svg style="width:13px; height:13px; color:#fbbf24;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-          </svg>
+  if (isTemplateMode) {
+    if (isRest) {
+      statusCardClass = 'expert-day-card-rest';
+      themeColor = '#fbbf24';
+      badgeHtml = `
+        <div class="split-status-rest-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span class="split-rest-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(245,158,11,0.12); border:1px solid rgba(251,191,36,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+            <span class="split-rest-label" style="color:#fbbf24; font-weight:700;">Dinlenme Günü</span>
+            <span style="color:#ffffff; font-weight:500;">· Taslak</span>
+          </span>
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(245,158,11,0.18); border:1px solid rgba(251,191,36,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:13px; height:13px; color:#fbbf24;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+          </div>
         </div>
-      </div>
-    `;
-  } else if (isCompleted) {
-    statusCardClass = 'expert-day-card-done';
-    themeColor = '#4ade80';
-    const completedDateText = formatToDMY(dateStr);
-    badgeHtml = `
-      <div class="split-status-done-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-        <span class="split-done-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(34,197,94,0.1); border:1px solid rgba(74,222,128,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
-          <span class="split-done-label" style="color:#4ade80; font-weight:700;">Antrenman yapıldı</span>
-          <span style="color:#ffffff; font-weight:500;">· ${completedDateText}</span>
-        </span>
-        <div style="width:24px; height:24px; border-radius:50%; background:rgba(34,197,94,0.18); border:1px solid rgba(74,222,128,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-          <svg style="width:13px; height:13px; color:#4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-          </svg>
-        </div>
-      </div>
-    `;
-  } else if (isMissed) {
-    statusCardClass = 'expert-day-card-missed';
-    themeColor = '#f87171';
-    const missedDateText = formatToDMY(dateStr);
-    badgeHtml = `
-      <div class="split-status-missed-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-        <span class="split-missed-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(239,68,68,0.1); border:1px solid rgba(248,113,113,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
-          <span class="split-missed-label" style="color:#f87171; font-weight:700;">Antrenman yapılmadı</span>
-          <span style="color:#ffffff; font-weight:500;">· ${missedDateText}</span>
-        </span>
-        <div style="width:24px; height:24px; border-radius:50%; background:rgba(239,68,68,0.18); border:1px solid rgba(248,113,113,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-          <svg style="width:13px; height:13px; color:#f87171;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </div>
-      </div>
-    `;
+      `;
+    } else {
+      statusCardClass = 'expert-day-card-purple';
+      themeColor = '#c084fc';
+      badgeHtml = `<span class="gym-badge-default" style="font-size:11px; padding:4px 11px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.38); color:#c084fc; font-weight:700; border-radius:20px;">Taslak Seans</span>`;
+    }
   } else {
-    statusCardClass = 'expert-day-card-workout';
-    themeColor = '#38bdf8';
-    badgeHtml = `<span class="gym-badge-default" style="font-size:10.5px; padding:3.5px 10px;">Seans</span>`;
+    // Antrenman Takip Durumu
+    if (isCompleted) {
+      statusCardClass = 'expert-day-card-done';
+      themeColor = '#4ade80';
+      const completedDateText = formatToDMY(dateStr);
+      badgeHtml = `
+        <div class="split-status-done-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span class="split-done-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(34,197,94,0.1); border:1px solid rgba(74,222,128,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+            <span class="split-done-label" style="color:#4ade80; font-weight:700;">Antrenman yapıldı</span>
+            <span style="color:#ffffff; font-weight:500;">· ${completedDateText}</span>
+          </span>
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(34,197,94,0.18); border:1px solid rgba(74,222,128,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:13px; height:13px; color:#4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+        </div>
+      `;
+    } else if (isRest) {
+      statusCardClass = 'expert-day-card-rest';
+      themeColor = '#fbbf24';
+      const restDateText = formatToDMY(dateStr);
+      badgeHtml = `
+        <div class="split-status-rest-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span class="split-rest-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(245,158,11,0.12); border:1px solid rgba(251,191,36,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+            <span class="split-rest-label" style="color:#fbbf24; font-weight:700;">Dinlenme</span>
+            <span style="color:#ffffff; font-weight:500;">· ${restDateText}</span>
+          </span>
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(245,158,11,0.18); border:1px solid rgba(251,191,36,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:13px; height:13px; color:#fbbf24;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+          </div>
+        </div>
+      `;
+    } else if (isNeutralPreProgram) {
+      statusCardClass = 'expert-day-card-neutral';
+      themeColor = '#94a3b8';
+      const preDateText = formatToDMY(dateStr);
+      badgeHtml = `
+        <div class="split-status-neutral-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+            <span style="color:#94a3b8; font-weight:700;">Plan Öncesi Gün</span>
+            <span style="color:#cbd5e1; font-weight:500;">· ${preDateText}</span>
+          </span>
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(148,163,184,0.16); border:1px solid rgba(148,163,184,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:13px; height:13px; color:#94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+      `;
+    } else if (isToday) {
+      statusCardClass = 'expert-day-card-today';
+      themeColor = '#38bdf8';
+      const todayDateText = formatToDMY(dateStr);
+      badgeHtml = `
+        <div class="split-status-today-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.42); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+            <span style="color:#38bdf8; font-weight:800; letter-spacing:0.3px;">BUGÜNKÜ SEANS</span>
+            <span style="color:#ffffff; font-weight:500;">· ${todayDateText}</span>
+          </span>
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(56,189,248,0.22); border:1px solid rgba(56,189,248,0.52); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:13px; height:13px; color:#38bdf8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" stroke-width="2"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7v5l3 3"></path>
+            </svg>
+          </div>
+        </div>
+      `;
+    } else if (isMissed) {
+      statusCardClass = 'expert-day-card-missed';
+      themeColor = '#f87171';
+      const missedDateText = formatToDMY(dateStr);
+      badgeHtml = `
+        <div class="split-status-missed-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span class="split-missed-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(239,68,68,0.1); border:1px solid rgba(248,113,113,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+            <span class="split-missed-label" style="color:#f87171; font-weight:700;">Antrenman yapılmadı</span>
+            <span style="color:#ffffff; font-weight:500;">· ${missedDateText}</span>
+          </span>
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(239,68,68,0.18); border:1px solid rgba(248,113,113,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:13px; height:13px; color:#f87171;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </div>
+        </div>
+      `;
+    } else {
+      statusCardClass = 'expert-day-card-purple';
+      themeColor = '#c084fc';
+      const futureDateText = formatToDMY(dateStr);
+      badgeHtml = `<span class="gym-badge-default" style="font-size:10.5px; padding:3.5px 10px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.38); color:#c084fc; font-weight:700;">Seans · ${futureDateText}</span>`;
+    }
   }
 
   // Kart başlığı ve alt başlık (hedef kaslar)
@@ -29007,7 +29308,7 @@ function expertDataRecommendationDayCard(day, index) {
       displaySubtitle = 'Toparlanma';
     }
   } else {
-    let rawT = rawWorkoutType;
+    let rawT = (!isTemplateMode && isCompleted && matchedSession ? (matchedSession.type || matchedSession.session_type || rawWorkoutType) : rawWorkoutType);
     let rawParenSubtitle = '';
     if (rawT.includes('(')) {
       const parts = rawT.split('(');
@@ -29051,7 +29352,7 @@ function expertDataRecommendationDayCard(day, index) {
     </div>` : '<div style="width:18px; flex-shrink:0;"></div>';
 
   return `
-    <article data-index="${index}" data-slot-id="${expertDataEscape(slotId)}" class="expert-day-card ${statusCardClass} ${isLocked ? 'sort-disabled' : ''}" style="margin:0; padding:18px; border-radius:14px; position:relative;">
+    <article data-index="${index}" data-slot-id="${expertDataEscape(slotId)}" class="expert-day-card ${statusCardClass} ${isLocked ? 'sort-disabled' : ''} history-card-animated" style="--card-index: ${index}; margin:0; padding:18px; border-radius:14px; position:relative;">
       <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; width:100%;">
           <div style="display:flex; align-items:flex-start; gap:10px; min-width:0; flex:1 1 auto;">
@@ -29113,6 +29414,11 @@ function expertDataRecommendationPane() {
     </section>`;
   }
 
+  const activeProg = expertRecommendationWeek(recommendation);
+  const currentActiveWeekIndex = activeProg ? activeProg.index : 0;
+  if (window._expertRecommendationWeekExplicitlySelected !== true) {
+    expertRecommendationWeekIndex = currentActiveWeekIndex;
+  }
   const safeWeek = Math.max(0, Math.min(recommendation.weeks.length - 1, expertRecommendationWeekIndex));
   const week = recommendation.weeks[safeWeek] || { days: [] };
   const tabs = recommendation.weeks.length > 1 ? `<div class="expert-data-subtabs" style="margin:16px 0 12px">${recommendation.weeks.map((item, index) => `<button type="button" class="expert-data-subtab ${index === safeWeek ? 'active' : ''}" onclick="expertDataSetRecommendationWeek(${index})">${expertDataEscape(item.label || `${index + 1}. Hafta`)}</button>`).join('')}</div>` : '';
@@ -29123,17 +29429,8 @@ function expertDataRecommendationPane() {
   const priorityDisplay = priorityLabels.length ? priorityLabels.join(', ') : 'Profilde seçilen öncelik yok';
 
   // Haftalık toplam hacim ve hareket sayısı hesaplama
-  const activeProg = expertRecommendationWeek(recommendation);
-  const currentActiveWeekIndex = activeProg ? activeProg.index : 0;
-  const weekOffset = safeWeek - currentActiveWeekIndex;
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const weekStart = new Date(today);
-  const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
-  weekStart.setDate(today.getDate() - dayOfWeek);
-
-  const completedDates = cachedUserData?.sessions ? cachedUserData.sessions.map(sess => sess.date) : [];
+  const dateInfo = getExpertRecommendationDates(recommendation, safeWeek);
+  const allUserSessions = expertGetAllUserSessions();
 
   let totalWeekSets = 0;
   let totalExercises = 0;
@@ -29143,24 +29440,14 @@ function expertDataRecommendationPane() {
     const isRest = Boolean(d?.isRest) || String(rawWorkoutType).toLowerCase().includes('dinlenme') || String(rawWorkoutType).toLowerCase().includes('rest');
     if (isRest) return;
 
-    const curD = new Date(weekStart);
-    curD.setDate(weekStart.getDate() + (weekOffset * 7) + dIdx);
+    const curD = new Date(dateInfo.genMonday);
+    curD.setDate(dateInfo.genMonday.getDate() + (safeWeek * 7) + dIdx);
     curD.setHours(0, 0, 0, 0);
     const dateStr = `${curD.getFullYear()}-${String(curD.getMonth()+1).padStart(2, '0')}-${String(curD.getDate()).padStart(2, '0')}`;
-    const matchedSession = cachedUserData?.sessions ? cachedUserData.sessions.find(s => s.date === dateStr) : null;
+    const matchedSession = allUserSessions.find(s => expertNormalizeDateStr(s?.date) === dateStr) || null;
+    const hasWorkout = Boolean(matchedSession) || allUserSessions.some(s => expertNormalizeDateStr(s?.date) === dateStr);
 
-    const programGenDateStr = recommendation?.generated_at;
-    const programGenDate = programGenDateStr ? new Date(programGenDateStr) : null;
-    if (programGenDate) programGenDate.setHours(0, 0, 0, 0);
-    const userRegDateStr = cachedUserData?.user?.created_at;
-    const userRegDate = userRegDateStr ? new Date(userRegDateStr) : null;
-    if (userRegDate) userRegDate.setHours(0, 0, 0, 0);
-    const isBeforeProgram = Boolean(
-      (programGenDate && curD.getTime() < programGenDate.getTime()) ||
-      (userRegDate && curD.getTime() < userRegDate.getTime())
-    );
-
-    const isCompleted = !isRest && !isBeforeProgram && (Boolean(matchedSession) || completedDates.includes(dateStr));
+    const isCompleted = (expertSplitViewMode !== 'template') && hasWorkout;
 
     let rawExercises = [];
     if (isCompleted && matchedSession?.exercises && Array.isArray(matchedSession.exercises) && matchedSession.exercises.length > 0) {
@@ -29180,7 +29467,7 @@ function expertDataRecommendationPane() {
   return `<section class="expert-data-card" style="grid-column:1/-1;background:linear-gradient(160deg, rgba(30, 34, 49, 0.7) 0%, rgba(20, 24, 35, 0.85) 100%);border:1px solid rgba(108,99,255,0.2);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.28);">
     <div class="expert-data-cardhead">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div class="injury-board-icon-box" style="background:linear-gradient(135deg, rgba(56,189,248,0.22) 0%, rgba(14,165,233,0.18) 100%);color:#38bdf8;border-color:rgba(56,189,248,0.45);box-shadow:0 0 16px rgba(56,189,248,0.25);">
+        <div class="injury-board-icon-box" style="background:linear-gradient(135deg, rgba(168,85,247,0.22) 0%, rgba(147,51,234,0.18) 100%);color:#c084fc;border-color:rgba(168,85,247,0.45);box-shadow:0 0 16px rgba(168,85,247,0.25);">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 18h12M6 6h12M6 12h12M4 6v12M20 6v12M2 9v6M22 9v6"></path>
           </svg>
@@ -29191,7 +29478,7 @@ function expertDataRecommendationPane() {
         </div>
       </div>
       <span class="gym-badge-default" style="display:inline-flex;align-items:center;gap:6px;">
-        <span style="width:7px;height:7px;border-radius:50%;background:#38bdf8;box-shadow:0 0 6px #38bdf8;"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;"></span>
         Kontrol Paneli ile Senkron
       </span>
     </div>
@@ -29228,6 +29515,29 @@ function expertDataRecommendationPane() {
       </div>
     </div>
 
+    <!-- GÖRÜNÜM MODU SEÇİCİ (Haftalık Toplam Hacim Kartının Hemen Altında) -->
+    <div style="margin: 0 0 16px; padding: 12px 16px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(108, 99, 255, 0.22); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 9px;">
+        <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(108,99,255,0.18); border: 1px solid rgba(167,139,250,0.3); display: flex; align-items: center; justify-content: center; color: #a78bfa; flex-shrink: 0;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        </div>
+        <div>
+          <strong style="color: #ffffff; font-size: 13px; display: block; line-height: 1.2;">Split Görünüm Tercihi</strong>
+          <span style="color: #94a3b8; font-size: 11px;">Saf taslak şablonu veya dinamik antrenman takip durumu</span>
+        </div>
+      </div>
+      <div style="display: inline-flex; gap: 8px; background: rgba(30, 41, 59, 0.7); padding: 4px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
+        <button type="button" data-mode="template" onclick="setExpertSplitViewMode('template')" class="expert-viewmode-btn ${expertSplitViewMode === 'template' ? 'active' : ''}" style="display: inline-flex; align-items: center; gap: 7px; padding: 7px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; transition: all 0.2s ease; cursor: pointer; border: 1px solid ${expertSplitViewMode === 'template' ? 'rgba(168,85,247,0.5)' : 'transparent'}; background: ${expertSplitViewMode === 'template' ? 'linear-gradient(135deg, rgba(168,85,247,0.25) 0%, rgba(147,51,234,0.18) 100%)' : 'transparent'}; color: ${expertSplitViewMode === 'template' ? '#c084fc' : '#94a3b8'}; box-shadow: ${expertSplitViewMode === 'template' ? '0 0 12px rgba(168,85,247,0.25)' : 'none'};">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>Öneri Taslağı (Saf Hal)</span>
+        </button>
+        <button type="button" data-mode="tracking" onclick="setExpertSplitViewMode('tracking')" class="expert-viewmode-btn ${expertSplitViewMode !== 'template' ? 'active' : ''}" style="display: inline-flex; align-items: center; gap: 7px; padding: 7px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; transition: all 0.2s ease; cursor: pointer; border: 1px solid ${expertSplitViewMode !== 'template' ? 'rgba(74,222,128,0.5)' : 'transparent'}; background: ${expertSplitViewMode !== 'template' ? 'linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(16,185,129,0.18) 100%)' : 'transparent'}; color: ${expertSplitViewMode !== 'template' ? '#4ade80' : '#94a3b8'}; box-shadow: ${expertSplitViewMode !== 'template' ? '0 0 12px rgba(74,222,128,0.2)' : 'none'};">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span>Antrenman Takip Durumu</span>
+        </button>
+      </div>
+    </div>
+
     ${tabs}
 
     <div style="margin:0 0 14px; padding:10px 14px; background:rgba(15,23,42,0.65); border:1px solid rgba(108,99,255,0.25); border-left:3px solid #a78bfa; border-radius:10px; display:flex; gap:10px; align-items:center;">
@@ -29256,6 +29566,7 @@ async function expertDataGenerateRecommendation() {
     expertDataState = expertDataState || {};
     expertDataState.recommendation = result.recommendation;
     if (cachedUserData) cachedUserData.dashboard_preferences = result.dashboard_preferences || cachedUserData.dashboard_preferences;
+    window._expertRecommendationWeekExplicitlySelected = false;
     expertRecommendationWeekIndex = 0;
     localStorage.setItem('selectedSplitMode', 'expert');
     toast('Uzman öneri programı oluşturuldu; Kontrol Paneli ile senkronlandı.', 'success');
@@ -29271,17 +29582,8 @@ function expertDataUpdateTotalSetsBadges() {
   const week = recommendation?.weeks?.[safeWeek];
   if (!week) return;
 
-  const activeProg = expertRecommendationWeek(recommendation);
-  const currentActiveWeekIndex = activeProg ? activeProg.index : 0;
-  const weekOffset = safeWeek - currentActiveWeekIndex;
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const weekStart = new Date(today);
-  const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
-  weekStart.setDate(today.getDate() - dayOfWeek);
-
-  const completedDates = cachedUserData?.sessions ? cachedUserData.sessions.map(sess => sess.date) : [];
+  const dateInfo = getExpertRecommendationDates(recommendation, safeWeek);
+  const allUserSessions = expertGetAllUserSessions();
 
   let totalWeekSets = 0;
   let totalExercises = 0;
@@ -29291,24 +29593,14 @@ function expertDataUpdateTotalSetsBadges() {
     const rawWorkoutType = d?.type || d?.session_type || (d?.isRest ? 'Rest Day' : 'Antrenman');
     const isRest = Boolean(d?.isRest) || String(rawWorkoutType).toLowerCase().includes('dinlenme') || String(rawWorkoutType).toLowerCase().includes('rest');
 
-    const curD = new Date(weekStart);
-    curD.setDate(weekStart.getDate() + (weekOffset * 7) + dIdx);
+    const curD = new Date(dateInfo.genMonday);
+    curD.setDate(dateInfo.genMonday.getDate() + (safeWeek * 7) + dIdx);
     curD.setHours(0, 0, 0, 0);
     const dateStr = `${curD.getFullYear()}-${String(curD.getMonth()+1).padStart(2, '0')}-${String(curD.getDate()).padStart(2, '0')}`;
-    const matchedSession = cachedUserData?.sessions ? cachedUserData.sessions.find(s => s.date === dateStr) : null;
+    const matchedSession = allUserSessions.find(s => expertNormalizeDateStr(s?.date) === dateStr) || null;
+    const hasWorkout = Boolean(matchedSession) || allUserSessions.some(s => expertNormalizeDateStr(s?.date) === dateStr);
 
-    const programGenDateStr = recommendation?.generated_at;
-    const programGenDate = programGenDateStr ? new Date(programGenDateStr) : null;
-    if (programGenDate) programGenDate.setHours(0, 0, 0, 0);
-    const userRegDateStr = cachedUserData?.user?.created_at;
-    const userRegDate = userRegDateStr ? new Date(userRegDateStr) : null;
-    if (userRegDate) userRegDate.setHours(0, 0, 0, 0);
-    const isBeforeProgram = Boolean(
-      (programGenDate && curD.getTime() < programGenDate.getTime()) ||
-      (userRegDate && curD.getTime() < userRegDate.getTime())
-    );
-
-    const isCompleted = !isRest && !isBeforeProgram && (Boolean(matchedSession) || completedDates.includes(dateStr));
+    const isCompleted = (expertSplitViewMode !== 'template') && hasWorkout;
 
     let rawExercises = [];
     if (isCompleted && matchedSession?.exercises && Array.isArray(matchedSession.exercises) && matchedSession.exercises.length > 0) {
@@ -29388,6 +29680,11 @@ function expertDataRefreshDaysDOM() {
   container.innerHTML = (week.days || []).map(expertDataRecommendationDayCard).join('');
   expertDataInitRecommendationSortable();
   expertDataUpdateTotalSetsBadges();
+  setTimeout(() => {
+    if (container) {
+      container.querySelectorAll('.expert-day-card.history-card-animated').forEach(el => el.classList.remove('history-card-animated'));
+    }
+  }, 1000);
 }
 
 // ─── HAREKET SET VE TEKRAR HEDEFLERİ DÜZENLEME ───
@@ -29397,6 +29694,12 @@ function expertDataEditExerciseSetsReps(weekIdx, slotId, exerciseId) {
   if (!days) return;
   
   let day = days.find(d => String(d.slot_id) === String(slotId) || String(d.day_id) === String(slotId));
+  if (!day) {
+    const m = String(slotId).match(/day-(\d+)/);
+    if (m && days[parseInt(m[1], 10) - 1]) {
+      day = days[parseInt(m[1], 10) - 1];
+    }
+  }
   let ex = day?.exercises?.find(e => String(e.id) === String(exerciseId) || expertDataResolveExerciseId(e.id, e.name) === String(exerciseId));
   if (!ex) {
     day = days.find(d => (d.exercises || []).some(e => String(e.id) === String(exerciseId) || expertDataResolveExerciseId(e.id, e.name) === String(exerciseId)));
@@ -29499,7 +29802,9 @@ function expertDataEditExerciseSetsReps(weekIdx, slotId, exerciseId) {
 
     // Sayfayı yenilemeden DOM'u anında güncelle
     const resolvedExId = expertDataResolveExerciseId(ex.id, ex.name);
-    const row = document.querySelector(`.expert-exercise-row-item[data-exercise-id="${resolvedExId}"]`) ||
+    const row = document.querySelector(`.expert-exercise-row-item[data-slot-id="${slotId}"][data-exercise-id="${resolvedExId}"]`) ||
+                document.querySelector(`.expert-exercise-row-item[data-slot-id="${slotId}"][data-exercise-id="${exerciseId}"]`) ||
+                document.querySelector(`.expert-exercise-row-item[data-exercise-id="${resolvedExId}"]`) ||
                 document.querySelector(`.expert-exercise-row-item[data-exercise-id="${exerciseId}"]`);
     if (row) {
       const repText = row.querySelector('.expert-set-rep-text');
@@ -29679,6 +29984,12 @@ window.expertDataExecuteRemoveRecommendedExercise = async function(weekIndex, sl
   const days = recommendation.weeks[weekIndex].days;
   let dayIndex = days.findIndex(d => d.slot_id === slotId || d.day_id === slotId);
   if (dayIndex === -1) {
+    const m = String(slotId).match(/day-(\d+)/);
+    if (m && days[parseInt(m[1], 10) - 1]) {
+      dayIndex = parseInt(m[1], 10) - 1;
+    }
+  }
+  if (dayIndex === -1) {
     dayIndex = days.findIndex(d => (d?.exercises || []).some(ex => ex && expertDataResolveExerciseId(ex.id, ex.name) === String(exerciseId)));
   }
   if (dayIndex === -1) return;
@@ -29690,7 +30001,8 @@ window.expertDataExecuteRemoveRecommendedExercise = async function(weekIndex, sl
   });
   
   // DOM'da satırı yumuşak bir kaydırma ve sönme animasyonu ile kaldır (Sayfa yenilenmez!)
-  const rowEl = document.querySelector(`.expert-exercise-row-item[data-exercise-id="${exerciseId}"]`);
+  const rowEl = document.querySelector(`.expert-exercise-row-item[data-slot-id="${slotId}"][data-exercise-id="${exerciseId}"]`) ||
+                document.querySelector(`.expert-exercise-row-item[data-exercise-id="${exerciseId}"]`);
   if (rowEl) {
     rowEl.style.transition = 'all 0.28s cubic-bezier(0.2, 1, 0.3, 1)';
     rowEl.style.opacity = '0';
@@ -29709,14 +30021,22 @@ window.expertDataExecuteRemoveRecommendedExercise = async function(weekIndex, sl
     expertDataUpdateTotalSetsBadges();
   }
 
+  if (cachedUserData) {
+    if (!cachedUserData.dashboard_preferences) cachedUserData.dashboard_preferences = {};
+    cachedUserData.dashboard_preferences.expert_recommendation = recommendation;
+  }
+  if (expertDataState) {
+    expertDataState.recommendation.weeks = recommendation.weeks;
+  }
+  if (typeof refreshDashboardProgramStat === 'function') refreshDashboardProgramStat('expert');
+
   try {
     const result = await apiPut('/api/expert-data/recommendation/reorder', { weeks: recommendation.weeks });
     if (cachedUserData) cachedUserData.dashboard_preferences = result.dashboard_preferences || cachedUserData.dashboard_preferences;
-    
     if (expertDataState) {
       expertDataState.recommendation.weeks = recommendation.weeks;
     }
-    
+    if (typeof refreshDashboardProgramStat === 'function') refreshDashboardProgramStat('expert');
     toast(`${exName ? `"${exName}"` : 'Hareket'} programdan başarıyla çıkarıldı.`, 'success');
   } catch (error) {
     toast(error.message || 'Hareket çıkarılamadı.', 'error');
@@ -29747,7 +30067,13 @@ window.expertDataAddRecommendedExercise = async function(weekIndex, slotId) {
   if (!recommendation || !recommendation.weeks?.[weekIndex]) return;
   
   const days = recommendation.weeks[weekIndex].days;
-  const dayIndex = days.findIndex(d => d.slot_id === slotId || d.day_id === slotId);
+  let dayIndex = days.findIndex(d => d.slot_id === slotId || d.day_id === slotId);
+  if (dayIndex === -1) {
+    const m = String(slotId).match(/day-(\d+)/);
+    if (m && days[parseInt(m[1], 10) - 1]) {
+      dayIndex = parseInt(m[1], 10) - 1;
+    }
+  }
   if (dayIndex === -1) return;
   
   const day = days[dayIndex];
@@ -29798,6 +30124,15 @@ window.expertDataAddRecommendedExercise = async function(weekIndex, slotId) {
      effort: "RIR 1-3"
   });
   
+  if (cachedUserData) {
+    if (!cachedUserData.dashboard_preferences) cachedUserData.dashboard_preferences = {};
+    cachedUserData.dashboard_preferences.expert_recommendation = recommendation;
+  }
+  if (expertDataState) {
+    expertDataState.recommendation.weeks = recommendation.weeks;
+  }
+  if (typeof refreshDashboardProgramStat === 'function') refreshDashboardProgramStat('expert');
+
   try {
     const result = await apiPut('/api/expert-data/recommendation/reorder', { weeks: recommendation.weeks });
     if (cachedUserData) cachedUserData.dashboard_preferences = result.dashboard_preferences || cachedUserData.dashboard_preferences;
@@ -29806,6 +30141,7 @@ window.expertDataAddRecommendedExercise = async function(weekIndex, slotId) {
     if (expertDataState) {
         expertDataState.recommendation.weeks = recommendation.weeks;
     }
+    if (typeof refreshDashboardProgramStat === 'function') refreshDashboardProgramStat('expert');
     
     toast(newEx.name + ' programa başarıyla eklendi!', 'success');
 
@@ -29861,75 +30197,20 @@ window.expertDataAddRecommendedExercise = async function(weekIndex, slotId) {
    ALT BÖLÜM 24.16: UZMAN SPLIT TASLAĞI VE ANA SAYFA YÜKLEYİCİLERİ
 ────────────────────────────────────────────────────────────────────────── */
 function expertDataSplitDraftPane() {
-  const analysis = expertAnalysisState || {};
-  const plan = analysis.split_plan || {};
-  const findingsList = (analysis.findings || []).slice(0, 4);
-
-  const findingsHtml = findingsList.length ? findingsList.map(item => `
-    <div class="expert-split-strategy-item" style="border-left:3px solid #38bdf8;padding:12px 14px;background:linear-gradient(145deg, rgba(26, 32, 54, 0.6) 0%, rgba(18, 23, 38, 0.8) 100%);">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px;">
-        <strong style="color:#ffffff;font-size:12.5px;letter-spacing:0.01em;">${expertDataEscape(item.category || 'Kural')} · ${expertDataEscape(item.title || '')}</strong>
-      </div>
-      <p style="margin:0;color:#cbd5e1;font-size:11.5px;line-height:1.45;">${expertDataEscape(item.action || item.message || '')}</p>
-    </div>
-  `).join('') : '<div class="expert-data-empty" style="padding:20px;text-align:center;color:#94a3b8;font-size:12px;">Analiz bulgusu bekleniyor.</div>';
-
-  const toneBorder = expertAnalysisTone(analysis.status?.tone);
-
   const view = `
   <div class="expert-gym-workspace">
-    <!-- TEK BİRLEŞİK PANO: Split Stratejisi ve Karar Dayanağı -->
-    <section class="expert-data-card expert-split-unified-card" style="background:linear-gradient(160deg, rgba(30, 34, 49, 0.7) 0%, rgba(20, 24, 35, 0.85) 100%);border:1px solid rgba(108,99,255,0.22);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.28);padding:22px;">
-      <div class="expert-data-cardhead" style="margin-bottom:18px;">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div class="injury-board-icon-box" style="background:linear-gradient(135deg, rgba(108,99,255,0.24) 0%, rgba(56,189,248,0.18) 100%);color:#38bdf8;border-color:rgba(56,189,248,0.45);box-shadow:0 0 16px rgba(56,189,248,0.25);">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
-            </svg>
-          </div>
-          <div>
-            <h3 class="injury-board-heading" style="color:#ffffff;">${expertDataEscape(plan.title || 'Dinamik Split Stratejisi ve Karar Rasyoneli')}</h3>
-            <p class="injury-board-sub" style="color:#cbd5e1;">Kişiselleştirilmiş seans mimarisi, toparlanma dengesi ve kural dayanakları tek merkezde açıklanır.</p>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <span class="gym-equipment-count-badge">Taslak Yaklaşımı</span>
-          <span class="gym-badge-default" style="font-size:10.5px;padding:3.5px 10px;">Açıklanabilir Karar</span>
-        </div>
-      </div>
-
-      <!-- 1. Stratejik Değerlendirme Özeti -->
-      <div class="expert-split-strategy-item" style="border-left:4px solid ${toneBorder};background:linear-gradient(145deg, rgba(26, 32, 54, 0.75) 0%, rgba(18, 23, 38, 0.9) 100%);margin-bottom:18px;padding:15px 18px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-          <span style="font-size:15px;">⚡</span>
-          <strong style="color:#ffffff;font-size:13.5px;letter-spacing:0.01em;">${expertDataEscape(plan.summary || analysis.status?.title || 'Stratejik Değerlendirme')}</strong>
-        </div>
-        <p style="margin:0;color:#cbd5e1;font-size:12.5px;line-height:1.55;">${expertDataEscape(plan.approach || analysis.split_guidance || 'Tüm parametreler hipertrofi adaptasyonunu maksimize edecek şekilde dengelendi.')}</p>
-      </div>
-
-      <!-- 2. Kararın Dayanağı ve Kural Bulguları -->
-      <div style="padding-top:16px;border-top:1px solid rgba(108,99,255,0.15);">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:24px;height:24px;border-radius:6px;background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);display:flex;align-items:center;justify-content:center;color:#38bdf8;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-            </div>
-            <strong style="color:#ffffff;font-size:13px;letter-spacing:0.02em;">Kararın Dayanağı ve Kural Bulguları</strong>
-          </div>
-          <span style="font-size:11px;color:#94a3b8;font-weight:600;">Öncelik: Kısıt → Toparlanma → Ekipman → RPE → Hedef</span>
-        </div>
-
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:10px;">
-          ${findingsHtml}
-        </div>
-      </div>
-    </section>
-
     ${expertDataRecommendationPane()}
   </div>`;
 
-  setTimeout(expertDataInitRecommendationSortable, 0);
+  setTimeout(() => {
+    expertDataInitRecommendationSortable();
+    const container = document.getElementById('expertRecommendationDays');
+    if (container) {
+      setTimeout(() => {
+        container.querySelectorAll('.expert-day-card.history-card-animated').forEach(el => el.classList.remove('history-card-animated'));
+      }, 1000);
+    }
+  }, 0);
   return view;
 }
 
@@ -29989,6 +30270,14 @@ async function loadExpertSystem() {
   }
   try {
     expertDataState = await apiGet('/api/expert-data');
+    if (Array.isArray(expertDataState?.sessions)) {
+      if (!cachedUserData) cachedUserData = {};
+      cachedUserData.sessions = expertDataState.sessions;
+    }
+    if (expertDataState?.user) {
+      if (!cachedUserData) cachedUserData = {};
+      cachedUserData.user = Object.assign({}, cachedUserData.user || {}, expertDataState.user);
+    }
     const target = expertDataState.target_muscles || {};
     expertDataGoalDraft = { primary_goal: expertDataProfileGoal(), priority_muscles: [...(target.priority_muscles || [])], priority_note: target.priority_note || '' };
     expertDataGymDraft = null;
@@ -31171,6 +31460,12 @@ window.expertDataReplaceRecommendedExercise = async function(weekIndex, slotId, 
   const days = recommendation.weeks[weekIndex].days;
   let dayIndex = days.findIndex(d => d.slot_id === slotId || d.day_id === slotId);
   if (dayIndex === -1) {
+    const m = String(slotId).match(/day-(\d+)/);
+    if (m && days[parseInt(m[1], 10) - 1]) {
+      dayIndex = parseInt(m[1], 10) - 1;
+    }
+  }
+  if (dayIndex === -1) {
     dayIndex = days.findIndex(d => (d?.exercises || []).some(ex => ex && expertDataResolveExerciseId(ex.id, ex.name) === String(sourceExerciseId)));
   }
   if (dayIndex === -1) return;
@@ -31200,6 +31495,15 @@ window.expertDataReplaceRecommendedExercise = async function(weekIndex, slotId, 
      effort: oldEx.effort || "RIR 1-3"
   };
 
+  if (cachedUserData) {
+    if (!cachedUserData.dashboard_preferences) cachedUserData.dashboard_preferences = {};
+    cachedUserData.dashboard_preferences.expert_recommendation = recommendation;
+  }
+  if (expertDataState) {
+    expertDataState.recommendation.weeks = recommendation.weeks;
+  }
+  if (typeof refreshDashboardProgramStat === 'function') refreshDashboardProgramStat('expert');
+
   try {
     // 5. Değiştirilmiş güncel listeyi (Ekle/Çıkar mantığındaki gibi) bütün olarak kaydet
     const result = await apiPut('/api/expert-data/recommendation/reorder', { weeks: recommendation.weeks });
@@ -31209,13 +31513,15 @@ window.expertDataReplaceRecommendedExercise = async function(weekIndex, slotId, 
     if (expertDataState) {
         expertDataState.recommendation.weeks = recommendation.weeks;
     }
+    if (typeof refreshDashboardProgramStat === 'function') refreshDashboardProgramStat('expert');
     
     // Açık olan alternatifler menüsünü temizle ve arayüzü yenile
     expertDataAlternativeState = {}; 
     toast(newEx.name + ' programa başarıyla uygulandı!', 'success');
 
     // Sayfa yenilemesi olmadan satırı doğrudan DOM'da güncelle
-    const rowEl = document.querySelector(`.expert-exercise-row-item[data-exercise-id="${sourceExerciseId}"]`);
+    const rowEl = document.querySelector(`.expert-exercise-row-item[data-slot-id="${slotId}"][data-exercise-id="${sourceExerciseId}"]`) ||
+                  document.querySelector(`.expert-exercise-row-item[data-exercise-id="${sourceExerciseId}"]`);
     if (rowEl) {
       const newExId = expertDataResolveExerciseId(newEx.id, newEx.name);
       rowEl.setAttribute('data-exercise-id', newExId);
@@ -31434,6 +31740,71 @@ window.expertDataSaveEquipmentPreferences = async function() {
   } catch (error) {
     toast(error.message, 'error');
   }
+};
+
+window.expertDataConfirmClearEquipmentPreferences = function() {
+  const existingModal = document.getElementById('expertConfirmClearEquipmentOverlay');
+  if (existingModal) existingModal.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'expertConfirmClearEquipmentOverlay';
+  overlay.className = 'expert-confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="expert-confirm-modal-box" role="dialog" aria-modal="true" aria-labelledby="expertClearEquipmentTitle">
+      <div class="expert-confirm-icon-wrap" style="background:linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.12) 100%);border:1px solid rgba(251, 191, 36, 0.45);color:#fbbf24;box-shadow:0 0 20px rgba(251, 191, 36, 0.25);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path>
+        </svg>
+      </div>
+      <h3 class="expert-confirm-title" id="expertClearEquipmentTitle">Ekipman Tercihlerini Sıfırla</h3>
+      <p class="expert-confirm-desc">
+        Tüm özel ekipman seçimleriniz sıfırlanacak ve <strong style="color:#ffffff;">varsayılan salonunuzun</strong> olanaklarına geri dönülecektir. Bu işlemi onaylıyor musunuz?
+      </p>
+      <div class="expert-confirm-info-pill" style="background:rgba(56, 189, 248, 0.08);border-color:rgba(56, 189, 248, 0.25);color:#38bdf8;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span>Program hareket varyasyonları varsayılan salon ekipman havuzuna göre otomatik olarak yeniden planlanacaktır.</span>
+      </div>
+      <div class="expert-confirm-actions">
+        <button type="button" class="expert-confirm-btn cancel" id="expertClearEquipmentCancelBtn">
+          Vazgeç
+        </button>
+        <button type="button" class="expert-confirm-btn confirm" id="expertClearEquipmentExecuteBtn" style="background:linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.3) 100%) !important; border-color:rgba(251, 191, 36, 0.5) !important; color:#fbbf24 !important;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path>
+          </svg>
+          <span>Seçimleri Sıfırla</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => {
+    overlay.classList.add('is-visible');
+  });
+
+  const closeModal = () => {
+    overlay.classList.remove('is-visible');
+    setTimeout(() => {
+      if (document.body.contains(overlay)) overlay.remove();
+    }, 260);
+    document.removeEventListener('keydown', handleKey);
+  };
+
+  const handleKey = (e) => {
+    if (e.key === 'Escape') closeModal();
+  };
+  document.addEventListener('keydown', handleKey);
+
+  overlay.querySelector('#expertClearEquipmentCancelBtn').onclick = closeModal;
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  overlay.querySelector('#expertClearEquipmentExecuteBtn').onclick = async () => {
+    closeModal();
+    await expertDataClearEquipmentPreferences();
+  };
 };
 
 window.expertDataClearEquipmentPreferences = async function() {

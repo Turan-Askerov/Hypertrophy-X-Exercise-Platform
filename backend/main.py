@@ -296,7 +296,12 @@ class PostgreSQLCursor:
         self._cursor = cursor
 
     def execute(self, query: str, params=None):
-        self._cursor.execute(query.replace("?", "%s"), params or ())
+        q = query.replace("?", "%s")
+        if "INSERT OR IGNORE INTO" in q:
+            q = q.replace("INSERT OR IGNORE INTO", "INSERT INTO")
+            if "ON CONFLICT" not in q:
+                q = q + " ON CONFLICT DO NOTHING"
+        self._cursor.execute(q, params or ())
         return self
 
     def fetchone(self):
@@ -312,7 +317,12 @@ class PostgreSQLConnection:
         self._connection = connection
 
     def execute(self, query: str, params=None):
-        return self._connection.execute(query.replace("?", "%s"), params or ())
+        q = query.replace("?", "%s")
+        if "INSERT OR IGNORE INTO" in q:
+            q = q.replace("INSERT OR IGNORE INTO", "INSERT INTO")
+            if "ON CONFLICT" not in q:
+                q = q + " ON CONFLICT DO NOTHING"
+        return self._connection.execute(q, params or ())
 
     def cursor(self):
         return PostgreSQLCursor(self._connection.cursor())
@@ -573,8 +583,8 @@ def get_user_by_username(username: str):
         FROM users u
         LEFT JOIN athlete_profiles ap ON u.id = ap.user_id
         LEFT JOIN admin_roles ar ON u.id = ar.user_id
-        WHERE u.username = ?
-    """, (username,)).fetchone()
+        WHERE u.username = ? OR LOWER(u.username) = LOWER(?)
+    """, (username, username)).fetchone()
     conn.close()
     if row:
         d = dict(row)
@@ -656,15 +666,20 @@ def create_user(username: str, password: str):
 
 def update_user_profile(data: dict, username: str):
     conn = get_db()
-    user_row = conn.execute("SELECT id, role, is_admin FROM users WHERE username=?", (username,)).fetchone()
+    user_row = conn.execute(
+        "SELECT id, username, role, is_admin FROM users WHERE username=? OR LOWER(username)=LOWER(?)",
+        (username, username)
+    ).fetchone()
     if not user_row:
         conn.close()
         return None
-    user_id = user_row["id"]
-    is_admin = bool(user_row.get("is_admin") or user_row.get("role") == "admin")
+    user_dict = dict(user_row)
+    user_id = user_dict["id"]
+    canonical_username = user_dict["username"]
+    is_admin = bool(user_dict.get("is_admin") or user_dict.get("role") == "admin")
     if is_admin:
         conn.close()
-        return get_user_by_username(username)
+        return get_user_by_username(canonical_username)
 
     fields = []
     values = []
@@ -684,10 +699,10 @@ def update_user_profile(data: dict, username: str):
             placeholders = ', '.join(['?'] * len(values))
             cur.execute(f"INSERT INTO athlete_profiles (user_id, {', '.join(col_names)}) VALUES (?, {placeholders})", [user_id] + values)
         # Geriye dönük uyumluluk için users tablosunu da güncelle
-        cur.execute(f"UPDATE users SET {', '.join(fields)}, updated_at=CURRENT_TIMESTAMP WHERE username=?", values + [username])
+        cur.execute(f"UPDATE users SET {', '.join(fields)}, updated_at=CURRENT_TIMESTAMP WHERE username=?", values + [canonical_username])
         conn.commit()
     conn.close()
-    return get_user_by_username(username)
+    return get_user_by_username(canonical_username)
 
 
 def _parse_dashboard_preferences(raw_preferences) -> dict:
@@ -799,70 +814,11 @@ def _sync_programs_with_real_workouts(user_id: int) -> dict:
     recommendation = preferences.get("expert_recommendation")
     expert_changed = False
     if isinstance(recommendation, dict) and isinstance(recommendation.get("weeks"), list):
-        weeks = recommendation.get("weeks") or []
-        if weeks:
-            recommendation = _expert_normalize_recommendation_slots(recommendation)
-
-            rec_start_date = None
-            rec_start_weekday = 0
-            gen_at = recommendation.get("generated_at")
-            if gen_at:
-                try:
-                    gen_dt = datetime.fromisoformat(str(gen_at).replace("Z", "+00:00"))
-                    rec_start_date = gen_dt.date()
-                    week_start_date = date.today() - timedelta(days=today_index)
-                    if rec_start_date >= week_start_date:
-                        rec_start_weekday = gen_dt.weekday()
-                except Exception:
-                    pass
-            elif custom_start_date:
-                rec_start_date = custom_start_date
-                rec_start_weekday = custom_start_weekday
-
-            week_index = _schedule_week_index(len(weeks), rec_start_date)
-            rec_actuals = current_week_actuals(user_workouts, min_date=rec_start_date)
-
-            # Referans egzersiz havuzu (dolu olan günlerden topla)
-            exercise_reference_pool: dict[str, list[dict]] = {}
-            for w in weeks:
-                if isinstance(w, dict) and isinstance(w.get("days"), list):
-                    for d in w.get("days", []):
-                        if (
-                            not is_rest_day(d)
-                            and not str(d.get("content_id", "")).startswith("actual-workout")
-                            and not str(d.get("session_id", "")).startswith("actual-workout")
-                        ):
-                            k = session_kind(d.get("type"))
-                            exs = d.get("exercises", [])
-                            if k and exs and len(exs) > 0 and k not in exercise_reference_pool:
-                                exercise_reference_pool[k] = deepcopy(exs)
-
-            for w_idx, week_obj in enumerate(weeks):
-                if isinstance(week_obj, dict) and isinstance(week_obj.get("days"), list):
-                    expert_days = week_obj.get("days")
-                    if len(expert_days) == 7:
-                        if w_idx == week_index:
-                            rest_aligned = align_rest_slots(expert_days, custom_rest_indices)
-                            reconciled, rec_changed = reconcile_week(
-                                expert_days,
-                                rec_actuals,
-                                today_index,
-                                protected_rest_indices=custom_rest_indices,
-                                exercise_reference_pool=exercise_reference_pool,
-                                start_weekday=rec_start_weekday,
-                            )
-                            if rest_aligned or rec_changed:
-                                week_obj["days"] = reconciled
-                                expert_changed = True
-                        else:
-                            reconciled, rec_changed = clean_non_active_week(
-                                expert_days,
-                                w_idx,
-                                reference_pool=exercise_reference_pool,
-                            )
-                            if rec_changed:
-                                week_obj["days"] = reconciled
-                                expert_changed = True
+        # Uzman önerisi (saf taslak), kullanıcının belirlediği haftalık gün sayısına (ör. 4 günde 3 dinlenme)
+        # göre üretilen bilimsel şablondur. Gerçek antrenman kayıtları bu saf taslağı ezmemeli ve dinlenme
+        # günlerini yok etmemelidir. Arayüzün "Antrenman Takip Durumu" sekmesi, gerçek kayıtları bu taslağın
+        # üzerine dinamik olarak bindirir.
+        pass
 
     if not custom_changed and not expert_changed:
         return {"changed": False}
@@ -1829,8 +1785,25 @@ def _expert_data_state(user: dict) -> dict:
     account = get_user_by_id(user["id"]) or user
     equipment_selection = _equipment_selection(profile, account.get("dashboard_preferences", "{}"))
     movement_preferences = _exercise_preference_selection(account.get("dashboard_preferences", "{}"))
+    workouts = get_workouts_by_user(user["id"])
+    sessions_data = [
+        {
+            "id": w.get("id"),
+            "date": str(w.get("date", ""))[:10],
+            "type": w.get("session_type", "Workout"),
+            "notes": w.get("notes", ""),
+            "exercises": w.get("exercises") or [],
+        }
+        for w in workouts
+    ]
     return {
         "success": True,
+        "user": {
+            "id": account["id"],
+            "username": account.get("username"),
+            "created_at": str(account.get("created_at", "")),
+        },
+        "sessions": sessions_data,
         "target_muscles": profile.get("target_muscles") or {},
         "doms_daily": profile.get("doms_daily") or {},
         "gyms": equipment_selection["gyms"],
@@ -1843,7 +1816,7 @@ def _expert_data_state(user: dict) -> dict:
         "equipment_source_label": equipment_selection["equipment_source_label"],
         "injuries": profile.get("injuries") or [],
         "rpe_checkins": profile.get("rpe_checkins") or [],
-        "recommendation": _parse_dashboard_preferences(user.get("dashboard_preferences", "{}")).get("expert_recommendation"),
+        "recommendation": _parse_dashboard_preferences(account.get("dashboard_preferences", "{}")).get("expert_recommendation"),
         "metrics": _expert_data_metrics(profile.get("doms_daily") or {}),
         "catalog": {
             "primary_goals": PRIMARY_GOALS,
@@ -2177,13 +2150,21 @@ def get_user(user: dict = Depends(_resolve_current_user)):
 @app.post("/api/user")
 def save_user(data: UserProfile = Body(...),
               current_user: dict = Depends(_resolve_current_user)):
-    # Token'daki kullanıcı sadece KENDİ profilini düzenleyebilir
-    if data.username != current_user["username"]:
-        raise HTTPException(status_code=403, detail="Başkasının profili düzenlenemez")
-    result = update_user_profile(data.model_dump(), data.username)
-    result.pop("password_hash", None)
-    result.pop("password_salt", None)
-    return result
+    try:
+        # Token'daki kullanıcı sadece KENDİ profilini düzenleyebilir
+        if data.username.strip().lower() != current_user["username"].strip().lower():
+            raise HTTPException(status_code=403, detail="Başkasının profili düzenlenemez")
+        result = update_user_profile(data.model_dump(), current_user["username"])
+        if not result:
+            raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+        result.pop("password_hash", None)
+        result.pop("password_salt", None)
+        return result
+    except HTTPException:
+        raise
+    except Exception as exc:
+        log.exception(f"save_user error for {data.username}: {exc}")
+        raise HTTPException(status_code=500, detail=f"Profil güncellenemedi: {str(exc)}")
 
 
 # ═══════════════════════════════════════════════
@@ -4615,15 +4596,12 @@ def get_expert_data_analysis(user: dict = Depends(_resolve_current_user)):
 @app.post("/api/expert-data/recommendation/generate")
 def generate_expert_recommendation(user: dict = Depends(_resolve_current_user)):
     """Kullanıcının profilindeki gün sayısı ve uzman verileriyle taslak üretir."""
+    fresh_user = get_user_by_id(user["id"]) or user
     try:
-        recommendation = _build_expert_recommendation(user)
+        recommendation = _build_expert_recommendation(fresh_user)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    preferences = _save_expert_recommendation(user, recommendation)
-    sync_result = _sync_programs_with_real_workouts(user["id"])
-    if sync_result.get("changed"):
-        preferences = sync_result.get("dashboard_preferences") or preferences
-        recommendation = preferences.get("expert_recommendation") or recommendation
+    preferences = _save_expert_recommendation(fresh_user, recommendation)
     return {"success": True, "recommendation": recommendation, "dashboard_preferences": preferences}
 
 
