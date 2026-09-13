@@ -16242,13 +16242,16 @@ tr:hover td { background: var(--bg-card-hover); }
         <span>Şifre</span>
       </label>
       <div class="auth-input-wrap">
-        <input type="password" class="auth-input" id="loginPassword" placeholder="Şifrenizi girin" autocomplete="current-password" />
+        <input type="password" class="auth-input" id="loginPassword" placeholder="Şifrenizi girin" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin();" />
         <button type="button" class="auth-password-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
         </button>
+      </div>
+      <div style="display:flex; justify-content:flex-end; margin-top:6px;">
+        <a onclick="showForgotPassword()" style="font-size:12px; color:#818cf8; cursor:pointer; text-decoration:none; font-weight:600; transition:color 0.2s;" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">Şifremi Unuttum?</a>
       </div>
     </div>
 
@@ -16261,6 +16264,130 @@ tr:hover td { background: var(--bg-card-hover); }
     </button>
     <div class="auth-footer">
       Hesabınız yok mu? <a onclick="showRegister()">Hesap Oluştur</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- ŞİFREMİ UNUTTUM EKRANI (FORGOT PASSWORD - 3 AŞAMALI PANEL)                 -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="auth-overlay hidden" id="forgotPasswordPage">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-icon">HX</div>
+      <div class="auth-brand-title">Hypertrophy-X</div>
+      <div class="auth-brand-sub">
+        <span class="auth-badge">Şifre Kurtarma</span>
+      </div>
+    </div>
+
+    <!-- PANEL 1: E-POSTA GİRİŞİ -->
+    <div id="fpStepEmail">
+      <div class="subtitle">Kayıtlı e-posta adresinizi veya kullanıcı adınızı girin. Size 4 haneli doğrulama kodu göndereceğiz.</div>
+      <div class="auth-error" id="fpEmailError"></div>
+
+      <div class="auth-field-group">
+        <label class="auth-label" for="fpEmailInput">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          <span>E-posta Adresi veya Kullanıcı Adı</span>
+        </label>
+        <input type="text" class="auth-input" id="fpEmailInput" placeholder="Örn: adiniz@ornek.com veya turan" autocomplete="email" onkeydown="if(event.key==='Enter') fpSubmitEmail();" />
+      </div>
+
+      <button class="auth-btn" type="button" id="fpEmailBtn" onclick="fpSubmitEmail()">
+        <span>Doğrulama Kodu Gönder</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+      <div class="auth-footer">
+        <a onclick="showLogin()" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Giriş Ekranına Dön
+        </a>
+      </div>
+    </div>
+
+    <!-- PANEL 2: 4 HANELİ KOD DOĞRULAMA -->
+    <div id="fpStepCode" class="hidden">
+      <div class="subtitle"><span id="fpMaskedEmailText" style="color:#38bdf8; font-weight:700;"></span> adresine gönderilen 4 haneli güvenlik kodunu girin.</div>
+      <div class="auth-error" id="fpCodeError"></div>
+
+      <div class="auth-field-group">
+        <label class="auth-label" for="fpCodeInput" style="justify-content:center; margin-bottom:12px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span style="letter-spacing:0.5px;">4 HANELİ DOĞRULAMA KODU</span>
+        </label>
+        <div style="display:flex; justify-content:center;">
+          <input type="text" id="fpCodeInput" maxlength="4" inputmode="numeric" autocomplete="one-time-code" placeholder="••••" style="text-align:center; letter-spacing:14px; font-size:32px; font-weight:900; color:#38bdf8; background:rgba(15,23,42,0.65); border:1.5px solid rgba(99,102,241,0.4); border-radius:14px; padding:12px; width:220px; box-sizing:border-box; outline:none; transition:all 0.2s;" onfocus="this.style.borderColor='#818cf8';this.style.boxShadow='0 0 16px rgba(99,102,241,0.35)';" onblur="this.style.borderColor='rgba(99,102,241,0.4)';this.style.boxShadow='none';" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length === 4) fpSubmitCode();" onkeydown="if(event.key==='Enter') fpSubmitCode();" />
+        </div>
+        <div style="font-size:11.5px; color:#94a3b8; text-align:center; margin-top:8px;">⏱️ Kodun geçerlilik süresi 15 dakikadır.</div>
+      </div>
+
+      <button class="auth-btn" type="button" id="fpCodeBtn" onclick="fpSubmitCode()">
+        <span>Kodu Doğrula</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </button>
+
+      <div class="auth-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+        <a onclick="showFpStep(1)" style="cursor:pointer; font-size:12px; color:#94a3b8;">← E-postayı Değiştir</a>
+        <a id="fpResendBtn" onclick="fpResendCode()" style="cursor:pointer; font-size:12px; color:#818cf8; font-weight:600;">Tekrar Gönder</a>
+      </div>
+    </div>
+
+    <!-- PANEL 3: YENİ ŞİFRE BELİRLEME -->
+    <div id="fpStepNewPassword" class="hidden">
+      <div class="subtitle" style="color:#34d399;">✓ Kod başarıyla doğrulandı! Şimdi hesabınız için yeni bir şifre belirleyin.</div>
+      <div class="auth-error" id="fpPasswordError"></div>
+
+      <div class="auth-field-group">
+        <label class="auth-label" for="fpNewPassword">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Yeni Şifre</span>
+        </label>
+        <div class="auth-input-wrap">
+          <input type="password" class="auth-input" id="fpNewPassword" placeholder="En az 6 karakter" autocomplete="new-password" />
+          <button type="button" class="auth-password-toggle-btn" onclick="togglePasswordVisibility('fpNewPassword', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="auth-field-group">
+        <label class="auth-label" for="fpConfirmPassword">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span>Yeni Şifre (Tekrar)</span>
+        </label>
+        <div class="auth-input-wrap">
+          <input type="password" class="auth-input" id="fpConfirmPassword" placeholder="Şifrenizi tekrar girin" autocomplete="new-password" onkeydown="if(event.key==='Enter') fpSubmitNewPassword();" />
+          <button type="button" class="auth-password-toggle-btn" onclick="togglePasswordVisibility('fpConfirmPassword', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="auth-btn" type="button" id="fpPasswordBtn" onclick="fpSubmitNewPassword()">
+        <span>Şifreyi Güncelle ve Giriş Yap</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </button>
+
+      <div class="auth-footer">
+        <a onclick="showLogin()" style="cursor:pointer;">İptal ve Giriş Ekranına Dön</a>
+      </div>
     </div>
   </div>
 </div>
@@ -16318,6 +16445,17 @@ tr:hover td { background: var(--bg-card-hover); }
         <span>Kullanıcı Adı</span>
       </label>
       <input type="text" class="auth-input" id="regUsername" placeholder="Örn. sporcu_turan" autocomplete="username" />
+    </div>
+
+    <div class="auth-field-group">
+      <label class="auth-label" for="regEmail">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+          <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+        <span>E-posta Adresi (İsteğe Bağlı)</span>
+      </label>
+      <input type="email" class="auth-input" id="regEmail" placeholder="ornek@email.com (şifre kurtarma için)" autocomplete="email" />
     </div>
 
     <div class="auth-field-group">
@@ -17763,6 +17901,19 @@ tr:hover td { background: var(--bg-card-hover); }
                     </select>
                     <div class="profile-input-icon">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="profile-field-group" style="grid-column: 1 / -1;">
+                  <label class="profile-field-label" for="profEmail">
+                    <span>E-posta Adresi</span>
+                    <span class="profile-unit-tag">Şifre Kurtarma</span>
+                  </label>
+                  <div class="profile-input-wrap">
+                    <input type="email" id="profEmail" placeholder="Örn: adiniz@ornek.com" autocomplete="email" />
+                    <div class="profile-input-icon">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                     </div>
                   </div>
                 </div>
@@ -19467,6 +19618,7 @@ window.addEventListener('popstate', function() {
 function showLogin() {
   document.getElementById('loginPage').classList.remove('hidden');
   document.getElementById('registerPage').classList.add('hidden');
+  document.getElementById('forgotPasswordPage')?.classList.add('hidden');
   document.getElementById('appLayout').classList.add('hidden');
   window.history.replaceState(null, '', '/');
   document.title = 'Hypertrophy-X — Giriş';
@@ -19474,11 +19626,20 @@ function showLogin() {
 function showRegister() {
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('registerPage').classList.remove('hidden');
+  document.getElementById('forgotPasswordPage')?.classList.add('hidden');
   document.title = 'Hypertrophy-X — Hesap Oluştur';
+}
+function showForgotPassword() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('registerPage').classList.add('hidden');
+  document.getElementById('forgotPasswordPage')?.classList.remove('hidden');
+  showFpStep(1);
+  document.title = 'Hypertrophy-X — Şifre Kurtarma';
 }
 function hideAllAuth() {
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('registerPage').classList.add('hidden');
+  document.getElementById('forgotPasswordPage')?.classList.add('hidden');
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -19566,6 +19727,7 @@ async function doLogin() {
 ────────────────────────────────────────────────────────────────────────── */
 async function doRegister() {
   const username = document.getElementById('regUsername').value.trim();
+  const email = (document.getElementById('regEmail')?.value || '').trim();
   const password = document.getElementById('regPassword').value;
   const confirm = document.getElementById('regPasswordConfirm').value;
   const errEl = document.getElementById('registerError');
@@ -19573,12 +19735,12 @@ async function doRegister() {
 
   if (!username || !password) { errEl.textContent = 'Tüm alanları doldurun'; errEl.classList.add('show'); return; }
   if (password !== confirm) { errEl.textContent = 'Şifreler eşleşmiyor'; errEl.classList.add('show'); return; }
-  if (password.length < 3) { errEl.textContent = 'Şifre en az 3 karakter olmalı'; errEl.classList.add('show'); return; }
+  if (password.length < 6) { errEl.textContent = 'Şifre en az 6 karakter olmalı'; errEl.classList.add('show'); return; }
 
   try {
     const res = await fetch(`${API}/api/auth/register`, {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({username, password})
+      body: JSON.stringify({username, password, email})
     });
     if (!res.ok) {
       const d = await res.json();
@@ -19591,6 +19753,298 @@ async function doRegister() {
   } catch(e) {
     errEl.textContent = 'Bağlantı hatası: ' + e.message;
     errEl.classList.add('show');
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ALT BÖLÜM 4.4B: ŞİFRE SIFIRLAMA & DOĞRULAMA (FORGOT & RESET PASSWORD)
+────────────────────────────────────────────────────────────────────────── */
+let _fpResetToken = '';
+let _fpVerifiedToken = '';
+let _fpLastIdentifier = '';
+let _fpResendCooldown = 0;
+let _fpResendTimer = null;
+
+function showFpStep(step) {
+  const p1 = document.getElementById('fpStepEmail');
+  const p2 = document.getElementById('fpStepCode');
+  const p3 = document.getElementById('fpStepNewPassword');
+
+  if (p1) p1.classList.toggle('hidden', step !== 1);
+  if (p2) p2.classList.toggle('hidden', step !== 2);
+  if (p3) p3.classList.toggle('hidden', step !== 3);
+
+  // Hata kutularını sıfırla
+  const e1 = document.getElementById('fpEmailError');
+  const e2 = document.getElementById('fpCodeError');
+  const e3 = document.getElementById('fpPasswordError');
+  if (e1) { e1.textContent = ''; e1.classList.remove('show'); }
+  if (e2) { e2.textContent = ''; e2.classList.remove('show'); }
+  if (e3) { e3.textContent = ''; e3.classList.remove('show'); }
+
+  if (step === 1) {
+    setTimeout(() => document.getElementById('fpEmailInput')?.focus(), 50);
+  } else if (step === 2) {
+    const codeInput = document.getElementById('fpCodeInput');
+    if (codeInput) {
+      codeInput.value = '';
+      setTimeout(() => codeInput.focus(), 50);
+    }
+  } else if (step === 3) {
+    const pwInput = document.getElementById('fpNewPassword');
+    const pwConfInput = document.getElementById('fpConfirmPassword');
+    if (pwInput) pwInput.value = '';
+    if (pwConfInput) pwConfInput.value = '';
+    setTimeout(() => pwInput?.focus(), 50);
+  }
+}
+
+function startFpResendCountdown(seconds = 60) {
+  if (_fpResendTimer) clearInterval(_fpResendTimer);
+  _fpResendCooldown = seconds;
+  const resendBtn = document.getElementById('fpResendBtn');
+  if (!resendBtn) return;
+  resendBtn.style.pointerEvents = 'none';
+  resendBtn.style.opacity = '0.5';
+  resendBtn.textContent = `Tekrar Gönder (${_fpResendCooldown}s)`;
+
+  _fpResendTimer = setInterval(() => {
+    _fpResendCooldown--;
+    if (_fpResendCooldown <= 0) {
+      clearInterval(_fpResendTimer);
+      _fpResendTimer = null;
+      resendBtn.style.pointerEvents = 'auto';
+      resendBtn.style.opacity = '1';
+      resendBtn.textContent = 'Tekrar Gönder';
+    } else {
+      resendBtn.textContent = `Tekrar Gönder (${_fpResendCooldown}s)`;
+    }
+  }, 1000);
+}
+
+async function fpSubmitEmail() {
+  const input = document.getElementById('fpEmailInput');
+  const btn = document.getElementById('fpEmailBtn');
+  const errEl = document.getElementById('fpEmailError');
+  if (!input || !errEl) return;
+
+  const identifier = (input.value || '').trim();
+  errEl.textContent = '';
+  errEl.classList.remove('show');
+
+  if (!identifier) {
+    errEl.textContent = 'Lütfen e-posta adresinizi veya kullanıcı adınızı girin.';
+    errEl.classList.add('show');
+    input.focus();
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+  }
+
+  try {
+    const res = await fetch(`${API}/api/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email_or_username: identifier })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errEl.textContent = data.detail || 'İşlem başarısız oldu. Lütfen bilgilerinizi kontrol edin.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    _fpResetToken = data.reset_token;
+    _fpLastIdentifier = identifier;
+
+    const maskedEl = document.getElementById('fpMaskedEmailText');
+    if (maskedEl) maskedEl.textContent = data.masked_email || identifier;
+
+    toast('4 haneli doğrulama kodu e-postanıza gönderildi!', 'success');
+    showFpStep(2);
+    startFpResendCountdown(60);
+  } catch (e) {
+    errEl.textContent = 'Bağlantı hatası: ' + e.message;
+    errEl.classList.add('show');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+}
+
+async function fpResendCode() {
+  if (_fpResendCooldown > 0) return;
+  if (!_fpLastIdentifier) {
+    showFpStep(1);
+    return;
+  }
+
+  const errEl = document.getElementById('fpCodeError');
+  if (errEl) { errEl.textContent = ''; errEl.classList.remove('show'); }
+
+  try {
+    const res = await fetch(`${API}/api/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email_or_username: _fpLastIdentifier })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (errEl) {
+        errEl.textContent = data.detail || 'Kod tekrar gönderilemedi.';
+        errEl.classList.add('show');
+      }
+      return;
+    }
+
+    _fpResetToken = data.reset_token;
+    toast('Yeni doğrulama kodu gönderildi!', 'success');
+    startFpResendCountdown(60);
+  } catch (e) {
+    if (errEl) {
+      errEl.textContent = 'Bağlantı hatası: ' + e.message;
+      errEl.classList.add('show');
+    }
+  }
+}
+
+async function fpSubmitCode() {
+  const input = document.getElementById('fpCodeInput');
+  const btn = document.getElementById('fpCodeBtn');
+  const errEl = document.getElementById('fpCodeError');
+  if (!input || !errEl) return;
+
+  const code = (input.value || '').trim();
+  errEl.textContent = '';
+  errEl.classList.remove('show');
+
+  if (!code || code.length !== 4) {
+    errEl.textContent = 'Lütfen 4 haneli doğrulama kodunu eksiksiz girin.';
+    errEl.classList.add('show');
+    input.focus();
+    return;
+  }
+
+  if (!_fpResetToken) {
+    errEl.textContent = 'Oturum bilgisi bulunamadı. Lütfen e-postanızı tekrar girin.';
+    errEl.classList.add('show');
+    showFpStep(1);
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+  }
+
+  try {
+    const res = await fetch(`${API}/api/auth/verify-reset-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reset_token: _fpResetToken, code: code })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errEl.textContent = data.detail || 'Kod geçersiz veya süresi dolmuş.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    _fpVerifiedToken = data.verified_token;
+    toast('Kod doğrulandı! Yeni şifrenizi belirleyebilirsiniz.', 'success');
+    showFpStep(3);
+  } catch (e) {
+    errEl.textContent = 'Bağlantı hatası: ' + e.message;
+    errEl.classList.add('show');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+}
+
+async function fpSubmitNewPassword() {
+  const p1 = document.getElementById('fpNewPassword');
+  const p2 = document.getElementById('fpConfirmPassword');
+  const btn = document.getElementById('fpPasswordBtn');
+  const errEl = document.getElementById('fpPasswordError');
+  if (!p1 || !p2 || !errEl) return;
+
+  const newPass = (p1.value || '').trim();
+  const confirmPass = (p2.value || '').trim();
+  errEl.textContent = '';
+  errEl.classList.remove('show');
+
+  if (!newPass || !confirmPass) {
+    errEl.textContent = 'Lütfen yeni şifrenizi her iki alana da girin.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (newPass.length < 6) {
+    errEl.textContent = 'Yeni şifreniz en az 6 karakter olmalıdır.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (newPass !== confirmPass) {
+    errEl.textContent = 'Girdiğiniz yeni şifreler eşleşmiyor.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (!_fpVerifiedToken) {
+    errEl.textContent = 'Doğrulama oturumu geçersiz. Lütfen baştan başlayın.';
+    errEl.classList.add('show');
+    showFpStep(1);
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+  }
+
+  try {
+    const res = await fetch(`${API}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ verified_token: _fpVerifiedToken, new_password: newPass })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errEl.textContent = data.detail || 'Şifre güncellenemedi.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    toast('Tebrikler! Şifreniz başarıyla sıfırlandı.', 'success');
+    showLogin();
+
+    const loginUserInput = document.getElementById('loginUsername');
+    if (loginUserInput && _fpLastIdentifier && !_fpLastIdentifier.includes('@')) {
+      loginUserInput.value = _fpLastIdentifier;
+      const passInput = document.getElementById('loginPassword');
+      if (passInput) {
+        passInput.value = '';
+        passInput.focus();
+      }
+    }
+  } catch (e) {
+    errEl.textContent = 'Bağlantı hatası: ' + e.message;
+    errEl.classList.add('show');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
   }
 }
 
@@ -26424,6 +26878,7 @@ async function loadProfile(username) {
     if (document.getElementById('profGoal')) document.getElementById('profGoal').value = user.goal || 'bulk';
     if (document.getElementById('profDays')) document.getElementById('profDays').value = user.days_per_week || '4';
     if (document.getElementById('profSession')) document.getElementById('profSession').value = user.session_time_mins || '60';
+    if (document.getElementById('profEmail')) document.getElementById('profEmail').value = user.email || '';
 
     const rawName = user.full_name || user.name || user.username || _currentUser?.username || username || 'Sporcu';
     const uname = String(rawName).toUpperCase();
@@ -26453,7 +26908,8 @@ async function saveProfile() {
     fitness_level: document.getElementById('profLevel').value,
     goal: document.getElementById('profGoal').value,
     days_per_week: parseInt(document.getElementById('profDays').value) || 4,
-    session_time_mins: parseInt(document.getElementById('profSession').value) || 60
+    session_time_mins: parseInt(document.getElementById('profSession').value) || 60,
+    email: (document.getElementById('profEmail')?.value || '').trim()
   };
   try {
     const updated = await apiPost('/api/user', data);

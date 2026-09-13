@@ -45,7 +45,10 @@ from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 from jose import jwt, JWTError, ExpiredSignatureError
 import bcrypt
@@ -130,6 +133,85 @@ LOGIN_RATE_LIMIT_MAX = max(1, int(os.getenv("LOGIN_RATE_LIMIT_MAX", "10")))
 LOGIN_RATE_LIMIT_WINDOW_SECONDS = max(60, int(os.getenv("LOGIN_RATE_LIMIT_WINDOW_SECONDS", "900")))
 TRUST_PROXY_HEADERS = os.getenv("TRUST_PROXY_HEADERS", "false").strip().lower() in {"1", "true", "yes"}
 BCRYPT_ROUNDS = 12  # Kasıtlı olarak yavaş — kaba kuvvet saldırısını zorlaştırır
+
+
+# ═══════════════════════════════════════════════
+# E-POSTA / SMTP YAPILANDIRMASI
+# ═══════════════════════════════════════════════
+SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com").strip()
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USER = os.getenv("SMTP_USER", "").strip()
+SMTP_PASS = os.getenv("SMTP_PASS", "").replace(" ", "").strip()
+SMTP_FROM = os.getenv("SMTP_FROM", os.getenv("SMTP_USER", "noreply@hypertrophyx.com")).strip()
+
+
+def mask_email(email: str) -> str:
+    """E-posta adresini gizleyerek döndürür (örn: t***v@gmail.com)."""
+    if not email or "@" not in email:
+        return email or ""
+    name, domain = email.split("@", 1)
+    if len(name) <= 2:
+        masked_name = name[0] + "*"
+    else:
+        masked_name = name[0] + "*" * (len(name) - 2) + name[-1]
+    return f"{masked_name}@{domain}"
+
+
+def send_password_reset_email(to_email: str, username: str, code: str) -> bool:
+    """4 haneli şifre sıfırlama kodunu e-posta ile gönderir."""
+    subject = f"Hypertrophy-X Şifre Sıfırlama Kodu: {code}"
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:24px;background:#0b0f19;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#f1f5f9;">
+  <div style="max-width:480px;margin:0 auto;background:#141b2d;border-radius:16px;padding:32px 24px;border:1px solid rgba(99,102,241,0.25);box-shadow:0 12px 40px rgba(0,0,0,0.5);">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:900;font-size:18px;padding:8px 14px;border-radius:10px;margin-bottom:12px;">HX</div>
+      <h2 style="margin:0;font-size:20px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Hypertrophy-X</h2>
+      <div style="font-size:12px;color:#38bdf8;font-weight:600;margin-top:2px;">GÜVENLİK VE ŞİFRE SIFIRLAMA</div>
+    </div>
+    <p style="font-size:14px;line-height:1.6;color:#cbd5e1;margin:0 0 16px;">
+      Merhaba <strong>{username}</strong>,<br>
+      Hesabınız için şifre sıfırlama talebinde bulundunuz. Aşağıdaki 4 haneli tek kullanımlık doğrulama kodunu kullanarak yeni şifrenizi belirleyebilirsiniz:
+    </p>
+    <div style="background:rgba(99,102,241,0.12);border:2px dashed rgba(99,102,241,0.5);border-radius:12px;text-align:center;padding:18px;margin:24px 0;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;">Doğrulama Kodunuz</div>
+      <div style="font-size:36px;font-weight:900;letter-spacing:14px;color:#38bdf8;font-family:monospace;">{code}</div>
+      <div style="font-size:11.5px;color:#94a3b8;margin-top:6px;">⏱️ Bu kod <strong>15 dakika</strong> boyunca geçerlidir.</div>
+    </div>
+    <p style="font-size:12px;line-height:1.5;color:#94a3b8;margin:0 0 20px;">
+      Eğer bu işlemi siz başlatmadıysanız lütfen bu e-postayı dikkate almayınız. Şifreniz siz yeni bir şifre belirleyene kadar değişmeyecektir.
+    </p>
+    <div style="border-top:1px solid rgba(148,163,184,0.15);padding-top:16px;text-align:center;font-size:11px;color:#64748b;">
+      Hypertrophy-X Akıllı Egzersiz Platformu
+    </div>
+  </div>
+</body>
+</html>"""
+    plain_content = f"Merhaba {username},\n\nŞifre sıfırlama doğrulama kodunuz: {code}\nBu kod 15 dakika boyunca geçerlidir.\n\nHypertrophy-X Ekibi"
+
+    logger.info(f"🔑 [ŞİFRE SIFIRLAMA KODU] Kullanıcı: {username} | E-posta: {to_email} | 4 HANELİ KOD: {code}")
+
+    if not SMTP_USER or not SMTP_PASS:
+        logger.info("SMTP_USER veya SMTP_PASS tanımlı olmadığı için e-posta gönderimi simüle edildi (Kod konsola yazıldı).")
+        return True
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = SMTP_FROM
+        msg["To"] = to_email
+        msg.attach(MIMEText(plain_content, "plain", "utf-8"))
+        msg.attach(MIMEText(html_content, "html", "utf-8"))
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASS)
+            server.sendmail(SMTP_FROM, [to_email], msg.as_string())
+        logger.info(f"Şifre sıfırlama e-postası başarıyla gönderildi: {to_email}")
+        return True
+    except Exception as exc:
+        logger.error(f"E-posta gönderiminde hata: {exc}")
+        return False
 
 
 # Üretimde yanlış veya örnek ayarlarla sunucuyu başlatmak veri güvenliği riskidir.
@@ -468,6 +550,19 @@ def init_db():
                 updated_at TEXT NOT NULL DEFAULT (datetime('now')),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
+
+            CREATE TABLE IF NOT EXISTS password_resets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                email TEXT NOT NULL,
+                code TEXT NOT NULL,
+                reset_token TEXT NOT NULL,
+                verified_token TEXT DEFAULT NULL,
+                expires_at TEXT NOT NULL,
+                used INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
         """)
 
         # Eski SQLite dosyaları için geriye dönük şema uyumluluğu.
@@ -478,6 +573,8 @@ def init_db():
             "ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0",
             "ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'athlete'",
             "ALTER TABLE users ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1",
+            "ALTER TABLE users ADD COLUMN email TEXT DEFAULT ''",
+            "ALTER TABLE athlete_profiles ADD COLUMN email TEXT DEFAULT ''",
             "ALTER TABLE workouts ADD COLUMN gym_id TEXT DEFAULT NULL",
             "ALTER TABLE workouts ADD COLUMN gym_name TEXT DEFAULT ''",
             "ALTER TABLE expert_profiles ADD COLUMN rpe_checkins_json TEXT NOT NULL DEFAULT '[]'",
@@ -566,7 +663,7 @@ def init_db():
 def get_user_by_username(username: str):
     conn = get_db()
     row = conn.execute("""
-        SELECT u.id, u.username, u.password_hash, u.password_salt, u.role, u.is_active, u.is_admin, u.created_at, u.updated_at,
+        SELECT u.id, u.username, COALESCE(u.email, ap.email, '') as email, u.password_hash, u.password_salt, u.role, u.is_active, u.is_admin, u.created_at, u.updated_at,
                COALESCE(ap.age, u.age) as age,
                COALESCE(ap.gender, u.gender) as gender,
                COALESCE(ap.height, u.height) as height,
@@ -601,7 +698,7 @@ def get_user_by_username(username: str):
 def get_user_by_id(user_id: int):
     conn = get_db()
     row = conn.execute("""
-        SELECT u.id, u.username, u.password_hash, u.password_salt, u.role, u.is_active, u.is_admin, u.created_at, u.updated_at,
+        SELECT u.id, u.username, COALESCE(u.email, ap.email, '') as email, u.password_hash, u.password_salt, u.role, u.is_active, u.is_admin, u.created_at, u.updated_at,
                COALESCE(ap.age, u.age) as age,
                COALESCE(ap.gender, u.gender) as gender,
                COALESCE(ap.height, u.height) as height,
@@ -633,6 +730,22 @@ def get_user_by_id(user_id: int):
     return None
 
 
+def get_user_by_email_or_username(identifier: str):
+    conn = get_db()
+    val = str(identifier or "").strip()
+    if not val:
+        conn.close()
+        return None
+    row = conn.execute("""
+        SELECT u.id, u.username, COALESCE(u.email, ap.email, '') as email, u.password_hash, u.password_salt, u.role, u.is_active, u.is_admin
+        FROM users u
+        LEFT JOIN athlete_profiles ap ON u.id = ap.user_id
+        WHERE LOWER(u.username) = LOWER(?) OR (u.email IS NOT NULL AND u.email != '' AND LOWER(u.email) = LOWER(?))
+    """, (val, val)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
 def get_all_users():
     conn = get_db()
     rows = conn.execute("SELECT * FROM users ORDER BY id").fetchall()
@@ -640,20 +753,21 @@ def get_all_users():
     return [dict(r) for r in rows]
 
 
-def create_user(username: str, password: str):
+def create_user(username: str, password: str, email: str = ""):
     h = _hash_password(password)
     conn = get_db()
+    clean_email = str(email or "").strip().lower()
     try:
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO users (username, password_hash, password_salt, role, is_active) VALUES (?, ?, '', 'athlete', 1)",
-            (username, h)
+            "INSERT INTO users (username, password_hash, password_salt, role, is_active, email) VALUES (?, ?, '', 'athlete', 1, ?)",
+            (username, h, clean_email)
         )
         new_id = getattr(cur, "lastrowid", None)
         if new_id:
             cur.execute(
-                "INSERT OR IGNORE INTO athlete_profiles (user_id, age, gender, height, weight, fitness_level, goal, days_per_week, session_time_mins) VALUES (?, 0, 'male', 170.0, 70.0, 'Beginner', 'bulk', 4, 60)",
-                (new_id,)
+                "INSERT OR IGNORE INTO athlete_profiles (user_id, age, gender, height, weight, fitness_level, goal, days_per_week, session_time_mins, email) VALUES (?, 0, 'male', 170.0, 70.0, 'Beginner', 'bulk', 4, 60, ?)",
+                (new_id, clean_email)
             )
         conn.commit()
         return {"message": "Hesap oluşturuldu", "username": username}
@@ -684,7 +798,7 @@ def update_user_profile(data: dict, username: str):
     fields = []
     values = []
     allowed = ['age', 'gender', 'height', 'weight', 'fitness_level', 'goal',
-               'days_per_week', 'session_time_mins', 'stagnation_detected']
+               'days_per_week', 'session_time_mins', 'stagnation_detected', 'email']
     for key, val in data.items():
         if key in allowed and val is not None:
             fields.append(f"{key}=?")
@@ -1264,10 +1378,26 @@ def _iter_workout_exercises(workout: dict):
 class AuthRequest(BaseModel):
     username: str
     password: str
+    email: Optional[str] = ""
+
+
+class ForgotPasswordRequest(BaseModel):
+    email_or_username: str
+
+
+class VerifyResetCodeRequest(BaseModel):
+    reset_token: str
+    code: str
+
+
+class ResetPasswordRequest(BaseModel):
+    verified_token: str
+    new_password: str
 
 
 class UserProfile(BaseModel):
     username: str
+    email: Optional[str] = None
     age: Optional[int] = None
     gender: Optional[str] = None
     height: Optional[float] = None
@@ -2075,7 +2205,7 @@ def register(data: AuthRequest = Body(...)):
         raise HTTPException(status_code=400, detail="Şifre en az 6 karakter olmalı")
     if data.username == ADMIN_USERNAME:
         raise HTTPException(status_code=400, detail="Bu kullanıcı adı kullanılamaz")
-    return create_user(data.username, data.password)
+    return create_user(data.username, data.password, data.email or "")
 
 
 @app.post("/api/auth/login")
@@ -2141,6 +2271,155 @@ def change_password(user: dict = Depends(_resolve_current_user),
     conn.commit()
     conn.close()
     return {"message": "Şifre güncellendi"}
+
+
+# ═══════════════════════════════════════════════
+# ŞİFREMİ UNUTTUM & 4 HANELİ E-POSTA DOĞRULAMA
+# ═══════════════════════════════════════════════
+@app.post("/api/auth/forgot-password")
+def forgot_password(data: ForgotPasswordRequest = Body(...)):
+    """1. Adım: Kullanıcı adı veya e-posta ile 4 haneli doğrulama kodu üretir ve e-posta gönderir."""
+    target = str(data.email_or_username or "").strip()
+    if not target:
+        raise HTTPException(status_code=400, detail="Lütfen kullanıcı adı veya e-posta adresinizi girin.")
+
+    user = get_user_by_email_or_username(target)
+    if not user:
+        raise HTTPException(status_code=404, detail="Bu kullanıcı adı veya e-posta ile kayıtlı bir hesap bulunamadı.")
+
+    user_email = str(user.get("email") or "").strip()
+    if not user_email and "@" in target:
+        user_email = target.lower()
+        conn = get_db()
+        conn.execute("UPDATE users SET email = ? WHERE id = ?", (user_email, user["id"]))
+        conn.execute("UPDATE athlete_profiles SET email = ? WHERE user_id = ?", (user_email, user["id"]))
+        conn.commit()
+        conn.close()
+
+    if not user_email:
+        raise HTTPException(
+            status_code=400,
+            detail="Bu hesaba henüz bir e-posta adresi tanımlanmamış. Lütfen sistem yöneticisi ile iletişime geçin."
+        )
+
+    code = f"{secrets.randbelow(10000):04d}"
+    reset_token = secrets.token_hex(20)
+    expires_at = (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat()
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO password_resets (user_id, email, code, reset_token, expires_at, used) VALUES (?, ?, ?, ?, ?, 0)",
+        (user["id"], user_email, code, reset_token, expires_at)
+    )
+    conn.commit()
+    conn.close()
+
+    sent = send_password_reset_email(user_email, user["username"], code)
+    if not sent and SMTP_USER and SMTP_PASS:
+        raise HTTPException(
+            status_code=500,
+            detail="E-posta gönderilirken bir hata oluştu. Lütfen biraz sonra tekrar deneyin."
+        )
+
+    return {
+        "success": True,
+        "reset_token": reset_token,
+        "masked_email": mask_email(user_email),
+        "expires_in_minutes": 15,
+        "message": f"{mask_email(user_email)} adresine 4 haneli doğrulama kodu gönderildi."
+    }
+
+
+@app.post("/api/auth/verify-reset-code")
+def verify_reset_code(data: VerifyResetCodeRequest = Body(...)):
+    """2. Adım: 4 haneli doğrulama kodunu kontrol eder; doğruysa şifre sıfırlama biletini onaylar."""
+    token = str(data.reset_token or "").strip()
+    code = str(data.code or "").strip()
+
+    if not token or not code:
+        raise HTTPException(status_code=400, detail="Doğrulama kodu ve sıfırlama bileti gereklidir.")
+    if len(code) != 4 or not code.isdigit():
+        raise HTTPException(status_code=400, detail="Doğrulama kodu 4 haneli bir sayı olmalıdır.")
+
+    conn = get_db()
+    row = conn.execute(
+        "SELECT * FROM password_resets WHERE reset_token = ? AND used = 0 ORDER BY id DESC LIMIT 1",
+        (token,)
+    ).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Geçersiz veya süresi dolmuş sıfırlama talebi.")
+
+    record = dict(row)
+    # Süre kontrolü
+    try:
+        exp_str = record["expires_at"]
+        if isinstance(exp_str, str):
+            exp_time = datetime.fromisoformat(exp_str)
+        else:
+            exp_time = exp_str
+        now = datetime.now(exp_time.tzinfo) if getattr(exp_time, "tzinfo", None) else datetime.now(timezone.utc)
+        if now > exp_time:
+            conn.close()
+            raise HTTPException(status_code=400, detail="Doğrulama kodunun süresi (15 dk) dolmuş. Lütfen yeni bir kod isteyin.")
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.warning(f"Süre ayrıştırma uyarısı: {exc}")
+
+    if str(record["code"]).strip() != code:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Girdiğiniz 4 haneli doğrulama kodu hatalı.")
+
+    verified_token = secrets.token_hex(20)
+    conn.execute("UPDATE password_resets SET verified_token = ? WHERE id = ?", (verified_token, record["id"]))
+    conn.commit()
+    conn.close()
+
+    return {
+        "success": True,
+        "verified_token": verified_token,
+        "message": "Doğrulama başarılı! Şimdi yeni şifrenizi belirleyebilirsiniz."
+    }
+
+
+@app.post("/api/auth/reset-password")
+def reset_password(data: ResetPasswordRequest = Body(...)):
+    """3. Adım: Onaylanan biletle kullanıcının yeni şifresini kaydeder."""
+    token = str(data.verified_token or "").strip()
+    new_password = str(data.new_password or "").strip()
+
+    if not token or not new_password:
+        raise HTTPException(status_code=400, detail="Geçerli bir yetkilendirme bileti ve yeni şifre gereklidir.")
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Yeni şifre en az 6 karakter olmalıdır.")
+
+    conn = get_db()
+    row = conn.execute(
+        "SELECT * FROM password_resets WHERE verified_token = ? AND used = 0 ORDER BY id DESC LIMIT 1",
+        (token,)
+    ).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Yetkilendirme oturumu geçersiz, süresi dolmuş veya daha önce kullanılmış.")
+
+    record = dict(row)
+    user_id = record["user_id"]
+    new_hash = _hash_password(new_password)
+
+    # Şifreyi güncelle ve bileti kullanıldı olarak işaretle
+    conn.execute(
+        "UPDATE users SET password_hash = ?, password_salt = '', updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (new_hash, user_id)
+    )
+    conn.execute("UPDATE password_resets SET used = 1 WHERE id = ?", (record["id"],))
+    conn.commit()
+    conn.close()
+
+    return {
+        "success": True,
+        "message": "Şifreniz başarıyla sıfırlandı. Yeni şifrenizle giriş yapabilirsiniz."
+    }
 
 
 # ═══════════════════════════════════════════════
