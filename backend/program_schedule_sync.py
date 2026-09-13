@@ -9,7 +9,7 @@ from typing import Any
 
 WEEKDAY_COUNT = 7
 SLOT_KEYS = {"day", "day_id", "slot_id"}
-REST_WORDS = ("dinlenme", "rest", "recovery", "off")
+REST_WORDS = ("dinlenme", "rest", "recovery", "off", "toparlanma")
 
 
 def _plain(value: Any) -> str:
@@ -82,6 +82,8 @@ def is_focus_compatible(raw_type: Any, focus_text: Any) -> bool:
         return True
     kind = session_kind(raw_type)
     f = str(focus_text).lower()
+    if kind != "rest" and any(w in f for w in REST_WORDS):
+        return False
     if kind == "push":
         if any(w in f for w in ["latissimus", "biceps", "quadriceps", "hamstring"]):
             if not any(w in f for w in ["göğüs", "gogus", "triceps", "omuz", "ön omuz", "yan omuz"]):
@@ -99,7 +101,12 @@ def is_focus_compatible(raw_type: Any, focus_text: Any) -> bool:
 
 def format_session_focus(raw_type: Any, existing_focus: Any = None) -> str:
     existing = str(existing_focus or "").strip()
-    if not existing or existing.startswith(("Antrenman yapıldı", "Gerçek antrenman kaydı", "Genel antrenman")) or not is_focus_compatible(raw_type, existing):
+    if (
+        not existing
+        or existing.startswith(("Antrenman yapıldı", "Gerçek antrenman kaydı", "Genel antrenman"))
+        or existing in ("Toparlanma", "Dinlenme", "Toparlanma & Rejenerasyon")
+        or not is_focus_compatible(raw_type, existing)
+    ):
         kind = session_kind(raw_type)
         return SESSION_DEFAULT_FOCUS.get(kind, "Genel antrenman")
     return existing

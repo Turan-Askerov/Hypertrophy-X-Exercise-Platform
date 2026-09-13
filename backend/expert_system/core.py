@@ -14,9 +14,10 @@ UI_MUSCLE_GROUPS = (
 )
 
 PRIMARY_GOALS = {
-    "hypertrophy": "Kas kazanımı",
+    "hypertrophy": "Kas kazanımı (Bulk)",
     "strength": "Güç kazanımı",
-    "fat_loss": "Yağ kaybı ve kas korunumu",
+    "fat_loss": "Yağ kaybı ve kas korunumu (Cut)",
+    "maintenance": "Durum koruma ve rekompozisyon (Maintain)",
 }
 
 ENGLISH_TO_UI_MUSCLE = {
@@ -136,17 +137,38 @@ def _workout_muscle_sets(workouts: Iterable[dict[str, Any]], limit: int = 8) -> 
 
 def _profile_volume_range(profile: dict[str, Any], primary_goal: str) -> tuple[int, int]:
     level = str(profile.get("fitness_level") or "Beginner").lower()
+    goal = str(primary_goal or "hypertrophy").lower()
+
     if "advanced" in level or "ileri" in level:
-        low, high = 12, 18
+        base_low, base_high = 14, 20
     elif "intermediate" in level or "orta" in level:
-        low, high = 10, 16
+        base_low, base_high = 11, 16
     else:
-        low, high = 8, 12
-    if primary_goal == "strength":
-        low, high = max(6, low - 2), max(10, high - 2)
-    elif primary_goal == "fat_loss":
-        low, high = max(6, low - 1), max(10, high - 2)
-    return low, high
+        base_low, base_high = 8, 12
+
+    if goal == "hypertrophy":
+        # Bulk / MAV: Maksimum hipertrofik uyarı için yüksek hacim
+        return base_low, base_high
+    elif goal == "fat_loss":
+        # Cut / MEV: Kalori açığında kası korumak için asgari etkili hacim (aşırı hacim kataboliktir)
+        if "advanced" in level or "ileri" in level:
+            return 8, 12
+        elif "intermediate" in level or "orta" in level:
+            return 7, 10
+        else:
+            return 6, 8
+    elif goal == "maintenance":
+        # Maintain / MV: Sıfır yorgunluk birikimiyle mevcut kütleyi koruma hacmi
+        if "advanced" in level or "ileri" in level:
+            return 6, 8
+        elif "intermediate" in level or "orta" in level:
+            return 5, 7
+        else:
+            return 4, 6
+    elif goal == "strength":
+        return max(6, base_low - 3), max(10, base_high - 4)
+
+    return base_low, base_high
 
 
 def build_program_focus(profile: dict[str, Any], preferences: dict[str, Any], workouts: Iterable[dict[str, Any]]) -> dict[str, Any]:
@@ -180,14 +202,34 @@ def build_program_focus(profile: dict[str, Any], preferences: dict[str, Any], wo
             "action": action,
             "message": text,
         })
+
+    if not priorities:
+        if primary_goal == "fat_loss":
+            focus.append({
+                "muscle_group": "Tüm Vücut Dengesi",
+                "recent_direct_sets": sum(weekly_sets.values()),
+                "recommended_weekly_sets": {"min": lower * 4, "max": upper * 4},
+                "action": "koru",
+                "message": "Özel bir hedef kas seçilmedi; kalori açığı sürecinde tüm kas grupları dengeli asgari etkili hacimle (MEV) korunuyor.",
+            })
+        elif primary_goal == "maintenance":
+            focus.append({
+                "muscle_group": "Form & Denge",
+                "recent_direct_sets": sum(weekly_sets.values()),
+                "recommended_weekly_sets": {"min": lower * 4, "max": upper * 4},
+                "action": "koru",
+                "message": "Tüm vücut form koruma modunda; minimal etkili hacim (MV) ve yüksek hareket kalitesiyle mevcut kütle korunuyor.",
+            })
+
     goal_message = {
-        "hypertrophy": "Öncelik, kaliteli setleri toparlanabilecek hacimle sürdürmek ve progresif yüklemeyi izlemektir.",
-        "strength": "Öncelik, ana hareketlerde teknik kaliteyi koruyarak yük veya tekrar performansını kademeli geliştirmektir.",
-        "fat_loss": "Öncelik, kas kütlesini korurken sürdürülebilir antrenman kalitesini ve toparlanmayı muhafaza etmektir.",
-    }[primary_goal]
+        "hypertrophy": "Öncelik: Kaliteli setleri toparlanabilecek yüksek hacimle (MAV) sürdürmek, kas kütlesi inşa etmek ve progresif yüklemeyi izlemektir.",
+        "strength": "Öncelik: Ana bileşik hareketlerde nöromüsküler adaptasyonu ve teknik kaliteyi koruyarak yük performansını kademeli geliştirmektir.",
+        "fat_loss": "Öncelik: Kalori açığında mevcut kas kütlesini ve gücü %100 korumaktır (MEV). Aşırı hacimden kaçınılarak mekanik gerilim muhafaza edilir.",
+        "maintenance": "Öncelik: Minimum etkili hacimle (MV) mevcut formu, eklem sağlığını ve kas dengesini sıfır yorgunluk birikimiyle korumaktır.",
+    }.get(primary_goal, "Öncelik, kaliteli setleri toparlanabilecek hacimle sürdürmektir.")
     return {
         "primary_goal": primary_goal,
-        "primary_goal_label": PRIMARY_GOALS[primary_goal],
+        "primary_goal_label": PRIMARY_GOALS.get(primary_goal, primary_goal),
         "priority_muscles": priorities,
         "weekly_focus": focus,
         "message": goal_message,
@@ -350,8 +392,10 @@ def validate_preferences(primary_goal: str, priority_muscles: Iterable[object]) 
             raise ValueError("Geçersiz kas grubu seçildi.")
         if group not in muscles:
             muscles.append(group)
-    if not 1 <= len(muscles) <= 3:
-        raise ValueError("En az 1, en fazla 3 öncelikli kas grubu seçin.")
+    if len(muscles) > 3:
+        raise ValueError("En fazla 3 öncelikli kas grubu seçebilirsiniz.")
+    if goal == "hypertrophy" and len(muscles) < 1:
+        raise ValueError("Kas kazanımı hedefinde en az 1 öncelikli kas grubu seçin.")
     return ExpertPreferenceInput(primary_goal=goal, priority_muscles=muscles)
 
 
@@ -662,8 +706,10 @@ def validate_detailed_preferences(primary_goal: str, priority_muscles: Iterable[
             raise ValueError("Geçersiz ayrıntılı kas önceliği seçildi.")
         if muscle not in muscles:
             muscles.append(muscle)
-    if not 1 <= len(muscles) <= 3:
-        raise ValueError("En az 1, en fazla 3 öncelikli kas grubu seçin.")
+    if len(muscles) > 3:
+        raise ValueError("En fazla 3 öncelikli kas grubu seçebilirsiniz.")
+    if goal == "hypertrophy" and len(muscles) < 1:
+        raise ValueError("Kas kazanımı hedefinde en az 1 öncelikli kas grubu seçin.")
     return ExpertPreferenceInput(primary_goal=goal, priority_muscles=muscles)
 
 
@@ -774,6 +820,9 @@ def score_split_candidate(candidate: dict[str, Any], priority_muscles: Iterable[
             if pressure >= 0.8 and count > 1:
                 score -= 9.0
                 reasons.append(f"Son hafta {detailed_muscle_label(muscle)} hacmi yüksek olduğundan ek frekans azaltıldı.")
+    else:
+        score += 8.0
+        reasons.append("Öncelikli kas seçimi isteğe bağlı bırakıldı; tüm vücut dengeli hacim dağılımı sağlandı (+8).")
 
     goal_key = str(goal or "").lower()
     if goal_key == "hypertrophy":
@@ -783,6 +832,9 @@ def score_split_candidate(candidate: dict[str, Any], priority_muscles: Iterable[
         # Daha az farklı gün, hareket tekrarına ve toparlanmaya alan açar.
         score += 7.0 if len(sessions) <= 4 else 2.0
         reasons.append("Güç hedefinde toparlanma aralığı ve ana hareket tekrarına ağırlık verildi.")
+    elif goal_key == "maintenance":
+        score += 8.0 if len(sessions) <= 4 else 3.0
+        reasons.append("Durum koruma hedefinde kompakt ve sürdürülebilir haftalık dağılım tercih edildi.")
     else:
         score += 6.0 if len(sessions) <= 5 else 1.0
         reasons.append("Yağ kaybı hedefinde sürdürülebilir seans hacmi tercih edildi.")
@@ -1056,17 +1108,33 @@ def _prescription_for_exercise(exercise: dict[str, Any], goal: str, reduced: boo
     category = str(exercise.get("category") or "").lower()
     fatigue = str(analysis.get("fatigue_cost") or "medium").lower()
     goal_key = str(goal or "hypertrophy").lower()
+
     if goal_key == "strength" and category == "compound":
         sets, reps = (3 if reduced else 4), "3–6"
+        effort_note = "RIR 2–3; form bozulursa seti sonlandırın." if reduced else "Ağır yük; RIR 1–2 aralığını hedefleyin."
     elif goal_key == "fat_loss":
-        sets, reps = (2 if reduced else 3), "8–15"
+        # Cut / Definasyon: Bileşikte mekanik gerilimi korumak için 6-10 tekrar, izolasyonda 10-14 tekrar
+        if category == "compound":
+            sets, reps = (2 if reduced else 3), "6–10"
+            effort_note = "Definasyon: Ağırlığı koruyun, RIR 2 civarında bırakın." if not reduced else "RIR 2–3; yorgunluk birikimini sınırlayın."
+        else:
+            sets, reps = (2 if reduced else 2), "10–14"
+            effort_note = "Definasyon: Kontrollü tempo, RIR 1–2."
+    elif goal_key == "maintenance":
+        # Durum Koruma / Rekompozisyon: 2 set yeterli (MV), eklemleri yormadan kaliteli 8-12 tekrar
+        sets, reps = (1 if reduced else 2), ("8–10" if category == "compound" else "10–12")
+        effort_note = "Form koruma: Zinde ve dinç tutacak RIR 2–3 aralığı."
     elif category == "isolation":
         sets, reps = (2 if reduced else 3), "10–15"
+        effort_note = "RIR 2–3; form bozulursa seti sonlandırın." if reduced else "RIR 1–2 aralığını hedefleyin."
     else:
+        # Hypertrophy / Bulk
         sets, reps = (2 if reduced else 3), "6–12"
+        effort_note = "RIR 2–3; form bozulursa seti sonlandırın." if reduced else "Hipertrofi: Progresif aşırı yükleme (RIR 1–2)."
+
     if fatigue == "high" and reduced:
         sets = max(1, sets - 1)
-    return {"sets": sets, "reps": reps, "effort_note": "RIR 2–3; form bozulursa seti sonlandırın." if reduced else "RIR 1–3 aralığını hedefleyin."}
+    return {"sets": sets, "reps": reps, "effort_note": effort_note}
 
 
 def build_session_content(
@@ -1207,37 +1275,46 @@ def build_session_content(
         if allowed_for_muscle <= 0:
             continue # Bu kas grubu seansta 4 seti doldurdu, diğer kaslara geç veya bitir
             
-        # Temel 3 set ile başla
-        base_sets = 3
-        
-        # "sadece squad 4 set olabilir oda bazen hep değil"
-        if family == "squat" and len(selected) == 0 and not reduced:
+        # Temel set sayısı ve günlük set sınırı hedefe göre uyarlanır (Bulk / Cut / Maintain)
+        clean_goal = str(goal or "hypertrophy").lower()
+        if clean_goal == "maintenance":
+            base_sets = 2
+            max_daily_sets = 12
+        elif clean_goal == "fat_loss":
+            base_sets = 2 if exercise.get("category") == "isolation" else 3
+            max_daily_sets = 13
+        else:
+            base_sets = 3
+            max_daily_sets = 15
+
+        # "sadece squad 4 set olabilir oda bazen hep değil" (yalnızca hipertrofi modunda ilk hareket squat ise)
+        if family == "squat" and len(selected) == 0 and not reduced and clean_goal == "hypertrophy":
             base_sets = 4
-            
+
         # "split squad 3 setten fazla olmasın zor gelir. deadlift varyasyonları da aynı şekilde"
         if family in ("bulgarian_split_squat", "deadlift", "romanian_deadlift"):
             base_sets = min(base_sets, 3)
-            
+
         # Harekete atanacak set, kasın kotasına göre düşebilir (örn: sırta daha önce 2 set barfiks yapıldı, şimdi chin-up'a 2 set ver)
         sets = min(base_sets, allowed_for_muscle)
-        
-        # 4) Günlük 15 Set Sınırı
-        if total_session_sets + sets > 15:
-            sets = 15 - total_session_sets
+
+        # Günlük Set Sınırı (Hedefe göre: 12 / 13 / 15 set)
+        if total_session_sets + sets > max_daily_sets:
+            sets = max_daily_sets - total_session_sets
             if sets < 1:
-                break # 15 set doldu
-                
+                break # Günlük set doldu
+
         presc = _prescription_for_exercise(exercise, goal, reduced)
         presc["sets"] = sets
         total_session_sets += sets
-        
+
         for m in primary:
             muscle_set_counts[m] = muscle_set_counts.get(m, 0) + sets
 
         if tendon_alarm_level == 3:
             presc["sets"] = max(1, presc.get("sets", 3) - 1)
             presc["effort_note"] = "Tendon geri dönüş protokolü: Eski ağırlığınızın %60'ı ile, 2-3 RIR."
-            
+
         selected.append({
             "id": exercise.get("id"),
             "name": exercise.get("name"),
@@ -1251,9 +1328,10 @@ def build_session_content(
         represented_families.add(family)
         if used_families is not None:
             used_families[family] = used_families.get(family, 0) + 1
-            
-        limit_exercises = 3 if tendon_alarm_level == 3 else max(1, min(int(max_exercises or 6), 8))
-        if len(selected) >= limit_exercises or total_session_sets >= 15:
+
+        goal_max_ex = 5 if clean_goal in ("maintenance", "fat_loss") else int(max_exercises or 6)
+        limit_exercises = 3 if tendon_alarm_level == 3 else max(1, min(goal_max_ex, 8))
+        if len(selected) >= limit_exercises or total_session_sets >= max_daily_sets:
             break
 
     status = "ready" if selected else "limited"

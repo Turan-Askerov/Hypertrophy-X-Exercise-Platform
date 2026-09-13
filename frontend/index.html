@@ -1523,6 +1523,65 @@ tr:hover td { background: var(--bg-card-hover); }
 .badge-red { background: var(--red-bg); color: var(--red); }
 .badge-orange { background: var(--orange-bg); color: var(--orange); }
 
+/* ═══ NEON PURPLE BADGE FOR SPLIT HEADER ═══ */
+.badge-neon-purple {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 850 !important;
+  padding: 4px 11px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.28) 0%, rgba(168, 85, 247, 0.22) 100%) !important;
+  color: #f3e8ff !important;
+  border: 1px solid rgba(192, 132, 252, 0.55) !important;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.42), inset 0 0 8px rgba(147, 51, 234, 0.25) !important;
+  text-shadow: 0 0 8px rgba(192, 132, 252, 0.7);
+  letter-spacing: 0.25px !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.badge-neon-purple.expert-badge-neon {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(139, 92, 246, 0.25) 100%) !important;
+  color: #e0f2fe !important;
+  border-color: rgba(56, 189, 248, 0.55) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.42), inset 0 0 8px rgba(14, 165, 233, 0.25) !important;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
+}
+
+.light-mode .badge-neon-purple {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.14) 0%, rgba(168, 85, 247, 0.18) 100%) !important;
+  color: #6b21a8 !important;
+  border-color: rgba(168, 85, 247, 0.45) !important;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.25) !important;
+  text-shadow: none;
+}
+
+.badge-neon-dot {
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 50%;
+  background: #c084fc;
+  box-shadow: 0 0 8px #c084fc, 0 0 14px #a855f7;
+  animation: neonDotPulse 2s ease-in-out infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@keyframes neonDotPulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.85;
+    box-shadow: 0 0 6px #c084fc, 0 0 10px #a855f7;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+    box-shadow: 0 0 10px #f3e8ff, 0 0 18px #a855f7;
+  }
+}
+
 /* ═══ PLATFORM MOR NEON BUTONLARI (CYBER DARK THEME) ═══ */
 .btn-neon-purple {
   display: inline-flex;
@@ -1842,7 +1901,9 @@ tr:hover td { background: var(--bg-card-hover); }
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .dash-card:hover {
-  border-color: rgba(167, 139, 250, 0.38) !important;
+  border-color: rgba(168, 85, 247, 0.48) !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 26px rgba(168, 85, 247, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  transform: translateY(-2px);
 }
 
 .dash-muscle-chart-wrap {
@@ -1855,6 +1916,759 @@ tr:hover td { background: var(--bg-card-hover); }
 /* Tüm panellerde butonların (timeframe-pills) her zaman sağ tarafta kalmasını sağlar */
 .card-header-flex .timeframe-pills {
   margin-left: auto;
+}
+
+/* ═══ DASHBOARD SPLIT TOGGLE SEGMENTED CONTROL ═══ */
+.dash-split-toggle-group {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.75);
+  padding: 3px;
+  border-radius: 11px;
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+  user-select: none;
+  width: auto;
+  min-width: 250px;
+}
+.light-mode .dash-split-toggle-group {
+  background: #f1f5f9;
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.dash-split-toggle-glider {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 2);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%);
+  box-shadow: 0 0 16px rgba(108, 99, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background 0.28s ease, box-shadow 0.28s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.dash-split-toggle-group.mode-expert .dash-split-toggle-glider {
+  transform: translateX(100%);
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+.dash-split-toggle-btn {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  background: transparent !important;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.dash-split-toggle-btn:active {
+  transform: scale(0.96);
+}
+.dash-split-toggle-btn.active {
+  color: #ffffff !important;
+  font-weight: 800;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+.dash-split-toggle-btn.active svg {
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
+}
+.dash-split-toggle-btn:not(.active):hover {
+  color: #e2e8f0 !important;
+}
+.light-mode .dash-split-toggle-btn:not(.active):hover {
+  color: #0f172a !important;
+}
+
+/* ═══ DASHBOARD SPLIT EMPTY STATE (PREMIUM ONBOARDING) ═══ */
+.dash-split-empty-card {
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  background: radial-gradient(circle at 50% 12%, rgba(108, 99, 255, 0.12) 0%, rgba(15, 23, 42, 0.55) 70%);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: splitEmptyFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.light-mode .dash-split-empty-card {
+  background: radial-gradient(circle at 50% 12%, rgba(108, 99, 255, 0.08) 0%, #ffffff 80%);
+  border-color: rgba(139, 92, 246, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+@keyframes splitEmptyFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dash-split-empty-ambient-glow {
+  position: absolute;
+  top: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(108, 99, 255, 0.25) 0%, transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+.dash-split-empty-ambient-glow.expert-glow {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, transparent 70%);
+}
+
+.dash-split-empty-icon-box {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.dash-split-empty-icon-inner {
+  position: relative;
+  z-index: 2;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.28) 0%, rgba(139, 92, 246, 0.12) 100%);
+  border: 1px solid rgba(167, 139, 250, 0.45);
+  color: #c084fc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 24px rgba(108, 99, 255, 0.35);
+  transition: transform 0.3s ease;
+}
+
+.dash-split-empty-card:hover .dash-split-empty-icon-inner {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.dash-split-empty-icon-box.expert-icon-box .dash-split-empty-icon-inner {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(108, 99, 255, 0.15) 100%);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.3);
+}
+
+.dash-split-empty-icon-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 22px;
+  border: 1.5px solid rgba(139, 92, 246, 0.35);
+  animation: iconPulseRing 2.8s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+  pointer-events: none;
+}
+
+.dash-split-empty-icon-pulse.expert-pulse {
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+@keyframes iconPulseRing {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(0.92);
+    opacity: 0.8;
+  }
+}
+
+.dash-split-empty-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(108, 99, 255, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.32);
+  color: #c084fc;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.light-mode .dash-split-empty-tag {
+  background: rgba(108, 99, 255, 0.08);
+  border-color: rgba(108, 99, 255, 0.25);
+  color: #6366f1;
+}
+
+.dash-split-empty-tag.expert-tag {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.32);
+  color: #38bdf8;
+}
+
+.dash-split-empty-tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a855f7;
+  box-shadow: 0 0 8px #a855f7;
+}
+
+.dash-split-empty-tag-dot.expert-dot {
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
+.dash-split-empty-title {
+  font-size: 17px;
+  font-weight: 850;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.2px;
+}
+
+.light-mode .dash-split-empty-title {
+  color: #0f172a;
+}
+
+.dash-split-empty-desc {
+  font-size: 12.5px;
+  color: #94a3b8;
+  max-width: 390px;
+  line-height: 1.55;
+  margin: 0 0 20px 0;
+}
+
+.light-mode .dash-split-empty-desc {
+  color: #64748b;
+}
+
+/* ═══ SOFT THEMED CARDS FOR SPLIT FEATURES ═══ */
+.dash-split-empty-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 440px;
+  margin-bottom: 24px;
+}
+
+.dash-split-empty-feature-item {
+  border-radius: 14px;
+  padding: 12px 8px;
+  text-align: center;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  cursor: default;
+}
+
+.dash-split-empty-feature-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Purple Variant: Serbest Kurgu */
+.dash-split-empty-feature-item.neon-purple {
+  background: linear-gradient(145deg, rgba(108, 99, 255, 0.1) 0%, rgba(139, 92, 246, 0.04) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.26);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.dash-split-empty-feature-item.neon-purple:hover {
+  border-color: rgba(168, 85, 247, 0.45);
+  box-shadow: 0 4px 14px rgba(108, 99, 255, 0.15);
+}
+.dash-split-empty-feature-item.neon-purple .dash-split-empty-feature-icon-wrap {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.26);
+}
+.dash-split-empty-feature-item.neon-purple .dash-split-empty-feature-title {
+  color: #f1f5f9;
+}
+.dash-split-empty-feature-item.neon-purple .dash-split-empty-feature-sub {
+  color: #94a3b8;
+}
+
+/* Amber Variant: Haftalık Seri */
+.dash-split-empty-feature-item.neon-amber {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.04) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.26);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.dash-split-empty-feature-item.neon-amber:hover {
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);
+}
+.dash-split-empty-feature-item.neon-amber .dash-split-empty-feature-icon-wrap {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.26);
+}
+.dash-split-empty-feature-item.neon-amber .dash-split-empty-feature-title {
+  color: #f1f5f9;
+}
+.dash-split-empty-feature-item.neon-amber .dash-split-empty-feature-sub {
+  color: #94a3b8;
+}
+
+/* Cyan Variant: Canlı Takip */
+.dash-split-empty-feature-item.neon-cyan {
+  background: linear-gradient(145deg, rgba(56, 189, 248, 0.1) 0%, rgba(56, 189, 248, 0.04) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.26);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.dash-split-empty-feature-item.neon-cyan:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.15);
+}
+.dash-split-empty-feature-item.neon-cyan .dash-split-empty-feature-icon-wrap {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.26);
+}
+.dash-split-empty-feature-item.neon-cyan .dash-split-empty-feature-title {
+  color: #f1f5f9;
+}
+.dash-split-empty-feature-item.neon-cyan .dash-split-empty-feature-sub {
+  color: #94a3b8;
+}
+
+/* Emerald Variant: Ağrı ve Kısıt */
+.dash-split-empty-feature-item.neon-emerald {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.04) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.26);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.dash-split-empty-feature-item.neon-emerald:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
+}
+.dash-split-empty-feature-item.neon-emerald .dash-split-empty-feature-icon-wrap {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.26);
+}
+.dash-split-empty-feature-item.neon-emerald .dash-split-empty-feature-title {
+  color: #f1f5f9;
+}
+.dash-split-empty-feature-item.neon-emerald .dash-split-empty-feature-sub {
+  color: #94a3b8;
+}
+
+.dash-split-empty-feature-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 7px auto;
+  font-size: 15px;
+  transition: transform 0.22s ease;
+}
+
+.dash-split-empty-feature-item:hover .dash-split-empty-feature-icon-wrap {
+  transform: scale(1.08);
+}
+
+.dash-split-empty-feature-title {
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 3px;
+  letter-spacing: 0.1px;
+}
+
+.dash-split-empty-feature-sub {
+  font-size: 10px;
+  font-weight: 550;
+  line-height: 1.35;
+}
+
+/* Light mode overrides */
+.light-mode .dash-split-empty-feature-item.neon-purple {
+  background: rgba(108, 99, 255, 0.05);
+  border-color: rgba(108, 99, 255, 0.2);
+}
+.light-mode .dash-split-empty-feature-item.neon-purple .dash-split-empty-feature-title {
+  color: #1e293b;
+}
+.light-mode .dash-split-empty-feature-item.neon-purple .dash-split-empty-feature-sub {
+  color: #64748b;
+}
+
+.light-mode .dash-split-empty-feature-item.neon-amber {
+  background: rgba(245, 158, 11, 0.05);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+.light-mode .dash-split-empty-feature-item.neon-amber .dash-split-empty-feature-title {
+  color: #1e293b;
+}
+.light-mode .dash-split-empty-feature-item.neon-amber .dash-split-empty-feature-sub {
+  color: #64748b;
+}
+
+.light-mode .dash-split-empty-feature-item.neon-cyan {
+  background: rgba(56, 189, 248, 0.05);
+  border-color: rgba(56, 189, 248, 0.2);
+}
+.light-mode .dash-split-empty-feature-item.neon-cyan .dash-split-empty-feature-title {
+  color: #1e293b;
+}
+.light-mode .dash-split-empty-feature-item.neon-cyan .dash-split-empty-feature-sub {
+  color: #64748b;
+}
+
+.light-mode .dash-split-empty-feature-item.neon-emerald {
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+.light-mode .dash-split-empty-feature-item.neon-emerald .dash-split-empty-feature-title {
+  color: #1e293b;
+}
+.light-mode .dash-split-empty-feature-item.neon-emerald .dash-split-empty-feature-sub {
+  color: #64748b;
+}
+
+.dash-split-empty-feature-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 7px auto;
+  font-size: 15px;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dash-split-empty-feature-item:hover .dash-split-empty-feature-icon-wrap {
+  transform: scale(1.15) translateY(-1px);
+}
+
+.dash-split-empty-feature-title {
+  font-size: 12px;
+  font-weight: 850;
+  margin-bottom: 3px;
+  letter-spacing: 0.1px;
+}
+
+.dash-split-empty-feature-sub {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* Light mode overrides for neon cards */
+.light-mode .dash-split-empty-feature-item.neon-purple {
+  background: linear-gradient(145deg, rgba(108, 99, 255, 0.12) 0%, rgba(168, 85, 247, 0.08) 100%);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+.light-mode .dash-split-empty-feature-item.neon-purple .dash-split-empty-feature-title {
+  color: #581c87;
+  text-shadow: none;
+}
+.light-mode .dash-split-empty-feature-item.neon-purple .dash-split-empty-feature-sub {
+  color: #7e22ce;
+}
+
+.light-mode .dash-split-empty-feature-item.neon-amber {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.12) 0%, rgba(239, 68, 68, 0.08) 100%);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+.light-mode .dash-split-empty-feature-item.neon-amber .dash-split-empty-feature-title {
+  color: #9a3412;
+  text-shadow: none;
+}
+.light-mode .dash-split-empty-feature-item.neon-amber .dash-split-empty-feature-sub {
+  color: #c2410c;
+}
+
+.light-mode .dash-split-empty-feature-item.neon-cyan {
+  background: linear-gradient(145deg, rgba(6, 182, 212, 0.12) 0%, rgba(56, 189, 248, 0.08) 100%);
+  border-color: rgba(6, 182, 212, 0.4);
+}
+.light-mode .dash-split-empty-feature-item.neon-cyan .dash-split-empty-feature-title {
+  color: #0e7490;
+  text-shadow: none;
+}
+.light-mode .dash-split-empty-feature-item.neon-cyan .dash-split-empty-feature-sub {
+  color: #0369a1;
+}
+
+.light-mode .dash-split-empty-feature-item.neon-emerald {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.12) 0%, rgba(52, 211, 153, 0.08) 100%);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+.light-mode .dash-split-empty-feature-item.neon-emerald .dash-split-empty-feature-title {
+  color: #065f46;
+  text-shadow: none;
+}
+.light-mode .dash-split-empty-feature-item.neon-emerald .dash-split-empty-feature-sub {
+  color: #047857;
+}
+
+.dash-split-empty-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 22px;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1.5px solid rgba(168, 85, 247, 0.6);
+  color: #e9d5ff;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 12.5px;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.25), inset 0 0 10px rgba(168, 85, 247, 0.08);
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+}
+
+.dash-split-empty-cta-btn:hover {
+  background: rgba(124, 58, 237, 0.22);
+  border-color: rgba(192, 132, 252, 0.9);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.45), inset 0 0 12px rgba(168, 85, 247, 0.18);
+}
+
+.dash-split-empty-cta-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.dash-split-empty-cta-btn svg {
+  color: #c084fc;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.dash-split-empty-cta-btn:hover svg {
+  color: #ffffff;
+  transform: translateX(3px);
+}
+
+.dash-split-empty-cta-btn.expert-cta {
+  background: rgba(14, 165, 233, 0.1);
+  border: 1.5px solid rgba(56, 189, 248, 0.6);
+  color: #e0f2fe;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.25), inset 0 0 10px rgba(56, 189, 248, 0.08);
+}
+
+.dash-split-empty-cta-btn.expert-cta:hover {
+  background: rgba(14, 165, 233, 0.22);
+  border-color: rgba(125, 211, 252, 0.9);
+  color: #ffffff;
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.45), inset 0 0 12px rgba(56, 189, 248, 0.18);
+}
+
+.dash-split-empty-cta-btn.expert-cta svg {
+  color: #38bdf8;
+}
+
+.dash-split-empty-cta-btn.expert-cta:hover svg {
+  color: #ffffff;
+  transform: translateX(3px);
+}
+
+.light-mode .dash-split-empty-cta-btn {
+  background: rgba(124, 58, 237, 0.06);
+  border-color: rgba(147, 51, 234, 0.5);
+  color: #6b21a8;
+  box-shadow: 0 2px 10px rgba(147, 51, 234, 0.15);
+}
+
+.light-mode .dash-split-empty-cta-btn:hover {
+  background: rgba(124, 58, 237, 0.14);
+  border-color: rgba(147, 51, 234, 0.8);
+  color: #581c87;
+  box-shadow: 0 4px 16px rgba(147, 51, 234, 0.25);
+}
+
+.dash-split-empty-switch-hint {
+  margin-top: 14px;
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.dash-split-empty-switch-hint a {
+  color: #a78bfa;
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(167, 139, 250, 0.45);
+  transition: all 0.18s ease;
+}
+
+.dash-split-empty-switch-hint a:hover {
+  color: #c084fc;
+  border-bottom-color: #c084fc;
+}
+
+.dash-split-empty-card.expert-theme .dash-split-empty-switch-hint a {
+  color: #38bdf8;
+  border-bottom-color: rgba(56, 189, 248, 0.45);
+}
+
+.dash-split-empty-card.expert-theme .dash-split-empty-switch-hint a:hover {
+  color: #7dd3fc;
+  border-bottom-color: #7dd3fc;
+}
+
+/* Split content animation on toggle */
+.split-days-animate {
+  animation: splitDaysSwap 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes splitDaysSwap {
+  from {
+    opacity: 0.25;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══ RPG MINI METRIC CARDS ═══ */
+.rpg-metric-card {
+  border-radius: 9px;
+  padding: 6px 8px;
+  text-align: center;
+  min-width: 0;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: default;
+}
+.rpg-metric-card:hover {
+  transform: translateY(-2px);
+}
+.rpg-metric-card-purple {
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.22);
+}
+.rpg-metric-card-purple:hover {
+  background: rgba(139, 92, 246, 0.16);
+  border-color: rgba(168, 85, 247, 0.55);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.28);
+}
+.rpg-metric-card-amber {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.22);
+}
+.rpg-metric-card-amber:hover {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.55);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.28);
+}
+.rpg-metric-card-cyan {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+}
+.rpg-metric-card-cyan:hover {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.28);
+}
+
+/* ═══ RPG LOCK PANEL CHIPS GRID (10 KAS GRUBU 2'Lİ SİMETRİK GRID) ═══ */
+.rpg-lock-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rpg-lock-chip {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  letter-spacing: 0.2px;
+  box-sizing: border-box;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  min-width: 0;
+}
+
+.rpg-lock-chip-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.rpg-lock-chip.done {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  color: #4ade80;
+  font-weight: 800;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.16), inset 0 0 8px rgba(74, 222, 128, 0.05);
+}
+
+.rpg-lock-chip.done:hover {
+  background: rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 14px rgba(74, 222, 128, 0.28);
+}
+
+.rpg-lock-chip.pending {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  color: #94a3b8;
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.08), inset 0 0 6px rgba(168, 85, 247, 0.03);
+}
+
+.rpg-lock-chip.pending:hover {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(168, 85, 247, 0.45);
+  color: #cbd5e1;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.18);
+}
+
+.light-mode .rpg-lock-chip.done {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(22, 163, 74, 0.4);
+  color: #15803d;
+  box-shadow: 0 1px 4px rgba(22, 163, 74, 0.15);
+}
+
+.light-mode .rpg-lock-chip.pending {
+  background: rgba(241, 245, 249, 0.85);
+  border-color: rgba(147, 51, 234, 0.28);
+  color: #475569;
+  box-shadow: 0 1px 4px rgba(147, 51, 234, 0.08);
 }
 
 
@@ -3416,6 +4230,12 @@ tr:hover td { background: var(--bg-card-hover); }
   color: #fbbf24;
   box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
 }
+.prog-card-icon-box.emerald {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #34d399;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+}
 .prog-card-title {
   font-size: 16px;
   font-weight: 800;
@@ -3502,6 +4322,184 @@ tr:hover td { background: var(--bg-card-hover); }
   color: #ffffff;
   font-weight: 850;
   box-shadow: 0 2px 10px rgba(139, 92, 246, 0.4);
+}
+
+/* TOP PROGRESS GAINS (EN İYİ İLERLEMELER) STYLING */
+.prog-top-gains-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.prog-gain-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 15px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+.prog-gain-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, #10b981, #06b6d4);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.prog-gain-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(52, 211, 153, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35), 0 0 16px rgba(16, 185, 129, 0.15);
+}
+.prog-gain-card:hover::before {
+  opacity: 1;
+}
+.prog-gain-card:active {
+  transform: translateY(0);
+}
+.prog-gain-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.prog-gain-muscle-tag {
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: 0.3px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+}
+.prog-gain-session-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+.prog-gain-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.prog-gain-progression-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.prog-gain-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 750;
+}
+.gain-from {
+  color: #94a3b8;
+}
+.gain-arrow {
+  color: #38bdf8;
+  font-size: 13px;
+  font-weight: 900;
+}
+.gain-to {
+  color: #ffffff;
+  font-weight: 850;
+}
+.prog-gain-delta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(52, 211, 153, 0.38);
+  padding: 3px 8px;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+}
+.gain-diff {
+  color: #34d399;
+  font-size: 12px;
+  font-weight: 850;
+}
+.gain-pct {
+  color: #6ee7b7;
+  font-size: 10.5px;
+  font-weight: 750;
+}
+.prog-gain-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10.5px;
+  color: #64748b;
+  margin-top: 1px;
+}
+.prog-gain-date-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #94a3b8;
+}
+.prog-gain-inspect-hint {
+  color: #38bdf8;
+  font-weight: 750;
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+}
+.prog-gain-card:hover .prog-gain-inspect-hint {
+  opacity: 1;
+}
+
+/* Light Mode Overrides */
+.light-mode .prog-gain-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+.light-mode .prog-gain-card:hover {
+  background: #ffffff;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+.light-mode .prog-gain-title {
+  color: #0f172a;
+}
+.light-mode .prog-gain-progression-row {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+.light-mode .gain-to {
+  color: #0f172a;
+}
+.light-mode .gain-from {
+  color: #64748b;
+}
+.light-mode .prog-gain-session-tag {
+  background: rgba(0, 0, 0, 0.05);
+  color: #64748b;
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 /* PR TABLE STYLING */
@@ -3605,10 +4603,10 @@ tr:hover td { background: var(--bg-card-hover); }
   will-change: transform, opacity;
 }
 .pr-item:hover {
-  background: rgba(22, 27, 48, 0.75);
-  border-color: rgba(167, 139, 250, 0.38);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  background: rgba(22, 27, 48, 0.85);
+  border-color: rgba(168, 85, 247, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 0 16px rgba(168, 85, 247, 0.18);
 }
 
 .pr-header {
@@ -4524,6 +5522,81 @@ tr:hover td { background: var(--bg-card-hover); }
   box-shadow: 0 0 14px rgba(56, 189, 248, 0.15);
   white-space: nowrap;
 }
+
+/* ═══ PROFILE HERO INLINE RPG & XP WIDGET ═══ */
+.profile-hero-rpg-inline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 10px 16px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  width: 100%;
+}
+.prof-inline-stat-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.prof-inline-label {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #94a3b8;
+}
+.prof-inline-val {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.prof-inline-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+.prof-inline-bar-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.prof-inline-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6, #a855f7, #ec4899);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.prof-rpg-streak-pill {
+  font-size: 10.5px;
+  color: #fbbf24;
+  font-weight: 700;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 2px 7px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .prof-inline-divider {
+    display: none;
+  }
+  .profile-hero-rpg-inline {
+    gap: 12px;
+  }
+}
+
 
 /* PROFILE METRIC STAT CARDS */
 .profile-stat-grid {
@@ -6990,9 +8063,10 @@ tr:hover td { background: var(--bg-card-hover); }
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 .split-card:hover {
-  transform: translateY(-1px);
-  border-color: rgba(167, 139, 250, 0.35);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+  border-color: rgba(168, 85, 247, 0.5);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 16px rgba(168, 85, 247, 0.2);
+  background: rgba(22, 27, 48, 0.85);
 }
 
 .split-card .split-day {
@@ -7693,104 +8767,359 @@ tr:hover td { background: var(--bg-card-hover); }
       line-height: 1.65;
     }
     
-    /* Sekmeler - Tab Bar & Micro-Interactions */
-    .expert-data-tabs {
+    /* ══════════════════════════════════════════════════════
+       UZMAN SİSTEMİ - MODERN STEPPER VE SEKME GEÇİŞ MOTORU
+    ══════════════════════════════════════════════════════ */
+    .expert-stepper-container {
       display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 5px 1px 8px;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 8px;
     }
-    .expert-data-tab {
-      flex: 0 0 auto;
+    .expert-stepper {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      background: #0f1426;
+      border: 1px solid rgba(41, 50, 82, 0.85);
+      padding: 10px;
+      border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      position: relative;
+    }
+    .expert-step {
       display: flex;
       align-items: center;
-      gap: 8px;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-secondary);
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 750;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      color: #929ab8;
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-      -webkit-user-select: none;
+      border: 1px solid transparent;
+      background: transparent;
+      transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
       user-select: none;
+      -webkit-user-select: none;
+      text-align: left;
     }
-    .expert-data-tab:hover {
-      transform: translateY(-2px);
-      border-color: var(--accent);
-      color: var(--text-primary);
-      box-shadow: 0 4px 15px rgba(108,99,255,.18);
-    }
-    .expert-data-tab:active {
-      transform: scale(0.96);
-    }
-    .expert-data-tab.active {
-      color: white;
-      border-color: var(--accent-light);
-      background: linear-gradient(135deg, var(--accent), var(--accent-light));
-      box-shadow: 0 4px 20px rgba(108,99,255,.4), 0 0 12px rgba(108,99,255,.25);
+    .expert-step:hover {
+      background: #181d35;
+      color: #e7eaff;
+      border-color: rgba(139, 108, 255, 0.25);
       transform: translateY(-1px);
     }
-    .expert-data-tab.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 15%;
-      width: 70%;
-      height: 2px;
-      background: #fff;
+    .expert-step.active {
+      background: linear-gradient(125deg, #2c215c 0%, #1a1e3b 100%);
+      border-color: #765ee8;
+      color: #ffffff;
+      box-shadow: 0 0 26px rgba(118, 94, 232, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .expert-step.done {
+      color: #d1d7eb;
+    }
+    .expert-step.done:hover {
+      border-color: rgba(57, 211, 159, 0.35);
+    }
+    .expert-step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 1px solid #465173;
+      color: #aeb9df;
+      font-weight: 800;
+      font-size: 13px;
+      flex-shrink: 0;
+      transition: all 0.24s ease;
+    }
+    .expert-step.active .expert-step-num {
+      background: #8b6cff;
+      border-color: #8b6cff;
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(139, 108, 255, 0.6);
+    }
+    .expert-step.done .expert-step-num {
+      background: #174d43;
+      border-color: #39d39f;
+      color: #79efc4;
+      box-shadow: 0 0 12px rgba(57, 211, 159, 0.3);
+    }
+    .expert-step-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .expert-step-text b {
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: inherit;
+    }
+    .expert-step-text small {
+      display: block;
+      font-size: 11px;
+      margin-top: 3px;
+      color: #929ab8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
+    }
+    .expert-step.active .expert-step-text small {
+      color: #cbd5e1;
+    }
+    .expert-step.done .expert-step-text small,
+    .expert-step.is-done .expert-step-text small {
+      color: #79efc4;
+    }
+
+    /* Stepper Dinamik Durum Stilleri */
+    .expert-step-subtitle {
+      display: block;
+      font-size: 11px;
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .expert-step-subtitle.status-injury {
+      color: #ff3b5c !important;
+      text-shadow: 0 0 10px rgba(255, 59, 92, 0.65), 0 0 2px rgba(255, 255, 255, 0.3) !important;
+      font-weight: 750 !important;
+      letter-spacing: 0.01em;
+    }
+    .expert-step-subtitle.status-doms {
+      color: #f87171 !important;
+      text-shadow: 0 0 5px rgba(248, 113, 113, 0.35) !important;
+      font-weight: 600 !important;
+    }
+    .expert-step-subtitle.status-missing {
+      color: #fbbf24 !important;
+      text-shadow: 0 0 5px rgba(251, 191, 36, 0.35) !important;
+      font-weight: 600 !important;
+    }
+    .expert-step-subtitle.status-done {
+      color: #34d399 !important;
+      text-shadow: 0 0 6px rgba(52, 211, 153, 0.35) !important;
+      font-weight: 700 !important;
+    }
+
+    /* Numara Daireleri Durum Stilleri */
+    .expert-step.has-injury:not(.active) .expert-step-num {
+      border-color: rgba(255, 59, 92, 0.65);
+      background: rgba(255, 59, 92, 0.16);
+      color: #ff3b5c;
+      box-shadow: 0 0 12px rgba(255, 59, 92, 0.38);
+    }
+    .expert-step.active.has-injury .expert-step-num {
+      background: #e11d48 !important;
+      border-color: #ff3b5c !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 16px rgba(255, 59, 92, 0.75) !important;
+    }
+    .expert-step.has-doms:not(.active) .expert-step-num {
+      border-color: rgba(248, 113, 113, 0.5);
+      background: rgba(248, 113, 113, 0.12);
+      color: #f87171;
+    }
+    .expert-step.has-missing:not(.active) .expert-step-num {
+      border-color: rgba(251, 191, 36, 0.5);
+      background: rgba(251, 191, 36, 0.1);
+      color: #fbbf24;
+    }
+    .expert-step.is-done:not(.active) .expert-step-num,
+    .expert-step.done:not(.active) .expert-step-num {
+      background: #174d43;
+      border-color: #39d39f;
+      color: #79efc4;
+      box-shadow: 0 0 12px rgba(57, 211, 159, 0.3);
+    }
+
+    /* Durum Rozetleri (Status Badges) */
+    .expert-data-status-badge.badge-injury {
+      background: #39151e !important;
+      border-color: #ff3b5c !important;
+      color: #ff859c !important;
+      box-shadow: 0 0 14px rgba(255, 59, 92, 0.25) !important;
+    }
+    .expert-data-status-badge.badge-injury .expert-status-dot {
+      background: #ff3b5c !important;
+      box-shadow: 0 0 10px #ff3b5c !important;
+    }
+    .expert-data-status-badge.badge-doms {
+      background: #2d1922 !important;
+      border-color: #f87171 !important;
+      color: #fca5a5 !important;
+      box-shadow: 0 0 12px rgba(248, 113, 113, 0.2) !important;
+    }
+    .expert-data-status-badge.badge-doms .expert-status-dot {
+      background: #f87171 !important;
+      box-shadow: 0 0 8px #f87171 !important;
+    }
+    .expert-data-status-badge.badge-missing {
+      background: #2b2210 !important;
+      border-color: #fbbf24 !important;
+      color: #fde68a !important;
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.2) !important;
+    }
+    .expert-data-status-badge.badge-missing .expert-status-dot {
+      background: #fbbf24 !important;
+      box-shadow: 0 0 8px #fbbf24 !important;
+    }
+    .expert-data-status-badge.badge-done {
+      background: #12352d !important;
+      border-color: #2b745e !important;
+      color: #75e7bd !important;
+      box-shadow: 0 0 12px rgba(57, 211, 159, 0.15) !important;
+    }
+    .expert-data-status-badge.badge-done .expert-status-dot {
+      background: #39d39f !important;
+      box-shadow: 0 0 8px #39d39f !important;
+    }
+
+    /* İlerleme Çizgisi */
+    .expert-stepper-progress {
+      height: 3px;
+      background: #202742;
+      margin: 2px 14px 6px;
       border-radius: 999px;
-      box-shadow: 0 0 8px #fff;
-      animation: expertTabGlow 0.38s ease-out;
+      overflow: hidden;
+      position: relative;
     }
-    @keyframes expertTabGlow {
-      from { width: 0; opacity: 0; }
-      to { width: 70%; opacity: 1; }
+    .expert-stepper-progress-bar {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #8b6cff 0%, #54d8ff 100%);
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(84, 216, 255, 0.5);
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    
-    /* Alt Sekmeler (Subtabs) */
+
+    /* Bağlam Başlığı (Context Header) */
+    .expert-context-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin: 4px 4px 6px;
+      flex-wrap: wrap;
+    }
+    .expert-context-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .expert-context-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+    .expert-context-desc {
+      font-size: 13px;
+      color: #929ab8;
+      margin: 0;
+      line-height: 1.45;
+    }
+    .expert-context-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .expert-status-pill {
+      padding: 7px 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid rgba(41, 50, 82, 0.8);
+      background: #12172a;
+      color: #aeb6d4;
+    }
+    .expert-status-pill.expert-step-counter {
+      background: #141a33;
+      border-color: #2b355c;
+      color: #c7d2fe;
+    }
+    .expert-data-status-badge {
+      background: #12352d;
+      border-color: #2b745e;
+      color: #75e7bd;
+      box-shadow: 0 0 12px rgba(57, 211, 159, 0.15);
+    }
+    .expert-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #39d39f;
+      box-shadow: 0 0 8px #39d39f;
+      animation: expertPulseDot 2s infinite ease-in-out;
+    }
+    @keyframes expertPulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* Alt Sekmeler (Subtabs - Minimalist İnce Alt Çizgi & Parlayan Nokta) */
     .expert-data-subtabs {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      padding: 0 0 15px;
-      margin-bottom: 18px;
-      border-bottom: 1px solid var(--border);
+      gap: 6px;
+      border-bottom: 1px solid #293252;
+      margin-bottom: 20px;
+      padding: 0 0 0 2px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .expert-data-subtabs::-webkit-scrollbar {
+      display: none;
     }
     .expert-data-subtab {
-      border: 1px solid var(--border);
-      background: rgba(108,99,255,.04);
-      color: var(--text-secondary);
-      padding: 9px 13px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 750;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: #929ab8;
+      padding: 12px 18px;
       cursor: pointer;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       position: relative;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: 8px 8px 0 0;
       -webkit-user-select: none;
       user-select: none;
     }
     .expert-data-subtab:hover {
-      transform: translateY(-1px);
-      border-color: rgba(108,99,255,.6);
-      color: var(--text-primary);
-      box-shadow: 0 4px 12px rgba(108,99,255,.12);
-    }
-    .expert-data-subtab:active {
-      transform: scale(0.96);
+      color: #ffffff;
+      background: rgba(139, 108, 255, 0.05);
+      border-bottom-color: rgba(139, 108, 255, 0.4);
     }
     .expert-data-subtab.active {
-      background: var(--accent-bg);
-      border-color: var(--accent);
-      color: var(--accent-light);
-      box-shadow: 0 2px 14px rgba(108,99,255,.25);
-      transform: translateY(-1px);
+      color: #ffffff;
+      border-bottom-color: #8b6cff;
+      background: rgba(139, 108, 255, 0.08);
+      box-shadow: 0 2px 0 #8b6cff;
+    }
+    .subtab-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #8b6cff;
+      box-shadow: 0 0 8px #8b6cff;
+      flex-shrink: 0;
     }
 
     /* Aşama (Stage) Geçiş Animasyonu & Kademeli Kart Girişi (Stagger) */
@@ -9870,8 +11199,64 @@ tr:hover td { background: var(--bg-card-hover); }
     }
     .expert-gym-stat-card:hover {
       transform: translateY(-2px);
-      border-color: rgba(56, 189, 248, 0.5);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 16px rgba(108, 99, 255, 0.2);
+      border-color: rgba(168, 85, 247, 0.55);
+      background: linear-gradient(145deg, rgba(50, 38, 92, 0.85) 0%, rgba(28, 24, 58, 0.95) 100%);
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35), 0 0 20px rgba(168, 85, 247, 0.28);
+    }
+
+    /* Split Görünüm Modu Butonları ve Renkli Hover Stilleri */
+    .expert-viewmode-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 15px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #94a3b8;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .expert-viewmode-btn[data-mode="template"]:hover {
+      background: rgba(168, 85, 247, 0.18) !important;
+      border-color: rgba(168, 85, 247, 0.45) !important;
+      color: #e9d5ff !important;
+      box-shadow: 0 0 14px rgba(168, 85, 247, 0.28) !important;
+      transform: translateY(-1px);
+    }
+    .expert-viewmode-btn[data-mode="template"].active {
+      border-color: rgba(168, 85, 247, 0.5) !important;
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(147, 51, 234, 0.18) 100%) !important;
+      color: #c084fc !important;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.25) !important;
+    }
+    .expert-viewmode-btn[data-mode="template"].active:hover {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.38) 0%, rgba(147, 51, 234, 0.28) 100%) !important;
+      border-color: rgba(168, 85, 247, 0.7) !important;
+      box-shadow: 0 0 18px rgba(168, 85, 247, 0.42) !important;
+    }
+
+    .expert-viewmode-btn[data-mode="tracking"]:hover {
+      background: rgba(34, 197, 94, 0.18) !important;
+      border-color: rgba(74, 222, 128, 0.45) !important;
+      color: #bbf7d0 !important;
+      box-shadow: 0 0 14px rgba(74, 222, 128, 0.25) !important;
+      transform: translateY(-1px);
+    }
+    .expert-viewmode-btn[data-mode="tracking"].active {
+      border-color: rgba(74, 222, 128, 0.5) !important;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.25) 0%, rgba(16, 185, 129, 0.18) 100%) !important;
+      color: #4ade80 !important;
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.2) !important;
+    }
+    .expert-viewmode-btn[data-mode="tracking"].active:hover {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.38) 0%, rgba(16, 185, 129, 0.28) 100%) !important;
+      border-color: rgba(74, 222, 128, 0.7) !important;
+      box-shadow: 0 0 18px rgba(74, 222, 128, 0.38) !important;
     }
     .expert-gym-stat-icon {
       width: 36px;
@@ -10241,18 +11626,18 @@ tr:hover td { background: var(--bg-card-hover); }
     }
     body:not(.expert-is-dragging) .expert-day-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(0,0,0,0.24), 0 0 20px rgba(108,99,255,0.12);
-      border-color: rgba(108,99,255,0.38);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.28), 0 0 20px rgba(168,85,247,0.2);
+      border-color: rgba(168,85,247,0.48);
     }
     .expert-day-card-workout {
-      border: 1px solid rgba(56, 189, 248, 0.28);
-      border-left: 4px solid #38bdf8;
+      border: 1px solid rgba(168, 85, 247, 0.28);
+      border-left: 4px solid #a855f7;
       background: linear-gradient(145deg, rgba(26, 32, 54, 0.88) 0%, rgba(18, 23, 38, 0.96) 100%);
       box-shadow: 0 6px 22px rgba(0, 0, 0, 0.24);
     }
     body:not(.expert-is-dragging) .expert-day-card-workout:hover {
-      border-color: rgba(56, 189, 248, 0.55);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(56,189,248,0.18);
+      border-color: rgba(168, 85, 247, 0.55);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(168,85,247,0.22);
     }
     .expert-day-card-done {
       border: 1px solid rgba(74, 222, 128, 0.35);
@@ -10365,10 +11750,10 @@ tr:hover td { background: var(--bg-card-hover); }
       transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
     }
     body:not(.expert-is-dragging) .expert-exercise-row-item:hover {
-      border-color: rgba(56, 189, 248, 0.5);
-      background: linear-gradient(145deg, rgba(32, 42, 70, 0.85) 0%, rgba(22, 28, 50, 0.95) 100%);
+      border-color: rgba(168, 85, 247, 0.55);
+      background: linear-gradient(145deg, rgba(38, 28, 64, 0.85) 0%, rgba(24, 18, 44, 0.95) 100%);
       transform: translateX(3px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 0 12px rgba(56,189,248,0.12);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 0 14px rgba(168, 85, 247, 0.2);
     }
     .light-mode .expert-exercise-row-item {
       background: #ffffff;
@@ -11205,6 +12590,25 @@ tr:hover td { background: var(--bg-card-hover); }
   background: #ffffff !important;
   border-color: #fca5a5 !important;
 }
+.light-mode .profile-hero-rpg-inline {
+  background: #f8fafc !important;
+  border-color: rgba(168, 85, 247, 0.28) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+.light-mode .prof-inline-divider {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+.light-mode .prof-inline-bar-track {
+  background: rgba(0, 0, 0, 0.08) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+.light-mode #profInlineLevelTitle {
+  color: #0f172a !important;
+}
+.light-mode #profInlineTotalXp {
+  color: #475569 !important;
+}
+
 
 /* ═══ MODERN MODAL STYLES (CENTER POPUP WITH GLASS EFFECT) ═══ */
 .cust-modal-backdrop {
@@ -12630,6 +14034,20 @@ tr:hover td { background: var(--bg-card-hover); }
     border-radius: 14px !important;
     margin-bottom: 14px !important;
   }
+  .prog-top-gains-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .prog-gain-card {
+    padding: 12px 13px !important;
+    gap: 9px !important;
+  }
+  .prog-gain-title {
+    font-size: 13.5px !important;
+  }
+  .prog-gain-numbers {
+    font-size: 12px !important;
+  }
   .prog-card-header {
     flex-direction: column !important;
     align-items: stretch !important;
@@ -13984,32 +15402,31 @@ tr:hover td { background: var(--bg-card-hover); }
         font-size: 11px !important;
       }
 
-      /* Ana Sekmeler (01 Sağlık, 02 Tercihler, 03 Planlama) */
-      .expert-data-tabs {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 5px;
-        overflow: visible;
-        margin: 0 0 12px 0;
+      /* Modern Stepper & Sekmeler Mobil Görünüm */
+      .expert-stepper {
+        display: flex;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding: 8px;
+        gap: 8px;
       }
-      .expert-data-tab {
-        min-width: 0;
-        justify-content: center;
-        gap: 4px;
-        padding: 8px 4px;
-        font-size: 10px;
-        white-space: nowrap;
-        overflow: hidden;
-        border-radius: 8px;
-        min-height: 38px;
+      .expert-stepper::-webkit-scrollbar {
+        display: none;
       }
-      .expert-data-tab-label {
-        font-size: 0;
+      .expert-step {
+        min-width: 210px;
+        flex: 0 0 auto;
+        padding: 12px 14px;
       }
-      .expert-data-tab-label::after {
-        content: attr(data-mobile);
-        font-size: 11px;
-        font-weight: 750;
+      .expert-context-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .expert-context-meta {
+        width: 100%;
+        justify-content: space-between;
       }
 
       /* Alt Sekmeler (Subtabs - Yatay Kaydırılabilir Pürüzsüz Bar) */
@@ -14018,8 +15435,9 @@ tr:hover td { background: var(--bg-card-hover); }
         flex-wrap: nowrap;
         overflow-x: auto;
         gap: 6px;
-        padding: 2px 0 8px;
-        margin-bottom: 12px;
+        padding: 0 0 2px;
+        margin-bottom: 14px;
+        border-bottom: 1px solid #293252;
       }
       .expert-data-subtabs::-webkit-scrollbar {
         display: none;
@@ -14028,9 +15446,8 @@ tr:hover td { background: var(--bg-card-hover); }
         flex: 0 0 auto;
         min-width: auto;
         white-space: nowrap;
-        padding: 8px 12px;
-        font-size: 11.5px;
-        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 12px;
       }
 
       /* Kartlar ve Başlıklar */
@@ -15111,14 +16528,14 @@ tr:hover td { background: var(--bg-card-hover); }
                   </div>
                 </div>
               </div>
-              <div class="timeframe-pills" style="margin-left: auto;">
+              <div id="rpgTimeframePills" class="timeframe-pills" style="margin-left: auto;">
                 <button class="tf-pill" onclick="filterXpChart('weekly', this)">Haftalık</button>
                 <button class="tf-pill" onclick="filterXpChart('monthly', this)">Aylık</button>
                 <button class="tf-pill active" onclick="filterXpChart('all', this)">Genel</button>
               </div>
             </div>
 
-            <div style="margin: 4px 0 6px;">
+            <div id="rpgXpHeaderWrap" style="margin: 4px 0 6px;">
               <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1; font-weight: 700; margin-bottom: 4px;">
                 <span id="rpgCurrentXp" style="color:#f8fafc;">0 XP</span>
                 <span id="rpgTargetXp" style="color:#38bdf8;">0 / 500 XP (%0)</span>
@@ -15128,24 +16545,44 @@ tr:hover td { background: var(--bg-card-hover); }
               </div>
             </div>
 
-            <div style="position: relative; height: 135px; width: 100%; min-width: 0; margin: 4px 0;">
+            <div id="rpgChartWrap" style="position: relative; height: 135px; width: 100%; min-width: 0; margin: 4px 0;">
               <canvas id="xpTrendChart"></canvas>
             </div>
 
+            <div id="rpgLockPanel" style="display:none; position:relative; min-height:135px; width:100%; margin:4px 0; background:linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(22, 27, 48, 0.7) 100%); border:1px dashed rgba(168, 85, 247, 0.4); border-radius:12px; padding:12px 14px; box-sizing:border-box; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:12.5px; font-weight:800; color:#f8fafc; letter-spacing:0.2px;">🎯 10 Kas Grubunu Tamamla</span>
+                    <span style="font-size:10px; background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.35); color:#fbbf24; font-weight:750; padding:1px 6px; border-radius:6px;">Kalibrasyon</span>
+                  </div>
+                  <span id="rpgLockProgressText" style="font-size:11.5px; font-weight:800; color:#38bdf8;">0 / 10 (%0)</span>
+                </div>
+                <div style="height:8px; border-radius:999px; background:rgba(255,255,255,0.08); border:1px solid rgba(168,85,247,0.25); box-shadow:inset 0 1.5px 3px rgba(0,0,0,0.6); overflow:hidden; position:relative; margin-bottom:6px;">
+                  <div id="rpgLockBarFill" style="width:0%; height:100%; border-radius:999px; background:linear-gradient(90deg, #f59e0b, #a855f7, #38bdf8); box-shadow:0 0 10px rgba(168,85,247,0.5); transition:width 0.9s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+                </div>
+                <div style="font-size:10.5px; color:#94a3b8; line-height:1.35; margin-bottom:6px;">
+                  XP seviye sistemini ve grafiği aktifleştirmek için 10 ana kas grubunu en az 1 kez antrenmanda çalıştırmalısın:
+                </div>
+              </div>
+              <div id="rpgLockChips" class="rpg-lock-chips-grid">
+              </div>
+            </div>
+
             <div class="rpg-metrics-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px;">
-              <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.22); border-radius: 9px; padding: 6px 8px; text-align: center; min-width: 0;">
+              <div class="rpg-metric-card rpg-metric-card-purple">
                 <div style="font-size: 10px; color: #a78bfa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 4px;">
                   <span>⚡</span> Son Seans
                 </div>
                 <div id="rpgLastGain" style="font-size: 12.5px; font-weight: 850; color: #ffffff; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">+0 XP</div>
               </div>
-              <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.22); border-radius: 9px; padding: 6px 8px; text-align: center; min-width: 0;">
+              <div class="rpg-metric-card rpg-metric-card-amber" id="rpgStreakCard" title="Dinlenme günleri hariç kırmızı kart bulunmayan kesintisiz hafta serisi">
                 <div style="font-size: 10px; color: #fbbf24; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                  <span>🔥</span> Bonus Çarpanı
+                  <span>🔥</span> Antrenman Serisi
                 </div>
-                <div id="rpgBonusMultiplier" style="font-size: 12.5px; font-weight: 850; color: #fbbf24; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">1.5x Overload</div>
+                <div id="rpgBonusMultiplier" style="font-size: 12.5px; font-weight: 850; color: #fbbf24; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0 Hafta</div>
               </div>
-              <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 9px; padding: 6px 8px; text-align: center; min-width: 0;">
+              <div class="rpg-metric-card rpg-metric-card-cyan">
                 <div style="font-size: 10px; color: #38bdf8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 4px;">
                   <span>🏆</span> Sıradaki Unvan
                 </div>
@@ -15184,18 +16621,19 @@ tr:hover td { background: var(--bg-card-hover); }
         <div class="grid-2 mb-20">
           <div class="card dash-card" style="margin-top:0;">
             <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-              <div class="dash-split-toggle-group" style="display:flex; background:rgba(15, 23, 42, 0.7); padding:4px; border-radius:10px; border:1px solid rgba(139, 92, 246, 0.25);">
-                <button id="btnSplitCustom" onclick="switchSplitMode('custom')"
-                        style="padding:6px 14px; border-radius:8px; border:none; background:transparent; color:#94a3b8; font-size:12px; font-weight:750; cursor:pointer; transition:all 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
-                   Özel Programım
+              <div class="dash-split-toggle-group" id="dashSplitToggleGroup">
+                <div class="dash-split-toggle-glider" id="splitToggleGlider"></div>
+                <button id="btnSplitCustom" class="dash-split-toggle-btn active" onclick="switchSplitMode('custom')" type="button">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                  <span>Özel Programım</span>
                 </button>
-                <button id="btnSplitExpert" onclick="switchSplitMode('expert')"
-                        style="padding:6px 14px; border-radius:8px; border:none; background:transparent; color:#94a3b8; font-size:12px; font-weight:750; cursor:pointer; transition:all 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
-                   Uzman Önerisi
+                <button id="btnSplitExpert" class="dash-split-toggle-btn" onclick="switchSplitMode('expert')" type="button">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  <span>Uzman Önerisi</span>
                 </button>
               </div>
 
-              <span class="badge badge-accent" id="splitBadge" style="font-size:12px; font-weight:800; padding:5px 12px; border-radius:10px;">PPL</span>
+              <span class="badge badge-accent" id="splitBadge" style="font-size:12px; font-weight:800; padding:5px 12px; border-radius:10px;">Özel Program Yok</span>
             </div>
             <div id="splitDays" style="margin-top:12px; position:relative; min-height: 480px;"></div>
           </div>
@@ -15490,6 +16928,39 @@ tr:hover td { background: var(--bg-card-hover); }
                 </span>
               </div>
               <p class="prog-hero-desc">Hareket bazlı güç gelişiminizi, kişisel rekorlarınızı (PR) ve hacim trendlerinizi canlı takip edin.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ────────────────────────────────────────────────────────────────────────── -->
+        <!-- İLERLEME: EN İYİ İLERLEMELER (GÜÇ VE PR ARTIŞLARI VİTRİNİ)                -->
+        <!-- ────────────────────────────────────────────────────────────────────────── -->
+        <div class="prog-glass-card" id="progTopGainsCard">
+          <div class="prog-card-header" style="margin-bottom: 16px;">
+            <div class="prog-card-title-group">
+              <div class="prog-card-icon-box emerald">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                  <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <h3 class="prog-card-title">En İyi İlerlemeler</h3>
+                <p class="prog-card-subtitle">İlk kayıttan güncel zirve rekorunuza kadar en yüksek güç artışı sağladığınız hareketler</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="gym-badge-default" id="progTopGainsCountBadge" style="font-size: 11px; padding: 4px 10px; color: #34d399; border-color: rgba(52, 211, 153, 0.35); background: rgba(52, 211, 153, 0.1);">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 6px #34d399;"></span>
+                Zirveye Koşanlar 🚀
+              </span>
+            </div>
+          </div>
+
+          <!-- Kartlar Grid Konteynırı -->
+          <div class="prog-top-gains-grid" id="progTopGainsGrid">
+            <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: #94a3b8;">
+              Gelişim verileri yükleniyor...
             </div>
           </div>
         </div>
@@ -16002,15 +17473,54 @@ tr:hover td { background: var(--bg-card-hover); }
                 </svg>
               </div>
             </div>
-            <div class="profile-hero-info">
+            <div class="profile-hero-info" style="flex: 1; min-width: 0;">
               <div class="profile-hero-name-row">
                 <h2 class="profile-hero-username" id="profHeroUsername">SPORCU PROFİLİ</h2>
+                <span id="profHeroLevelBadge" class="badge badge-accent" style="font-size:11px; padding:3px 10px; font-weight:800; letter-spacing:0.3px;">LVL 1 · ÇAYLAK</span>
                 <span class="gym-badge-default" style="font-size:11px; padding:3px 9px;">
                   <span style="width:6px; height:6px; border-radius:50%; background:#34d399; box-shadow:0 0 6px #34d399;"></span>
                   Aktif Biyometrik Model
                 </span>
               </div>
               <p class="profile-hero-desc">Biyometrik parametrelerin; hipertrofi hacim hesaplamaları, kalori gereksinimi ve uzman öneri motoruna doğrudan rehberlik eder.</p>
+
+              <!-- Gelişim Seviyesi & XP Bilgisi (Kart içinde entegre, sade ve şık) -->
+              <div class="profile-hero-rpg-inline" id="profRpgInline">
+                <div class="prof-inline-stat-group">
+                  <span class="prof-inline-label">GELİŞİM SEVİYESİ</span>
+                  <div class="prof-inline-val">
+                    <strong id="profInlineLevelTitle" style="color:#ffffff; font-size:13.5px; font-weight:800;">Çaylak</strong>
+                    <span id="profInlineLevelBadge" class="badge badge-accent" style="font-size:10px; padding:2px 7px; font-weight:800; border-radius:6px;">LVL 1</span>
+                  </div>
+                </div>
+
+                <div class="prof-inline-divider"></div>
+
+                <div class="prof-inline-stat-group" style="flex: 1 1 240px; max-width: 420px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span class="prof-inline-label" id="profInlineXpLabel">SEVİYE İLERLEMESİ</span>
+                    <strong id="profInlineXpText" style="font-size:11.5px; color:#38bdf8; font-weight:800;">0 / 500 XP (%0)</strong>
+                  </div>
+                  <div class="prof-inline-bar-track">
+                    <div id="profInlineXpFill" class="prof-inline-bar-fill" style="width: 0%;"></div>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:3px; gap:8px;">
+                    <span id="profInlineNextText" style="font-size:10.5px; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">🎯 Seviye 2 için 500 XP kaldı</span>
+                    <span id="profInlineTotalXp" style="font-size:10.5px; color:#cbd5e1; font-weight:700; white-space:nowrap;">0 XP Toplam</span>
+                  </div>
+                </div>
+
+                <div class="prof-inline-divider"></div>
+
+                <div class="prof-inline-stat-group">
+                  <span class="prof-inline-label">HAFTALIK SERİ</span>
+                  <div class="prof-inline-val">
+                    <span id="profInlineStreakBadge" class="prof-rpg-streak-pill" title="Haftalık Split Tamamlama Serisi">
+                      🔥 <span id="profInlineStreakText">1 Hafta</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -18456,7 +19966,18 @@ async function apiPut(url, data) {
 function normalizeCustomSplitJson(rawSplit) {
   try {
     const parsed = typeof rawSplit === 'string' ? JSON.parse(rawSplit || '[]') : rawSplit;
-    return Array.isArray(parsed) ? JSON.stringify(parsed) : '[]';
+    if (!Array.isArray(parsed)) return '[]';
+    const FIXED_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+    parsed.forEach(week => {
+      if (Array.isArray(week)) {
+        week.forEach((day, idx) => {
+          if (day && typeof day === 'object') {
+            day.day = FIXED_DAYS[idx % 7];
+          }
+        });
+      }
+    });
+    return JSON.stringify(parsed);
   } catch (_) {
     return '[]';
   }
@@ -18626,26 +20147,11 @@ function setExpertSplitViewMode(mode) {
     document.querySelectorAll('.expert-viewmode-btn').forEach(btn => {
       const isBtnTemplate = btn.getAttribute('data-mode') === 'template';
       const isActive = (expertSplitViewMode === 'template' && isBtnTemplate) || (expertSplitViewMode !== 'template' && !isBtnTemplate);
-      if (isActive) {
-        btn.classList.add('active');
-        if (isBtnTemplate) {
-          btn.style.borderColor = 'rgba(168,85,247,0.5)';
-          btn.style.background = 'linear-gradient(135deg, rgba(168,85,247,0.25) 0%, rgba(147,51,234,0.18) 100%)';
-          btn.style.color = '#c084fc';
-          btn.style.boxShadow = '0 0 12px rgba(168,85,247,0.25)';
-        } else {
-          btn.style.borderColor = 'rgba(74,222,128,0.5)';
-          btn.style.background = 'linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(16,185,129,0.18) 100%)';
-          btn.style.color = '#4ade80';
-          btn.style.boxShadow = '0 0 12px rgba(74,222,128,0.2)';
-        }
-      } else {
-        btn.classList.remove('active');
-        btn.style.borderColor = 'transparent';
-        btn.style.background = 'transparent';
-        btn.style.color = '#94a3b8';
-        btn.style.boxShadow = 'none';
-      }
+      btn.classList.toggle('active', isActive);
+      btn.style.borderColor = '';
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.boxShadow = '';
     });
   } else if (typeof renderExpertSystem === 'function') {
     renderExpertSystem();
@@ -18850,7 +20356,11 @@ function getDashboardProgramSummary(data, preferredMode = localStorage.getItem('
     const rawCustomSplit = data?.user?.custom_split;
     const customProgram = Array.isArray(rawCustomSplit) ? rawCustomSplit : JSON.parse(rawCustomSplit || '[]');
     if (Array.isArray(customProgram) && customProgram.length) {
-      const userCreated = data?.user?.created_at;
+      const userCreated = data?.user?.dashboard_preferences?.custom_program_updated_at
+        || localStorage.getItem('hx_custom_split_saved_at_' + (data?.user?.username || ''))
+        || data?.user?.custom_program_updated_at
+        || data?.user?.updated_at
+        || data?.user?.created_at;
       let cIdx = 0;
       if (userCreated) {
         try {
@@ -19245,33 +20755,296 @@ function animateXpProgressBar(fillEl, targetPercent, isCalibration = false) {
   }, 100);
 }
 
-async function loadDashboardRPG(username) {
-  const titleEl = document.getElementById('rpgTitle');
-  if (!titleEl) return;
+function renderRpgLockPanel(completedMusclesSet, requiredMuscles) {
+  const count = completedMusclesSet ? completedMusclesSet.size : 0;
+  const total = (requiredMuscles && requiredMuscles.length) ? requiredMuscles.length : 10;
+  const percent = Math.min(100, Math.max(0, Math.round((count / total) * 100)));
 
+  const textEl = document.getElementById('rpgLockProgressText');
+  if (textEl) textEl.innerText = `${count} / ${total} (%${percent})`;
+
+  const barEl = document.getElementById('rpgLockBarFill');
+  if (barEl) {
+    barEl.style.transition = 'none';
+    barEl.style.width = '0%';
+    void barEl.offsetWidth;
+    setTimeout(() => {
+      barEl.style.transition = 'width 0.9s cubic-bezier(0.16, 1, 0.3, 1)';
+      barEl.style.width = `${percent}%`;
+    }, 60);
+  }
+
+  const chipsEl = document.getElementById('rpgLockChips');
+  if (chipsEl && Array.isArray(requiredMuscles)) {
+    chipsEl.innerHTML = requiredMuscles.map(m => {
+      const isDone = completedMusclesSet && completedMusclesSet.has(m);
+      if (isDone) {
+        return `<div class="rpg-lock-chip done">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span class="rpg-lock-chip-text">${m}</span>
+        </div>`;
+      } else {
+        return `<div class="rpg-lock-chip pending">
+          <span style="width:6px; height:6px; border-radius:50%; background:#a855f7; box-shadow:0 0 6px rgba(168,85,247,0.7); flex-shrink:0;"></span>
+          <span class="rpg-lock-chip-text">${m}</span>
+        </div>`;
+      }
+    }).join('');
+  }
+}
+
+function getSplitDaysForWeekMonday(wMonday, mode = (localStorage.getItem('selectedSplitMode') || 'custom')) {
+  if (!cachedUserData) return [];
+
+  const getCustomDays = () => {
+    try {
+      const raw = cachedUserData.user?.custom_split;
+      const customSplit = Array.isArray(raw) ? raw : JSON.parse(raw || '[]');
+      if (Array.isArray(customSplit) && customSplit.length > 0) {
+        const customDateStr = cachedUserData.user?.dashboard_preferences?.custom_program_updated_at
+          || localStorage.getItem('hx_custom_split_saved_at_' + (cachedUserData.user?.username || ''))
+          || cachedUserData.user?.custom_program_updated_at
+          || cachedUserData.user?.updated_at
+          || cachedUserData.user?.created_at;
+        let uDate = customDateStr ? new Date(customDateStr) : null;
+        if (!uDate || isNaN(uDate.getTime())) uDate = new Date();
+        uDate.setHours(0, 0, 0, 0);
+        const uDay = uDate.getDay() === 0 ? 6 : uDate.getDay() - 1;
+        const uMonday = new Date(uDate);
+        uMonday.setDate(uDate.getDate() - uDay);
+        const elapsed = Math.floor((wMonday.getTime() - uMonday.getTime()) / (7 * 24 * 60 * 60 * 1000));
+        const idx = elapsed >= 0 ? (elapsed % customSplit.length) : 0;
+        return Array.isArray(customSplit[idx]) ? customSplit[idx] : [];
+      }
+    } catch (_) {}
+    return [];
+  };
+
+  const getExpertDays = () => {
+    try {
+      const rec = expertRecommendationFromData(cachedUserData);
+      if (rec && Array.isArray(rec.weeks) && rec.weeks.length > 0) {
+        const dates = getExpertRecommendationDates(rec, 0);
+        const genMonday = dates.genMonday;
+        const elapsed = Math.floor((wMonday.getTime() - genMonday.getTime()) / (7 * 24 * 60 * 60 * 1000));
+        const idx = Math.max(0, Math.min(rec.weeks.length - 1, elapsed >= 0 ? elapsed : 0));
+        return Array.isArray(rec.weeks[idx]?.days) ? rec.weeks[idx].days : [];
+      }
+    } catch (_) {}
+    return [];
+  };
+
+  let days = [];
+  if (mode === 'custom') {
+    days = getCustomDays();
+    if (!days.length) days = getExpertDays();
+  } else {
+    days = getExpertDays();
+    if (!days.length) days = getCustomDays();
+  }
+  return days;
+}
+
+function evaluateWeekRedCards(weekMonday, daysList, allSessions, userRegDate, programGenDate, today, isCurrentWeek = false) {
+  let hasMissed = false;
+  let completedWorkoutsCount = 0;
+  let scheduledWorkoutDaysCount = 0;
+  let allDaysBeforeProgram = true;
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekMonday);
+    d.setDate(weekMonday.getDate() + i);
+    d.setHours(0, 0, 0, 0);
+
+    const isPast = d.getTime() < today.getTime();
+    const dateStr = expertNormalizeDateStr(d) || `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+    const dayData = daysList[i] || { type: 'Rest Day', isRest: true };
+    const rawWorkoutType = dayData.type || dayData.session_type || 'Dinlenme';
+    const isRest = Boolean(dayData.isRest) || String(rawWorkoutType).toLowerCase().includes('rest') || String(rawWorkoutType).toLowerCase().includes('dinlenme');
+
+    const matchedSession = (allSessions || []).find(s => expertNormalizeDateStr(s?.date) === dateStr);
+    const hasWorkout = Boolean(matchedSession);
+
+    // Aktif haftada özel program günleri plan öncesi sayılamaz; geçmişte kalıp yapılmamış gün doğrudan kırmızı karttır
+    const isBeforeProgram = isCurrentWeek
+      ? Boolean(programGenDate && d.getTime() < programGenDate.getTime())
+      : Boolean(
+          (programGenDate && d.getTime() < programGenDate.getTime()) ||
+          (userRegDate && d.getTime() < userRegDate.getTime())
+        );
+
+    if (!isBeforeProgram) {
+      allDaysBeforeProgram = false;
+    }
+
+    if (!isRest && !isBeforeProgram) {
+      scheduledWorkoutDaysCount++;
+    }
+
+    if (hasWorkout) {
+      completedWorkoutsCount++;
+    }
+
+    // KIRMIZI KART KURALI:
+    // Dinlenme günü hariç, antrenman yapılmamışsa, program/kayıt öncesi değilse ve tarih geçmişte kalmışsa:
+    const isMissed = !isRest && !hasWorkout && !isBeforeProgram && isPast;
+    if (isMissed) {
+      hasMissed = true;
+    }
+  }
+
+  return {
+    hasMissed,
+    completedWorkoutsCount,
+    scheduledWorkoutDaysCount,
+    allDaysBeforeProgram
+  };
+}
+
+function calculateWeeklySplitStreak(allWorkoutsList = []) {
+  if (!cachedUserData) return 0;
+
+  const allSessions = (Array.isArray(allWorkoutsList) && allWorkoutsList.length > 0)
+    ? allWorkoutsList
+    : (typeof expertGetAllUserSessions === 'function'
+      ? expertGetAllUserSessions()
+      : (Array.isArray(cachedUserData?.sessions)
+        ? cachedUserData.sessions
+        : (Array.isArray(cachedUserData?.workouts) ? cachedUserData.workouts : [])));
+
+  if (!allSessions || allSessions.length === 0) {
+    return 0;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const todayDay = today.getDay() === 0 ? 6 : today.getDay() - 1;
+  const currentMonday = new Date(today);
+  currentMonday.setDate(today.getDate() - todayDay);
+  currentMonday.setHours(0, 0, 0, 0);
+
+  const currentMode = localStorage.getItem('selectedSplitMode') || 'custom';
+
+  let programGenDate = null;
   try {
+    if (currentMode === 'expert') {
+      const rec = expertRecommendationFromData(cachedUserData);
+      if (rec?.generated_at) {
+        programGenDate = new Date(rec.generated_at);
+        programGenDate.setHours(0, 0, 0, 0);
+      }
+    } else {
+      // Özel programda haftalık şablon takibi esastır
+      programGenDate = null;
+    }
+  } catch (_) {}
+
+  const userRegDateStr = cachedUserData?.user?.created_at;
+  const userRegDate = userRegDateStr ? new Date(userRegDateStr) : null;
+  if (userRegDate) userRegDate.setHours(0, 0, 0, 0);
+
+  // 1. ÖNCE İÇİNDE BULUNDUĞUMUZ HAFTAYI (CURRENT WEEK, w = 0) KONTROL ET
+  const curDays = getSplitDaysForWeekMonday(currentMonday, currentMode);
+  const curWeekResult = evaluateWeekRedCards(currentMonday, curDays, allSessions, userRegDate, programGenDate, today, true);
+
+  // KULLANICI KURALI: "eğer 1 tane bile kırmızı kart olursa o zaman seri başa sarar"
+  if (curWeekResult.hasMissed) {
+    return 0;
+  }
+
+  // 2. GEÇMİŞ HAFTALARI GERİYE DOĞRU SAY (w = 1, 2, 3...)
+  let pastCleanWeeks = 0;
+  for (let w = 1; w <= 52; w++) {
+    const pastMonday = new Date(currentMonday);
+    pastMonday.setDate(currentMonday.getDate() - (w * 7));
+
+    const pastDays = getSplitDaysForWeekMonday(pastMonday, currentMode);
+    const pastResult = evaluateWeekRedCards(pastMonday, pastDays, allSessions, userRegDate, programGenDate, today, false);
+
+    // Kayıt öncesi haftaya geldiysek saymayı bitir
+    if (pastResult.allDaysBeforeProgram) {
+      break;
+    }
+
+    // Geçmiş haftada 1 tane bile kırmızı kart varsa seri bozulmuştur:
+    if (pastResult.hasMissed) {
+      break;
+    }
+
+    // Kırmızı kart yoksa ve en az 1 antrenman yapılmışsa bu geçmiş hafta temizdir:
+    if (pastResult.completedWorkoutsCount > 0) {
+      pastCleanWeeks++;
+    } else {
+      // Hiç antrenman yapılmamış boş hafta varsa seri biter
+      break;
+    }
+  }
+
+  // Eğer bu hafta temizse ve bu hafta içinde en az 1 antrenman yapıldıysa seriye eklenir
+  let totalStreak = pastCleanWeeks;
+  if (curWeekResult.completedWorkoutsCount > 0) {
+    totalStreak = pastCleanWeeks + 1;
+  }
+
+  return totalStreak;
+}
+
+async function calculateUserRpgState(username) {
+  try {
+    if (!_exercisePool || _exercisePool.length === 0) {
+      try {
+        const cachedPool = sessionStorage.getItem('hx_cached_exercise_pool');
+        if (cachedPool) {
+          const parsed = JSON.parse(cachedPool);
+          if (Array.isArray(parsed) && parsed.length > 0) _exercisePool = parsed;
+        }
+      } catch(_) {}
+    }
+    if (!_exercisePool || _exercisePool.length === 0) {
+      try {
+        const poolData = await apiGet('/api/exercises');
+        _exercisePool = Array.isArray(poolData?.exercises) ? poolData.exercises : (Array.isArray(poolData) ? poolData : []);
+        if (_exercisePool.length > 0) {
+          try { sessionStorage.setItem('hx_cached_exercise_pool', JSON.stringify(_exercisePool)); } catch(_) {}
+        }
+      } catch (err) {
+        console.warn('Egzersiz havuzu yüklenemedi:', err);
+      }
+    }
+
     const REQUIRED_MUSCLES = [
-      'Göğüs', 'Sırt', 'Omuz', 'Quadriceps',
-      'Hamstring', 'Glute', 'Calf', 'Biceps',
-      'Triceps'
+      'Göğüs', 'Üst Sırt',
+      'Omuz', 'Alt Sırt',
+      'Biceps', 'Triceps',
+      'Quadriceps', 'Hamstring',
+      'Glute', 'Calf'
     ];
 
     let workouts = await apiGet(`/api/workouts`);
-
     if (!workouts || !Array.isArray(workouts)) {
-        workouts = [];
+      workouts = [];
     }
 
-    workouts.sort((a, b) => new Date(a.date) - new Date(b.date));
+    workouts.sort((a, b) => (new Date(a.date) - new Date(b.date)) || ((a.id || 0) - (b.id || 0)));
 
     const completedMusclesSet = new Set();
     const baselines = {};
     const COMPOUND_KEYWORDS = ['bench', 'squat', 'deadlift', 'overhead', 'row', 'dip', 'bulgarian', 'pull ups', 'chin ups'];
     const PRIMARY_TO_RPG_MUSCLE = {
-      chest: 'Göğüs', lats: 'Sırt', upper_back: 'Sırt', traps: 'Sırt',
-      rear_delts: 'Omuz', side_delts: 'Omuz', front_delts: 'Omuz',
-      quadriceps: 'Quadriceps', hamstrings: 'Hamstring', glutes: 'Glute',
-      calves: 'Calf', biceps: 'Biceps', triceps: 'Triceps'
+      chest: 'Göğüs', gogus: 'Göğüs', 'göğüs': 'Göğüs', upper_chest: 'Göğüs', lower_chest: 'Göğüs',
+      lats: 'Üst Sırt', upper_back: 'Üst Sırt', traps: 'Üst Sırt', upper_traps: 'Üst Sırt', mid_traps: 'Üst Sırt', middle_traps: 'Üst Sırt', lower_traps: 'Üst Sırt', rhomboids: 'Üst Sırt', kanat: 'Üst Sırt', 'üst sırt': 'Üst Sırt', 'ust sirt': 'Üst Sırt', back: 'Üst Sırt', sirt: 'Üst Sırt', 'sırt': 'Üst Sırt',
+      spinal_erectors: 'Alt Sırt', lower_back: 'Alt Sırt', erector_spinae: 'Alt Sırt', erectors: 'Alt Sırt', bel: 'Alt Sırt', 'alt sırt': 'Alt Sırt', 'alt sirt': 'Alt Sırt',
+      rear_delts: 'Omuz', side_delts: 'Omuz', front_delts: 'Omuz', shoulders: 'Omuz', shoulder: 'Omuz', omuz: 'Omuz', delts: 'Omuz',
+      quadriceps: 'Quadriceps', quads: 'Quadriceps', bacak: 'Quadriceps', 'ön bacak': 'Quadriceps', 'on bacak': 'Quadriceps',
+      hamstrings: 'Hamstring', hamstring: 'Hamstring', 'arka bacak': 'Hamstring',
+      glutes: 'Glute', glute: 'Glute', kalca: 'Glute', 'kalça': 'Glute', gluteus: 'Glute', gluteus_maximus: 'Glute', gluteus_medius: 'Glute',
+      calves: 'Calf', calf: 'Calf', baldir: 'Calf', 'baldır': 'Calf',
+      biceps: 'Biceps', pazu: 'Biceps', kol: 'Biceps',
+      triceps: 'Triceps', 'arka kol': 'Triceps'
     };
     const normalizeRpgText = value => String(value || '')
       .toLocaleLowerCase('tr-TR')
@@ -19287,6 +21060,7 @@ async function loadDashboardRPG(username) {
     let runningTotalXP = 0;
     let lastWorkoutGain = 0;
     let hasOverloadBonusRecent = false;
+    let calibrationUnlocked = false;
 
     workouts.forEach(w => {
       let sessionPoints = 0;
@@ -19299,6 +21073,9 @@ async function loadDashboardRPG(username) {
         }
       } catch(e) { console.warn("Antrenman okunamadı:", e); }
 
+      // Kalibrasyon (10 ana kas grubu tamamlama) bu antrenmandan önce tamamlanmış mıydı?
+      const wasCalibrationCompleteBeforeThisWorkout = calibrationUnlocked || (completedMusclesSet.size >= REQUIRED_MUSCLES.length);
+
       exercises.forEach(ex => {
         const muscle = ex.muscle_group || ex.muscle || "";
         const exName = normalizeRpgText(ex.exercise_name || ex.name || "");
@@ -19309,32 +21086,83 @@ async function loadDashboardRPG(username) {
           item.name === ex.exercise_name || item.name === ex.name
         );
         const primaryMuscles = ex.analysis?.primary_muscles || ex.primary_muscles ||
-          catalogExercise?.analysis?.primary_muscles || [];
+          catalogExercise?.analysis?.primary_muscles || catalogExercise?.primary_muscles || [];
         (Array.isArray(primaryMuscles) ? primaryMuscles : []).forEach(primary => {
           const mapped = PRIMARY_TO_RPG_MUSCLE[String(primary || '').toLowerCase()];
           if (mapped) matchedMuscles.add(mapped);
         });
 
-        const exactGroup = REQUIRED_MUSCLES.find(m => normalizeRpgText(m) === normalizeRpgText(muscle));
-        if (exactGroup) matchedMuscles.add(exactGroup);
+        const secondaryMuscles = ex.analysis?.secondary_muscles || ex.secondary_muscles ||
+          catalogExercise?.analysis?.secondary_muscles || catalogExercise?.secondary_muscles || [];
+        (Array.isArray(secondaryMuscles) ? secondaryMuscles : []).forEach(sec => {
+          const secKey = String(sec || '').toLowerCase();
+          if (secKey === 'spinal_erectors' || secKey === 'lower_back' || secKey === 'erector_spinae') {
+            matchedMuscles.add('Alt Sırt');
+          }
+        });
+
+        REQUIRED_MUSCLES.forEach(m => {
+          const normM = normalizeRpgText(m);
+          const normMuscle = normalizeRpgText(muscle);
+          if (normMuscle === normM || normMuscle.includes(normM)) {
+            matchedMuscles.add(m);
+          }
+        });
+
+        const normMuscle = normalizeRpgText(muscle);
+        const isBelKeyword = exName.includes('bel') && !exName.includes('bell');
+        if ((normMuscle === 'sirt' || normMuscle === 'back' || normMuscle.includes('sirt')) && !matchedMuscles.has('Üst Sırt') && !matchedMuscles.has('Alt Sırt')) {
+          if (exName.includes('deadlift') || exName.includes('hyperextension') || exName.includes('back extension') || exName.includes('good morning') || exName.includes('erector') || isBelKeyword) {
+            matchedMuscles.add('Alt Sırt');
+          } else {
+            matchedMuscles.add('Üst Sırt');
+          }
+        }
+
         if (!matchedMuscles.size) {
-          if (exName.includes('hamstring') || exName.includes('leg curl') || exName.includes('romanian') || exName.includes('rdl')) matchedMuscles.add('Hamstring');
-          else if (exName.includes('glute') || exName.includes('hip thrust') || exName.includes('kickback') || exName.includes('abduction') || exName.includes('bulgarian')) matchedMuscles.add('Glute');
-          else if (exName.includes('calf') || exName.includes('calves')) matchedMuscles.add('Calf');
-          else if (exName.includes('squat') || exName.includes('leg press') || exName.includes('leg extension')) matchedMuscles.add('Quadriceps');
-          else if (exName.includes('chest') || exName.includes('bench') || exName.includes('fly')) matchedMuscles.add('Göğüs');
-          else if (exName.includes('back') || exName.includes('lat') || exName.includes('row') || exName.includes('pulldown')) matchedMuscles.add('Sırt');
-          else if (exName.includes('shoulder') || exName.includes('lateral raise') || exName.includes('overhead')) matchedMuscles.add('Omuz');
-          else if (exName.includes('triceps') || exName.includes('pushdown')) matchedMuscles.add('Triceps');
-          else if (exName.includes('biceps') || exName.includes('curl')) matchedMuscles.add('Biceps');
+          if (exName.includes('deadlift')) {
+            matchedMuscles.add('Alt Sırt');
+            matchedMuscles.add('Hamstring');
+            matchedMuscles.add('Glute');
+          } else if (exName.includes('hyperextension') || exName.includes('back extension') || exName.includes('good morning') || exName.includes('erector') || exName.includes('alt sirt') || isBelKeyword) {
+            matchedMuscles.add('Alt Sırt');
+          } else if (exName.includes('squat')) {
+            matchedMuscles.add('Quadriceps');
+            matchedMuscles.add('Glute');
+            matchedMuscles.add('Alt Sırt');
+          } else if (exName.includes('leg press') || exName.includes('leg extension')) {
+            matchedMuscles.add('Quadriceps');
+          } else if (exName.includes('hamstring') || exName.includes('leg curl') || exName.includes('romanian') || exName.includes('rdl')) {
+            matchedMuscles.add('Hamstring');
+          } else if (exName.includes('glute') || exName.includes('hip thrust') || exName.includes('kickback') || exName.includes('abduction') || exName.includes('bulgarian') || exName.includes('lunge')) {
+            matchedMuscles.add('Glute');
+          } else if (exName.includes('calf') || exName.includes('calves') || exName.includes('baldir')) {
+            matchedMuscles.add('Calf');
+          } else if (exName.includes('chest') || exName.includes('bench') || exName.includes('fly') || exName.includes('gogus')) {
+            matchedMuscles.add('Göğüs');
+          } else if (exName.includes('lat') || exName.includes('row') || exName.includes('pulldown') || exName.includes('pull up') || exName.includes('chin up') || exName.includes('shrug') || exName.includes('face pull') || exName.includes('ust sirt') || exName.includes('back') || exName.includes('sirt')) {
+            matchedMuscles.add('Üst Sırt');
+          } else if (exName.includes('shoulder') || exName.includes('lateral raise') || exName.includes('overhead') || exName.includes('military') || exName.includes('omuz')) {
+            matchedMuscles.add('Omuz');
+          } else if (exName.includes('triceps') || exName.includes('pushdown') || exName.includes('skull crusher') || exName.includes('dips') || exName.includes('arka kol')) {
+            matchedMuscles.add('Triceps');
+          } else if (exName.includes('biceps') || exName.includes('curl') || exName.includes('pazu')) {
+            matchedMuscles.add('Biceps');
+          }
+        }
+
+        let setsList = ex.sets_data || [];
+        if (!Array.isArray(setsList) || setsList.length === 0) {
+          const count = parseInt(ex.sets, 10) || 1;
+          setsList = Array(count).fill({ weight_kg: parseFloat(ex.weight || ex.weight_kg) || 0, reps: parseInt(ex.reps, 10) || 10 });
         }
 
         let hasValidSet = false;
-        sets.forEach(s => {
+        setsList.forEach(s => {
           const weight = parseFloat(s.weight_kg) || 0;
           const reps = parseFloat(s.reps) || 0;
 
-          if (reps > 0) {
+          if (reps > 0 || weight > 0) {
             hasValidSet = true;
 
             if (weight > 0 && !baselines[exName]) {
@@ -19354,26 +21182,198 @@ async function loadDashboardRPG(username) {
           }
         });
 
+        if (!hasValidSet && setsList.length > 0) {
+          hasValidSet = true;
+          sessionPoints += 5;
+        }
+
         if (hasValidSet) {
           matchedMuscles.forEach(muscleName => completedMusclesSet.add(muscleName));
         }
       });
 
-      runningTotalXP += sessionPoints;
-      timeline.push({
-        date: w.date,
-        sessionPoints: Math.round(sessionPoints),
-        cumulativeXP: Math.round(runningTotalXP)
-      });
-      lastWorkoutGain = Math.round(sessionPoints);
+      if (completedMusclesSet.size >= REQUIRED_MUSCLES.length) {
+        calibrationUnlocked = true;
+      }
+
+      // KULLANICI KURALI: 10/10 ana kas grubu tamamlanana kadarki seanslar kalibrasyon sürecine aittir ve XP kazandırmaz.
+      // Sadece 10/10 kalibrasyon bittikten SONRA yapılan seanslar XP hesaplamasına dahil edilir.
+      if (wasCalibrationCompleteBeforeThisWorkout) {
+        runningTotalXP += sessionPoints;
+        timeline.push({
+          date: w.date,
+          sessionPoints: Math.round(sessionPoints),
+          cumulativeXP: Math.round(runningTotalXP)
+        });
+        lastWorkoutGain = Math.round(sessionPoints);
+      } else {
+        if (completedMusclesSet.size >= REQUIRED_MUSCLES.length) {
+          timeline.push({
+            date: w.date,
+            sessionPoints: 0,
+            cumulativeXP: 0
+          });
+        }
+      }
     });
 
-    totalXP = runningTotalXP;
+    totalXP = Math.round(runningTotalXP);
     window._rpgTimeline = timeline;
 
     const completedCount = completedMusclesSet.size;
     const totalRequired = REQUIRED_MUSCLES.length;
     const isCalibrationComplete = completedCount >= totalRequired;
+    const streakWeeks = calculateWeeklySplitStreak(workouts);
+    const calibrationPercent = Math.min(100, Math.max(0, Math.round((completedCount / totalRequired) * 100)));
+
+    const LEVEL_THRESHOLDS = [0, 500, 1000, 5000, 15000, 35000, 75000];
+    const TITLES = ["Yok", "Çaylak", "Demir Bükücü", "Çelik İradesi", "Spartalı", "Titan", "Yarı Tanrı", "Olimposlu"];
+
+    let currentLevel = 1;
+    let prevTarget = 0;
+    let nextTarget = LEVEL_THRESHOLDS[1];
+
+    for (let i = 0; i < LEVEL_THRESHOLDS.length; i++) {
+      if (totalXP >= LEVEL_THRESHOLDS[i]) {
+        currentLevel = i + 1;
+        prevTarget = LEVEL_THRESHOLDS[i];
+        nextTarget = LEVEL_THRESHOLDS[i + 1] || LEVEL_THRESHOLDS[i];
+      } else {
+        break;
+      }
+    }
+
+    const xpInCurrentLevel = Math.max(0, totalXP - prevTarget);
+    const levelSize = Math.max(1, nextTarget - prevTarget);
+    let levelProgressPercent = 100;
+    let xpLeft = 0;
+
+    if (nextTarget > prevTarget) {
+      levelProgressPercent = Math.min(100, Math.max(0, (xpInCurrentLevel / levelSize) * 100));
+      xpLeft = Math.max(0, nextTarget - totalXP);
+    }
+    const roundedPercent = Math.round(levelProgressPercent);
+    const levelTitle = TITLES[currentLevel] || "Efsanevi Sporcu";
+    const nextLevelTitle = TITLES[currentLevel + 1] || "Olimposlu";
+
+    const state = {
+      isCalibrationComplete,
+      completedMusclesSet,
+      completedCount,
+      totalRequired,
+      calibrationPercent,
+      totalXP,
+      currentLevel,
+      levelTitle,
+      nextLevelTitle,
+      prevTarget,
+      nextTarget,
+      xpInCurrentLevel,
+      levelSize,
+      xpLeft,
+      levelProgressPercent: roundedPercent,
+      streakWeeks,
+      lastWorkoutGain,
+      workouts,
+      REQUIRED_MUSCLES,
+      LEVEL_THRESHOLDS,
+      TITLES
+    };
+
+    window._lastCalculatedRpgState = state;
+    return state;
+  } catch (err) {
+    console.error("calculateUserRpgState hatası:", err);
+    return null;
+  }
+}
+window.calculateUserRpgState = calculateUserRpgState;
+
+async function updateProfileRpgWidget(username) {
+  const inlineEl = document.getElementById('profRpgInline');
+  const heroBadgeEl = document.getElementById('profHeroLevelBadge');
+  if (!inlineEl && !heroBadgeEl) return;
+
+  try {
+    const state = await calculateUserRpgState(username);
+    if (!state) return;
+
+    if (heroBadgeEl) {
+      if (!state.isCalibrationComplete) {
+        heroBadgeEl.textContent = `🔒 KİLİTLİ (%${state.calibrationPercent})`;
+        heroBadgeEl.className = 'gym-badge-default';
+        heroBadgeEl.style.color = '#f59e0b';
+        heroBadgeEl.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+      } else {
+        heroBadgeEl.textContent = `LVL ${state.currentLevel} · ${state.levelTitle.toUpperCase()}`;
+        heroBadgeEl.className = 'badge badge-accent';
+        heroBadgeEl.style.color = '';
+        heroBadgeEl.style.borderColor = '';
+      }
+    }
+
+    if (!inlineEl) return;
+
+    const titleEl = document.getElementById('profInlineLevelTitle');
+    const badgeEl = document.getElementById('profInlineLevelBadge');
+    const totalXpEl = document.getElementById('profInlineTotalXp');
+    const xpLabelEl = document.getElementById('profInlineXpLabel');
+    const xpTextEl = document.getElementById('profInlineXpText');
+    const fillEl = document.getElementById('profInlineXpFill');
+    const nextTextEl = document.getElementById('profInlineNextText');
+    const streakBadgeEl = document.getElementById('profInlineStreakBadge');
+    const streakTextEl = document.getElementById('profInlineStreakText');
+
+    if (!state.isCalibrationComplete) {
+      if (titleEl) titleEl.textContent = '10 Kas Kalibrasyonu';
+      if (badgeEl) {
+        badgeEl.textContent = '🔒 KİLİTLİ';
+        badgeEl.className = 'badge badge-orange';
+      }
+      if (totalXpEl) totalXpEl.textContent = `${state.completedCount}/${state.totalRequired} Kas`;
+      if (xpLabelEl) xpLabelEl.textContent = 'Kalibrasyon İlerlemesi';
+      if (xpTextEl) xpTextEl.textContent = `${state.completedCount} / ${state.totalRequired} Kas (%${state.calibrationPercent})`;
+      if (nextTextEl) {
+        const rem = state.totalRequired - state.completedCount;
+        nextTextEl.innerHTML = `<span>🎯 Açılması için <b>${rem}</b> kas kaldı</span>`;
+      }
+      if (fillEl) animateXpProgressBar(fillEl, state.calibrationPercent, true);
+    } else {
+      if (titleEl) titleEl.textContent = state.levelTitle;
+      if (badgeEl) {
+        badgeEl.textContent = `LVL ${state.currentLevel}`;
+        badgeEl.className = 'badge badge-accent';
+      }
+      if (totalXpEl) totalXpEl.textContent = `${Math.round(state.totalXP)} XP Toplam`;
+      if (xpLabelEl) xpLabelEl.textContent = 'Seviye İlerlemesi';
+      if (xpTextEl) xpTextEl.textContent = `${Math.round(state.xpInCurrentLevel)} / ${state.levelSize} XP (%${state.levelProgressPercent})`;
+      if (nextTextEl) {
+        if (state.nextTarget > state.prevTarget && state.xpLeft > 0) {
+          nextTextEl.innerHTML = `<span>🎯 Seviye ${state.currentLevel + 1} için <b>${Math.round(state.xpLeft)} XP</b> kaldı</span>`;
+        } else {
+          nextTextEl.innerHTML = `<span>👑 <b>Maksimum seviyeye</b> ulaştın!</span>`;
+        }
+      }
+      if (fillEl) animateXpProgressBar(fillEl, state.levelProgressPercent, false);
+    }
+
+    if (streakTextEl) streakTextEl.textContent = `${state.streakWeeks} Hafta`;
+    if (streakBadgeEl) {
+      streakBadgeEl.title = `Haftalık Split Tamamlama Serisi: ${state.streakWeeks} Hafta`;
+    }
+  } catch (err) {
+    console.error('Profil RPG widget güncellenirken hata:', err);
+  }
+}
+window.updateProfileRpgWidget = updateProfileRpgWidget;
+
+async function loadDashboardRPG(username) {
+  const titleEl = document.getElementById('rpgTitle');
+  if (!titleEl) return;
+
+  try {
+    const state = await calculateUserRpgState(username);
+    if (!state) return;
 
     const badgeEl = document.getElementById('rpgLevelBadge');
     const nextTextEl = document.getElementById('rpgNextLevelText');
@@ -19383,90 +21383,107 @@ async function loadDashboardRPG(username) {
     const lastGainEl = document.getElementById('rpgLastGain');
     const bonusMultiplierEl = document.getElementById('rpgBonusMultiplier');
     const nextTitleEl = document.getElementById('rpgNextTitle');
+    const chartWrapEl = document.getElementById('rpgChartWrap');
+    const pillsEl = document.getElementById('rpgTimeframePills');
+    const xpHeaderWrapEl = document.getElementById('rpgXpHeaderWrap');
+    const lockPanelEl = document.getElementById('rpgLockPanel');
 
-    if (lastGainEl) lastGainEl.innerText = `+${lastWorkoutGain} XP`;
+    const userKey = username || window._currentUsername || _currentUser?.username || 'default';
+    const unlockedStorageKey = 'hx_rpg_unlocked_' + userKey;
+    const notifiedKey = 'hx_rpg_unlock_notified_' + userKey;
 
-    if (!isCalibrationComplete) {
-      const missingMuscles = REQUIRED_MUSCLES.filter(m => !completedMusclesSet.has(m));
-      const progressPercent = Math.min(100, Math.max(0, Math.round((completedCount / totalRequired) * 100)));
+    if (!state.isCalibrationComplete) {
+      localStorage.setItem('hx_rpg_was_locked_' + userKey, 'true');
+      localStorage.removeItem(unlockedStorageKey);
+      localStorage.removeItem(notifiedKey);
+
+      if (chartWrapEl) chartWrapEl.style.display = 'none';
+      if (pillsEl) pillsEl.style.display = 'none';
+      if (xpHeaderWrapEl) xpHeaderWrapEl.style.display = 'none';
+      if (lockPanelEl) {
+        lockPanelEl.style.display = 'flex';
+        renderRpgLockPanel(state.completedMusclesSet, state.REQUIRED_MUSCLES);
+      }
 
       if (badgeEl) {
-        badgeEl.innerText = `KURULUM %${progressPercent}`;
+        badgeEl.innerText = `🔒 KİLİTLİ · %${state.calibrationPercent}`;
         badgeEl.className = "badge badge-orange";
       }
 
       if (titleEl) {
-        titleEl.innerText = "KAS GRUBU TAMAMLAMA";
+        titleEl.innerText = "10 KAS GRUBU TAMAMLAMA";
       }
 
       if (nextTextEl) {
-        nextTextEl.innerText = `Eksik Kaslar: ${missingMuscles.slice(0, 3).join(', ')}${missingMuscles.length > 3 ? '...' : ''}`;
+        const remaining = state.totalRequired - state.completedCount;
+        nextTextEl.innerText = remaining > 0 ? `${remaining} kas grubu daha tamamlanmalı` : 'Tüm kaslar tamamlandı';
       }
 
-      if (currentXpEl) currentXpEl.innerText = `${completedCount} / ${totalRequired} Kas Grubu`;
-      if (targetXpEl) targetXpEl.innerText = `%${progressPercent} Tamamlandı`;
-      if (bonusMultiplierEl) bonusMultiplierEl.innerText = 'Kalibrasyonda';
+      if (currentXpEl) currentXpEl.innerText = `${state.completedCount} / ${state.totalRequired} Kas Grubu`;
+      if (targetXpEl) targetXpEl.innerText = `%${state.calibrationPercent} Tamamlandı`;
+      if (lastGainEl) lastGainEl.innerText = '0 XP';
+      if (bonusMultiplierEl) bonusMultiplierEl.innerText = `${state.streakWeeks} Hafta`;
       if (nextTitleEl) nextTitleEl.innerText = 'Çaylak (LVL 1)';
 
-      animateXpProgressBar(fillEl, progressPercent, true);
+      if (window._xpTrendChart) {
+        try { window._xpTrendChart.destroy(); } catch(e) {}
+        window._xpTrendChart = null;
+      }
     } else {
-      totalXP = Math.round(totalXP);
+      const wasLocked = localStorage.getItem('hx_rpg_was_locked_' + userKey) === 'true';
+      const justSaved = sessionStorage.getItem('hx_just_saved_workout') === 'true';
+      const alreadyNotified = localStorage.getItem(notifiedKey) === 'true';
 
-      const LEVEL_THRESHOLDS = [0, 500, 1000, 5000, 15000, 35000, 75000];
-      const TITLES = ["Yok", "Çaylak", "Demir Bükücü", "Çelik İradesi", "Spartalı", "Titan", "Yarı Tanrı", "Olimposlu"];
+      sessionStorage.removeItem('hx_just_saved_workout');
+      localStorage.setItem(unlockedStorageKey, 'true');
+      localStorage.removeItem('hx_rpg_was_locked_' + userKey);
 
-      let currentLevel = 1;
-      let prevTarget = 0;
-      let nextTarget = LEVEL_THRESHOLDS[1];
-
-      for (let i = 0; i < LEVEL_THRESHOLDS.length; i++) {
-        if (totalXP >= LEVEL_THRESHOLDS[i]) {
-          currentLevel = i + 1;
-          prevTarget = LEVEL_THRESHOLDS[i];
-          nextTarget = LEVEL_THRESHOLDS[i + 1] || LEVEL_THRESHOLDS[i];
-        } else {
-          break;
-        }
+      if ((wasLocked || justSaved) && !alreadyNotified) {
+        localStorage.setItem(notifiedKey, 'true');
+        setTimeout(() => {
+          toast('🎉 10 ana kas grubunu tamamladın! XP gelişim seviyesi kilidi açıldı!', 'success');
+        }, 400);
       }
 
-      const xpInCurrentLevel = Math.max(0, totalXP - prevTarget);
-      const levelSize = Math.max(1, nextTarget - prevTarget);
-      let progressPercent = 100;
-      let xpLeft = 0;
+      if (chartWrapEl) chartWrapEl.style.display = 'block';
+      if (pillsEl) pillsEl.style.display = 'flex';
+      if (xpHeaderWrapEl) xpHeaderWrapEl.style.display = 'block';
+      if (lockPanelEl) lockPanelEl.style.display = 'none';
 
-      if (nextTarget > prevTarget) {
-        progressPercent = Math.min(100, Math.max(0, (xpInCurrentLevel / levelSize) * 100));
-        xpLeft = Math.max(0, nextTarget - totalXP);
-      }
-      const roundedPercent = Math.round(progressPercent);
+      if (lastGainEl) lastGainEl.innerText = state.lastWorkoutGain > 0 ? `+${state.lastWorkoutGain} XP` : '0 XP';
 
       if (badgeEl) {
-        badgeEl.innerText = `LVL ${currentLevel}`;
+        badgeEl.innerText = `LVL ${state.currentLevel}`;
         badgeEl.className = "badge badge-accent";
       }
 
       if (titleEl) {
-        titleEl.innerText = TITLES[currentLevel] || "Efsanevi Sporcu";
+        titleEl.innerText = state.levelTitle;
       }
 
       if (nextTextEl) {
-        if (nextTarget > prevTarget && xpLeft > 0) {
-          nextTextEl.innerText = `Seviye ${currentLevel + 1} için ${Math.round(xpLeft)} XP kaldı`;
+        if (state.nextTarget > state.prevTarget && state.xpLeft > 0) {
+          nextTextEl.innerText = `Seviye ${state.currentLevel + 1} için ${Math.round(state.xpLeft)} XP kaldı`;
         } else {
           nextTextEl.innerText = `Maksimum seviyeye ulaştın!`;
         }
       }
 
-      if (currentXpEl) currentXpEl.innerText = `${Math.round(totalXP)} XP`;
-      if (targetXpEl) targetXpEl.innerText = `${Math.round(xpInCurrentLevel)} / ${levelSize} XP (%${roundedPercent})`;
-      if (bonusMultiplierEl) bonusMultiplierEl.innerText = hasOverloadBonusRecent ? '1.5x Overload' : '1.2x Compound';
-      if (nextTitleEl) nextTitleEl.innerText = `${TITLES[currentLevel + 1] || 'Olimposlu'} (LVL ${currentLevel + 1})`;
+      if (currentXpEl) currentXpEl.innerText = `${Math.round(state.totalXP)} XP`;
+      if (targetXpEl) targetXpEl.innerText = `${Math.round(state.xpInCurrentLevel)} / ${state.levelSize} XP (%${state.levelProgressPercent})`;
+      if (bonusMultiplierEl) bonusMultiplierEl.innerText = `${state.streakWeeks} Hafta`;
+      if (nextTitleEl) nextTitleEl.innerText = `${state.nextLevelTitle} (LVL ${state.currentLevel + 1})`;
 
-      animateXpProgressBar(fillEl, roundedPercent, false);
+      animateXpProgressBar(fillEl, state.levelProgressPercent, false);
+
+      // Sayfa açılışında animasyonu sıfırdan tetikle
+      renderXpTrendChart('all', true);
     }
 
-    // Sayfa açılışında animasyonu sıfırdan tetikle
-    renderXpTrendChart('all', true);
+    // Also update profile widget if present in DOM
+    if (document.getElementById('profRpgInline') || document.getElementById('profHeroLevelBadge')) {
+      updateProfileRpgWidget(username);
+    }
 
   } catch (err) {
     console.error("RPG Motoru çöktü, sistem durduruldu:", err);
@@ -19653,29 +21670,53 @@ async function togglePREditMode() {
 function switchSplitMode(mode) {
   localStorage.setItem('selectedSplitMode', mode);
 
+  const toggleGroup = document.getElementById('dashSplitToggleGroup') || document.querySelector('.dash-split-toggle-group');
   const customBtn = document.getElementById('btnSplitCustom');
   const expertBtn = document.getElementById('btnSplitExpert');
 
-  if(customBtn && expertBtn) {
+  if (toggleGroup) {
     if (mode === 'custom') {
-      customBtn.style.background = 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)';
-      customBtn.style.color = '#ffffff';
-      customBtn.style.boxShadow = '0 0 12px rgba(108, 99, 255, 0.45)';
-      expertBtn.style.background = 'transparent';
-      expertBtn.style.color = '#94a3b8';
-      expertBtn.style.boxShadow = 'none';
+      toggleGroup.classList.remove('mode-expert');
+      toggleGroup.classList.add('mode-custom');
     } else {
-      expertBtn.style.background = 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)';
-      expertBtn.style.color = '#ffffff';
-      expertBtn.style.boxShadow = '0 0 12px rgba(108, 99, 255, 0.45)';
-      customBtn.style.background = 'transparent';
-      customBtn.style.color = '#94a3b8';
-      customBtn.style.boxShadow = 'none';
+      toggleGroup.classList.remove('mode-custom');
+      toggleGroup.classList.add('mode-expert');
     }
+  }
+
+  if (customBtn && expertBtn) {
+    customBtn.style.background = 'transparent';
+    customBtn.style.boxShadow = 'none';
+    expertBtn.style.background = 'transparent';
+    expertBtn.style.boxShadow = 'none';
+
+    if (mode === 'custom') {
+      customBtn.classList.add('active');
+      expertBtn.classList.remove('active');
+      customBtn.style.color = '#ffffff';
+      expertBtn.style.color = '#94a3b8';
+    } else {
+      expertBtn.classList.add('active');
+      customBtn.classList.remove('active');
+      expertBtn.style.color = '#ffffff';
+      customBtn.style.color = '#94a3b8';
+    }
+  }
+
+  const container = document.getElementById('splitDays');
+  if (container) {
+    container.classList.remove('split-days-animate');
+    void container.offsetWidth;
+    container.classList.add('split-days-animate');
   }
 
   renderSelectedSplit(mode);
   refreshDashboardProgramStat(mode);
+
+  const streakEl = document.getElementById('rpgBonusMultiplier');
+  if (streakEl && typeof calculateWeeklySplitStreak === 'function') {
+    streakEl.innerText = `${calculateWeeklySplitStreak()} Hafta`;
+  }
 }
 
 function renderSelectedSplit(mode) {
@@ -19693,9 +21734,14 @@ function renderSelectedSplit(mode) {
 
     if (customSplit.length > 0) {
       let activeIndex = 0;
-      if (cachedUserData?.user?.created_at) {
+      const customDateStr = cachedUserData?.user?.dashboard_preferences?.custom_program_updated_at
+        || localStorage.getItem('hx_custom_split_saved_at_' + (cachedUserData?.user?.username || ''))
+        || cachedUserData?.user?.custom_program_updated_at
+        || cachedUserData?.user?.updated_at
+        || cachedUserData?.user?.created_at;
+      if (customDateStr) {
         try {
-          const uDate = new Date(cachedUserData.user.created_at);
+          const uDate = new Date(customDateStr);
           if (!isNaN(uDate.getTime())) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -19712,6 +21758,14 @@ function renderSelectedSplit(mode) {
         } catch (_) {}
       }
       const weekData = customSplit[activeIndex];
+      if (Array.isArray(weekData)) {
+        const FIXED_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+        weekData.forEach((d, idx) => {
+          if (d && typeof d === 'object') {
+            d.day = FIXED_DAYS[idx % 7];
+          }
+        });
+      }
 
       if(badge) {
         badge.textContent = `Özel (${activeIndex + 1}. Hafta)`;
@@ -19723,15 +21777,59 @@ function renderSelectedSplit(mode) {
     } else {
       if(badge) {
         badge.textContent = "Özel Program Yok";
-        badge.className = "badge badge-secondary";
+        badge.className = "badge badge-accent";
       }
       container.innerHTML = `
-        <div style="text-align:center; padding:32px 20px; color:var(--text-muted); font-size:13px; background:rgba(15, 23, 42, 0.4); border:1px dashed rgba(139, 92, 246, 0.25); border-radius:14px;">
-          <div style="font-size: 28px; margin-bottom: 8px;">📋</div>
-          <p style="color:#cbd5e1; font-weight:600; margin-bottom:12px;">Henüz kendi özel programını kurgulamadın.</p>
-          <button onclick="navigate('custom-program', this)"
-                  style="padding:9px 18px; background:linear-gradient(135deg, rgba(108, 99, 255, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%); border:1px solid rgba(167, 139, 250, 0.45); color:#c084fc; border-radius:10px; font-weight:750; cursor:pointer; font-size:13px; transition:all 0.2s; box-shadow:0 0 14px rgba(108, 99, 255, 0.25);">
-               Hemen Özel Program Yaz
+        <div class="dash-split-empty-card">
+          <div class="dash-split-empty-ambient-glow"></div>
+          
+          <div class="dash-split-empty-icon-box">
+            <div class="dash-split-empty-icon-pulse"></div>
+            <div class="dash-split-empty-icon-inner">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                <path d="M9 12h6"></path>
+                <path d="M9 16h6"></path>
+                <path d="M12 8h.01"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="dash-split-empty-tag">
+            <span class="dash-split-empty-tag-dot"></span>
+            HAFTALIK ANTRENMAN PLANI
+          </div>
+
+          <h4 class="dash-split-empty-title">Kendi Özel Split Programını Oluştur</h4>
+          <p class="dash-split-empty-desc">
+            Push/Pull/Legs veya bölgesel günlerini dilediğin gibi kurgula. Dinlenme günlerini belirle, antrenman devamlılık serini (streak) takip et.
+          </p>
+
+          <div class="dash-split-empty-features">
+            <div class="dash-split-empty-feature-item neon-purple">
+              <div class="dash-split-empty-feature-icon-wrap">⚡</div>
+              <div class="dash-split-empty-feature-title">Serbest Kurgu</div>
+              <div class="dash-split-empty-feature-sub">Günlük kas eşleşmesi</div>
+            </div>
+            <div class="dash-split-empty-feature-item neon-amber">
+              <div class="dash-split-empty-feature-icon-wrap">🔥</div>
+              <div class="dash-split-empty-feature-title">Haftalık Seri</div>
+              <div class="dash-split-empty-feature-sub">Kırmızı kartsız streak</div>
+            </div>
+            <div class="dash-split-empty-feature-item neon-cyan">
+              <div class="dash-split-empty-feature-icon-wrap">🎯</div>
+              <div class="dash-split-empty-feature-title">Canlı Takip</div>
+              <div class="dash-split-empty-feature-sub">Gün bazlı durum kartları</div>
+            </div>
+          </div>
+
+          <button onclick="navigate('custom-program', this)" class="dash-split-empty-cta-btn" type="button">
+            <span>Hemen Özel Program Yaz</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </button>
         </div>
       `;
@@ -19748,16 +21846,60 @@ function renderSelectedSplit(mode) {
     } else {
       if (badge) {
         badge.textContent = "Uzman Önerisi Yok";
-        badge.className = "badge badge-secondary";
+        badge.className = "badge badge-accent";
       }
       container.innerHTML = `
-        <div style="text-align:center; padding:32px 20px; color:var(--text-muted); font-size:13px; background:rgba(15, 23, 42, 0.4); border:1px dashed rgba(139, 92, 246, 0.25); border-radius:14px;">
-          <div style="font-size: 28px; margin-bottom: 8px;">🎯</div>
-          <p style="color:#cbd5e1; font-weight:600; margin-bottom:12px;">Henüz bir uzman öneri programı üretilmedi.</p>
-          <button onclick="if (window.expertDataSwitchTab) window.expertDataSwitchTab('split'); navigate('analyze', this);"
-                  style="padding:9px 18px; background:linear-gradient(135deg, rgba(108, 99, 255, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%); border:1px solid rgba(167, 139, 250, 0.45); color:#c084fc; border-radius:10px; font-weight:750; cursor:pointer; font-size:13px; transition:all 0.2s; box-shadow:0 0 14px rgba(108, 99, 255, 0.25);">
-               Uzman Sisteminden Program Üret
+        <div class="dash-split-empty-card expert-theme">
+          <div class="dash-split-empty-ambient-glow expert-glow"></div>
+          
+          <div class="dash-split-empty-icon-box expert-icon-box">
+            <div class="dash-split-empty-icon-pulse expert-pulse"></div>
+            <div class="dash-split-empty-icon-inner">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="dash-split-empty-tag expert-tag">
+            <span class="dash-split-empty-tag-dot expert-dot"></span>
+            HİPERTROFİ UZMAN SİSTEMİ
+          </div>
+
+          <h4 class="dash-split-empty-title">Akıllı Uzman Split Programı Üret</h4>
+          <p class="dash-split-empty-desc">
+            Profilindeki seviyene, ekipmanlarına ve öncelikli kas hedeflerine göre bilimsel hacim optimizasyonlu haftalık split planı hazırla.
+          </p>
+
+          <div class="dash-split-empty-features">
+            <div class="dash-split-empty-feature-item neon-cyan">
+              <div class="dash-split-empty-feature-icon-wrap">🔬</div>
+              <div class="dash-split-empty-feature-title">Bilimsel Hacim</div>
+              <div class="dash-split-empty-feature-sub">Optimal set ve tekrar</div>
+            </div>
+            <div class="dash-split-empty-feature-item neon-emerald">
+              <div class="dash-split-empty-feature-icon-wrap">🛡️</div>
+              <div class="dash-split-empty-feature-title">Ağrı ve Kısıt</div>
+              <div class="dash-split-empty-feature-sub">DOMS duyarlı seanslar</div>
+            </div>
+            <div class="dash-split-empty-feature-item neon-purple">
+              <div class="dash-split-empty-feature-icon-wrap">📈</div>
+              <div class="dash-split-empty-feature-title">Aşırı Yüklenme</div>
+              <div class="dash-split-empty-feature-sub">Otomatik periyotlama</div>
+            </div>
+          </div>
+
+          <button onclick="if (window.expertDataSwitchTab) window.expertDataSwitchTab('split'); navigate('analyze', this);" class="dash-split-empty-cta-btn expert-cta" type="button">
+            <span>Uzman Sisteminden Program Üret</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </button>
+
+          <div class="dash-split-empty-switch-hint">
+            veya kendi programını yazmak için <a href="javascript:void(0)" onclick="switchSplitMode('custom')">Özel Programım</a>'a dön
+          </div>
         </div>
       `;
     }
@@ -19776,8 +21918,12 @@ function queueCustomSplitOrderSave(reorderedWeek, activeWeekIndex) {
   }
   if (!Array.isArray(program) || !Array.isArray(program[activeWeekIndex])) return;
 
-  // DOM’daki diziyi derin kopyalayarak kayıt sırasında sonradan değişmesini engelleriz.
-  program[activeWeekIndex] = reorderedWeek.map(day => ({ ...day }));
+  // DOM’daki diziyi derin kopyalayarak kayıt sırasında sonradan değişmesini engelleriz. Gün isimlerini slot sırasına kilitleriz.
+  const FIXED_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+  program[activeWeekIndex] = reorderedWeek.map((day, idx) => ({
+    ...day,
+    day: FIXED_DAYS[idx % 7]
+  }));
   const nextProgramJson = JSON.stringify(program);
   const username = cachedUserData.user.username || window._currentUsername || _currentUser?.username;
   if (!username) {
@@ -19897,25 +22043,30 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     }) || null;
     const hasWorkout = Boolean(matchedSession) || allUserSessions.some(s => expertNormalizeDateStr(s?.date) === dateStr);
 
-    let programGenDate = null;
-    if (reorderContext?.kind === 'expert-recommendation') {
+    // Özel programda plan öncesi durumu yoktur; kaçırılan geçmiş antrenman günleri her zaman KIRMIZI (Antrenman yapılmadı) olarak gösterilir.
+    const isExpertMode = reorderContext?.kind === 'expert-recommendation';
+    let isBeforeProgram = false;
+    if (isExpertMode) {
+      let programGenDate = null;
       const rec = expertRecommendationFromData(cachedUserData);
-      if (rec?.generated_at) programGenDate = new Date(rec.generated_at);
-    }
-    const userRegDateStr = cachedUserData?.user?.created_at;
-    const userRegDate = userRegDateStr ? new Date(userRegDateStr) : null;
-    if (programGenDate) programGenDate.setHours(0, 0, 0, 0);
-    if (userRegDate) userRegDate.setHours(0, 0, 0, 0);
+      if (rec?.generated_at) {
+        programGenDate = new Date(rec.generated_at);
+        programGenDate.setHours(0, 0, 0, 0);
+      }
+      const userRegDateStr = cachedUserData?.user?.created_at;
+      const userRegDate = userRegDateStr ? new Date(userRegDateStr) : null;
+      if (userRegDate) userRegDate.setHours(0, 0, 0, 0);
 
-    const isBeforeProgram = Boolean(
-      (programGenDate && d.getTime() < programGenDate.getTime()) ||
-      (userRegDate && d.getTime() < userRegDate.getTime())
-    );
+      isBeforeProgram = Boolean(
+        (programGenDate && d.getTime() < programGenDate.getTime()) ||
+        (userRegDate && d.getTime() < userRegDate.getTime())
+      );
+    }
 
     // Slot tamamlanmış mı: o slota ait tarihte kaydedilmiş antrenman var mı?
     const isCompleted = !isRest && hasWorkout;
-    const isNeutral = !isRest && !hasWorkout && isBeforeProgram;
-    const isMissed = !isRest && !hasWorkout && !isBeforeProgram && isPast;
+    const isNeutral = isExpertMode && !isRest && !hasWorkout && isBeforeProgram;
+    const isMissed = !isRest && !hasWorkout && !isNeutral && isPast;
 
     let statusClass = '';
     let statusIcon = `<svg style="width:18px; height:18px; color:rgba(255,255,255,0.15);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
@@ -20009,6 +22160,7 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     let displaySubtitle = '';
     const sessionNote = String(matchedSession?.notes || '').trim();
     const customFocus = String(dayData.focus || '').trim();
+    const isRestWord = (text) => /^(toparlanma|dinlenme|recovery|rest|toparlanma\s*&\s*rejenerasyon)$/i.test(String(text || '').trim());
 
     if (isRest) {
       displayTitle = 'Rest Day';
@@ -20030,14 +22182,18 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
         displayTitle = rawT;
       }
 
-      if (sessionNote) {
+      if (sessionNote && !isRestWord(sessionNote)) {
         displaySubtitle = sessionNote;
-      } else if (customFocus && !customFocus.startsWith('Antrenman yapıldı') && !customFocus.startsWith('Gerçek antrenman kaydı') && customFocus !== 'Genel antrenman') {
+      } else if (customFocus && !isRestWord(customFocus) && !customFocus.startsWith('Antrenman yapıldı') && !customFocus.startsWith('Gerçek antrenman kaydı') && customFocus !== 'Genel antrenman') {
         displaySubtitle = customFocus;
-      } else if (rawParenSubtitle) {
+      } else if (rawParenSubtitle && !isRestWord(rawParenSubtitle)) {
         displaySubtitle = rawParenSubtitle;
       } else {
         displaySubtitle = getDefaultFocus(rawT);
+      }
+      if (isRestWord(displaySubtitle)) {
+        displaySubtitle = getDefaultFocus(rawT);
+        if (isRestWord(displaySubtitle)) displaySubtitle = 'Genel antrenman';
       }
       displayTitle = formatDisplayWorkoutTitle(displayTitle);
     }
@@ -20109,6 +22265,12 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
           } else {
             const movedItem = daysList.splice(oldIdx, 1)[0];
             daysList.splice(newIdx, 0, movedItem);
+            const FIXED_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+            daysList.forEach((item, idx) => {
+              if (item && typeof item === 'object') {
+                item.day = FIXED_DAYS[idx % 7];
+              }
+            });
           }
 
           // Güncel içerik önce ekranda korunur, sonra yalnız oturum sahibinin kaydına yazılır.
@@ -20877,6 +23039,7 @@ async function saveWorkout() {
     resetWorkoutFormToNewMode();
 
     // Antrenman kaydedildikten sonra PR, XP ve İlerleme verilerini güncellemesi için Dashboard sayfasına yönlendir (Opsiyonel ama şık olur)
+    sessionStorage.setItem('hx_just_saved_workout', 'true');
     navigate('dashboard');
   } catch(e) {
     toast('Hata: ' + e.message, 'error');
@@ -21741,7 +23904,7 @@ function expertPreferencesForm() {
     <p style="margin:0 0 16px;color:var(--text-muted);font-size:13px;line-height:1.55">Profilinizde bulunan deneyim, haftalık gün ve seans süresi tekrar sorulmaz. Bu tercihler kaydedilir; daha sonra istediğiniz zaman değiştirebilirsiniz.</p>
     <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:8px">ANA AMAÇ</div>
     <div class="expert-choice-grid" style="margin-bottom:18px">${goals}</div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:8px"><span style="font-size:12px;font-weight:700;color:var(--text-secondary)">ÖNCELİKLİ KAS GRUPLARI</span><span style="font-size:11px;color:var(--text-muted)">${expertPreferenceDraft.priority_muscles.length}/3 seçildi</span></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:8px"><span style="font-size:12px;font-weight:700;color:var(--text-secondary)">ÖNCELİKLİ KAS GRUPLARI</span><span style="font-size:11px;color:var(--text-muted)">${expertPreferenceDraft.priority_muscles.length}/3 seçildi${expertPreferenceDraft.primary_goal === 'hypertrophy' ? ' (Zorunlu)' : ' (İsteğe Bağlı)'}</span></div>
     <div class="expert-choice-grid">${muscles}</div>
     <div class="expert-actions" style="margin-top:18px">
       <button class="btn btn-primary" onclick="expertSavePreferences()">Tercihleri Kaydet ve Analizi Aç</button>
@@ -21820,6 +23983,14 @@ window.expertTogglePriority = function(group) {
   const panel = document.getElementById('expertInteractionPanel'); if (panel) panel.innerHTML = expertPreferencesForm(); else renderExpertSystem();
 };
 window.expertSavePreferences = async function() {
+  if (expertPreferenceDraft.primary_goal === 'hypertrophy' && !expertPreferenceDraft.priority_muscles.length) {
+    toast('Kas kazanımı hedefinde en az bir öncelikli kas grubu seçmelisiniz.', 'error');
+    return;
+  }
+  if (expertPreferenceDraft.priority_muscles.length > 3) {
+    toast('En fazla 3 öncelikli kas grubu seçebilirsiniz.', 'error');
+    return;
+  }
   try {
     const state = await apiPost('/api/expert-system/preferences', expertPreferenceDraft);
     expertSystemState = state;
@@ -21893,6 +24064,105 @@ let _progExercise = '';
 let _progTimeframe = 'monthly';
 let _progChartMode = 'weight';
 
+// ── EN İYİ İLERLEMELER (TOP PROGRESS GAINS) ÇİZİCİ ──
+function renderTopProgressGains(topGains) {
+  const container = document.getElementById('progTopGainsGrid');
+  const badgeEl = document.getElementById('progTopGainsCountBadge');
+  if (!container) return;
+
+  const list = Array.isArray(topGains) ? topGains : [];
+
+  if (badgeEl) {
+    if (list.length > 0) {
+      badgeEl.innerHTML = `<span style="width:6px; height:6px; border-radius:50%; background:#34d399; box-shadow:0 0 6px #34d399;"></span> ${list.length} Güç Artışı 🚀`;
+    } else {
+      badgeEl.innerHTML = `<span style="width:6px; height:6px; border-radius:50%; background:#94a3b8;"></span> Kayıt Bekleniyor`;
+    }
+  }
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; padding: 26px 20px; text-align: center; color: #94a3b8; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1);">
+        <div style="font-size: 26px; margin-bottom: 8px;">📈</div>
+        <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px;">Henüz Karşılaştırmalı Gelişim Kaydı Yok</div>
+        <div style="font-size: 12px; color: #94a3b8; max-width: 420px; margin: 0 auto;">En iyi güç ilerlemelerini görebilmek için hareketlerinizi en az 2 farklı antrenman seansında kaydedin.</div>
+      </div>
+    `;
+    return;
+  }
+
+  const formatDateTr = (dateStr) => {
+    if (!dateStr) return "-";
+    const parts = dateStr.split(" ")[0].split("-");
+    if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    return dateStr;
+  };
+
+  const muscleColorMap = {
+    'Göğüs': { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.4)', text: '#22d3ee' },
+    'Sırt': { bg: 'rgba(99, 102, 241, 0.16)', border: 'rgba(99, 102, 241, 0.45)', text: '#818cf8' },
+    'Omuz': { bg: 'rgba(168, 85, 247, 0.15)', border: 'rgba(168, 85, 247, 0.4)', text: '#c084fc' },
+    'Kol': { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)', text: '#fbbf24' },
+    'Biceps': { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)', text: '#fbbf24' },
+    'Triceps': { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)', text: '#fbbf24' },
+    'Bacak': { bg: 'rgba(244, 63, 94, 0.15)', border: 'rgba(244, 63, 94, 0.4)', text: '#fb7185' },
+    'Quadriceps': { bg: 'rgba(244, 63, 94, 0.15)', border: 'rgba(244, 63, 94, 0.4)', text: '#fb7185' },
+    'Hamstring': { bg: 'rgba(244, 63, 94, 0.15)', border: 'rgba(244, 63, 94, 0.4)', text: '#fda4af' },
+    'Gluteus': { bg: 'rgba(249, 115, 22, 0.15)', border: 'rgba(249, 115, 22, 0.4)', text: '#fdba74' },
+    'Calf': { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.4)', text: '#f9a8d4' },
+    'Core': { bg: 'rgba(20, 184, 166, 0.15)', border: 'rgba(20, 184, 166, 0.4)', text: '#2dd4bf' }
+  };
+
+  let cardsHTML = '';
+  list.forEach(r => {
+    const isReps = r.metric_type === 'reps';
+    const unit = isReps ? 'tkr' : 'kg';
+    const mStyle = muscleColorMap[r.muscle] || { bg: 'rgba(255, 255, 255, 0.1)', border: 'rgba(255, 255, 255, 0.2)', text: '#ffffff' };
+    const badgeStyle = `background:${mStyle.bg}; border:1px solid ${mStyle.border}; color:${mStyle.text};`;
+
+    const startValStr = Number.isInteger(r.first_value) ? r.first_value : Number(r.first_value).toFixed(1);
+    const peakValStr = Number.isInteger(r.current_pr_value) ? r.current_pr_value : Number(r.current_pr_value).toFixed(1);
+    const diffValStr = Number.isInteger(r.diff) ? r.diff : Number(r.diff).toFixed(1);
+
+    const safeExercise = (r.exercise || '').replace(/'/g, "\\'");
+    const safeId = (r.exercise_id || '').replace(/'/g, "\\'");
+
+    cardsHTML += `
+      <div class="prog-gain-card" onclick="selectProgressExercise('${safeId}', '${safeExercise}'); document.getElementById('exerciseProgressChart')?.scrollIntoView({behavior:'smooth', block:'center'}); toast('${safeExercise} grafiği açıldı.', 'info');" title="Grafiği incelemek için tıkla">
+        <div class="prog-gain-card-header">
+          <span class="prog-gain-muscle-tag" style="${badgeStyle}">${r.muscle}</span>
+          <span class="prog-gain-session-tag">🔥 ${r.sessions_count} Seans</span>
+        </div>
+
+        <div class="prog-gain-title">${r.exercise}</div>
+
+        <div class="prog-gain-progression-row">
+          <div class="prog-gain-numbers">
+            <span class="gain-from">${startValStr} ${unit}</span>
+            <span class="gain-arrow">→</span>
+            <span class="gain-to">${peakValStr} ${unit}</span>
+          </div>
+          <div class="prog-gain-delta-badge">
+            <span class="gain-diff">+${diffValStr} ${unit}</span>
+            <span class="gain-pct">(+${r.percentage}%)</span>
+          </div>
+        </div>
+
+        <div class="prog-gain-footer">
+          <span class="prog-gain-date-range">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            ${formatDateTr(r.first_date)} → ${formatDateTr(r.current_pr_date)}
+          </span>
+          <span class="prog-gain-inspect-hint">Grafik ↗</span>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = cardsHTML;
+}
+window.renderTopProgressGains = renderTopProgressGains;
+
 // 1. İlerleme Sayfası Yüklendiğinde
 async function loadProgress(username) {
   // Önce egzersiz havuzunu çekip dropdown ve eşleştirmeyi hazırla
@@ -21911,6 +24181,9 @@ async function loadProgress(username) {
   // ── A: GENEL VERİLER (PR Tablosu ve Eski Grafik) ──
   try {
     const data = await apiGet(`/api/progress`);
+
+    // En İyi İlerlemeler (Top Progress Gains) Vitrinini Çiz
+    renderTopProgressGains(data.top_progress);
 
     // Havuzda artık olmayan eski/özel hareketler de arama listesine eklenir.
     _progHistoricalRecords = Array.isArray(data.personal_records) ? data.personal_records : [];
@@ -23680,9 +25953,19 @@ async function loadCustomProgram() {
     }
   }
 
+  const FIXED_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
   try {
     const savedProgram = JSON.parse(cachedUserData?.user?.custom_split || '[]');
     if (Array.isArray(savedProgram) && savedProgram.length > 0) {
+      savedProgram.forEach(week => {
+        if (Array.isArray(week)) {
+          week.forEach((day, idx) => {
+            if (day && typeof day === 'object') {
+              day.day = FIXED_DAYS[idx % 7];
+            }
+          });
+        }
+      });
       customProgramData = savedProgram;
     }
   } catch (_) {
@@ -23836,6 +26119,7 @@ function deleteWeek(index) {
 // 6. Seçili Haftanın Gün Kartlarını Çizme
 // ─── ÖZEL PROGRAM GÜN KARTLARI ÇİZİMİ ───
 function renderCustomWeekDays(weekIndex) {
+  const FIXED_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
   const daysList = customProgramData[weekIndex] || [];
   const container = document.getElementById('customDaysContainer');
   if (!container) return;
@@ -23851,6 +26135,8 @@ function renderCustomWeekDays(weekIndex) {
   let html = '';
 
   daysList.forEach((d, dayIndex) => {
+    const fixedDayName = FIXED_DAYS[dayIndex % 7] || d.day;
+    d.day = fixedDayName;
     const isRest = Boolean(d.isRest);
     const typeValue = isRest ? (d.type || 'Dinlenme Günü') : (d.type || '');
     const focusValue = isRest ? (d.focus || 'Dinlenme') : (d.focus || '');
@@ -23862,7 +26148,7 @@ function renderCustomWeekDays(weekIndex) {
         <div style="min-width: 0;">
           <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px;">Gün</label>
           <div id="custDayPill_${weekIndex}_${dayIndex}" class="cust-day-pill ${isRest ? 'rest' : ''}">
-            ${d.day}
+            ${fixedDayName}
           </div>
         </div>
 
@@ -23989,6 +26275,19 @@ async function saveCustomProgram() {
     return;
   }
 
+  const FIXED_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+  if (Array.isArray(customProgramData)) {
+    customProgramData.forEach(week => {
+      if (Array.isArray(week)) {
+        week.forEach((day, idx) => {
+          if (day && typeof day === 'object') {
+            day.day = FIXED_DAYS[idx % 7];
+          }
+        });
+      }
+    });
+  }
+
   const requestBody = {
     username: username,
     program: customProgramData
@@ -23998,12 +26297,28 @@ async function saveCustomProgram() {
     const result = await apiPost('/api/custom-program', requestBody);
     const savedProgram = Array.isArray(result.program) ? result.program : customProgramData;
     const savedProgramJson = JSON.stringify(savedProgram);
+    const savedAt = result.custom_program_updated_at || new Date().toISOString();
 
     if (cachedUserData?.user) {
       cachedUserData.user.custom_split = savedProgramJson;
+      if (result.dashboard_preferences) {
+        cachedUserData.user.dashboard_preferences = result.dashboard_preferences;
+      }
+      cachedUserData.user.updated_at = savedAt;
+      cachedUserData.user.custom_program_updated_at = savedAt;
     }
     lastConfirmedCustomSplitJson = savedProgramJson;
+    localStorage.setItem('selectedSplitMode', 'custom');
+    if (username) {
+      localStorage.setItem('hx_custom_split_saved_at_' + username, savedAt);
+    }
     toast(result.message || 'Özel program hesabınıza kaydedildi.', 'success');
+
+    // Kayıt tamamlandığında kullanıcıyı doğrudan Ana Sayfa'ya (Dashboard) yönlendir
+    await navigate('dashboard');
+    if (typeof switchSplitMode === 'function') {
+      switchSplitMode('custom');
+    }
   } catch (err) {
     console.error('Sunucuya gönderilirken hata oluştu:', err);
     toast(err.message || 'Özel program kaydedilemedi.', 'error');
@@ -24121,6 +26436,7 @@ async function loadProfile(username) {
     }
 
     updateProfileLiveMetrics();
+    await updateProfileRpgWidget(user.username || username);
   } catch (err) {
     console.error('Profil yüklenirken hata:', err);
   }
@@ -26452,7 +28768,7 @@ function expertDataGoalLabel(id) {
 }
 function expertDataProfileGoal() {
   const value = String(_currentUser?.goal || '').trim().toLowerCase();
-  const aliases = { bulk: 'hypertrophy', hypertrophy: 'hypertrophy', muscle_gain: 'hypertrophy', strength: 'strength', cut: 'fat_loss', fat_loss: 'fat_loss', maintain: 'fat_loss', maintenance: 'fat_loss' };
+  const aliases = { bulk: 'hypertrophy', hypertrophy: 'hypertrophy', muscle_gain: 'hypertrophy', strength: 'strength', cut: 'fat_loss', fat_loss: 'fat_loss', maintain: 'maintenance', maintenance: 'maintenance' };
   return aliases[value] || 'hypertrophy';
 }
 function expertDataToday() { return new Date().toISOString().slice(0, 10); }
@@ -26485,23 +28801,188 @@ function expertDataInjectStyles() {
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   ALT BÖLÜM 24.2: UZMAN SİSTEMİ SEKME GEZİNME MOTORU (PLANNING & HEALTH TABS)
+   ALT BÖLÜM 24.2: UZMAN SİSTEMİ MODERN STEPPER VE SEKME GEZİNME MOTORU
 ────────────────────────────────────────────────────────────────────────── */
 function expertDataTabs() {
-  const tabs = [
-    ['health', 'Kas Ağrısı ve Sakatlıklar', '01', 'Sağlık'],
-    ['setup', 'Hedef ve Ekipmanlar', '02', 'Tercihler'],
-    ['planning', 'Split ve Analiz', '03', 'Planlama'],
+  const currentIdx = expertDataTab === 'health' ? 0 : (expertDataTab === 'setup' ? 1 : 2);
+
+  // 1. ADIM: Kas Ağrısı ve Sakatlıklar Durum Analizi
+  const injuriesList = Array.isArray(expertDataState?.injuries) ? expertDataState.injuries : [];
+  const activeInjuries = injuriesList.filter(i => i && i.is_active !== false && Number(i.severity ?? 1) > 0);
+  const hasActiveInjury = activeInjuries.length > 0;
+
+  const domsEntries = typeof expertDataDomsEntries === 'function' ? expertDataDomsEntries() : [];
+  const activeDoms = domsEntries.filter(d => d && Number(d.severity || 0) > 0);
+  const hasActiveDoms = activeDoms.length > 0;
+
+  let healthSubtitle = 'Tamamlandı';
+  let healthSubtitleClass = 'status-done';
+  let healthStepClass = 'is-done';
+  let healthNumContent = '✓';
+  let healthStatusText = 'Risk durumu normal · Sorun bildirilmedi';
+  let healthBadgeClass = 'badge-done';
+
+  if (hasActiveInjury) {
+    healthSubtitle = 'Aktif sakatlık mevcut!';
+    healthSubtitleClass = 'status-injury';
+    healthStepClass = 'has-injury';
+    healthNumContent = '!';
+    healthStatusText = `${activeInjuries.length} aktif sakatlık kaydı mevcut`;
+    healthBadgeClass = 'badge-injury';
+  } else if (hasActiveDoms) {
+    healthSubtitle = 'Aktif kas ağrısı mevcut';
+    healthSubtitleClass = 'status-doms';
+    healthStepClass = 'has-doms';
+    healthNumContent = '1';
+    healthStatusText = `${activeDoms.length} kas grubunda aktif ağrı (DOMS)`;
+    healthBadgeClass = 'badge-doms';
+  }
+
+  // 2. ADIM: Hedef ve Ekipmanlar Durum Analizi
+  const hasGyms = Array.isArray(expertDataState?.gyms) && expertDataState.gyms.length > 0;
+  const hasEquipmentPrefs = Array.isArray(expertDataState?.preferred_equipment) && expertDataState.preferred_equipment.length > 0;
+  const targetMusclesList = expertDataGoalDraft?.priority_muscles || expertDataState?.target_muscles?.priority_muscles || [];
+  const currentProfileGoal = expertDataProfileGoal();
+  const hasTargetMuscles = (currentProfileGoal !== 'hypertrophy') || (Array.isArray(targetMusclesList) && targetMusclesList.length > 0);
+
+  const missingSetup = [];
+  if (!hasGyms) missingSetup.push('Salon ve Ekipman');
+  if (!hasEquipmentPrefs) missingSetup.push('Ekipman Tercihleri');
+  if (!hasTargetMuscles) missingSetup.push('Hedef Kaslar');
+
+  let setupSubtitle = 'Tamamlandı';
+  let setupSubtitleClass = 'status-done';
+  let setupStepClass = 'is-done';
+  let setupNumContent = '✓';
+  let setupStatusText = 'Tüm profil tercihleri eksiksiz';
+  let setupBadgeClass = 'badge-done';
+
+  if (missingSetup.length > 0) {
+    setupSubtitle = `Eksik: ${missingSetup.join(', ')}`;
+    setupSubtitleClass = 'status-missing';
+    setupStepClass = 'has-missing';
+    setupNumContent = '2';
+    setupStatusText = `Eksik veriler: ${missingSetup.join(', ')}`;
+    setupBadgeClass = 'badge-missing';
+  }
+
+  // 3. ADIM: Split ve Analiz Durum Analizi
+  const recommendation = typeof expertDataRecommendation === 'function' ? expertDataRecommendation() : expertDataState?.recommendation;
+  const hasSplit = Boolean(recommendation?.weeks && recommendation.weeks.length > 0);
+
+  const missingPlanning = [];
+  if (!hasSplit) missingPlanning.push('Split Taslağı');
+
+  let planningSubtitle = 'Tamamlandı';
+  let planningSubtitleClass = 'status-done';
+  let planningStepClass = 'is-done';
+  let planningNumContent = '✓';
+  let planningStatusText = 'Öneri programı ve analiz hazır';
+  let planningBadgeClass = 'badge-done';
+
+  if (missingPlanning.length > 0) {
+    planningSubtitle = `Eksik: ${missingPlanning.join(', ')}`;
+    planningSubtitleClass = 'status-missing';
+    planningStepClass = 'has-missing';
+    planningNumContent = '3';
+    planningStatusText = 'Öneri antrenman programı oluşturulmadı';
+    planningBadgeClass = 'badge-missing';
+  }
+
+  const steps = [
+    {
+      id: 'health',
+      stepNum: 1,
+      title: 'Kas Ağrısı ve Sakatlıklar',
+      desc: 'Risk durumunu ve toparlanma verilerini düzenle.',
+      statusText: healthStatusText,
+      subtitle: healthSubtitle,
+      subtitleClass: healthSubtitleClass,
+      stepClass: healthStepClass,
+      numContent: healthNumContent,
+      statusBadgeClass: healthBadgeClass
+    },
+    {
+      id: 'setup',
+      stepNum: 2,
+      title: 'Hedef ve Ekipmanlar',
+      desc: 'Uzman sistemin program oluştururken kullanacağı kaynakları düzenle.',
+      statusText: setupStatusText,
+      subtitle: setupSubtitle,
+      subtitleClass: setupSubtitleClass,
+      stepClass: setupStepClass,
+      numContent: setupNumContent,
+      statusBadgeClass: setupBadgeClass
+    },
+    {
+      id: 'planning',
+      stepNum: 3,
+      title: 'Split ve Analiz',
+      desc: 'Program taslağını incele ve uzman analizini değerlendir.',
+      statusText: planningStatusText,
+      subtitle: planningSubtitle,
+      subtitleClass: planningSubtitleClass,
+      stepClass: planningStepClass,
+      numContent: planningNumContent,
+      statusBadgeClass: planningBadgeClass
+    }
   ];
-  return `<nav class="expert-data-tabs" aria-label="Uzman sistemi anket sekmeleri">${tabs.map(([id, label, num, mobileLabel]) => `<button class="expert-data-tab ${expertDataTab === id ? 'active' : ''}" type="button" onclick="expertDataSwitchTab('${id}')"><span style="opacity:.72;font-size:10px">${num}</span><span class="expert-data-tab-label" data-mobile="${mobileLabel}">${label}</span></button>`).join('')}</nav>`;
+
+  const currentStep = steps[currentIdx] || steps[0];
+  const progressPercent = Math.round(((currentIdx + 1) / steps.length) * 100);
+
+  const stepsHtml = steps.map((s, idx) => {
+    const isActive = idx === currentIdx;
+    let stateClasses = [];
+    if (s.stepClass) stateClasses.push(s.stepClass);
+    if (isActive) stateClasses.push('active');
+
+    let displayNum = s.numContent;
+    if (isActive && s.numContent !== '!' && s.numContent !== '✓') {
+      displayNum = `${s.stepNum}`;
+    }
+
+    return `<div class="expert-step ${stateClasses.join(' ').trim()}" data-step="${idx}" onclick="expertDataSwitchTab('${s.id}')" role="button" tabindex="0" title="${expertDataEscape(s.title + ' — ' + s.subtitle)}">
+      <span class="expert-step-num">${displayNum}</span>
+      <div class="expert-step-text">
+        <b>${s.title}</b>
+        <small class="expert-step-subtitle ${s.subtitleClass}" title="${expertDataEscape(s.subtitle)}">${expertDataEscape(s.subtitle)}</small>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="expert-data-tabs expert-stepper-container" aria-label="Uzman sistemi aşamaları">
+    <section class="expert-stepper" id="expertStepper">
+      ${stepsHtml}
+    </section>
+    <div class="expert-stepper-progress" aria-hidden="true">
+      <span class="expert-stepper-progress-bar" style="width:${progressPercent}%"></span>
+    </div>
+    <div class="expert-context-header">
+      <div class="expert-context-info">
+        <h2 class="expert-context-title">${currentStep.title}</h2>
+        <p class="expert-context-desc">${currentStep.desc}</p>
+      </div>
+      <div class="expert-context-meta">
+        <div class="expert-status-pill expert-step-counter">${currentIdx + 1} / 3 adım</div>
+        <div class="expert-status-pill expert-data-status-badge ${currentStep.statusBadgeClass}">
+          <span class="expert-status-dot"></span>
+          <span>${currentStep.statusText}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
 }
 
 function expertDataHealthTabs() {
   const children = [
-    ['doms', 'Bugünkü Kas Ağrısı'],
-    ['injuries', 'Sakatlık ve Kısıtlar'],
+    ['doms', 'Kas Ağrısı'],
+    ['injuries', 'Sakatlıklar'],
   ];
-  return `<nav class="expert-data-subtabs" aria-label="Kas ağrısı ve sakatlık alt sekmeleri">${children.map(([id, label]) => `<button class="expert-data-subtab ${expertDataHealthTab === id ? 'active' : ''}" type="button" onclick="expertDataSwitchHealthTab('${id}')">${label}</button>`).join('')}</nav>`;
+  return `<nav class="expert-data-subtabs" aria-label="Kas ağrısı ve sakatlık alt sekmeleri">${children.map(([id, label]) => {
+    const isActive = expertDataHealthTab === id;
+    return `<button class="expert-data-subtab ${isActive ? 'active' : ''}" type="button" onclick="expertDataSwitchHealthTab('${id}')">${isActive ? '<span class="subtab-dot"></span>' : ''}<span>${label}</span></button>`;
+  }).join('')}</nav>`;
 }
 
 function expertDataSetupTabs() {
@@ -26510,15 +28991,21 @@ function expertDataSetupTabs() {
     ['gyms', 'Salonlar ve Ekipmanlar'],
     ['equipment-preferences', 'Ekipman Tercihlerim'],
   ];
-  return `<nav class="expert-data-subtabs" aria-label="Hedef ve salon alt sekmeleri">${children.map(([id, label]) => `<button class="expert-data-subtab ${expertDataSetupTab === id ? 'active' : ''}" type="button" onclick="expertDataSwitchSetupTab('${id}')">${label}</button>`).join('')}</nav>`;
+  return `<nav class="expert-data-subtabs" aria-label="Hedef ve salon alt sekmeleri">${children.map(([id, label]) => {
+    const isActive = expertDataSetupTab === id;
+    return `<button class="expert-data-subtab ${isActive ? 'active' : ''}" type="button" onclick="expertDataSwitchSetupTab('${id}')">${isActive ? '<span class="subtab-dot"></span>' : ''}<span>${label}</span></button>`;
+  }).join('')}</nav>`;
 }
 
 function expertDataPlanningTabs() {
   const children = [
-    ['split', 'Split'],
-    ['analysis', 'Analiz'],
+    ['split', 'Split Taslağı'],
+    ['analysis', 'Analiz Özeti'],
   ];
-  return `<nav class="expert-data-subtabs" aria-label="Split ve analiz alt sekmeleri">${children.map(([id, label]) => `<button class="expert-data-subtab ${expertDataPlanningTab === id ? 'active' : ''}" type="button" onclick="expertDataSwitchPlanningTab('${id}')">${label}</button>`).join('')}</nav>`;
+  return `<nav class="expert-data-subtabs" aria-label="Split ve analiz alt sekmeleri">${children.map(([id, label]) => {
+    const isActive = expertDataPlanningTab === id;
+    return `<button class="expert-data-subtab ${isActive ? 'active' : ''}" type="button" onclick="expertDataSwitchPlanningTab('${id}')">${isActive ? '<span class="subtab-dot"></span>' : ''}<span>${label}</span></button>`;
+  }).join('')}</nav>`;
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -27046,6 +29533,13 @@ function expertDataGoalsPane() {
   const selectedMuscles = expertDataGoalDraft.priority_muscles || [];
   const profileGoal = expertDataProfileGoal();
   const currentNote = expertDataGoalDraft.priority_note || '';
+  const isHypertrophy = profileGoal === 'hypertrophy';
+  const badgeText = `${selectedMuscles.length} / 3 Seçildi (${isHypertrophy ? 'Zorunlu' : 'İsteğe Bağlı'})`;
+  const subText = isHypertrophy
+    ? 'Uzman sistemi, program odağını ve ekstra hacim dağılımını bu kaslara göre kurgular (1-3 kas, Zorunlu).'
+    : (profileGoal === 'fat_loss'
+      ? 'Yağ kaybı döneminde kas koruma hacmi tüm vücuda dengeli dağıtılır. İsteğe bağlı olarak 1-3 öncelikli kas seçebilirsiniz.'
+      : 'Durum koruma döneminde minimum koruma hacmi uygulanır. İsteğe bağlı olarak 1-3 öncelikli kas seçebilirsiniz.');
 
   const rankPillConfigs = [
     { text: '#fbbf24', bg: 'rgba(251,191,36,0.22)', border: 'rgba(251,191,36,0.55)', glow: 'rgba(251,191,36,0.35)' },
@@ -27103,11 +29597,11 @@ function expertDataGoalsPane() {
           </div>
           <div>
             <h3 class="injury-board-heading" style="color:#ffffff;">Öncelikli Hedef Kaslarını Seç</h3>
-            <p class="injury-board-sub" style="color:#cbd5e1;">Uzman sistemi, program odağını ve ekstra hacim dağılımını bu kaslara göre kurgular (Maks. 3 kas).</p>
+            <p class="injury-board-sub" style="color:#cbd5e1;">${subText}</p>
           </div>
         </div>
         <span class="expert-data-badge" style="background:rgba(108,99,255,0.2);color:#c7d2fe;border:1px solid rgba(108,99,255,0.5);box-shadow:0 0 12px rgba(108,99,255,0.25);font-weight:750;">
-          ${selectedMuscles.length} / 3 Seçildi
+          ${badgeText}
         </span>
       </div>
 
@@ -29297,6 +31791,7 @@ function expertDataRecommendationDayCard(day, index) {
   let displaySubtitle = '';
   const sessionNote = String(matchedSession?.notes || '').trim();
   const customFocus = String(day?.focus || '').trim();
+  const isRestWord = (text) => /^(toparlanma|dinlenme|recovery|rest|toparlanma\s*&\s*rejenerasyon)$/i.test(String(text || '').trim());
 
   if (isRest) {
     displayTitle = 'Rest Day';
@@ -29318,14 +31813,18 @@ function expertDataRecommendationDayCard(day, index) {
       displayTitle = rawT;
     }
 
-    if (sessionNote) {
+    if (sessionNote && !isRestWord(sessionNote)) {
       displaySubtitle = sessionNote;
-    } else if (customFocus && !customFocus.startsWith('Antrenman yapıldı') && !customFocus.startsWith('Gerçek antrenman kaydı') && customFocus !== 'Genel antrenman') {
+    } else if (customFocus && !isRestWord(customFocus) && !customFocus.startsWith('Antrenman yapıldı') && !customFocus.startsWith('Gerçek antrenman kaydı') && customFocus !== 'Genel antrenman') {
       displaySubtitle = customFocus;
-    } else if (rawParenSubtitle) {
+    } else if (rawParenSubtitle && !isRestWord(rawParenSubtitle)) {
       displaySubtitle = rawParenSubtitle;
     } else {
       displaySubtitle = getDefaultFocus(rawT);
+    }
+    if (isRestWord(displaySubtitle)) {
+      displaySubtitle = getDefaultFocus(rawT);
+      if (isRestWord(displaySubtitle)) displaySubtitle = 'Genel antrenman';
     }
     displayTitle = formatDisplayWorkoutTitle(displayTitle);
   }
@@ -29527,11 +32026,11 @@ function expertDataRecommendationPane() {
         </div>
       </div>
       <div style="display: inline-flex; gap: 8px; background: rgba(30, 41, 59, 0.7); padding: 4px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
-        <button type="button" data-mode="template" onclick="setExpertSplitViewMode('template')" class="expert-viewmode-btn ${expertSplitViewMode === 'template' ? 'active' : ''}" style="display: inline-flex; align-items: center; gap: 7px; padding: 7px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; transition: all 0.2s ease; cursor: pointer; border: 1px solid ${expertSplitViewMode === 'template' ? 'rgba(168,85,247,0.5)' : 'transparent'}; background: ${expertSplitViewMode === 'template' ? 'linear-gradient(135deg, rgba(168,85,247,0.25) 0%, rgba(147,51,234,0.18) 100%)' : 'transparent'}; color: ${expertSplitViewMode === 'template' ? '#c084fc' : '#94a3b8'}; box-shadow: ${expertSplitViewMode === 'template' ? '0 0 12px rgba(168,85,247,0.25)' : 'none'};">
+        <button type="button" data-mode="template" onclick="setExpertSplitViewMode('template')" class="expert-viewmode-btn ${expertSplitViewMode === 'template' ? 'active' : ''}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           <span>Öneri Taslağı (Saf Hal)</span>
         </button>
-        <button type="button" data-mode="tracking" onclick="setExpertSplitViewMode('tracking')" class="expert-viewmode-btn ${expertSplitViewMode !== 'template' ? 'active' : ''}" style="display: inline-flex; align-items: center; gap: 7px; padding: 7px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; transition: all 0.2s ease; cursor: pointer; border: 1px solid ${expertSplitViewMode !== 'template' ? 'rgba(74,222,128,0.5)' : 'transparent'}; background: ${expertSplitViewMode !== 'template' ? 'linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(16,185,129,0.18) 100%)' : 'transparent'}; color: ${expertSplitViewMode !== 'template' ? '#4ade80' : '#94a3b8'}; box-shadow: ${expertSplitViewMode !== 'template' ? '0 0 12px rgba(74,222,128,0.2)' : 'none'};">
+        <button type="button" data-mode="tracking" onclick="setExpertSplitViewMode('tracking')" class="expert-viewmode-btn ${expertSplitViewMode !== 'template' ? 'active' : ''}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
           <span>Antrenman Takip Durumu</span>
         </button>
@@ -29540,12 +32039,6 @@ function expertDataRecommendationPane() {
 
     ${tabs}
 
-    <div style="margin:0 0 14px; padding:10px 14px; background:rgba(15,23,42,0.65); border:1px solid rgba(108,99,255,0.25); border-left:3px solid #a78bfa; border-radius:10px; display:flex; gap:10px; align-items:center;">
-      <span style="font-size:14px; flex-shrink:0;">💡</span>
-      <p style="margin:0; color:#cbd5e1; font-size:11.5px; line-height:1.45;">
-        <strong style="color:#ffffff;">İpucu:</strong> Gün kartlarını veya seans içindeki hareketleri sol tutamaçtan (⋮⋮) sürükleyerek dilediğin gibi yeniden sıralayabilirsin. Değişiklikler anında Kontrol Paneli'ne senkronize edilir.
-      </p>
-    </div>
 
     <div id="expertRecommendationDays" style="display:grid;gap:12px">
       ${(week.days || []).map(expertDataRecommendationDayCard).join('')}
@@ -30286,6 +32779,9 @@ async function loadExpertSystem() {
     expertDataAlternativeState = {};
     expertDataInjuryDraft = null;
     renderExpertSystem(true);
+    if (typeof expertDataLoadAnalysis === 'function') {
+      expertDataLoadAnalysis().catch(() => {});
+    }
   } catch (error) {
     if (content) content.innerHTML = `<div class="card" style="padding:24px; color:var(--red); border:1px solid rgba(239,71,111,0.3); border-radius:16px; text-align:center;">Uzman sistemi verileri yüklenemedi: ${expertDataEscape(error.message)}</div>`;
   }
@@ -30379,12 +32875,17 @@ window.expertDataClearGoalDraft = function() {
 
 window.expertDataSaveGoals = async function() {
   const note = (document.getElementById('expertDataGoalNote')?.value || '').trim().slice(0, 100);
-  if (!expertDataGoalDraft.priority_muscles.length) {
-    toast('En az bir öncelikli kas seçin.', 'error');
+  const profileGoal = expertDataProfileGoal();
+  if (profileGoal === 'hypertrophy' && !expertDataGoalDraft.priority_muscles.length) {
+    toast('Kas kazanımı hedefinde en az bir öncelikli kas seçmelisiniz.', 'error');
+    return;
+  }
+  if (expertDataGoalDraft.priority_muscles.length > 3) {
+    toast('En fazla 3 öncelikli kas seçebilirsiniz.', 'error');
     return;
   }
   try {
-    expertDataGoalDraft.primary_goal = expertDataProfileGoal();
+    expertDataGoalDraft.primary_goal = profileGoal;
     expertDataState = await apiPut('/api/expert-data/goals', { ...expertDataGoalDraft, priority_note: note });
     expertDataGoalDraft.priority_note = note;
     toast('Hedeflerin kaydedildi.', 'success');

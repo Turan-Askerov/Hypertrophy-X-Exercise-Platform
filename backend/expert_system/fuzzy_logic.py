@@ -15,9 +15,10 @@ UI_MUSCLE_GROUPS = (
 )
 
 PRIMARY_GOALS = {
-    "hypertrophy": "Kas kazanımı",
+    "hypertrophy": "Kas kazanımı (Bulk)",
     "strength": "Güç kazanımı",
-    "fat_loss": "Yağ kaybı ve kas korunumu",
+    "fat_loss": "Yağ kaybı ve kas korunumu (Cut)",
+    "maintenance": "Durum koruma ve rekompozisyon (Maintain)",
 }
 
 ENGLISH_TO_UI_MUSCLE = {

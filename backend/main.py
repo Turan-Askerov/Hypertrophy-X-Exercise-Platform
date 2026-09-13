@@ -779,15 +779,21 @@ def _sync_programs_with_real_workouts(user_id: int) -> dict:
     custom_program = _read_custom_program(user.get("custom_split", "[]"))
     custom_changed = False
     custom_rest_indices: set[int] = set()
+    preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
+    custom_date_raw = (
+        preferences.get("custom_program_updated_at")
+        or user.get("updated_at")
+        or user.get("created_at")
+    )
     custom_start_date = None
     custom_start_weekday = 0
-    if user.get("created_at"):
+    if custom_date_raw:
         try:
-            u_created = datetime.fromisoformat(str(user["created_at"]).replace("Z", "+00:00"))
-            custom_start_date = u_created.date()
+            c_date_obj = datetime.fromisoformat(str(custom_date_raw).replace("Z", "+00:00"))
+            custom_start_date = c_date_obj.date()
             u_week_start = date.today() - timedelta(days=today_index)
             if custom_start_date >= u_week_start:
-                custom_start_weekday = u_created.weekday()
+                custom_start_weekday = c_date_obj.weekday()
         except Exception:
             pass
 
@@ -809,8 +815,6 @@ def _sync_programs_with_real_workouts(user_id: int) -> dict:
             custom_rest_indices = {
                 index for index, item in enumerate(current_custom_days) if is_rest_day(item)
             }
-
-    preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
     recommendation = preferences.get("expert_recommendation")
     expert_changed = False
     if isinstance(recommendation, dict) and isinstance(recommendation.get("weeks"), list):
@@ -987,7 +991,7 @@ def calculate_stats(user: dict) -> dict:
     elif goal == "cut":
         target_calories -= 500
 
-    protein = round(w * (2.0 if goal == "bulk" else 2.2))
+    protein = round(w * (2.2 if goal == "cut" else 2.0))
     fat = round(w * 0.9)
     carbs = round(max(0, (target_calories - protein * 4 - fat * 9)) / 4)
     # BMI kategorisi (dashboard kartı için)
@@ -3697,11 +3701,13 @@ def dashboard(user: dict = Depends(_resolve_current_user)):
         for workout in workout_list:
             for exercise in _iter_workout_exercises(workout):
                 group, detail = _dashboard_entry_target(exercise)
-                # Eski tutarlı metrik: her kaydedilmiş hareket yalnız bir kez sayılır.
-                group_totals[group] = group_totals.get(group, 0) + 1
+                # Set bazlı dağılım: her egzersizin tamamlanan set sayısı hesaplanır
+                sets_data = exercise.get("sets_data", [])
+                set_count = len(sets_data) if sets_data else 1
+                group_totals[group] = group_totals.get(group, 0) + set_count
                 if group in dashboard_hover_groups and detail:
                     detail_map = group_details.setdefault(group, {})
-                    detail_map[detail] = detail_map.get(detail, 0) + 1
+                    detail_map[detail] = detail_map.get(detail, 0) + set_count
         ordered_totals = {}
         ordered_details = {}
         for group in dashboard_group_order:
@@ -3815,6 +3821,7 @@ def progress(user: dict = Depends(_resolve_current_user)):
         "volume_timeline": volume_timeline,
         "weekly_averages": weekly_avg_data,
         "personal_records": get_personal_records(workouts),
+        "top_progress": get_top_progress(workouts),
         "stats": calculate_stats(user)
     }
 
@@ -3961,6 +3968,99 @@ def get_personal_records(workouts):
     return list(records.values())
 
 
+def get_top_progress(workouts, limit: int = 8) -> list:
+    """Her hareket için ilk seanstaki başlangıç ağırlığı ile ulaşılan PR (zirve) ağırlığı
+    karşılaştırıp en çok net kilo/tekrar artışı sağlanan en iyi ilerlemeleri döner.
+    """
+    if not workouts:
+        return []
+
+    exercise_series = {}
+    for workout in sorted(workouts, key=lambda x: x.get("date", "")):
+        d = workout.get("date", "")
+        for entry in workout.get("exercises", []):
+            meta = _canonical_exercise_from_entry(entry)
+            record_id = meta["id"] if meta else _legacy_exercise_key(
+                entry.get("canonical_exercise_id") or entry.get("exercise_id"),
+                entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name"),
+            )
+            display_name = meta["name"] if meta else str(entry.get("legacy_exercise_name") or entry.get("exercise_name") or entry.get("name") or "Bilinmeyen hareket")
+            if meta:
+                muscle = _display_muscle_groups(meta, meta.get("analysis", {}))[0]
+            else:
+                m = entry.get("muscle_group", "Diğer")
+                trans = {"Back": "Sırt", "Chest": "Göğüs", "Shoulders": "Omuz", "Legs": "Bacak"}
+                muscle = trans.get(m, m)
+
+            is_bw = (meta and meta.get("is_bodyweight") is True) or bool(entry.get("is_bodyweight"))
+            load_mode = meta.get("analysis", {}).get("load_mode", "external_load") if meta else "external_load"
+            metric_type = "reps" if (is_bw and load_mode != "bodyweight_plus_external") else ("reps" if load_mode == "bodyweight" else "weight_kg")
+
+            sets_list = entry.get("sets_data", [])
+            if not sets_list:
+                continue
+
+            try:
+                best_val = max(
+                    int(item.get("reps", 0)) if metric_type == "reps" else float(item.get("weight_kg", 0))
+                    for item in sets_list
+                )
+            except (TypeError, ValueError):
+                continue
+
+            if best_val <= 0:
+                continue
+
+            if record_id not in exercise_series:
+                exercise_series[record_id] = {
+                    "exercise_id": record_id,
+                    "exercise": display_name,
+                    "muscle": muscle,
+                    "metric_type": metric_type,
+                    "history": []
+                }
+            exercise_series[record_id]["history"].append({
+                "date": d,
+                "value": best_val
+            })
+
+    COMPOUND_KEYWORDS = ["bench", "squat", "deadlift", "overhead press", "barbell row", "bulgarian", "pull ups", "chin ups"]
+
+    top_list = []
+    for record_id, data in exercise_series.items():
+        hist = data["history"]
+        if len(hist) < 2:
+            continue
+        first_entry = hist[0]
+        max_entry = max(hist, key=lambda x: x["value"])
+        first_val = first_entry["value"]
+        max_val = max_entry["value"]
+        diff = round(max_val - first_val, 1)
+
+        if diff > 0 and first_val > 0:
+            pct = round((diff / first_val) * 100, 1)
+            name_lower = data["exercise"].lower()
+            is_compound = any(k in name_lower for k in COMPOUND_KEYWORDS)
+            top_list.append({
+                "exercise_id": record_id,
+                "exercise": data["exercise"],
+                "muscle": data["muscle"],
+                "metric_type": data["metric_type"],
+                "first_value": first_val,
+                "first_date": first_entry["date"],
+                "current_pr_value": max_val,
+                "current_pr_date": max_entry["date"],
+                "diff": diff,
+                "percentage": pct,
+                "sessions_count": len(hist),
+                "is_compound": is_compound
+            })
+
+    # Sıralama: En yüksek kg artışı ve yüzde artışı olanlar
+    top_list.sort(key=lambda x: (x["diff"], x["percentage"]), reverse=True)
+    return top_list[:limit]
+
+
 # ═══════════════════════════════════════════════
 # ÖZEL PROGRAM
 # ═══════════════════════════════════════════════
@@ -4022,20 +4122,36 @@ def save_custom_program(data: CustomProgramRequest,
     if data.username != current_user["username"]:
         raise HTTPException(status_code=403, detail="Başkası için program kaydedilemez")
 
-    program_list = [[day.model_dump() for day in week] for week in data.program]
+    fixed_days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
+    program_list = []
+    for week in data.program:
+        week_list = []
+        for idx, day in enumerate(week):
+            d_dict = day.model_dump()
+            d_dict["day"] = fixed_days[idx % 7]
+            week_list.append(d_dict)
+        program_list.append(week_list)
+
     program_json = json.dumps(program_list, ensure_ascii=False)
+    now_iso = datetime.now().astimezone().isoformat()
+
+    preferences = _parse_dashboard_preferences(current_user.get("dashboard_preferences", "{}"))
+    preferences["custom_program_updated_at"] = now_iso
+    pref_json = json.dumps(preferences, ensure_ascii=False)
 
     conn = get_db()
     cur = conn.cursor()
     try:
-        cur.execute("UPDATE users SET custom_split = ? WHERE id = ?",
-                    (program_json, current_user["id"]))
-        cur.execute("UPDATE athlete_profiles SET custom_split = ? WHERE user_id = ?",
-                    (program_json, current_user["id"]))
+        cur.execute("UPDATE users SET custom_split = ?, dashboard_preferences = ?, updated_at = ? WHERE id = ?",
+                    (program_json, pref_json, now_iso, current_user["id"]))
+        cur.execute("UPDATE athlete_profiles SET custom_split = ?, dashboard_preferences = ?, updated_at = ? WHERE user_id = ?",
+                    (program_json, pref_json, now_iso, current_user["id"]))
         conn.commit()
         return {"success": True,
                 "message": f"{len(data.program)} Haftalık periyot başarıyla kaydedildi!",
-                "program": program_list}
+                "program": program_list,
+                "custom_program_updated_at": now_iso,
+                "dashboard_preferences": preferences}
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=500,
@@ -4466,7 +4582,8 @@ def _build_expert_recommendation(user: dict) -> dict:
     goal_map = {
         "bulk": "hypertrophy",
         "cut": "fat_loss",
-        "maintain": "hypertrophy",
+        "maintain": "maintenance",
+        "maintenance": "maintenance",
         "strength": "strength",
         "hypertrophy": "hypertrophy",
         "fat_loss": "fat_loss",
@@ -4744,8 +4861,10 @@ def save_expert_goals(data: ExpertGoalsDataRequest = Body(...),
         muscle = normalize_detailed_muscle(raw_muscle)
         if muscle and muscle not in priority_muscles:
             priority_muscles.append(muscle)
-    if not 1 <= len(priority_muscles) <= 3:
-        raise HTTPException(status_code=400, detail="En az 1, en fazla 3 hedef kas seçin.")
+    if len(priority_muscles) > 3:
+        raise HTTPException(status_code=400, detail="En fazla 3 hedef kas seçebilirsiniz.")
+    if primary_goal == "hypertrophy" and len(priority_muscles) < 1:
+        raise HTTPException(status_code=400, detail="Kas kazanımı hedefinde en az 1 öncelikli kas seçmelisiniz.")
 
     conn = get_db()
     try:

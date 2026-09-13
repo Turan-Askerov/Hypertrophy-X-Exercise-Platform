@@ -68,13 +68,17 @@ def evaluate_expert_rules(context: dict[str, Any]) -> dict[str, Any]:
             "tone": "info",
         }
 
-    targets = (context.get("targets") or {}).get("priority_muscles") or []
+    target_info = context.get("targets") or {}
+    targets = target_info.get("priority_muscles") or []
+    primary_goal = str(target_info.get("primary_goal") or "").lower()
     if protection:
         split_guidance = "Aktif kısıt varken Split yalnızca taslak olarak gösterilir; otomatik program değişikliği yapılmaz."
     elif recovery:
         split_guidance = "Yüksek öncelikli hedef kaslar korunur, ancak bildirilen DOMS/RPE durumuna göre doğrudan set artışı önerilmez."
     elif targets:
         split_guidance = "Koruma kuralı oluşmadıkça bir sonraki Split taslağında öncelikli kaslara daha görünür yer verilebilir."
+    elif primary_goal in ("fat_loss", "maintenance"):
+        split_guidance = "Tüm kas grupları hedefinize uygun dengeli koruma hacmiyle çalıştırılır."
     else:
         split_guidance = "Önce hedef kas seçimi yapıldığında Split odağı kişiselleştirilebilir."
 
@@ -111,13 +115,23 @@ def evaluate_expert_rules(context: dict[str, Any]) -> dict[str, Any]:
         rpe_note = ""
         if rpe_summary:
             rpe_note = f" Son türetilmiş ortalama RPE {rpe_summary.get('average_rpe', '—')}."
-        split_plan = {
-            "title": "Hedef odaklı split taslağı",
-            "summary": "Kısıt veya yüksek toparlanma uyarısı görünmediği için hedef kaslar bir sonraki taslakta öne çıkarılabilir." + rpe_note,
-            "focus": target_labels,
-            "monitor": [],
-            "approach": "Mevcut program korunur. Kullanıcı onayı olmadan hareket, set veya yük değiştirilmez.",
-        }
+        if not target_labels and primary_goal in ("fat_loss", "maintenance"):
+            goal_title = "Yağ kaybı" if primary_goal == "fat_loss" else "Durum koruma"
+            split_plan = {
+                "title": "Dengeli koruma split taslağı",
+                "summary": f"{goal_title} döneminde tüm kas grupları dengeli koruma hacmiyle çalıştırılır." + rpe_note,
+                "focus": ["Tüm Vücut (Dengeli)"],
+                "monitor": [],
+                "approach": "Mevcut program dengeli koruma hacmiyle sürdürülür. Kullanıcı onayı olmadan hareket, set veya yük değiştirilmez.",
+            }
+        else:
+            split_plan = {
+                "title": "Hedef odaklı split taslağı",
+                "summary": "Kısıt veya yüksek toparlanma uyarısı görünmediği için hedef kaslar bir sonraki taslakta öne çıkarılabilir." + rpe_note,
+                "focus": target_labels,
+                "monitor": [],
+                "approach": "Mevcut program korunur. Kullanıcı onayı olmadan hareket, set veya yük değiştirilmez.",
+            }
 
     return {
         "generated_on": date.today().isoformat(),
