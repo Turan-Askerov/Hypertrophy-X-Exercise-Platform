@@ -617,4 +617,9 @@ EXERCISE_POOL = [
               movement_pattern="elbow_extension", equipment=["cable_machine"], load_mode="external_load",
               fatigue_cost="low"),
 
+    _exercise("reverse-triceps-pushdown", "Reverse Triceps Pushdown", "Triceps", "isolation", False,
+              family="tricep_extension", variation="cable", primary_muscles=["triceps"], secondary_muscles=[],
+              movement_pattern="elbow_extension", equipment=["cable_machine"], load_mode="external_load",
+              fatigue_cost="low"),
+
 ]

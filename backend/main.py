@@ -1628,7 +1628,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 log = logging.getLogger("hypertrophy-x")
-log.info("Hypertrophy-X v5.0 backend başlatılıyor...")
+log.info("Hypertrophy-X v4.0 backend başlatılıyor...")
 
 
 class CacheControlMiddleware(BaseHTTPMiddleware):
@@ -1720,7 +1720,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         return response
 
 
-app = FastAPI(title="Hypertrophy-X API", version="5.0")
+app = FastAPI(title="Hypertrophy-X API", version="4.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -3188,8 +3188,6 @@ def admin_create_user(data: dict = Body(...),
     password = (data.get("password") or "").strip()
     if not username or not password:
         raise HTTPException(status_code=400, detail="Kullanıcı adı ve şifre zorunludur")
-    if len(password) < 6:
-        raise HTTPException(status_code=400, detail="Şifre en az 6 karakter olmalıdır")
     existing = get_user_by_username(username)
     if existing:
         raise HTTPException(status_code=400, detail="Bu kullanıcı adı zaten mevcut")
@@ -3238,11 +3236,10 @@ def admin_edit_user(data: AdminEditUser = Body(...),
         update_data.pop("user_id", None)
         new_pass = update_data.pop("new_password", None)
 
-        if new_pass:
-            if len(new_pass) < 6:
-                raise HTTPException(status_code=400, detail="Yeni şifre en az 6 karakter olmalı")
+        if new_pass is not None and str(new_pass).strip() != "":
+            # Admin istediği şifreyi belirleyebilir (karakter sınırlaması yok)
             conn.execute("UPDATE users SET password_hash = ?, password_salt = '', updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-                         (_hash_password(new_pass), data.user_id))
+                         (_hash_password(str(new_pass).strip()), data.user_id))
 
         is_admin_target = (user.get("role") == "admin" or user.get("is_admin") or user.get("username") == ADMIN_USERNAME)
         if not is_admin_target:

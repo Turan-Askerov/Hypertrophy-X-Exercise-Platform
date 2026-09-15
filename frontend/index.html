@@ -5744,17 +5744,11 @@ tr:hover td { background: var(--bg-card-hover); }
   display: flex;
   flex-direction: column;
 }
-.profile-side-column > .profile-glass-card:first-child {
-  flex: 1.35;
-}
-.profile-side-column > .profile-glass-card.profile-danger-card {
-  flex: 1;
-}
 .profile-side-column .profile-form-inner {
   display: flex;
   flex-direction: column;
   flex: 1;
-  justify-content: space-between;
+  gap: 12px;
 }
 .profile-side-column .profile-danger-card .profile-form-inner {
   justify-content: flex-end;
@@ -6023,6 +6017,128 @@ tr:hover td { background: var(--bg-card-hover); }
 .profile-secondary-action-btn:active {
   transform: scale(0.97);
 }
+
+/* ═══ PROFILE EMAIL & FORGOT PASSWORD INTEGRATION ═══ */
+.profile-hero-email-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 11px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 750;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  transition: all 0.22s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.profile-hero-email-badge:hover {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: rgba(56, 189, 248, 0.65);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+  transform: translateY(-1px);
+}
+.profile-email-save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(37, 99, 235, 0.26) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+.profile-email-save-btn:hover {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.32) 0%, rgba(37, 99, 235, 0.42) 100%);
+  border-color: rgba(56, 189, 248, 0.75);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+  transform: translateY(-1.5px);
+}
+.profile-forgot-box {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.65) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-left: 3px solid #fbbf24;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+}
+.profile-forgot-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.profile-forgot-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.profile-forgot-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 3px;
+}
+.profile-forgot-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+.profile-forgot-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.28) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  color: #fef08a;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+.profile-forgot-action-btn:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.45) 100%);
+  border-color: rgba(251, 191, 36, 0.7);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
+  transform: translateY(-1px);
+}
+
+@keyframes pulseEmailHighlight {
+  0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(56, 189, 248, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+}
+.pulse-highlight {
+  animation: pulseEmailHighlight 1.5s ease;
+  border-color: #38bdf8 !important;
+}
+
 .profile-danger-card {
   border-color: rgba(239, 68, 68, 0.35);
   background: linear-gradient(160deg, rgba(38, 20, 26, 0.72) 0%, rgba(26, 14, 18, 0.88) 100%);
@@ -12582,6 +12698,33 @@ tr:hover td { background: var(--bg-card-hover); }
   background: #ffffff !important;
   border-color: #0284c7 !important;
 }
+.light-mode .profile-hero-email-badge {
+  background: rgba(14, 165, 233, 0.1) !important;
+  border-color: rgba(14, 165, 233, 0.35) !important;
+  color: #0284c7 !important;
+}
+.light-mode .profile-forgot-box {
+  background: #f8fafc !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  border-left: 3px solid #f59e0b !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+.light-mode .profile-forgot-title {
+  color: #0f172a !important;
+}
+.light-mode .profile-forgot-desc {
+  color: #64748b !important;
+}
+.light-mode .profile-forgot-action-btn {
+  background: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+.light-mode .profile-email-save-btn {
+  background: #f0f9ff !important;
+  color: #0284c7 !important;
+  border-color: rgba(14, 165, 233, 0.4) !important;
+}
 .light-mode .profile-danger-card {
   background: #fff5f5 !important;
   border-color: #fecaca !important;
@@ -16278,7 +16421,7 @@ tr:hover td { background: var(--bg-card-hover); }
       <div class="logo-icon">HX</div>
       <div class="auth-brand-title">Hypertrophy-X</div>
       <div class="auth-brand-sub">
-        <span class="auth-badge">Şifre Kurtarma</span>
+        <span class="auth-badge" id="fpBrandBadge">Şifre Kurtarma</span>
       </div>
     </div>
 
@@ -16295,7 +16438,7 @@ tr:hover td { background: var(--bg-card-hover); }
           </svg>
           <span>E-posta Adresi veya Kullanıcı Adı</span>
         </label>
-        <input type="text" class="auth-input" id="fpEmailInput" placeholder="Örn: adiniz@ornek.com veya turan" autocomplete="email" onkeydown="if(event.key==='Enter') fpSubmitEmail();" />
+        <input type="text" class="auth-input" id="fpEmailInput" placeholder="Örn: adiniz@ornek.com" autocomplete="email" onkeydown="if(event.key==='Enter') fpSubmitEmail();" />
       </div>
 
       <button class="auth-btn" type="button" id="fpEmailBtn" onclick="fpSubmitEmail()">
@@ -16306,9 +16449,9 @@ tr:hover td { background: var(--bg-card-hover); }
         </svg>
       </button>
       <div class="auth-footer">
-        <a onclick="showLogin()" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+        <a onclick="cancelOrReturnFromFp()" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          Giriş Ekranına Dön
+          <span class="fp-return-btn-text">Giriş Ekranına Dön</span>
         </a>
       </div>
     </div>
@@ -16339,6 +16482,9 @@ tr:hover td { background: var(--bg-card-hover); }
       <div class="auth-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
         <a onclick="showFpStep(1)" style="cursor:pointer; font-size:12px; color:#94a3b8;">← E-postayı Değiştir</a>
         <a id="fpResendBtn" onclick="fpResendCode()" style="cursor:pointer; font-size:12px; color:#818cf8; font-weight:600;">Tekrar Gönder</a>
+      </div>
+      <div style="text-align:center; margin-top:12px;">
+        <a onclick="cancelOrReturnFromFp()" class="fp-return-btn-text" style="cursor:pointer; font-size:12px; color:#94a3b8; transition:color 0.2s;">Giriş Ekranına Dön</a>
       </div>
     </div>
 
@@ -16379,14 +16525,14 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
 
       <button class="auth-btn" type="button" id="fpPasswordBtn" onclick="fpSubmitNewPassword()">
-        <span>Şifreyi Güncelle ve Giriş Yap</span>
+        <span id="fpPasswordBtnText">Şifreyi Güncelle ve Giriş Yap</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
       </button>
 
       <div class="auth-footer">
-        <a onclick="showLogin()" style="cursor:pointer;">İptal ve Giriş Ekranına Dön</a>
+        <a onclick="cancelOrReturnFromFp()" class="fp-cancel-btn-text" style="cursor:pointer;">İptal ve Giriş Ekranına Dön</a>
       </div>
     </div>
   </div>
@@ -16444,7 +16590,7 @@ tr:hover td { background: var(--bg-card-hover); }
         </svg>
         <span>Kullanıcı Adı</span>
       </label>
-      <input type="text" class="auth-input" id="regUsername" placeholder="Örn. sporcu_turan" autocomplete="username" />
+      <input type="text" class="auth-input" id="regUsername" placeholder="Örn. sporcu123" autocomplete="username" />
     </div>
 
     <div class="auth-field-group">
@@ -16467,7 +16613,7 @@ tr:hover td { background: var(--bg-card-hover); }
         <span>Şifre</span>
       </label>
       <div class="auth-input-wrap">
-        <input type="password" class="auth-input" id="regPassword" placeholder="En az 3 karakter" autocomplete="new-password" />
+        <input type="password" class="auth-input" id="regPassword" placeholder="En az 6 karakter" autocomplete="new-password" />
         <button type="button" class="auth-password-toggle-btn" onclick="togglePasswordVisibility('regPassword', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
@@ -17615,6 +17761,13 @@ tr:hover td { background: var(--bg-card-hover); }
               <div class="profile-hero-name-row">
                 <h2 class="profile-hero-username" id="profHeroUsername">SPORCU PROFİLİ</h2>
                 <span id="profHeroLevelBadge" class="badge badge-accent" style="font-size:11px; padding:3px 10px; font-weight:800; letter-spacing:0.3px;">LVL 1 · ÇAYLAK</span>
+                <div class="profile-hero-email-badge" id="profHeroEmailBadge" onclick="focusProfileEmail()" title="Kayıtlı E-posta (Tıklayarak düzenleyin)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  <span id="profHeroEmailText">E-posta Tanımlanmamış</span>
+                </div>
                 <span class="gym-badge-default" style="font-size:11px; padding:3px 9px;">
                   <span style="width:6px; height:6px; border-radius:50%; background:#34d399; box-shadow:0 0 6px #34d399;"></span>
                   Aktif Biyometrik Model
@@ -17904,19 +18057,6 @@ tr:hover td { background: var(--bg-card-hover); }
                     </div>
                   </div>
                 </div>
-
-                <div class="profile-field-group" style="grid-column: 1 / -1;">
-                  <label class="profile-field-label" for="profEmail">
-                    <span>E-posta Adresi</span>
-                    <span class="profile-unit-tag">Şifre Kurtarma</span>
-                  </label>
-                  <div class="profile-input-wrap">
-                    <input type="email" id="profEmail" placeholder="Örn: adiniz@ornek.com" autocomplete="email" />
-                    <div class="profile-input-icon">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               <div class="profile-action-footer">
@@ -17939,6 +18079,57 @@ tr:hover td { background: var(--bg-card-hover); }
 
 
           <div class="profile-side-column">
+            <!-- PROFİL: HESAP & E-POSTA (GMAIL) BİLGİSİ VE GÜNCELLEME KARTI -->
+            <div class="profile-glass-card">
+              <div class="profile-card-header">
+                <div class="profile-card-header-left">
+                  <div class="profile-header-icon-box cyan">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                      <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="profile-card-title">Hesap & E-posta (Gmail)</h3>
+                    <p class="profile-card-subtitle">Şifre kurtarma ve güvenlik bildirimleri</p>
+                  </div>
+                </div>
+                <span class="profile-metric-pill" id="profEmailStatusBadge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.35);">E-posta</span>
+              </div>
+
+              <div class="profile-form-inner">
+                <div class="profile-field-group">
+                  <label class="profile-field-label" for="profEmail">
+                    <span>Kayıtlı E-posta (Gmail)</span>
+                    <span class="profile-unit-tag">Güvenlik</span>
+                  </label>
+                  <div class="profile-input-wrap">
+                    <input type="email" id="profEmail" placeholder="Örn: adiniz@gmail.com" autocomplete="email" />
+                    <div class="profile-input-icon">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="font-size:11.5px; color:#94a3b8; line-height:1.45; display:flex; align-items:center; gap:6px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                  <span>Şifrenizi unuttuğunuzda 4 haneli güvenlik onay kodu bu adrese iletilir.</span>
+                </div>
+
+                <button class="profile-email-save-btn" id="profSaveEmailBtn" onclick="saveProfileEmailOnly()" type="button">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                  </svg>
+                  <span>E-posta Adresini Güncelle</span>
+                </button>
+              </div>
+            </div>
+
             <!-- PROFİL: HESAP GÜVENLİĞİ VE ŞİFRE DEĞİŞTİRME KARTI -->
             <div class="profile-glass-card">
               <div class="profile-card-header">
@@ -17973,7 +18164,7 @@ tr:hover td { background: var(--bg-card-hover); }
                 <div class="profile-field-group" style="margin-top:10px;">
                   <label class="profile-field-label" for="newPassword">Yeni Şifre</label>
                   <div class="profile-input-wrap">
-                    <input type="password" id="newPassword" placeholder="En az 3 karakter" />
+                    <input type="password" id="newPassword" placeholder="En az 6 karakter" />
                     <button type="button" class="profile-password-toggle-btn" onclick="togglePasswordVisibility('newPassword', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
@@ -18002,6 +18193,30 @@ tr:hover td { background: var(--bg-card-hover); }
                   </svg>
                   <span>Şifreyi Güncelle</span>
                 </button>
+
+                <!-- ŞİFREMİ UNUTTUM KUTUSU (PROFİL İÇİ HIZLI BAŞLATICI) -->
+                <div class="profile-forgot-box">
+                  <div class="profile-forgot-info">
+                    <div class="profile-forgot-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="profile-forgot-title">Mevcut Şifrenizi Hatırlamıyor musunuz?</div>
+                      <div class="profile-forgot-desc">Profil sayfasından ayrılmadan veya çıkış yapmadan, e-postanıza 4 haneli onay kodu alarak anında şifrenizi yenileyebilirsiniz.</div>
+                    </div>
+                  </div>
+                  <button type="button" class="profile-forgot-action-btn" onclick="showForgotPassword(true)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <span>E-posta ile Şifremi Sıfırla (4 Haneli Kod)</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -19295,7 +19510,7 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
       <div class="form-group">
         <label>Başlangıç Şifresi *</label>
-        <input type="password" id="createPassword" placeholder="En az 6 karakter" />
+        <input type="password" id="createPassword" placeholder="Şifre belirleyin" />
       </div>
       <div class="form-group">
         <label>Yaş</label>
@@ -19629,12 +19844,64 @@ function showRegister() {
   document.getElementById('forgotPasswordPage')?.classList.add('hidden');
   document.title = 'Hypertrophy-X — Hesap Oluştur';
 }
-function showForgotPassword() {
+let _fpFromProfile = false;
+
+function showForgotPassword(fromProfile = false) {
+  _fpFromProfile = !!fromProfile;
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('registerPage').classList.add('hidden');
+
+  const fpEmailInput = document.getElementById('fpEmailInput');
+  if (_fpFromProfile) {
+    const profileEmail = (document.getElementById('profEmail')?.value || '').trim();
+    const uname = _currentUser?.username || window._currentUsername || localStorage.getItem('hx_user') || '';
+    if (fpEmailInput) {
+      fpEmailInput.value = profileEmail || uname;
+    }
+  } else {
+    if (fpEmailInput && !_fpResetToken) {
+      fpEmailInput.value = '';
+    }
+  }
+
+  updateFpReturnButtons();
   document.getElementById('forgotPasswordPage')?.classList.remove('hidden');
   showFpStep(1);
-  document.title = 'Hypertrophy-X — Şifre Kurtarma';
+  document.title = _fpFromProfile ? 'Hypertrophy-X — Şifre Sıfırlama (Profil)' : 'Hypertrophy-X — Şifre Kurtarma';
+}
+
+function updateFpReturnButtons() {
+  const returnTexts = document.querySelectorAll('.fp-return-btn-text');
+  const cancelTexts = document.querySelectorAll('.fp-cancel-btn-text');
+  const btnText = document.getElementById('fpPasswordBtnText');
+  const badge = document.getElementById('fpBrandBadge');
+
+  if (_fpFromProfile) {
+    returnTexts.forEach(el => el.textContent = 'Profile Dön');
+    cancelTexts.forEach(el => el.textContent = 'İptal ve Profile Dön');
+    if (btnText) btnText.textContent = 'Şifreyi Güncelle';
+    if (badge) badge.textContent = 'Şifre Sıfırlama (Profil)';
+  } else {
+    returnTexts.forEach(el => el.textContent = 'Giriş Ekranına Dön');
+    cancelTexts.forEach(el => el.textContent = 'İptal ve Giriş Ekranına Dön');
+    if (btnText) btnText.textContent = 'Şifreyi Güncelle ve Giriş Yap';
+    if (badge) badge.textContent = 'Şifre Kurtarma';
+  }
+}
+
+function cancelOrReturnFromFp() {
+  document.getElementById('forgotPasswordPage')?.classList.add('hidden');
+  if (_fpFromProfile) {
+    _fpFromProfile = false;
+    const appLayout = document.getElementById('appLayout');
+    if (appLayout) appLayout.classList.remove('hidden');
+    if (typeof showPage === 'function') {
+      showPage('profile');
+    }
+    document.title = 'Hypertrophy-X — Sporcu Profili';
+  } else {
+    showLogin();
+  }
 }
 function hideAllAuth() {
   document.getElementById('loginPage').classList.add('hidden');
@@ -20026,6 +20293,23 @@ async function fpSubmitNewPassword() {
     }
 
     toast('Tebrikler! Şifreniz başarıyla sıfırlandı.', 'success');
+
+    if (_fpFromProfile) {
+      _fpFromProfile = false;
+      document.getElementById('forgotPasswordPage')?.classList.add('hidden');
+      const appLayout = document.getElementById('appLayout');
+      if (appLayout) appLayout.classList.remove('hidden');
+      localStorage.setItem('hx_pass', newPass);
+      if (document.getElementById('oldPassword')) document.getElementById('oldPassword').value = '';
+      if (document.getElementById('newPassword')) document.getElementById('newPassword').value = '';
+      if (document.getElementById('newPasswordConfirm')) document.getElementById('newPasswordConfirm').value = '';
+      if (typeof showPage === 'function') {
+        showPage('profile');
+      }
+      document.title = 'Hypertrophy-X — Sporcu Profili';
+      return;
+    }
+
     showLogin();
 
     const loginUserInput = document.getElementById('loginUsername');
@@ -26879,6 +27163,7 @@ async function loadProfile(username) {
     if (document.getElementById('profDays')) document.getElementById('profDays').value = user.days_per_week || '4';
     if (document.getElementById('profSession')) document.getElementById('profSession').value = user.session_time_mins || '60';
     if (document.getElementById('profEmail')) document.getElementById('profEmail').value = user.email || '';
+    updateProfileEmailDisplays(user.email || '');
 
     const rawName = user.full_name || user.name || user.username || _currentUser?.username || username || 'Sporcu';
     const uname = String(rawName).toUpperCase();
@@ -26896,6 +27181,103 @@ async function loadProfile(username) {
     console.error('Profil yüklenirken hata:', err);
   }
 }
+
+function updateProfileEmailDisplays(email) {
+  const cleanEmail = (email || '').trim();
+  const heroBadge = document.getElementById('profHeroEmailBadge');
+  const heroText = document.getElementById('profHeroEmailText');
+  const statusBadge = document.getElementById('profEmailStatusBadge');
+  const emailInput = document.getElementById('profEmail');
+
+  if (emailInput && emailInput.value !== cleanEmail) {
+    emailInput.value = cleanEmail;
+  }
+
+  if (cleanEmail) {
+    if (heroText) heroText.textContent = cleanEmail;
+    if (heroBadge) {
+      heroBadge.style.display = 'inline-flex';
+      heroBadge.title = `Kayıtlı E-posta: ${cleanEmail} (Tıklayarak düzenleyin)`;
+    }
+    if (statusBadge) {
+      statusBadge.textContent = 'Doğrulanmış / Aktif';
+      statusBadge.style.background = 'rgba(56, 189, 248, 0.15)';
+      statusBadge.style.color = '#38bdf8';
+      statusBadge.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+    }
+  } else {
+    if (heroText) heroText.textContent = 'E-posta Tanımlanmamış';
+    if (heroBadge) {
+      heroBadge.style.display = 'inline-flex';
+      heroBadge.title = 'Kurtarma e-postası tanımlamak için tıklayın';
+    }
+    if (statusBadge) {
+      statusBadge.textContent = 'Tanımlanmamış';
+      statusBadge.style.background = 'rgba(239, 68, 68, 0.12)';
+      statusBadge.style.color = '#f87171';
+      statusBadge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+    }
+  }
+}
+window.updateProfileEmailDisplays = updateProfileEmailDisplays;
+
+function focusProfileEmail() {
+  const emailInput = document.getElementById('profEmail');
+  if (emailInput) {
+    emailInput.focus();
+    emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    emailInput.classList.add('pulse-highlight');
+    setTimeout(() => emailInput.classList.remove('pulse-highlight'), 1600);
+  }
+}
+window.focusProfileEmail = focusProfileEmail;
+
+async function saveProfileEmailOnly() {
+  const uname = _currentUser?.username || window._currentUsername || localStorage.getItem('hx_user');
+  if (!uname) {
+    toast('Kullanıcı oturumu bulunamadı', 'error');
+    return;
+  }
+  const emailInput = document.getElementById('profEmail');
+  const emailVal = (emailInput?.value || '').trim();
+
+  if (emailVal && !emailVal.includes('@')) {
+    toast('Lütfen geçerli bir e-posta adresi girin (örn: isim@gmail.com)', 'error');
+    emailInput?.focus();
+    return;
+  }
+
+  const btn = document.getElementById('profSaveEmailBtn');
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Güncelleniyor...</span>';
+  }
+
+  try {
+    const updated = await apiPost('/api/user', {
+      username: uname,
+      email: emailVal
+    });
+    if (updated) {
+      _currentUser = Object.assign({}, _currentUser || {}, updated);
+      if (typeof cachedUserData !== 'undefined' && cachedUserData) {
+        if (!cachedUserData.user) cachedUserData.user = {};
+        Object.assign(cachedUserData.user, updated);
+      }
+    }
+    updateProfileEmailDisplays(emailVal);
+    toast('E-posta adresi başarıyla güncellendi!', 'success');
+  } catch(e) {
+    toast('E-posta güncellenirken hata: ' + e.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
+}
+window.saveProfileEmailOnly = saveProfileEmailOnly;
 
 async function saveProfile() {
   const uname = _currentUser?.username || window._currentUsername || localStorage.getItem('hx_user');
@@ -26921,6 +27303,7 @@ async function saveProfile() {
       }
     }
     updateProfileLiveMetrics();
+    updateProfileEmailDisplays(data.email);
     toast('Biyometrik profil başarıyla kaydedildi ve senkronlandı!', 'success');
   } catch(e) {
     toast('Hata: ' + e.message, 'error');
@@ -26934,7 +27317,7 @@ async function changePassword() {
 
   if (!oldP || !newP) { toast('Tüm alanları doldurun', 'error'); return; }
   if (newP !== confirmP) { toast('Şifreler eşleşmiyor', 'error'); return; }
-  if (newP.length < 3) { toast('Şifre en az 3 karakter olmalı', 'error'); return; }
+  if (newP.length < 6) { toast('Şifre en az 6 karakter olmalı', 'error'); return; }
 
   try {
     await apiPost('/api/auth/change-password', {
@@ -27681,10 +28064,6 @@ async function adminSaveInlineUser() {
   };
   const newPass = (document.getElementById('inlinePassword')?.value || '').trim();
   if (newPass) {
-    if (newPass.length < 6) {
-      toast('Yeni şifre en az 6 karakter olmalıdır!', 'error');
-      return;
-    }
     data.new_password = newPass;
   }
 
@@ -27781,8 +28160,8 @@ async function adminCreateUserSubmit() {
     toast('Kullanıcı adı boş bırakılamaz!', 'error');
     return;
   }
-  if (!password || password.length < 6) {
-    toast('Şifre en az 6 karakter olmalıdır!', 'error');
+  if (!password) {
+    toast('Şifre boş bırakılamaz!', 'error');
     return;
   }
 
