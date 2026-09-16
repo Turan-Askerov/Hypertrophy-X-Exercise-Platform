@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Hypertrophy-X — Antrenman Platformu</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2848,6 +2848,78 @@ tr:hover td { background: var(--bg-card-hover); }
 .sets-table td { text-align: center; }
 .sets-table input, .sets-table select { padding: 6px 8px; font-size: 13px; max-width: 70px; margin: 0 auto; display: block; text-align: center; }
 
+/* Hevy set row controls */
+.set-complete-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(148, 163, 184, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  margin: 0 auto;
+}
+.set-complete-btn:hover {
+  border-color: #34d399;
+  color: #34d399;
+}
+.set-complete-btn.completed {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  border-color: #34d399 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.5) !important;
+}
+.set-delete-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0 auto;
+  transition: all 0.2s ease;
+}
+.set-delete-btn:hover {
+  color: #fb7185;
+  background: rgba(244, 63, 94, 0.12);
+}
+.sets-table tr.set-row-completed {
+  background: rgba(16, 185, 129, 0.09) !important;
+}
+.btn-hevy-add-set {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px dashed rgba(168, 85, 247, 0.35);
+  color: #c084fc;
+  font-weight: 750;
+  font-size: 12.5px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-hevy-add-set:hover {
+  background: rgba(139, 92, 246, 0.16);
+  border-color: #a855f7;
+  color: #ffffff;
+}
+
 #workoutDate:focus,
 #workoutType:focus,
 #workoutGym:focus,
@@ -2862,13 +2934,34 @@ tr:hover td { background: var(--bg-card-hover); }
 }
 
 /* ═══ WORKOUT ACTION BUTTONS (EQUALIZED DIMENSIONS & MODERN ACCENTS) ═══ */
+.workout-actions-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(139, 92, 246, 0.18);
+  box-sizing: border-box;
+}
+
+.workout-actions-buttons-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
 .workout-btn-save,
-.workout-btn-clear,
-.workout-btn-cancel {
+.workout-btn-clear {
+  flex: 1 1 50%;
+  min-width: 0;
   height: 42px;
   min-height: 42px;
-  min-width: 165px;
-  padding: 0 22px;
+  padding: 0 18px;
   border-radius: 11px;
   font-size: 13.5px;
   font-weight: 750;
@@ -2878,6 +2971,24 @@ tr:hover td { background: var(--bg-card-hover); }
   align-items: center;
   justify-content: center;
   gap: 8px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.workout-btn-cancel {
+  width: 100%;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   box-sizing: border-box;
   white-space: nowrap;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2936,6 +3047,57 @@ tr:hover td { background: var(--bg-card-hover); }
   transform: translateY(0);
   background: rgba(244, 63, 94, 0.34);
 }
+
+/* Workout Canlı Özet Çubuğu & Set Ekle Butonu (Desktop Defaults) */
+.workout-summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: rgba(108, 99, 255, 0.08);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  margin: 20px 0 16px;
+  font-size: 13px;
+  font-weight: 750;
+  color: #f8fafc;
+}
+.workout-summary-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.workout-summary-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(167, 139, 250, 0.25);
+}
+.btn-add-set-modern {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 38px;
+  border-radius: 10px;
+  background: rgba(139, 92, 246, 0.09);
+  border: 1px dashed rgba(168, 85, 247, 0.45);
+  color: #c084fc;
+  font-weight: 750;
+  font-size: 13px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-add-set-modern:hover {
+  background: rgba(139, 92, 246, 0.18);
+  border-color: rgba(168, 85, 247, 0.7);
+}
+.btn-add-set-modern:active {
+  transform: scale(0.98);
+}
+
 
 /* Antrenman Kayıt Sayfası Tarzı "＋ Sporcu Oluştur" Butonu */
 .admin-btn-neon-create {
@@ -5060,8 +5222,32 @@ tr:hover td { background: var(--bg-card-hover); }
   box-sizing: border-box;
 }
 .nutri-date-picker-btn:hover {
-  border-color: #38bdf8;
+  border-color: #c084fc;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.25);
   background: rgba(15, 23, 42, 0.85);
+}
+
+.workout-date-picker-btn {
+  width: 100%;
+  height: 42px;
+  padding: 0 13px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1.5px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+.workout-date-picker-btn:hover {
+  border-color: #a855f7;
+  background: rgba(22, 30, 56, 0.9);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
 }
 
 .nutri-submit-btn {
@@ -5139,9 +5325,9 @@ tr:hover td { background: var(--bg-card-hover); }
   width: 100%;
   max-width: 350px;
   background: linear-gradient(160deg, rgba(22, 30, 48, 0.96) 0%, rgba(13, 18, 30, 0.98) 100%);
-  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  border: 1.5px solid rgba(168, 85, 247, 0.35);
   border-radius: 18px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(56, 189, 248, 0.2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(168, 85, 247, 0.2);
   padding: 18px;
   box-sizing: border-box;
   animation: nutriCalZoomIn 0.24s cubic-bezier(0.16, 1, 0.3, 1);
@@ -5171,9 +5357,9 @@ tr:hover td { background: var(--bg-card-hover); }
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  background: rgba(56, 189, 248, 0.16);
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  color: #38bdf8;
+  background: rgba(168, 85, 247, 0.16);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #c084fc;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5234,9 +5420,9 @@ tr:hover td { background: var(--bg-card-hover); }
   transition: all 0.18s ease;
 }
 .nutri-cal-nav-btn:hover:not(:disabled) {
-  background: rgba(56, 189, 248, 0.2);
-  border-color: rgba(56, 189, 248, 0.45);
-  color: #38bdf8;
+  background: rgba(168, 85, 247, 0.2);
+  border-color: rgba(168, 85, 247, 0.45);
+  color: #c084fc;
 }
 .nutri-cal-nav-btn:disabled {
   opacity: 0.25;
@@ -5286,16 +5472,16 @@ tr:hover td { background: var(--bg-card-hover); }
   user-select: none;
 }
 .nutri-cal-day:hover:not(.disabled):not(.selected) {
-  background: rgba(56, 189, 248, 0.16);
-  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(168, 85, 247, 0.16);
+  border-color: rgba(168, 85, 247, 0.4);
   color: #ffffff;
   transform: translateY(-1px);
 }
 .nutri-cal-day.selected {
-  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
   color: #ffffff !important;
-  border-color: #38bdf8 !important;
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.6) !important;
+  border-color: #c084fc !important;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.6) !important;
   font-weight: 850 !important;
   transform: scale(1.05);
 }
@@ -5316,8 +5502,8 @@ tr:hover td { background: var(--bg-card-hover); }
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #38bdf8;
-  box-shadow: 0 0 4px #38bdf8;
+  background: #c084fc;
+  box-shadow: 0 0 4px #c084fc;
 }
 .nutri-cal-day.selected.has-log::after {
   background: #ffffff;
@@ -5347,9 +5533,9 @@ tr:hover td { background: var(--bg-card-hover); }
   transition: all 0.18s ease;
 }
 .nutri-cal-quick-btn:hover {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: rgba(56, 189, 248, 0.4);
-  color: #38bdf8;
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.4);
+  color: #c084fc;
 }
 .nutri-cal-confirm-btn {
   padding: 6px 16px;
@@ -5357,15 +5543,15 @@ tr:hover td { background: var(--bg-card-hover); }
   font-size: 12px;
   font-weight: 800;
   color: #ffffff;
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  border: 1px solid rgba(56, 189, 248, 0.45);
-  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  box-shadow: 0 2px 10px rgba(168, 85, 247, 0.35);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 .nutri-cal-confirm-btn:hover {
   filter: brightness(1.1);
-  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.45);
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.5);
 }
 
 /* NUTRITION STAT PILL CARDS */
@@ -12912,38 +13098,270 @@ tr:hover td { background: var(--bg-card-hover); }
   .grid-3 { grid-template-columns: 1fr; }
 }
 
-/* ═══ MOBILE BOTTOM NAVIGATION ═══ */
+/* ═══ MOBILE SHELL BASE (DESKTOP GİZLEME) ═══ */
 .mobile-bottom-nav {
   display: none;
 }
+.topbar-center {
+  display: none;
+}
+.sidebar-mobile-profile {
+  display: none;
+}
+.dash-hybrid-switcher {
+  display: none !important;
+}
+.dash-carousel-dots {
+  display: none !important;
+}
+
 
 @media (max-width: 768px) {
+  /* ═══ 1. VIEWPORT & OVERFLOW KİLİTLERİ (SIFIR TAŞMA & MİKRO DOKUNMA) ═══ */
   html, body {
     overflow-x: hidden !important;
     width: 100% !important;
-    max-width: 100vw !important;
+    max-width: 100% !important;
     position: relative;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    overscroll-behavior-x: none;
+    -webkit-font-smoothing: antialiased;
   }
   body.mobile-menu-open {
     overflow: hidden !important;
   }
   .app-layout {
     width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden;
+    max-width: 100%;
+    overflow-x: hidden !important;
   }
+  .main-content {
+    margin-left: 0 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  .page-content {
+    padding: 14px 12px calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    min-width: 0 !important;
+  }
+  .page-header {
+    margin-bottom: 14px;
+  }
+  .page-title {
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .page-subtitle {
+    font-size: 12px;
+  }
+
+  /* Mobil etkileşimli elemanlarda istenmeyen metin seçimlerini engelleme */
+  .hamburger-btn,
+  .theme-toggle,
+  .user-dropdown-btn,
+  .mobile-nav-btn,
+  .sidebar .nav-item,
+  .sidebar .nav-sub-item,
+  .sidebar-mobile-profile,
+  .dropdown-item,
+  .topbar-center {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+
+  /* ═══ 2. HEADER BAR (MOBİL ÜST ÇUBUK / APP BAR) ═══ */
+  .topbar {
+    height: calc(58px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: max(14px, env(safe-area-inset-left, 0px));
+    padding-right: max(14px, env(safe-area-inset-right, 0px));
+    position: sticky;
+    top: 0;
+    z-index: 210;
+    background: rgba(15, 23, 42, 0.84);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid rgba(108, 99, 255, 0.22);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.38), 0 1px 0 rgba(168, 85, 247, 0.16);
+  }
+  .light-mode .topbar {
+    background: rgba(255, 255, 255, 0.88);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.88);
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05), 0 1px 0 rgba(124, 58, 237, 0.12);
+  }
+  .topbar-left,
+  .topbar-right {
+    gap: 8px;
+    z-index: 2;
+  }
+
+  /* Header Bar Orta Kısım (App Brand / Dinamik Rozet) */
+  .topbar-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: env(safe-area-inset-top, 0px);
+    height: 58px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .mobile-app-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    background: rgba(108, 99, 255, 0.12);
+    border: 1px solid rgba(139, 92, 246, 0.32);
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    pointer-events: auto;
+  }
+  .mobile-app-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #a855f7;
+    box-shadow: 0 0 8px #a855f7, 0 0 12px #c084fc;
+    animation: badgeDotPulse 2.5s infinite ease-in-out;
+  }
+  @keyframes badgeDotPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(0.85); }
+  }
+  .mobile-app-badge-text {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #f1f5f9;
+    text-transform: uppercase;
+  }
+  .mobile-app-badge-text .badge-dot {
+    color: #a855f7;
+    margin: 0 1px;
+  }
+  .light-mode .mobile-app-badge {
+    background: rgba(124, 58, 237, 0.08);
+    border-color: rgba(124, 58, 237, 0.22);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+  }
+  .light-mode .mobile-app-badge-text {
+    color: #1e1b4b;
+  }
+
+  /* Header Bar Sol Tuş: Squircle App Menü Butonu (Yaylanma Etkisi) */
+  .hamburger-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(108, 99, 255, 0.12);
+    border: 1px solid rgba(108, 99, 255, 0.28);
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, border-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hamburger-btn:active {
+    transform: scale(0.90) !important;
+    background: rgba(108, 99, 255, 0.26) !important;
+  }
+  .light-mode .hamburger-btn {
+    background: rgba(124, 58, 237, 0.08);
+    border-color: rgba(124, 58, 237, 0.22);
+    color: #4338ca;
+  }
+
+  /* Header Bar Sağ Tuş: Tema Düğmesi */
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.28);
+    color: #fbbf24;
+    transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .theme-toggle:active {
+    transform: scale(0.90) !important;
+  }
+
+  /* Header Bar Sağ Tuş: Apple Fitness Tarzı Neon Halkalı Dokununca Parlayan Avatar */
+  .user-dropdown-btn {
+    padding: 2px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .user-dropdown-btn:active {
+    transform: scale(0.92) !important;
+  }
+  .user-dropdown-btn .user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 15px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9), 0 0 0 4px rgba(168, 85, 247, 0.65), 0 0 16px rgba(168, 85, 247, 0.45);
+    transition: all 0.25s ease;
+  }
+  .user-dropdown-btn:active .user-avatar {
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9), 0 0 0 4.5px rgba(236, 72, 153, 0.85), 0 0 24px rgba(236, 72, 153, 0.7);
+  }
+  .light-mode .user-dropdown-btn .user-avatar {
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(124, 58, 237, 0.45), 0 0 12px rgba(124, 58, 237, 0.25);
+  }
+  #userDropdownName,
+  .user-dropdown-btn > svg {
+    display: none;
+  }
+
+  /* ═══ 3. MOBİL YAN MENÜ (APP DRAWER / SHEET) ═══ */
   .sidebar {
     width: min(84vw, 320px);
     max-width: 320px;
-    transform: translateX(-105%);
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 16px 0 36px rgba(0, 0, 0, 0.45);
-    z-index: 300;
+    transform: translateX(-102%);
+    transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(108, 99, 255, 0.18);
+    z-index: 350;
+    border-top-right-radius: 28px;
+    border-bottom-right-radius: 28px;
+    background: linear-gradient(180deg, rgba(16, 22, 38, 0.98) 0%, rgba(10, 14, 26, 0.99) 100%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    backdrop-filter: blur(28px) saturate(190%);
+    border-right: 1px solid rgba(139, 92, 246, 0.28);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
   }
   .sidebar.mobile-open {
     transform: translateX(0);
+  }
+  .light-mode .sidebar {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.99) 100%);
+    border-right: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 20px 0 50px rgba(15, 23, 42, 0.15), 0 0 20px rgba(124, 58, 237, 0.08);
   }
   .sidebar.collapsed {
     width: min(84vw, 320px);
@@ -12962,139 +13380,335 @@ tr:hover td { background: var(--bg-card-hover); }
   .sidebar.collapsed .nav-item span {
     display: inline;
   }
+
+  /* Drawer Arka Plan Karartması (Backdrop) */
   .mobile-menu-backdrop {
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(5, 7, 12, 0.65);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
+    background: rgba(5, 8, 16, 0.72);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.28s ease;
-    z-index: 250;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 340;
     -webkit-tap-highlight-color: transparent;
   }
   .mobile-menu-backdrop.show {
     opacity: 1;
     pointer-events: auto;
   }
-  .main-content {
-    margin-left: 0 !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    overflow-x: hidden !important;
+
+  /* Drawer Üst Profil Kartı (Mini Kimlik Kartı) */
+  .sidebar-mobile-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 12px 14px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(30, 41, 59, 0.5) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.28);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    -webkit-tap-highlight-color: transparent;
   }
-  .topbar {
-    height: 56px;
-    padding: 0 14px;
-    position: sticky;
-    top: 0;
-    background: rgba(26, 29, 39, 0.94);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+  .sidebar-mobile-profile:active {
+    transform: scale(0.97);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.22) 0%, rgba(30, 41, 59, 0.7) 100%);
   }
-  .light-mode .topbar {
-    background: rgba(255, 255, 255, 0.94);
-  }
-  .topbar-left,
-  .topbar-right {
-    gap: 8px;
-  }
-  .hamburger-btn,
-  .theme-toggle {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-  }
-  .user-dropdown-btn {
-    padding: 4px;
-    border-radius: 10px;
-  }
-  #userDropdownName,
-  .user-dropdown-btn > svg {
-    display: none;
-  }
-  .dropdown-menu {
-    position: fixed;
-    top: 62px;
-    right: 12px;
-    width: min(280px, calc(100vw - 24px));
-    border-radius: 14px;
-  }
-  .page-content {
-    padding: 14px 12px calc(80px + env(safe-area-inset-bottom, 0px)) !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-    min-width: 0 !important;
-  }
-  .page-header {
-    margin-bottom: 14px;
-  }
-  .page-title {
-    font-size: 20px;
+  .smp-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: 800;
+    font-size: 16px;
+    color: #ffffff;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.8), 0 0 0 3.5px rgba(168, 85, 247, 0.6), 0 0 14px rgba(168, 85, 247, 0.4);
   }
-  .page-subtitle {
-    font-size: 12px;
+  .smp-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .smp-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #f1f5f9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.2px;
+  }
+  .smp-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+  .smp-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .smp-badge-role {
+    background: rgba(124, 58, 237, 0.25);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.35);
+  }
+  .smp-badge-level {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  .smp-arrow {
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .sidebar-mobile-profile:hover .smp-arrow {
+    color: #c084fc;
+    transform: translateX(2px);
+  }
+  .light-mode .sidebar-mobile-profile {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(241, 245, 249, 0.8) 100%);
+    border-color: rgba(124, 58, 237, 0.2);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  }
+  .light-mode .smp-name {
+    color: #0f172a;
+  }
+  .light-mode .smp-avatar {
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 3.5px rgba(124, 58, 237, 0.5), 0 0 10px rgba(124, 58, 237, 0.25);
   }
 
-  /* ═══ MOBILE BOTTOM BAR ═══ */
+  /* Drawer Büyük Dokunma Alanları (48px Min Yükseklik & Sol Neon Aksan Çizgisi) */
+  .sidebar .nav-item,
+  .sidebar .nav-sub-item {
+    min-height: 48px;
+    padding: 12px 16px;
+    margin: 4px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 650;
+    gap: 14px;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .sidebar .nav-item:active,
+  .sidebar .nav-sub-item:active {
+    transform: scale(0.96) !important;
+  }
+  .sidebar .nav-item.active,
+  .sidebar .nav-sub-item.active {
+    background: linear-gradient(90deg, rgba(124, 58, 237, 0.22) 0%, rgba(139, 92, 246, 0.08) 100%);
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    box-shadow: 0 4px 18px rgba(124, 58, 237, 0.25);
+    color: #ffffff;
+  }
+  .sidebar .nav-item.active::before,
+  .sidebar .nav-sub-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 15%;
+    bottom: 15%;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: linear-gradient(180deg, #c084fc 0%, #7c3aed 100%);
+    box-shadow: 0 0 12px rgba(192, 132, 252, 0.9), 0 0 20px rgba(124, 58, 237, 0.6);
+  }
+  .light-mode .sidebar .nav-item.active,
+  .light-mode .sidebar .nav-sub-item.active {
+    background: linear-gradient(90deg, rgba(124, 58, 237, 0.14) 0%, rgba(139, 92, 246, 0.04) 100%);
+    border-color: rgba(124, 58, 237, 0.35);
+    color: #6d28d9;
+  }
+
+  /* ═══ 4. PROFİL AÇILIR MENÜSÜ (USER ACTION SHEET / CARD) ═══ */
+  .dropdown-menu {
+    position: fixed;
+    top: calc(64px + env(safe-area-inset-top, 0px));
+    right: 12px;
+    width: min(320px, calc(100vw - 24px));
+    background: linear-gradient(165deg, rgba(20, 26, 44, 0.96) 0%, rgba(12, 17, 30, 0.98) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    border-radius: 20px;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(124, 58, 237, 0.25);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    backdrop-filter: blur(28px) saturate(190%);
+    padding: 14px;
+    z-index: 330;
+    transform-origin: top right;
+  }
+  .light-mode .dropdown-menu {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.12), 0 0 20px rgba(124, 58, 237, 0.12);
+  }
+  .dropdown-header {
+    padding: 4px 6px 12px;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    margin-bottom: 8px;
+  }
+  .light-mode .dropdown-header {
+    border-bottom-color: rgba(226, 232, 240, 0.9);
+  }
+  .dropdown-item {
+    min-height: 48px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 650;
+    gap: 12px;
+    margin: 4px 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
+  }
+  .dropdown-item:active {
+    transform: scale(0.96) !important;
+  }
+
+  /* ═══ 5. BOTTOM NAVIGATION BAR (MOBİL ALT DOCK / TABBAR) ═══ */
   .mobile-bottom-nav {
     display: flex;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    height: calc(64px + env(safe-area-inset-bottom, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    background: rgba(22, 26, 38, 0.92);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
-    z-index: 200;
+    background: rgba(13, 17, 28, 0.88);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    backdrop-filter: blur(28px) saturate(190%);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    z-index: 220;
     justify-content: space-around;
     align-items: center;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(124, 58, 237, 0.2);
+    padding-left: max(4px, env(safe-area-inset-left, 0px));
+    padding-right: max(4px, env(safe-area-inset-right, 0px));
   }
   .light-mode .mobile-bottom-nav {
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-top: 1px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.08), 0 -1px 0 rgba(124, 58, 237, 0.15) !important;
   }
   .mobile-nav-btn {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 2px;
     background: none;
     border: none;
-    color: var(--text-muted);
+    color: #94a3b8;
     font-size: 9.5px;
     font-weight: 600;
-    padding: 4px 2px;
-    border-radius: 10px;
-    transition: all 0.2s ease;
+    padding: 6px 2px 5px;
+    border-radius: 12px;
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
     flex: 1;
     min-width: 0;
-    max-width: 70px;
+    max-width: 68px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-nav-btn:active {
+    transform: scale(0.88) !important;
+  }
+  .mobile-nav-btn .nav-icon-wrap {
+    width: 36px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .mobile-nav-btn svg {
     width: 20px;
     height: 20px;
     stroke-width: 2;
-    transition: transform 0.2s ease;
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+  }
+  .mobile-nav-btn span {
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    transition: color 0.2s ease, font-weight 0.2s ease;
   }
   .mobile-nav-btn.active {
-    color: var(--accent);
+    color: #c084fc;
+  }
+  .mobile-nav-btn.active .nav-icon-wrap {
+    background: rgba(124, 58, 237, 0.22);
+    box-shadow: 0 0 16px rgba(168, 85, 247, 0.4);
   }
   .mobile-nav-btn.active svg {
     transform: scale(1.12);
-    color: var(--accent);
+    color: #c084fc;
+  }
+  .mobile-nav-btn.active span {
+    color: #f1f5f9;
+    font-weight: 750;
+  }
+  /* Aktif sekme gösterge noktası (indicator dot) */
+  .mobile-nav-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: transparent;
+    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: scale(0);
+  }
+  .mobile-nav-btn.active::after {
+    background: #a855f7;
+    box-shadow: 0 0 8px #a855f7, 0 0 12px #c084fc;
+    transform: scale(1);
+  }
+  .light-mode .mobile-nav-btn {
+    color: #64748b;
+  }
+  .light-mode .mobile-nav-btn.active {
+    color: #7c3aed;
+  }
+  .light-mode .mobile-nav-btn.active .nav-icon-wrap {
+    background: rgba(124, 58, 237, 0.12);
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.25);
+  }
+  .light-mode .mobile-nav-btn.active svg {
+    color: #7c3aed;
+  }
+  .light-mode .mobile-nav-btn.active span {
+    color: #6d28d9;
+    font-weight: 750;
+  }
+  .light-mode .mobile-nav-btn.active::after {
+    background: #7c3aed;
+    box-shadow: 0 0 6px rgba(124, 58, 237, 0.6);
   }
 
   /* ═══ MOBILE CARDS & GRIDS ═══ */
@@ -13119,6 +13733,142 @@ tr:hover td { background: var(--bg-card-hover); }
     grid-template-columns: 1fr !important;
     gap: 12px;
     margin-bottom: 14px;
+  }
+
+  /* ═══ DASHBOARD HİBRİT MİMARİ: KARUSEL & SEKMELİ SWITCHER ═══ */
+  .dash-hybrid-section {
+    position: relative;
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 100%;
+  }
+  .dash-hybrid-section .mb-20 {
+    margin-bottom: 0 !important;
+  }
+
+  /* Segmented Pill Switcher Bar (Tıklanabilir Hap Butonlar) */
+  .dash-hybrid-switcher {
+    display: flex !important;
+    align-items: center;
+    background: rgba(18, 24, 42, 0.78);
+    border: 1px solid rgba(139, 92, 246, 0.28);
+    border-radius: 14px;
+    padding: 3px;
+    gap: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+  .light-mode .dash-hybrid-switcher {
+    background: rgba(241, 245, 249, 0.9);
+    border-color: rgba(226, 232, 240, 0.95);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  }
+  .dash-switcher-pill {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 8px 10px;
+    border-radius: 11px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+  }
+  .dash-switcher-pill:active {
+    transform: scale(0.96);
+  }
+  .dash-switcher-pill .pill-icon {
+    font-size: 13px;
+  }
+  .dash-switcher-pill.active {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.32) 0%, rgba(168, 85, 247, 0.2) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.45);
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.3);
+  }
+  .light-mode .dash-switcher-pill {
+    color: #64748b;
+  }
+  .light-mode .dash-switcher-pill.active {
+    background: #ffffff;
+    border-color: rgba(124, 58, 237, 0.3);
+    color: #7c3aed;
+    box-shadow: 0 2px 10px rgba(124, 58, 237, 0.12);
+  }
+
+  /* Horizontal Snap Track (Swipeable / Sağa-Sola Parmakla Kaydırma) */
+  .dash-hybrid-section .dash-hybrid-track {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    gap: 14px !important;
+    margin-bottom: 6px !important;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .dash-hybrid-section .dash-hybrid-track::-webkit-scrollbar {
+    display: none;
+  }
+  .dash-hybrid-section .dash-hybrid-card {
+    flex: 0 0 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
+    box-sizing: border-box !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Dots Indicator (Nokta Göstergeleri) */
+  .dash-carousel-dots {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+    padding: 2px 0 6px;
+  }
+  .dash-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(148, 163, 184, 0.35);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dash-dot.active {
+    width: 22px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #7c3aed, #c084fc);
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.65);
+  }
+  .light-mode .dash-dot {
+    background: rgba(148, 163, 184, 0.4);
+  }
+  .light-mode .dash-dot.active {
+    background: linear-gradient(90deg, #7c3aed, #9333ea);
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
   }
   .stat-card .stat-value {
     font-size: 20px;
@@ -13188,11 +13938,44 @@ tr:hover td { background: var(--bg-card-hover); }
     border-radius: 8px !important;
   }
 
+  /* ═══ MODERN MOBILE-FIRST WORKOUT TRACKER (ANTRENMAN KAYDI) ═══ */
+  #page-workout {
+    padding: 12px 10px calc(80px + env(safe-area-inset-bottom, 12px)) 10px !important;
+  }
+  #page-workout > .page-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 12px !important;
+    gap: 8px !important;
+  }
+  #workoutPageTitle {
+    font-size: 20px !important;
+    font-weight: 850 !important;
+    letter-spacing: -0.3px !important;
+  }
+  #workoutPageSubtitle {
+    font-size: 11.5px !important;
+    color: #94a3b8 !important;
+  }
+  #workoutLiveSummaryBadge {
+    padding: 5px 10px !important;
+    font-size: 11px !important;
+    border-radius: 8px !important;
+    font-weight: 750 !important;
+  }
+
   .workout-main-card {
     padding: 14px 12px !important;
     border-radius: 16px !important;
+    background: linear-gradient(165deg, rgba(22, 28, 52, 0.95) 0%, rgba(14, 18, 36, 0.98) 100%) !important;
+    border: 1px solid rgba(139, 92, 246, 0.28) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+    margin-bottom: 16px !important;
   }
   .workout-section-head {
+    display: flex !important;
+    align-items: center !important;
     gap: 8px !important;
     margin-bottom: 12px !important;
   }
@@ -13207,77 +13990,92 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .workout-section-head h3 {
     font-size: 13.5px !important;
+    font-weight: 800 !important;
   }
   .workout-section-head p {
     font-size: 11px !important;
+    color: #94a3b8 !important;
   }
 
+  /* Seans Ayarları 2x2 Temiz Izgara */
   .workout-meta-grid {
-    grid-template-columns: 1fr !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
     gap: 10px !important;
     margin-bottom: 16px !important;
   }
+  .workout-meta-grid > .form-group:nth-child(3) {
+    grid-column: span 2 !important;
+  }
   #page-workout .workout-meta-grid .form-group label {
-    font-size: 11.5px !important;
+    font-size: 11px !important;
+    font-weight: 750 !important;
+    color: #cbd5e1 !important;
     margin-bottom: 4px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
   }
   #workoutDate,
   #workoutType,
   #workoutGym {
-    min-height: 38px !important;
-    height: 38px !important;
+    min-height: 40px !important;
+    height: 40px !important;
     padding: 6px 10px !important;
     font-size: 13px !important;
+    font-weight: 700 !important;
     border-radius: 10px !important;
+    background: rgba(15, 23, 42, 0.85) !important;
+    border: 1.5px solid rgba(139, 92, 246, 0.3) !important;
+    color: #ffffff !important;
   }
 
-  /* Exercise Selector Section */
+  /* Egzersiz Havuzu ve Arama Kartı */
   .workout-selector-box {
-    padding: 12px 10px !important;
+    padding: 14px 12px !important;
     border-radius: 14px !important;
+    background: rgba(13, 17, 34, 0.8) !important;
+    border: 1px solid rgba(139, 92, 246, 0.22) !important;
     margin-bottom: 16px !important;
+    box-shadow: none !important;
+    position: static !important;
+    max-height: none !important;
+    height: auto !important;
+    transform: none !important;
   }
-  .workout-selector-box > div:first-child {
-    margin-bottom: 10px !important;
-    gap: 8px !important;
-  }
-  .workout-selector-box h4 {
-    font-size: 13px !important;
-  }
-  .workout-selector-box p {
-    font-size: 10.5px !important;
-  }
-  .workout-search-header-right {
-    width: 100% !important;
+  .workout-selector-header {
     display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    margin-top: 4px !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
   }
   .workout-search-wrap {
-    flex: 1 !important;
-    width: auto !important;
-    min-width: 0 !important;
+    width: 100% !important;
+    position: relative !important;
   }
   #workoutExerciseSearch {
-    min-height: 34px !important;
-    height: 34px !important;
-    padding: 5px 10px 5px 30px !important;
-    font-size: 12px !important;
-    border-radius: 8px !important;
-  }
-  .workout-search-badges {
-    flex-shrink: 0 !important;
-  }
-  .workout-search-badges span {
-    font-size: 9px !important;
-    padding: 3px 6px !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 6px 12px 6px 34px !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+    border: 1.5px solid rgba(139, 92, 246, 0.3) !important;
+    color: #ffffff !important;
+    width: 100% !important;
   }
   .exercise-selector {
     display: flex !important;
     flex-direction: column !important;
     gap: 10px !important;
-    grid-template-columns: none !important;
+  }
+  .muscle-list-label,
+  .exercise-list-label {
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    color: #a78bfa !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    margin-bottom: 6px !important;
   }
   .muscle-list {
     display: flex !important;
@@ -13287,45 +14085,60 @@ tr:hover td { background: var(--bg-card-hover); }
     padding: 2px 2px 6px !important;
     white-space: nowrap !important;
     max-height: none !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   .muscle-list::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
   .muscle-filter {
     flex-shrink: 0 !important;
-    padding: 6px 11px !important;
-    border-radius: 16px !important;
+    padding: 6px 12px !important;
+    border-radius: 18px !important;
     font-size: 11.5px !important;
-    font-weight: 700 !important;
-    background: rgba(255, 255, 255, 0.04) !important;
-    border: 1px solid var(--border) !important;
+    font-weight: 750 !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(139, 92, 246, 0.22) !important;
+    color: #cbd5e1 !important;
     transition: all 0.2s ease !important;
   }
   .muscle-filter.active {
-    background: var(--accent) !important;
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
     color: #ffffff !important;
-    border-color: var(--accent) !important;
-    box-shadow: 0 2px 8px rgba(108, 99, 255, 0.4) !important;
+    border-color: #a855f7 !important;
+    box-shadow: 0 2px 10px rgba(124, 58, 237, 0.4) !important;
   }
   .exercise-list {
-    max-height: 180px !important;
-    gap: 4px !important;
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
     padding-right: 2px !important;
   }
   .exercise-option {
-    padding: 8px 10px !important;
+    padding: 9px 11px !important;
     margin-bottom: 3px !important;
-    border-radius: 8px !important;
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 1px solid var(--border) !important;
-    font-size: 12px !important;
+    border-radius: 9px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(139, 92, 246, 0.18) !important;
+    font-size: 12.5px !important;
+    cursor: pointer !important;
+    transition: all 0.18s ease !important;
+  }
+  .exercise-option:active {
+    background: rgba(124, 58, 237, 0.18) !important;
+    border-color: rgba(168, 85, 247, 0.4) !important;
   }
 
-  /* ═══ MOBILE SELECTED EXERCISES & SETS TABLE ═══ */
+  /* Seçili Egzersiz Kartları */
   .selected-exercise-card {
-    padding: 10px 8px !important;
-    border-radius: 12px !important;
-    margin-bottom: 12px !important;
+    padding: 14px 11px !important;
+    border-radius: 14px !important;
+    background: linear-gradient(160deg, rgba(22, 28, 52, 0.94) 0%, rgba(14, 18, 36, 0.98) 100%) !important;
+    border: 1px solid rgba(139, 92, 246, 0.28) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+    margin-bottom: 14px !important;
   }
   .selected-ex-header {
     display: flex !important;
@@ -13343,56 +14156,63 @@ tr:hover td { background: var(--bg-card-hover); }
     flex: 1 !important;
   }
   .selected-ex-name {
-    font-size: 13px !important;
+    font-size: 14px !important;
     font-weight: 800 !important;
     line-height: 1.25 !important;
+    color: #ffffff !important;
   }
-  .selected-ex-header .badge {
-    font-size: 10px !important;
-    padding: 2px 6px !important;
-    border-radius: 5px !important;
+  .ex-drag-handle {
+    padding: 4px 6px !important;
+    border-radius: 6px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #94a3b8 !important;
   }
   .ex-remove-btn {
-    padding: 4px 8px !important;
-    font-size: 10.5px !important;
-    font-weight: 700 !important;
-    border-radius: 6px !important;
-    min-height: 26px !important;
-    height: 26px !important;
-    gap: 3px !important;
-    flex-shrink: 0 !important;
-  }
-  .ex-remove-btn svg {
-    width: 11px !important;
-    height: 11px !important;
+    padding: 4px 10px !important;
+    font-size: 11px !important;
+    font-weight: 750 !important;
+    border-radius: 7px !important;
+    min-height: 28px !important;
+    height: 28px !important;
+    background: rgba(244, 63, 94, 0.14) !important;
+    color: #fb7185 !important;
+    border: 1px solid rgba(244, 63, 94, 0.35) !important;
+    cursor: pointer !important;
   }
 
+  /* Set Tablosu (5 Temiz Kolon: Set, Kg, Tekrar, RIR, İşlem) */
+  .sets-table-wrap {
+    width: 100% !important;
+    overflow: hidden !important;
+    margin-top: 4px !important;
+  }
   .sets-table {
     width: 100% !important;
     min-width: 0 !important;
     table-layout: fixed !important;
-    margin-top: 4px !important;
+    margin-top: 2px !important;
     border-collapse: separate !important;
-    border-spacing: 0 3px !important;
+    border-spacing: 0 4px !important;
   }
   .sets-table th {
     padding: 4px 1px !important;
     font-size: 10px !important;
-    font-weight: 800 !important;
+    font-weight: 850 !important;
     color: #c084fc !important;
     text-align: center !important;
-    letter-spacing: 0.2px !important;
+    letter-spacing: 0.3px !important;
+    text-transform: uppercase !important;
   }
   .sets-table th:nth-child(1),
-  .sets-table td:nth-child(1) { width: 26px !important; max-width: 26px !important; }
+  .sets-table td:nth-child(1) { width: 28px !important; max-width: 28px !important; }
   .sets-table th:nth-child(2),
-  .sets-table td:nth-child(2) { width: 33% !important; }
+  .sets-table td:nth-child(2) { width: auto !important; }
   .sets-table th:nth-child(3),
-  .sets-table td:nth-child(3) { width: 29% !important; }
+  .sets-table td:nth-child(3) { width: auto !important; }
   .sets-table th:nth-child(4),
-  .sets-table td:nth-child(4) { width: 23% !important; }
+  .sets-table td:nth-child(4) { width: auto !important; }
   .sets-table th:nth-child(5),
-  .sets-table td:nth-child(5) { width: 40px !important; max-width: 44px !important; }
+  .sets-table td:nth-child(5) { width: 32px !important; max-width: 32px !important; }
 
   .sets-table td {
     padding: 2px 1px !important;
@@ -13400,29 +14220,44 @@ tr:hover td { background: var(--bg-card-hover); }
     border: none !important;
   }
 
-  /* Set inputs & selects shrunk down for clean mobile fit */
-  #page-workout .sets-table input.workout-set-input,
-  #page-workout .sets-table select.workout-set-select,
-  .sets-table input,
-  .sets-table select {
-    min-height: 31px !important;
-    height: 31px !important;
-    max-height: 31px !important;
-    padding: 2px 3px !important;
+  #page-workout .sets-table input.workout-set-input {
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 2px 2px !important;
     font-size: 13px !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    border-radius: 8px !important;
+    background: rgba(15, 23, 42, 0.85) !important;
+    border: 1.5px solid rgba(139, 92, 246, 0.32) !important;
+    color: #ffffff !important;
+    width: 100% !important;
+    max-width: 56px !important;
+    box-sizing: border-box !important;
+    margin: 0 auto !important;
+    display: block !important;
+  }
+  #page-workout .sets-table input.workout-set-input:focus {
+    border-color: #a855f7 !important;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.4) !important;
+  }
+  #page-workout .sets-table select.workout-set-select {
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 2px 1px !important;
+    font-size: 12.5px !important;
     font-weight: 750 !important;
     text-align: center !important;
-    border-radius: 7px !important;
+    border-radius: 8px !important;
+    background: rgba(15, 23, 42, 0.85) !important;
+    border: 1.5px solid rgba(139, 92, 246, 0.32) !important;
+    color: #ffffff !important;
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 46px !important;
     box-sizing: border-box !important;
-    line-height: normal !important;
-  }
-  #page-workout .sets-table select.workout-set-select,
-  .sets-table select {
-    padding-left: 1px !important;
-    padding-right: 1px !important;
-    font-size: 12px !important;
+    cursor: pointer !important;
+    margin: 0 auto !important;
+    display: block !important;
   }
 
   .set-num-badge {
@@ -13430,44 +14265,79 @@ tr:hover td { background: var(--bg-card-hover); }
     height: 22px !important;
     min-width: 22px !important;
     font-size: 11px !important;
-    font-weight: 800 !important;
+    font-weight: 850 !important;
     border-radius: 6px !important;
-  }
-
-  .sets-table .set-action-btn {
-    min-height: 31px !important;
-    height: 31px !important;
-    max-height: 31px !important;
-    padding: 0 4px !important;
-    width: 100% !important;
+    background: rgba(108, 99, 255, 0.16) !important;
+    color: #c084fc !important;
+    border: 1px solid rgba(167, 139, 250, 0.35) !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 11px !important;
-    font-weight: 750 !important;
+  }
+
+  .set-action-btn {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    min-height: 26px !important;
+    padding: 0 !important;
     border-radius: 7px !important;
-    gap: 3px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
     box-sizing: border-box !important;
   }
-  .sets-table .set-action-btn svg {
-    width: 11px !important;
-    height: 11px !important;
-  }
 
-  .selected-exercise-card .expert-injury-tip {
-    font-size: 10.5px !important;
-    padding: 6px 8px !important;
-    margin-top: 8px !important;
-    border-radius: 8px !important;
-    line-height: 1.35 !important;
+  /* Set Ekle Butonu */
+  .btn-add-set-modern {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     gap: 6px !important;
+    width: 100% !important;
+    min-height: 38px !important;
+    border-radius: 10px !important;
+    background: rgba(139, 92, 246, 0.09) !important;
+    border: 1px dashed rgba(168, 85, 247, 0.45) !important;
+    color: #c084fc !important;
+    font-weight: 800 !important;
+    font-size: 13px !important;
+    margin-top: 10px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
   }
-  .selected-exercise-card .expert-injury-tip svg {
-    width: 13px !important;
-    height: 13px !important;
+  .btn-add-set-modern:active {
+    transform: scale(0.98) !important;
+    background: rgba(139, 92, 246, 0.2) !important;
   }
 
-  /* Workout Notes */
+  /* Canlı Özet Çubuğu */
+  .workout-summary-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+    padding: 10px 8px !important;
+    border-radius: 11px !important;
+    background: rgba(108, 99, 255, 0.08) !important;
+    border: 1px solid rgba(167, 139, 250, 0.25) !important;
+    margin: 14px 0 !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    color: #f8fafc !important;
+  }
+  .workout-summary-stat {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+  }
+  .workout-summary-divider {
+    width: 1px !important;
+    height: 14px !important;
+    background: rgba(167, 139, 250, 0.25) !important;
+  }
+
+  /* Not Girişi */
   #workoutNotes {
     min-height: 54px !important;
     font-size: 12.5px !important;
@@ -13475,34 +14345,91 @@ tr:hover td { background: var(--bg-card-hover); }
     border-radius: 10px !important;
   }
 
-  /* Workout Action Buttons */
+  /* Aksiyon Butonları (Mobilde Yan Yana ve Bilgisayar Renkleriyle) */
   .workout-actions-row {
     display: flex !important;
     flex-direction: column !important;
     gap: 8px !important;
     padding-top: 14px !important;
+    border-top: 1px solid rgba(139, 92, 246, 0.18) !important;
     width: 100% !important;
+    box-sizing: border-box !important;
   }
-  .workout-btn-save,
-  .workout-btn-clear,
-  .workout-btn-cancel {
+  .workout-actions-buttons-wrap {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
     width: 100% !important;
-    min-height: 42px !important;
-    height: 42px !important;
-    font-size: 13.5px !important;
-    font-weight: 750 !important;
-    border-radius: 11px !important;
-    justify-content: center !important;
-  }
-  .workout-btn-save {
-    order: 1 !important;
   }
   .workout-btn-clear {
-    order: 2 !important;
+    flex: 1 1 50% !important;
+    min-width: 0 !important;
+    width: 50% !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 10px !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
+    border-radius: 11px !important;
+    color: #fca5a5 !important;
+    background: rgba(239, 68, 68, 0.12) !important;
+    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+  }
+  .workout-btn-clear:active {
+    transform: scale(0.98) !important;
+    background: rgba(239, 68, 68, 0.25) !important;
+    color: #ffffff !important;
+  }
+  .workout-btn-save {
+    flex: 1 1 50% !important;
+    min-width: 0 !important;
+    width: 50% !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 10px !important;
+    font-size: 13.5px !important;
+    font-weight: 800 !important;
+    border-radius: 11px !important;
+    color: #6ee7b7 !important;
+    background: rgba(16, 185, 129, 0.14) !important;
+    border: 1px solid rgba(16, 185, 129, 0.4) !important;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+  }
+  .workout-btn-save:active {
+    transform: scale(0.98) !important;
+    background: rgba(16, 185, 129, 0.3) !important;
+    color: #ffffff !important;
   }
   .workout-btn-cancel {
-    order: 3 !important;
+    width: 100% !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    font-size: 12.5px !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
+    margin-top: 2px !important;
   }
+
 
   /* ═══ MOBILE BUTTONS & INPUTS ═══ */
   input,
@@ -13564,45 +14491,64 @@ tr:hover td { background: var(--bg-card-hover); }
 
   /* ═══ EXTRA COMPACT WORKOUT PAGE (<= 480px) ═══ */
   .workout-main-card {
-    padding: 10px 8px !important;
-    border-radius: 14px !important;
+    padding: 12px 8px !important;
   }
   .selected-exercise-card {
-    padding: 8px 6px !important;
-    border-radius: 10px !important;
+    padding: 10px 6px !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
   }
   .sets-table th:nth-child(1),
-  .sets-table td:nth-child(1) { width: 22px !important; max-width: 22px !important; }
+  .sets-table td:nth-child(1) { width: 26px !important; max-width: 26px !important; }
   .sets-table th:nth-child(5),
-  .sets-table td:nth-child(5) { width: 34px !important; max-width: 36px !important; }
+  .sets-table td:nth-child(5) { width: 30px !important; max-width: 30px !important; }
 
-  #page-workout .sets-table input.workout-set-input,
-  #page-workout .sets-table select.workout-set-select,
-  .sets-table input,
-  .sets-table select {
-    min-height: 28px !important;
-    height: 28px !important;
-    max-height: 28px !important;
-    font-size: 12px !important;
-    padding: 1px 2px !important;
-    border-radius: 6px !important;
+  #page-workout .sets-table input.workout-set-input {
+    min-height: 32px !important;
+    height: 32px !important;
+    font-size: 12.5px !important;
+    padding: 2px 2px !important;
+    border-radius: 7px !important;
+    max-width: 52px !important;
   }
-  .sets-table .set-action-btn {
-    min-height: 28px !important;
-    height: 28px !important;
-    max-height: 28px !important;
-    font-size: 10px !important;
-    border-radius: 6px !important;
-    padding: 0 2px !important;
+  #page-workout .sets-table select.workout-set-select {
+    min-height: 32px !important;
+    height: 32px !important;
+    font-size: 12px !important;
+    padding: 2px 1px !important;
+    border-radius: 7px !important;
+    max-width: 44px !important;
   }
   .set-num-badge {
     width: 20px !important;
     height: 20px !important;
     min-width: 20px !important;
-    font-size: 10px !important;
+    font-size: 10.5px !important;
+    border-radius: 5px !important;
+  }
+  .set-action-btn {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    font-size: 10.5px !important;
+    border-radius: 6px !important;
   }
   .selected-ex-name {
+    font-size: 13px !important;
+  }
+  .workout-btn-clear,
+  .workout-btn-save {
+    min-height: 40px !important;
+    height: 40px !important;
     font-size: 12.5px !important;
+    padding: 0 8px !important;
+    gap: 5px !important;
+  }
+  .workout-btn-clear svg,
+  .workout-btn-save svg {
+    width: 14px !important;
+    height: 14px !important;
   }
 }
 @media (max-width: 768px) {
@@ -16689,6 +17635,19 @@ tr:hover td { background: var(--bg-card-hover); }
         <div class="brand-sub">Antrenman Platformu</div>
       </div>
     </div>
+    <div class="sidebar-mobile-profile" id="sidebarMobileProfile" onclick="navigate('profile');closeMobileSidebar()">
+      <div class="smp-avatar" id="smpAvatar">?</div>
+      <div class="smp-info">
+        <div class="smp-name" id="smpName">Kullanıcı</div>
+        <div class="smp-meta">
+          <span class="smp-badge smp-badge-role" id="smpRole">Kullanıcı</span>
+          <span class="smp-badge smp-badge-level" id="smpLevel">Sporcu</span>
+        </div>
+      </div>
+      <div class="smp-arrow">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7"/></svg>
+      </div>
+    </div>
     <nav class="sidebar-nav" id="sidebarNav">
       <!-- KULLANICI / YÖNETİCİ ROLÜNE GÖRE JS TARAFINDAN DOLDURULACAK -->
     </nav>
@@ -16720,6 +17679,12 @@ tr:hover td { background: var(--bg-card-hover); }
         <button class="hamburger-btn" onclick="toggleSidebar()" title="Menüyü aç veya kapat" aria-label="Menüyü aç veya kapat" aria-expanded="false">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
+      </div>
+      <div class="topbar-center" id="topbarCenter">
+        <div class="mobile-app-badge" id="mobileAppBadge">
+          <span class="mobile-app-badge-dot"></span>
+          <span class="mobile-app-badge-text">HYPERTROPHY<span class="badge-dot">·</span>X</span>
+        </div>
       </div>
       <div class="topbar-right">
         <!-- TEMA DEĞİŞTİRME BUTONU (LIGHT / DARK MODE) -->
@@ -16795,104 +17760,126 @@ tr:hover td { background: var(--bg-card-hover); }
 <!-- ────────────────────────────────────────────────────────────────────────── -->
 
 
-        <div class="grid-2 mb-20">
-          <div class="card dash-card dash-rpg-card" style="margin-top:0; padding: 16px 18px !important; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; overflow: hidden;">
-            <div class="card-header-flex" style="margin-bottom: 6px;">
-              <div style="display:flex; align-items:center; gap:8px; min-width: 0;">
-                <div class="dash-card-icon" style="width:30px; height:30px; background:linear-gradient(135deg, rgba(139, 92, 246, 0.24) 0%, rgba(99, 102, 241, 0.12) 100%); border:1px solid rgba(167, 139, 250, 0.35); color:#c084fc; box-shadow:0 0 10px rgba(139, 92, 246, 0.2); flex-shrink:0;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                </div>
-                <div style="min-width: 0;">
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <h3 style="font-size:14px; font-weight:800; color:#f8fafc; margin:0; letter-spacing:0.2px; white-space:nowrap;">Gelişim Seviyesi</h3>
-                    <span id="rpgLevelBadge" class="badge badge-accent" style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; letter-spacing:0.3px; flex-shrink:0;">LVL 1</span>
+        <!-- ═══ HİBRİT GRUP 1: GELİŞİM SEVİYESİ & SET DAĞILIMI ═══ -->
+        <div class="dash-hybrid-section" id="dashChartsSection">
+          <!-- Mobile Segmented Pill Switcher (Masaüstünde Gizli) -->
+          <div class="dash-hybrid-switcher" id="dashChartsSwitcher">
+            <button type="button" class="dash-switcher-pill active" onclick="switchHybridSlide('dashChartsTrack', 0, this)">
+              <span class="pill-icon">⚡</span>
+              <span>Gelişim Seviyesi</span>
+            </button>
+            <button type="button" class="dash-switcher-pill" onclick="switchHybridSlide('dashChartsTrack', 1, this)">
+              <span class="pill-icon">📊</span>
+              <span>Set Dağılımı</span>
+            </button>
+          </div>
+
+          <!-- Hybrid Track (Mobilde Sağa-Sola Kaydırılabilir Snap Karusel, Masaüstünde 2 Sütunlu Grid) -->
+          <div class="grid-2 mb-20 dash-hybrid-track" id="dashChartsTrack" onscroll="handleHybridScroll('dashChartsTrack', 'dashChartsSwitcher', 'dashChartsDots')">
+            <div class="card dash-card dash-rpg-card dash-hybrid-card" style="margin-top:0; padding: 16px 18px !important; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; overflow: hidden;">
+              <div class="card-header-flex" style="margin-bottom: 6px;">
+                <div style="display:flex; align-items:center; gap:8px; min-width: 0;">
+                  <div class="dash-card-icon" style="width:30px; height:30px; background:linear-gradient(135deg, rgba(139, 92, 246, 0.24) 0%, rgba(99, 102, 241, 0.12) 100%); border:1px solid rgba(167, 139, 250, 0.35); color:#c084fc; box-shadow:0 0 10px rgba(139, 92, 246, 0.2); flex-shrink:0;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                   </div>
-                  <div id="rpgSubtitle" style="font-size:11px; color:#94a3b8; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px;">
-                    <span id="rpgTitle" style="color:#c084fc; font-weight:750;">KAS GRUBU TAMAMLAMA</span> · <span id="rpgNextLevelText">Hesaplanıyor...</span>
+                  <div style="min-width: 0;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <h3 style="font-size:14px; font-weight:800; color:#f8fafc; margin:0; letter-spacing:0.2px; white-space:nowrap;">Gelişim Seviyesi</h3>
+                      <span id="rpgLevelBadge" class="badge badge-accent" style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; letter-spacing:0.3px; flex-shrink:0;">LVL 1</span>
+                    </div>
+                    <div id="rpgSubtitle" style="font-size:11px; color:#94a3b8; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px;">
+                      <span id="rpgTitle" style="color:#c084fc; font-weight:750;">KAS GRUBU TAMAMLAMA</span> · <span id="rpgNextLevelText">Hesaplanıyor...</span>
+                    </div>
                   </div>
                 </div>
+                <div id="rpgTimeframePills" class="timeframe-pills" style="margin-left: auto;">
+                  <button class="tf-pill" onclick="filterXpChart('weekly', this)">Haftalık</button>
+                  <button class="tf-pill" onclick="filterXpChart('monthly', this)">Aylık</button>
+                  <button class="tf-pill active" onclick="filterXpChart('all', this)">Genel</button>
+                </div>
               </div>
-              <div id="rpgTimeframePills" class="timeframe-pills" style="margin-left: auto;">
-                <button class="tf-pill" onclick="filterXpChart('weekly', this)">Haftalık</button>
-                <button class="tf-pill" onclick="filterXpChart('monthly', this)">Aylık</button>
-                <button class="tf-pill active" onclick="filterXpChart('all', this)">Genel</button>
-              </div>
-            </div>
 
-            <div id="rpgXpHeaderWrap" style="margin: 4px 0 6px;">
-              <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1; font-weight: 700; margin-bottom: 4px;">
-                <span id="rpgCurrentXp" style="color:#f8fafc;">0 XP</span>
-                <span id="rpgTargetXp" style="color:#38bdf8;">0 / 500 XP (%0)</span>
+              <div id="rpgXpHeaderWrap" style="margin: 4px 0 6px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1; font-weight: 700; margin-bottom: 4px;">
+                  <span id="rpgCurrentXp" style="color:#f8fafc;">0 XP</span>
+                  <span id="rpgTargetXp" style="color:#38bdf8;">0 / 500 XP (%0)</span>
+                </div>
+                <div class="rpg-xp-progress-bg" style="height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.6); overflow: hidden; position: relative;">
+                  <div id="rpgXpFill" class="rpg-xp-progress-fill" style="width: 0%; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #3b82f6, #a855f7, #ec4899); box-shadow: 0 0 12px rgba(168, 85, 247, 0.6); transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease;"></div>
+                </div>
               </div>
-              <div class="rpg-xp-progress-bg" style="height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.6); overflow: hidden; position: relative;">
-                <div id="rpgXpFill" class="rpg-xp-progress-fill" style="width: 0%; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #3b82f6, #a855f7, #ec4899); box-shadow: 0 0 12px rgba(168, 85, 247, 0.6); transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease;"></div>
+
+              <div id="rpgChartWrap" style="position: relative; height: 135px; width: 100%; min-width: 0; margin: 4px 0;">
+                <canvas id="xpTrendChart"></canvas>
               </div>
-            </div>
 
-            <div id="rpgChartWrap" style="position: relative; height: 135px; width: 100%; min-width: 0; margin: 4px 0;">
-              <canvas id="xpTrendChart"></canvas>
-            </div>
-
-            <div id="rpgLockPanel" style="display:none; position:relative; min-height:135px; width:100%; margin:4px 0; background:linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(22, 27, 48, 0.7) 100%); border:1px dashed rgba(168, 85, 247, 0.4); border-radius:12px; padding:12px 14px; box-sizing:border-box; flex-direction:column; justify-content:space-between;">
-              <div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-size:12.5px; font-weight:800; color:#f8fafc; letter-spacing:0.2px;">🎯 10 Kas Grubunu Tamamla</span>
-                    <span style="font-size:10px; background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.35); color:#fbbf24; font-weight:750; padding:1px 6px; border-radius:6px;">Kalibrasyon</span>
+              <div id="rpgLockPanel" style="display:none; position:relative; min-height:135px; width:100%; margin:4px 0; background:linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(22, 27, 48, 0.7) 100%); border:1px dashed rgba(168, 85, 247, 0.4); border-radius:12px; padding:12px 14px; box-sizing:border-box; flex-direction:column; justify-content:space-between;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <span style="font-size:12.5px; font-weight:800; color:#f8fafc; letter-spacing:0.2px;">🎯 10 Kas Grubunu Tamamla</span>
+                      <span style="font-size:10px; background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.35); color:#fbbf24; font-weight:750; padding:1px 6px; border-radius:6px;">Kalibrasyon</span>
+                    </div>
+                    <span id="rpgLockProgressText" style="font-size:11.5px; font-weight:800; color:#38bdf8;">0 / 10 (%0)</span>
                   </div>
-                  <span id="rpgLockProgressText" style="font-size:11.5px; font-weight:800; color:#38bdf8;">0 / 10 (%0)</span>
+                  <div style="height:8px; border-radius:999px; background:rgba(255,255,255,0.08); border:1px solid rgba(168,85,247,0.25); box-shadow:inset 0 1.5px 3px rgba(0,0,0,0.6); overflow:hidden; position:relative; margin-bottom:6px;">
+                    <div id="rpgLockBarFill" style="width:0%; height:100%; border-radius:999px; background:linear-gradient(90deg, #f59e0b, #a855f7, #38bdf8); box-shadow:0 0 10px rgba(168,85,247,0.5); transition:width 0.9s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+                  </div>
+                  <div style="font-size:10.5px; color:#94a3b8; line-height:1.35; margin-bottom:6px;">
+                    XP seviye sistemini ve grafiği aktifleştirmek için 10 ana kas grubunu en az 1 kez antrenmanda çalıştırmalısın:
+                  </div>
                 </div>
-                <div style="height:8px; border-radius:999px; background:rgba(255,255,255,0.08); border:1px solid rgba(168,85,247,0.25); box-shadow:inset 0 1.5px 3px rgba(0,0,0,0.6); overflow:hidden; position:relative; margin-bottom:6px;">
-                  <div id="rpgLockBarFill" style="width:0%; height:100%; border-radius:999px; background:linear-gradient(90deg, #f59e0b, #a855f7, #38bdf8); box-shadow:0 0 10px rgba(168,85,247,0.5); transition:width 0.9s cubic-bezier(0.16, 1, 0.3, 1);"></div>
-                </div>
-                <div style="font-size:10.5px; color:#94a3b8; line-height:1.35; margin-bottom:6px;">
-                  XP seviye sistemini ve grafiği aktifleştirmek için 10 ana kas grubunu en az 1 kez antrenmanda çalıştırmalısın:
+                <div id="rpgLockChips" class="rpg-lock-chips-grid">
                 </div>
               </div>
-              <div id="rpgLockChips" class="rpg-lock-chips-grid">
+
+              <div class="rpg-metrics-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px;">
+                <div class="rpg-metric-card rpg-metric-card-purple">
+                  <div style="font-size: 10px; color: #a78bfa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                    <span>⚡</span> Son Seans
+                  </div>
+                  <div id="rpgLastGain" style="font-size: 12.5px; font-weight: 850; color: #ffffff; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">+0 XP</div>
+                </div>
+                <div class="rpg-metric-card rpg-metric-card-amber" id="rpgStreakCard" title="Dinlenme günleri hariç kırmızı kart bulunmayan kesintisiz hafta serisi">
+                  <div style="font-size: 10px; color: #fbbf24; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                    <span>🔥</span> Antrenman Serisi
+                  </div>
+                  <div id="rpgBonusMultiplier" style="font-size: 12.5px; font-weight: 850; color: #fbbf24; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0 Hafta</div>
+                </div>
+                <div class="rpg-metric-card rpg-metric-card-cyan">
+                  <div style="font-size: 10px; color: #38bdf8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                    <span>🏆</span> Sıradaki Unvan
+                  </div>
+                  <div id="rpgNextTitle" style="font-size: 12px; font-weight: 800; color: #38bdf8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div>
+                </div>
               </div>
             </div>
 
-            <div class="rpg-metrics-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px;">
-              <div class="rpg-metric-card rpg-metric-card-purple">
-                <div style="font-size: 10px; color: #a78bfa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                  <span>⚡</span> Son Seans
+            <div class="card dash-card dash-muscle-card dash-hybrid-card" style="margin-top:0; min-width: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+              <div class="card-header-flex">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div class="dash-card-icon" style="width:30px; height:30px; background:linear-gradient(135deg, rgba(108, 99, 255, 0.24) 0%, rgba(59, 130, 246, 0.12) 100%); border:1px solid rgba(167, 139, 250, 0.35); color:#c084fc; box-shadow:0 0 10px rgba(108, 99, 255, 0.2);">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                  </div>
+                  <div class="card-title" id="muscleChartTitle" style="margin: 0; font-size: 14px; font-weight: 800; color: #f8fafc; letter-spacing: 0.2px;">Genel Set Dağılımı</div>
                 </div>
-                <div id="rpgLastGain" style="font-size: 12.5px; font-weight: 850; color: #ffffff; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">+0 XP</div>
+                <div class="timeframe-pills">
+                  <button class="tf-pill" onclick="filterMuscleChart('weekly', this)">Haftalık</button>
+                  <button class="tf-pill" onclick="filterMuscleChart('monthly', this)">Aylık</button>
+                  <button class="tf-pill active" onclick="filterMuscleChart('all', this)">Genel</button>
+                </div>
               </div>
-              <div class="rpg-metric-card rpg-metric-card-amber" id="rpgStreakCard" title="Dinlenme günleri hariç kırmızı kart bulunmayan kesintisiz hafta serisi">
-                <div style="font-size: 10px; color: #fbbf24; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                  <span>🔥</span> Antrenman Serisi
-                </div>
-                <div id="rpgBonusMultiplier" style="font-size: 12.5px; font-weight: 850; color: #fbbf24; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0 Hafta</div>
-              </div>
-              <div class="rpg-metric-card rpg-metric-card-cyan">
-                <div style="font-size: 10px; color: #38bdf8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                  <span>🏆</span> Sıradaki Unvan
-                </div>
-                <div id="rpgNextTitle" style="font-size: 12px; font-weight: 800; color: #38bdf8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div>
+
+              <div class="dash-muscle-chart-wrap">
+                <canvas id="muscleChart"></canvas>
               </div>
             </div>
           </div>
 
-          <div class="card dash-card dash-muscle-card" style="margin-top:0; min-width: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="card-header-flex">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <div class="dash-card-icon" style="width:30px; height:30px; background:linear-gradient(135deg, rgba(108, 99, 255, 0.24) 0%, rgba(59, 130, 246, 0.12) 100%); border:1px solid rgba(167, 139, 250, 0.35); color:#c084fc; box-shadow:0 0 10px rgba(108, 99, 255, 0.2);">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-                </div>
-                <div class="card-title" id="muscleChartTitle" style="margin: 0; font-size: 14px; font-weight: 800; color: #f8fafc; letter-spacing: 0.2px;">Genel Set Dağılımı</div>
-              </div>
-              <div class="timeframe-pills">
-                <button class="tf-pill" onclick="filterMuscleChart('weekly', this)">Haftalık</button>
-                <button class="tf-pill" onclick="filterMuscleChart('monthly', this)">Aylık</button>
-                <button class="tf-pill active" onclick="filterMuscleChart('all', this)">Genel</button>
-              </div>
-            </div>
-
-            <div class="dash-muscle-chart-wrap">
-              <canvas id="muscleChart"></canvas>
-            </div>
+          <!-- Mobile Carousel Dots Indicator (Masaüstünde Gizli) -->
+          <div class="dash-carousel-dots" id="dashChartsDots">
+            <div class="dash-dot active" onclick="switchHybridSlide('dashChartsTrack', 0)"></div>
+            <div class="dash-dot" onclick="switchHybridSlide('dashChartsTrack', 1)"></div>
           </div>
         </div>
 
@@ -16902,46 +17889,68 @@ tr:hover td { background: var(--bg-card-hover); }
 <!-- ────────────────────────────────────────────────────────────────────────── -->
 
 
-        <div class="grid-2 mb-20">
-          <div class="card dash-card" style="margin-top:0;">
-            <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-              <div class="dash-split-toggle-group" id="dashSplitToggleGroup">
-                <div class="dash-split-toggle-glider" id="splitToggleGlider"></div>
-                <button id="btnSplitCustom" class="dash-split-toggle-btn active" onclick="switchSplitMode('custom')" type="button">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                  <span>Özel Programım</span>
-                </button>
-                <button id="btnSplitExpert" class="dash-split-toggle-btn" onclick="switchSplitMode('expert')" type="button">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                  <span>Uzman Önerisi</span>
-                </button>
-              </div>
-
-              <span class="badge badge-accent" id="splitBadge" style="font-size:12px; font-weight:800; padding:5px 12px; border-radius:10px;">Özel Program Yok</span>
-            </div>
-            <div id="splitDays" style="margin-top:12px; position:relative; min-height: 480px;"></div>
+        <!-- ═══ HİBRİT GRUP 2: HAFTALIK SPLİT & GÜÇ HEDEFLERİ (PR) ═══ -->
+        <div class="dash-hybrid-section" id="dashSplitPrSection">
+          <!-- Mobile Segmented Pill Switcher (Masaüstünde Gizli) -->
+          <div class="dash-hybrid-switcher" id="dashSplitPrSwitcher">
+            <button type="button" class="dash-switcher-pill active" onclick="switchHybridSlide('dashSplitPrTrack', 0, this)">
+              <span class="pill-icon">📅</span>
+              <span>Haftalık Split</span>
+            </button>
+            <button type="button" class="dash-switcher-pill" onclick="switchHybridSlide('dashSplitPrTrack', 1, this)">
+              <span class="pill-icon">🏆</span>
+              <span>Güç Hedefleri</span>
+            </button>
           </div>
 
-          <div class="card dash-card" style="margin-top:0px; height: 100%; display: flex; flex-direction: column;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-              <div style="display:flex; align-items:center; gap:10px;">
-                <div class="dash-card-icon" style="background:linear-gradient(135deg, rgba(236, 72, 153, 0.24) 0%, rgba(139, 92, 246, 0.12) 100%); border:1px solid rgba(236, 72, 153, 0.35); color:#f472b6; box-shadow:0 0 12px rgba(236, 72, 153, 0.25);">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H7.5a1.5 1.5 0 0 1-1.5-1.5v-2.16a6 6 0 0 1-2-4.34V4h16v6a6 6 0 0 1-2 4.34V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-.55 0-1-.45-1-1v-2.34"/><path d="M9 4v4"/><path d="M15 4v4"/></svg>
+          <!-- Hybrid Track (Mobilde Sağa-Sola Kaydırılabilir Snap Karusel, Masaüstünde 2 Sütunlu Grid) -->
+          <div class="grid-2 mb-20 dash-hybrid-track" id="dashSplitPrTrack" onscroll="handleHybridScroll('dashSplitPrTrack', 'dashSplitPrSwitcher', 'dashSplitPrDots')">
+            <div class="card dash-card dash-hybrid-card" style="margin-top:0;">
+              <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+                <div class="dash-split-toggle-group" id="dashSplitToggleGroup">
+                  <div class="dash-split-toggle-glider" id="splitToggleGlider"></div>
+                  <button id="btnSplitCustom" class="dash-split-toggle-btn active" onclick="switchSplitMode('custom')" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    <span>Özel Programım</span>
+                  </button>
+                  <button id="btnSplitExpert" class="dash-split-toggle-btn" onclick="switchSplitMode('expert')" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <span>Uzman Önerisi</span>
+                  </button>
                 </div>
-                <div>
-                  <h3 style="font-size:15px; font-weight:800; color:#f8fafc; margin:0; letter-spacing:0.2px;">Güç Hedeflerim (PR)</h3>
-                  <div style="font-size:11.5px; color:#94a3b8; margin-top:2px;">Mevcut performans ve hedefler</div>
+
+                <span class="badge badge-accent" id="splitBadge" style="font-size:12px; font-weight:800; padding:5px 12px; border-radius:10px;">Özel Program Yok</span>
+              </div>
+              <div id="splitDays" style="margin-top:12px; position:relative; min-height: 480px;"></div>
+            </div>
+
+            <div class="card dash-card dash-hybrid-card" style="margin-top:0px; height: 100%; display: flex; flex-direction: column;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="dash-card-icon" style="background:linear-gradient(135deg, rgba(236, 72, 153, 0.24) 0%, rgba(139, 92, 246, 0.12) 100%); border:1px solid rgba(236, 72, 153, 0.35); color:#f472b6; box-shadow:0 0 12px rgba(236, 72, 153, 0.25);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H7.5a1.5 1.5 0 0 1-1.5-1.5v-2.16a6 6 0 0 1-2-4.34V4h16v6a6 6 0 0 1-2 4.34V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-.55 0-1-.45-1-1v-2.34"/><path d="M9 4v4"/><path d="M15 4v4"/></svg>
+                  </div>
+                  <div>
+                    <h3 style="font-size:15px; font-weight:800; color:#f8fafc; margin:0; letter-spacing:0.2px;">Güç Hedeflerim (PR)</h3>
+                    <div style="font-size:11.5px; color:#94a3b8; margin-top:2px;">Mevcut performans ve hedefler</div>
+                  </div>
                 </div>
+
+                <button id="prEditBtn" class="dash-pr-action-btn" onclick="togglePREditMode()" style="background:rgba(108, 99, 255, 0.1); border:1px solid rgba(167, 139, 250, 0.4); color:#c084fc; border-radius:10px; padding:6px 14px; font-size:12.5px; font-weight:750; cursor:pointer; transition:all 0.22s cubic-bezier(0.16, 1, 0.3, 1); display:flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+                  <svg id="prEditIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                  <span id="prBtnText">Düzenle</span>
+                </button>
               </div>
 
-              <button id="prEditBtn" class="dash-pr-action-btn" onclick="togglePREditMode()" style="background:rgba(108, 99, 255, 0.1); border:1px solid rgba(167, 139, 250, 0.4); color:#c084fc; border-radius:10px; padding:6px 14px; font-size:12.5px; font-weight:750; cursor:pointer; transition:all 0.22s cubic-bezier(0.16, 1, 0.3, 1); display:flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
-                <svg id="prEditIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                <span id="prBtnText">Düzenle</span>
-              </button>
+              <div id="prListContainer" style="display:flex; flex-direction:column; flex: 1; justify-content: space-between; gap: 8px;">
+              </div>
             </div>
+          </div>
 
-            <div id="prListContainer" style="display:flex; flex-direction:column; flex: 1; justify-content: space-between; gap: 8px;">
-            </div>
+          <!-- Mobile Carousel Dots Indicator (Masaüstünde Gizli) -->
+          <div class="dash-carousel-dots" id="dashSplitPrDots">
+            <div class="dash-dot active" onclick="switchHybridSlide('dashSplitPrTrack', 0)"></div>
+            <div class="dash-dot" onclick="switchHybridSlide('dashSplitPrTrack', 1)"></div>
           </div>
         </div>
       </div>
@@ -16952,7 +17961,7 @@ tr:hover td { background: var(--bg-card-hover); }
 
 
       <div class="page page-animated" id="page-workout">
-        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
           <div>
             <div class="page-title" id="workoutPageTitle">Antrenman Kaydı</div>
             <div class="page-subtitle" id="workoutPageSubtitle">Yeni bir antrenman seansı kaydet</div>
@@ -16965,12 +17974,7 @@ tr:hover td { background: var(--bg-card-hover); }
 
         <div class="card workout-main-card" style="background: linear-gradient(160deg, rgba(22, 27, 48, 0.88) 0%, rgba(14, 18, 34, 0.96) 100%); border: 1px solid rgba(139, 92, 246, 0.26); border-radius: 20px; box-shadow: 0 16px 42px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07); padding: 24px;">
           
-          
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-<!-- ANTRENMAN: SEANS BİLGİLERİ VE TARİH SEÇİM FORMU                            -->
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-
-
+          <!-- SEANS BİLGİLERİ VE PARAMETRELERİ -->
           <div class="workout-section-head" style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
             <div class="workout-section-icon" style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.24) 0%, rgba(99, 102, 241, 0.12) 100%); border: 1px solid rgba(167, 139, 250, 0.35); display: flex; align-items: center; justify-content: center; color: #c084fc; box-shadow: 0 0 12px rgba(139, 92, 246, 0.25);">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
@@ -16981,14 +17985,23 @@ tr:hover td { background: var(--bg-card-hover); }
             </div>
           </div>
 
-          <!-- SEANS METAVERİ PARAMETRELERİ IZGARASI -->
+          <!-- SEANS METAVERİ IZGARASI -->
           <div class="workout-meta-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 24px;">
             <div class="form-group" style="margin-bottom: 0;">
               <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 Tarih
               </label>
-              <input type="date" id="workoutDate" style="background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(139, 92, 246, 0.3); border-radius: 12px; color: #ffffff; padding: 10px 14px; font-size: 13.5px; width: 100%; transition: all 0.2s ease;" />
+              <div class="workout-date-picker-btn" onclick="_openWorkoutDatePicker()">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <input type="text" id="workoutDateDisplay" readonly style="background: transparent; border: none; color: #ffffff; font-size: 13.5px; font-weight: 750; width: 95px; cursor: pointer; outline: none;">
+                  <span id="workoutDateBadge" style="font-size: 10.5px; padding: 2px 7px; background: rgba(168, 85, 247, 0.16); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 6px; color: #c084fc; font-weight: 750;">Bugün</span>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <input type="date" id="workoutDate" style="display: none;">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
@@ -17017,44 +18030,33 @@ tr:hover td { background: var(--bg-card-hover); }
             </div>
           </div>
 
-          
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-<!-- ANTRENMAN: EGZERSİZ SEÇİMİ VE ARAMA PANELİ                                 -->
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-
-
-          <div class="workout-selector-box" style="background: rgba(13, 17, 34, 0.75); border: 1px solid rgba(139, 92, 246, 0.22); border-radius: 16px; padding: 18px; margin-bottom: 24px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+          <!-- EGZERSİZ SEÇİMİ VE ARAMA PANELİ -->
+          <div class="workout-selector-box" id="workoutSelectorBox" style="background: rgba(13, 17, 34, 0.75); border: 1px solid rgba(139, 92, 246, 0.22); border-radius: 16px; padding: 18px; margin-bottom: 24px;">
+            <div class="workout-selector-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 30px; height: 30px; border-radius: 8px; background: rgba(108, 99, 255, 0.2); border: 1px solid rgba(167, 139, 250, 0.3); display: flex; align-items: center; justify-content: center; color: #c084fc;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(108, 99, 255, 0.2); border: 1px solid rgba(167, 139, 250, 0.35); display: flex; align-items: center; justify-content: center; color: #c084fc;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                 </div>
                 <div>
                   <h4 style="font-size: 14px; font-weight: 800; color: #f8fafc; margin: 0;">Egzersiz Ekle</h4>
                   <p style="font-size: 11px; color: #94a3b8; margin: 1px 0 0 0;">Kas grubuna göre filtreleyin veya doğrudan arayın</p>
                 </div>
               </div>
-              <div class="workout-search-header-right" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <div class="workout-search-wrap" style="position: relative; width: 220px;">
-                  <svg style="position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                  <input id="workoutExerciseSearch" type="search" placeholder="Hareket ara..." oninput="renderExerciseList(_currentWorkoutMuscleFilter)" style="padding: 7px 12px 7px 32px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(139, 92, 246, 0.3); border-radius: 10px; color: #ffffff; font-size: 12.5px; width: 100%; transition: all 0.2s ease;">
-                </div>
-                <div class="workout-search-badges" style="display:flex; gap:6px; font-size:9.5px; font-weight:750;">
-                  <span style="color: #22d3ee; background: rgba(6, 182, 212, 0.14); padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(6, 182, 212, 0.4); box-shadow: 0 0 8px rgba(6, 182, 212, 0.2);">Ana Kas</span>
-                  <span style="color: #f472b6; background: rgba(236, 72, 153, 0.14); padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(236, 72, 153, 0.4); box-shadow: 0 0 8px rgba(236, 72, 153, 0.2);">Yardımcı</span>
-                </div>
+              <div class="workout-search-wrap" style="position: relative; width: 240px;">
+                <svg style="position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input id="workoutExerciseSearch" type="search" placeholder="Hareket veya kas ara..." oninput="renderExerciseList(_currentWorkoutMuscleFilter)" style="padding: 7px 12px 7px 32px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(139, 92, 246, 0.3); border-radius: 10px; color: #ffffff; font-size: 12.5px; width: 100%; transition: all 0.2s ease;">
               </div>
             </div>
 
             <div class="exercise-selector">
-              <div>
-                <div style="font-size: 11px; font-weight: 750; color: #a78bfa; letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase;">Kas Bölgesi</div>
+              <div class="muscle-list-wrap">
+                <div class="muscle-list-label" style="font-size: 11px; font-weight: 750; color: #a78bfa; letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase;">Kas Bölgesi</div>
                 <div class="muscle-list" id="muscleFilterList">
                   <!-- JS TARAFINDAN DİNAMİK OLARAK DOLDURULUR -->
                 </div>
               </div>
-              <div>
-                <div style="font-size: 11px; font-weight: 750; color: #a78bfa; letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase;">Hareket Listesi</div>
+              <div class="exercise-list-wrap">
+                <div class="exercise-list-label" style="font-size: 11px; font-weight: 750; color: #a78bfa; letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase;">Hareket Listesi (Eklemek için tıklayın)</div>
                 <div class="exercise-list" id="exerciseListContainer">
                   <!-- JS TARAFINDAN DİNAMİK OLARAK DOLDURULUR -->
                 </div>
@@ -17062,49 +18064,111 @@ tr:hover td { background: var(--bg-card-hover); }
             </div>
           </div>
 
-          
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-<!-- ANTRENMAN: SEÇİLEN EGZERSİZLER VE DETAYLI SET GİRİŞ TABLOLARI              -->
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-
-
+          <!-- SEÇİLEN EGZERSİZLER VE DETAYLI SET GİRİŞ TABLOLARI -->
           <div id="selectedExercises">
             <!-- JS TARAFINDAN DİNAMİK OLARAK DOLDURULUR -->
           </div>
 
-          
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-<!-- ANTRENMAN: SEANS NOTLARI GİRİŞ ALANI                                       -->
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-
-
-          <div class="form-group" style="margin-top: 20px; margin-bottom: 24px;">
+          <!-- SEANS NOTLARI GİRİŞ ALANI -->
+          <div class="form-group workout-notes-group" style="margin-top: 20px; margin-bottom: 20px;">
             <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #cbd5e1; margin-bottom: 8px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
               Antrenman Notları
             </label>
-            <textarea id="workoutNotes" rows="2" placeholder="Bugünkü seans nasıl geçti? Enerji, sakatlık/ağrı veya özel notlarınızı ekleyin..." style="background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(139, 92, 246, 0.3); border-radius: 12px; color: #ffffff; padding: 12px 14px; font-size: 13px; width: 100%; resize: vertical; min-height: 60px; transition: all 0.2s ease;"></textarea>
+            <textarea id="workoutNotes" rows="2" placeholder="Bugünkü seans nasıl geçti? Enerji durumu, form hissi veya özel notlarınızı ekleyin..." style="background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(139, 92, 246, 0.3); border-radius: 12px; color: #ffffff; padding: 12px 14px; font-size: 13px; width: 100%; resize: vertical; min-height: 60px; transition: all 0.2s ease;"></textarea>
           </div>
 
-          
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-<!-- ANTRENMAN: SEANS AKSİYON BUTONLARI (KAYDET / TEMİZLE / ŞABLON)             -->
-<!-- ────────────────────────────────────────────────────────────────────────── -->
+          <!-- CANLI ANTRENMAN TOPLAM ÖZET ÇUBUĞU -->
+          <div class="workout-summary-bar" id="workoutSummaryBar">
+            <div class="workout-summary-stat">
+              <span class="stat-icon">🏋️‍♂️</span>
+              <span id="workoutStatExCount">0 Hareket</span>
+            </div>
+            <div class="workout-summary-divider"></div>
+            <div class="workout-summary-stat">
+              <span class="stat-icon">🔢</span>
+              <span id="workoutStatSetCount">0 Set</span>
+            </div>
+            <div class="workout-summary-divider"></div>
+            <div class="workout-summary-stat">
+              <span class="stat-icon">⚡</span>
+              <span id="workoutStatTotalVolume">0 kg Hacim</span>
+            </div>
+          </div>
 
-
-          <div class="workout-actions-row" style="display: flex; gap: 12px; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding-top: 18px; border-top: 1px solid rgba(139, 92, 246, 0.18);">
-            <button class="workout-btn-clear" onclick="promptClearWorkout()" type="button" title="Seçili tüm egzersizleri ve seans notlarını temizle">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path></svg>
-              <span>Girdileri Temizle</span>
-            </button>
-            <button class="workout-btn-save" id="saveWorkoutButton" onclick="saveWorkout()" type="button" title="Antrenman seansını veritabanına kaydet">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-              <span id="saveWorkoutButtonLabel">Kaydet</span>
-            </button>
+          <!-- SEANS AKSİYON BUTONLARI -->
+          <div class="workout-actions-row">
+            <div class="workout-actions-buttons-wrap">
+              <button class="workout-btn-clear" onclick="promptClearWorkout()" type="button" title="Seçili tüm egzersizleri ve seans notlarını temizle">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"></path></svg>
+                <span>Temizle</span>
+              </button>
+              <button class="workout-btn-save" id="saveWorkoutButton" onclick="saveWorkout()" type="button" title="Antrenman seansını kaydet">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                <span id="saveWorkoutButtonLabel">Kaydet</span>
+              </button>
+            </div>
             <button class="workout-btn-cancel" id="cancelWorkoutEditButton" onclick="cancelWorkoutEdit()" style="display: none;" type="button">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
               <span>Düzenlemeyi İptal Et</span>
             </button>
+          </div>
+        </div>
+
+        <!-- ANTRENMAN: TARİH SEÇİCİ MODALI (MOR TEMALI ŞIK TAKVİM) -->
+        <div id="workoutDatePickerModal" class="nutri-modal-backdrop" onclick="_handleWorkoutModalBackdrop(event)" style="display: none;">
+          <div class="nutri-calendar-card" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="nutri-cal-header">
+              <div class="nutri-cal-title-box">
+                <div class="nutri-cal-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="nutri-cal-title">Antrenman Tarihi</h4>
+                  <p class="nutri-cal-subtitle">Seans tarihi seçimi</p>
+                </div>
+              </div>
+              <button type="button" class="nutri-cal-close-btn" onclick="_closeWorkoutDatePicker()" title="Kapat">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Month / Year Navigator -->
+            <div class="nutri-cal-nav">
+              <button type="button" class="nutri-cal-nav-btn" onclick="_changeWorkoutCalMonth(-1)" title="Önceki Ay">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <span id="workoutCalMonthYear" class="nutri-cal-month-label">Eylül 2026</span>
+              <button type="button" class="nutri-cal-nav-btn" id="workoutCalNextBtn" onclick="_changeWorkoutCalMonth(1)" title="Sonraki Ay">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Weekdays Row -->
+            <div class="nutri-cal-weekdays">
+              <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+            </div>
+
+            <!-- Days Grid -->
+            <div id="workoutCalDaysGrid" class="nutri-cal-grid"></div>
+
+            <!-- Footer Actions -->
+            <div class="nutri-cal-footer">
+              <div class="nutri-cal-quick-pills">
+                <button type="button" class="nutri-cal-quick-btn" onclick="_selectWorkoutQuickDate('today')">Bugün</button>
+                <button type="button" class="nutri-cal-quick-btn" onclick="_selectWorkoutQuickDate('yesterday')">Dün</button>
+              </div>
+              <button type="button" class="nutri-cal-confirm-btn" onclick="_closeWorkoutDatePicker()">Tamam</button>
+            </div>
           </div>
         </div>
       </div>
@@ -17384,7 +18448,7 @@ tr:hover td { background: var(--bg-card-hover); }
                   <p class="nutri-card-subtitle">Hedefe göre gerçekleşen günlük dağılım</p>
                 </div>
               </div>
-              <span id="nutriDateBadge" style="font-size: 11px; padding: 4px 10px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; color: #38bdf8; font-weight: 750;">Bugün</span>
+              <span id="nutriDateBadge" style="font-size: 11px; padding: 4px 10px; background: rgba(168, 85, 247, 0.14); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; color: #c084fc; font-weight: 750;">Bugün</span>
             </div>
 
             <div class="nutri-progress-group">
@@ -19415,28 +20479,40 @@ tr:hover td { background: var(--bg-card-hover); }
 
 
   <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobil Alt Menü">
-    <button class="mobile-nav-btn active" data-page="dashboard" onclick="navigate('dashboard', this)">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-      <span>Kontrol Paneli</span>
+    <button class="mobile-nav-btn active" data-page="dashboard" onclick="navigate('dashboard', this)" aria-label="Kontrol Paneli" title="Kontrol Paneli">
+      <div class="nav-icon-wrap">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      </div>
+      <span>Kontrol</span>
     </button>
-    <button class="mobile-nav-btn" data-page="workout" onclick="navigate('workout', this)">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+    <button class="mobile-nav-btn" data-page="workout" onclick="navigate('workout', this)" aria-label="Antrenman" title="Antrenman">
+      <div class="nav-icon-wrap">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+      </div>
       <span>Antrenman</span>
     </button>
-    <button class="mobile-nav-btn" data-page="history" onclick="navigate('history', this)">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <button class="mobile-nav-btn" data-page="history" onclick="navigate('history', this)" aria-label="Geçmiş" title="Geçmiş">
+      <div class="nav-icon-wrap">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
       <span>Geçmiş</span>
     </button>
-    <button class="mobile-nav-btn" data-page="progress" onclick="navigate('progress', this)">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+    <button class="mobile-nav-btn" data-page="progress" onclick="navigate('progress', this)" aria-label="İlerleme" title="İlerleme">
+      <div class="nav-icon-wrap">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      </div>
       <span>İlerleme</span>
     </button>
-    <button class="mobile-nav-btn" data-page="nutrition" onclick="navigate('nutrition', this)">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+    <button class="mobile-nav-btn" data-page="nutrition" onclick="navigate('nutrition', this)" aria-label="Beslenme" title="Beslenme">
+      <div class="nav-icon-wrap">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+      </div>
       <span>Beslenme</span>
     </button>
-    <button class="mobile-nav-btn" data-page="analyze" onclick="navigate('analyze', this)">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 10-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+    <button class="mobile-nav-btn" data-page="analyze" onclick="navigate('analyze', this)" aria-label="Uzman Sistemi" title="Uzman Sistemi">
+      <div class="nav-icon-wrap">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 10-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      </div>
       <span>Uzman</span>
     </button>
   </nav>
@@ -20345,6 +21421,7 @@ function doLogout() {
   _isAdmin = false;
   showLogin();
   closeDropdown();
+  closeMobileSidebar();
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -20366,6 +21443,20 @@ function enterApp() {
   const ddDateEl = document.getElementById('ddDateBadgeText');
   if (ddDateEl) {
     ddDateEl.textContent = formatDateTR(new Date().toISOString().slice(0, 10));
+  }
+
+  // Update mobile sidebar profile card
+  const smpAvatar = document.getElementById('smpAvatar');
+  if (smpAvatar) smpAvatar.textContent = name.charAt(0).toUpperCase();
+  const smpName = document.getElementById('smpName');
+  if (smpName) smpName.textContent = name;
+  const smpRole = document.getElementById('smpRole');
+  if (smpRole) smpRole.textContent = _isAdmin ? 'Admin' : 'Kullanıcı';
+  const smpLevel = document.getElementById('smpLevel');
+  if (smpLevel) {
+    const rawLevel = _currentUser?.fitness_level || 'Beginner';
+    const levelMap = { 'Beginner': 'Başlangıç', 'Intermediate': 'Orta Seviye', 'Advanced': 'İleri Seviye' };
+    smpLevel.textContent = levelMap[rawLevel] || rawLevel;
   }
 
   // Build sidebar
@@ -21238,6 +22329,86 @@ async function loadDashboard(username) {
   await loadDashboardPRTable(username);
   await loadDashboardRPG(username);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DASHBOARD HİBRİT MİMARİ: KARUSEL & SEKMELİ SWITCHER KONTROLCÜSÜ
+   ══════════════════════════════════════════════════════════════════════════ */
+window.switchHybridSlide = function(trackId, slideIndex, pillElem) {
+  const track = document.getElementById(trackId);
+  if (!track) return;
+
+  const children = Array.from(track.children).filter(el => el.classList.contains('dash-hybrid-card'));
+  if (!children[slideIndex]) return;
+
+  const targetChild = children[slideIndex];
+  const scrollOffset = targetChild.offsetLeft - track.offsetLeft;
+  track.scrollTo({ left: scrollOffset, behavior: 'smooth' });
+
+  // Switcher pill butonlarını senkronize et
+  const section = track.closest('.dash-hybrid-section');
+  if (section) {
+    const switcher = pillElem ? pillElem.closest('.dash-hybrid-switcher') : section.querySelector('.dash-hybrid-switcher');
+    if (switcher) {
+      const pills = switcher.querySelectorAll('.dash-switcher-pill');
+      pills.forEach((p, idx) => p.classList.toggle('active', idx === slideIndex));
+    }
+    const dotsContainer = section.querySelector('.dash-carousel-dots');
+    if (dotsContainer) {
+      const dots = dotsContainer.querySelectorAll('.dash-dot');
+      dots.forEach((d, idx) => d.classList.toggle('active', idx === slideIndex));
+    }
+  }
+
+  // Grafik boyutlarını yenile
+  if (window._muscleChart && typeof window._muscleChart.resize === 'function') {
+    setTimeout(() => { try { window._muscleChart.resize(); } catch(e){} }, 250);
+  }
+  if (window._xpTrendChart && typeof window._xpTrendChart.resize === 'function') {
+    setTimeout(() => { try { window._xpTrendChart.resize(); } catch(e){} }, 250);
+  }
+};
+
+window.handleHybridScroll = function(trackId, switcherId, dotsId) {
+  const track = document.getElementById(trackId);
+  if (!track) return;
+
+  if (track._scrollTimeout) return;
+  track._scrollTimeout = setTimeout(() => {
+    track._scrollTimeout = null;
+    const children = Array.from(track.children).filter(el => el.classList.contains('dash-hybrid-card'));
+    if (!children.length) return;
+
+    let activeIndex = 0;
+    let minDiff = Infinity;
+    children.forEach((child, idx) => {
+      const diff = Math.abs(child.offsetLeft - track.offsetLeft - track.scrollLeft);
+      if (diff < minDiff) {
+        minDiff = diff;
+        activeIndex = idx;
+      }
+    });
+
+    const switcher = document.getElementById(switcherId);
+    if (switcher) {
+      const pills = switcher.querySelectorAll('.dash-switcher-pill');
+      pills.forEach((p, idx) => p.classList.toggle('active', idx === activeIndex));
+    }
+
+    const dotsContainer = document.getElementById(dotsId);
+    if (dotsContainer) {
+      const dots = dotsContainer.querySelectorAll('.dash-dot');
+      dots.forEach((d, idx) => d.classList.toggle('active', idx === activeIndex));
+    }
+
+    // Chart resize kontrolü
+    if (window._muscleChart && typeof window._muscleChart.resize === 'function') {
+      try { window._muscleChart.resize(); } catch(e){}
+    }
+    if (window._xpTrendChart && typeof window._xpTrendChart.resize === 'function') {
+      try { window._xpTrendChart.resize(); } catch(e){}
+    }
+  }, 50);
+};
 
 // Butonlara tıklanınca çalışacak grafik filtreleme motoru
 // ─── KAS DAĞILIMI GRAFİK FİLTRELEME BUTONLARI ───
@@ -23165,6 +24336,7 @@ async function loadWorkoutPage() {
 
   // Takvimde bugünden sonrasını (geleceği) KİLİTLE!
   dateInput.setAttribute('max', localTodayStr);
+  _initWorkoutDatePicker();
   await loadWorkoutGymOptions();
 
   // Load exercise pool
@@ -23227,8 +24399,15 @@ function getAllowedMusclesForSession() {
     : [...DEFAULT_UI_MUSCLE_GROUPS];
   // Full Body ve Özel Seans, veri henüz bellekten temizlenmiş olsa dahi boş
   // kalmamalıdır. Bu nedenle güvenli sabit UI listesine geri düşer.
-  if (selectedType === 'custom') return availableGroups;
-  return SESSION_MUSCLE_MAP[selectedType] || availableGroups;
+  if (selectedType === 'custom' || selectedType === 'full body') {
+    return availableGroups;
+  }
+
+  const mapped = SESSION_MUSCLE_MAP[selectedType];
+  if (Array.isArray(mapped) && mapped.length) {
+    return mapped.filter(muscle => availableGroups.includes(muscle));
+  }
+  return availableGroups;
 }
 
 // Yeni API'de arka omuz gibi hareketler birden fazla sade filtreye ait olabilir.
@@ -23446,6 +24625,233 @@ function syncWorkoutInputsToData() {
   });
 }
 
+// ─── CANLI ANTRENMAN İSTATİSTİKLERİNİ GÜNCELLEME MOTORU ───
+function updateWorkoutLiveStats() {
+  const totalEx = (_selectedExercises || []).length;
+  const totalSets = (_selectedExercises || []).reduce((sum, ex) => sum + (ex?.sets_data?.length || 0), 0);
+  
+  let totalVolume = 0;
+  (_selectedExercises || []).forEach(ex => {
+    (ex?.sets_data || []).forEach(s => {
+      const w = parseFloat(s.weight_kg) || 0;
+      const r = parseFloat(s.reps) || 0;
+      totalVolume += (w * r);
+    });
+  });
+
+  const liveBadge = document.getElementById('workoutLiveSummaryBadge');
+  if (liveBadge) {
+    liveBadge.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 5v14M18 5v14M2 9h4v6H2zM18 9h4v6h-4zM6 12h12"/></svg><span><strong style="color:#ffffff;">${totalEx}</strong> Hareket · <strong style="color:#38bdf8;">${totalSets}</strong> Set</span>`;
+  }
+  const statEx = document.getElementById('workoutStatExCount');
+  if (statEx) statEx.textContent = `${totalEx} Hareket`;
+  const statSet = document.getElementById('workoutStatSetCount');
+  if (statSet) statSet.textContent = `${totalSets} Set`;
+  const statVol = document.getElementById('workoutStatTotalVolume');
+  if (statVol) statVol.textContent = `${Math.round(totalVolume).toLocaleString('tr-TR')} kg Hacim`;
+}
+
+function focusExerciseSearch() {
+  const box = document.getElementById('workoutSelectorBox');
+  if (box) {
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  const searchInput = document.getElementById('workoutExerciseSearch');
+  if (searchInput) {
+    setTimeout(() => searchInput.focus(), 250);
+  }
+}
+
+// Eski çağrılarla tam geriye dönük uyumluluk
+function openExerciseSelectorSheet() {
+  focusExerciseSearch();
+}
+function closeExerciseSelectorSheet() {}
+function syncMobileWorkoutHud() {}
+
+// ─── ANTRENMAN TARİH SEÇİCİ (MODAL TAKVİM VE PANEL) ───
+let _workoutCalViewYear = new Date().getFullYear();
+let _workoutCalViewMonth = new Date().getMonth();
+const _workoutMonthNames = [
+  'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+  'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+];
+
+function _updateWorkoutDateDisplay() {
+  const dateInput = document.getElementById('workoutDate');
+  const display = document.getElementById('workoutDateDisplay');
+  const badge = document.getElementById('workoutDateBadge');
+  if (!dateInput || !display) return;
+  const v = dateInput.value;
+  if (!v) { display.value = ''; if (badge) badge.style.display = 'none'; return; }
+  const [y, m, d] = v.split('-');
+  display.value = `${d}.${m}.${y}`;
+
+  if (badge) {
+    badge.style.display = 'inline-block';
+    const today = new Date();
+    const offset = today.getTimezoneOffset() * 60000;
+    const todayStr = (new Date(today - offset)).toISOString().split('T')[0];
+    const yesterday = new Date(today.getTime() - offset);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    if (v === todayStr) {
+      badge.textContent = 'Bugün';
+      badge.style.background = 'rgba(168, 85, 247, 0.16)';
+      badge.style.borderColor = 'rgba(168, 85, 247, 0.35)';
+      badge.style.color = '#c084fc';
+    } else if (v === yesterdayStr) {
+      badge.textContent = 'Dün';
+      badge.style.background = 'rgba(139, 92, 246, 0.18)';
+      badge.style.borderColor = 'rgba(167, 139, 250, 0.35)';
+      badge.style.color = '#a78bfa';
+    } else {
+      badge.textContent = `${d}.${m}`;
+      badge.style.background = 'rgba(168, 85, 247, 0.10)';
+      badge.style.borderColor = 'rgba(168, 85, 247, 0.25)';
+      badge.style.color = '#c084fc';
+    }
+  }
+}
+
+function _initWorkoutDatePicker() {
+  const dateInput = document.getElementById('workoutDate');
+  if (!dateInput) return;
+  const today = new Date();
+  const offset = today.getTimezoneOffset() * 60000;
+  const todayStr = (new Date(today - offset)).toISOString().split('T')[0];
+  dateInput.max = todayStr;
+  dateInput.removeEventListener('change', _updateWorkoutDateDisplay);
+  dateInput.addEventListener('change', _updateWorkoutDateDisplay);
+  _updateWorkoutDateDisplay();
+}
+
+function _openWorkoutDatePicker() {
+  const dateInput = document.getElementById('workoutDate');
+  const currentVal = (dateInput?.value || '').trim() || new Date().toISOString().split('T')[0];
+  const [y, m] = currentVal.split('-');
+  _workoutCalViewYear = parseInt(y, 10) || new Date().getFullYear();
+  _workoutCalViewMonth = (parseInt(m, 10) - 1);
+  if (isNaN(_workoutCalViewMonth) || _workoutCalViewMonth < 0) _workoutCalViewMonth = new Date().getMonth();
+
+  _renderWorkoutCalendar();
+
+  const modal = document.getElementById('workoutDatePickerModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.addEventListener('keydown', _handleWorkoutCalKeydown);
+  }
+}
+
+function _closeWorkoutDatePicker() {
+  const modal = document.getElementById('workoutDatePickerModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.removeEventListener('keydown', _handleWorkoutCalKeydown);
+  }
+}
+
+function _handleWorkoutModalBackdrop(e) {
+  if (e.target && e.target.id === 'workoutDatePickerModal') {
+    _closeWorkoutDatePicker();
+  }
+}
+
+function _handleWorkoutCalKeydown(e) {
+  if (e.key === 'Escape') {
+    _closeWorkoutDatePicker();
+  }
+}
+
+function _changeWorkoutCalMonth(delta) {
+  _workoutCalViewMonth += delta;
+  if (_workoutCalViewMonth < 0) {
+    _workoutCalViewMonth = 11;
+    _workoutCalViewYear--;
+  } else if (_workoutCalViewMonth > 11) {
+    _workoutCalViewMonth = 0;
+    _workoutCalViewYear++;
+  }
+  _renderWorkoutCalendar();
+}
+
+function _renderWorkoutCalendar() {
+  const monthYearLabel = document.getElementById('workoutCalMonthYear');
+  const grid = document.getElementById('workoutCalDaysGrid');
+  const nextBtn = document.getElementById('workoutCalNextBtn');
+  if (!grid) return;
+
+  const now = new Date();
+  const curYear = now.getFullYear();
+  const curMonth = now.getMonth();
+  const offset = now.getTimezoneOffset() * 60000;
+  const todayStr = (new Date(now - offset)).toISOString().split('T')[0];
+
+  if (monthYearLabel) {
+    monthYearLabel.textContent = `${_workoutMonthNames[_workoutCalViewMonth]} ${_workoutCalViewYear}`;
+  }
+
+  const isCurrentOrFutureMonth = (_workoutCalViewYear > curYear) || (_workoutCalViewYear === curYear && _workoutCalViewMonth >= curMonth);
+  if (nextBtn) {
+    nextBtn.disabled = isCurrentOrFutureMonth;
+  }
+
+  const selectedDateStr = document.getElementById('workoutDate')?.value || todayStr;
+
+  const firstDay = new Date(_workoutCalViewYear, _workoutCalViewMonth, 1).getDay();
+  const startOffset = (firstDay + 6) % 7;
+  const daysInMonth = new Date(_workoutCalViewYear, _workoutCalViewMonth + 1, 0).getDate();
+
+  let html = '';
+  for (let i = 0; i < startOffset; i++) {
+    html += '<div style="aspect-ratio:1;"></div>';
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const mStr = String(_workoutCalViewMonth + 1).padStart(2, '0');
+    const dStr = String(day).padStart(2, '0');
+    const dateStr = `${_workoutCalViewYear}-${mStr}-${dStr}`;
+
+    const isFuture = dateStr > todayStr;
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === selectedDateStr;
+
+    let classes = ['nutri-cal-day'];
+    if (isFuture) classes.push('disabled');
+    if (isToday) classes.push('is-today');
+    if (isSelected) classes.push('selected');
+
+    const hasWorkout = (globalHistoryWorkouts || []).some(w => String(w.date || '').slice(0, 10) === dateStr);
+    if (hasWorkout) classes.push('has-log');
+
+    const clickAttr = isFuture ? '' : `onclick="_selectWorkoutDate('${dateStr}')"`;
+    html += `<div class="${classes.join(' ')}" ${clickAttr} title="${dStr}.${mStr}.${_workoutCalViewYear}${hasWorkout ? ' (Antrenman Var)' : ''}">${day}</div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+function _selectWorkoutDate(dateStr) {
+  const dateInput = document.getElementById('workoutDate');
+  if (dateInput) {
+    dateInput.value = dateStr;
+  }
+  _updateWorkoutDateDisplay();
+  _renderWorkoutCalendar();
+  _closeWorkoutDatePicker();
+}
+
+function _selectWorkoutQuickDate(type) {
+  const d = new Date();
+  if (type === 'yesterday') {
+    d.setDate(d.getDate() - 1);
+  }
+  const offset = d.getTimezoneOffset() * 60000;
+  const dateStr = (new Date(d - offset)).toISOString().split('T')[0];
+  _selectWorkoutDate(dateStr);
+}
+
 // ─── SEÇİLİ EGZERSİZLERİN TABLOSU VE SET SATIRLARI ───
 function renderSelectedExercises() {
   const container = document.getElementById('selectedExercises');
@@ -23454,12 +24860,7 @@ function renderSelectedExercises() {
   // Güvenlik filtresi: Olası null/undefined öğeleri temizle
   _selectedExercises = (_selectedExercises || []).filter(ex => ex && typeof ex === 'object');
 
-  const totalEx = _selectedExercises.length;
-  const totalSets = _selectedExercises.reduce((sum, ex) => sum + (ex?.sets_data?.length || 0), 0);
-  const liveBadge = document.getElementById('workoutLiveSummaryBadge');
-  if (liveBadge) {
-    liveBadge.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 5v14M18 5v14M2 9h4v6H2zM18 9h4v6h-4zM6 12h12"/></svg><span><strong style="color:#ffffff;">${totalEx}</strong> Hareket · <strong style="color:#38bdf8;">${totalSets}</strong> Set</span>`;
-  }
+  updateWorkoutLiveStats();
 
   if (_selectedExercises.length === 0) {
     if (window._workoutSortable) {
@@ -23467,12 +24868,12 @@ function renderSelectedExercises() {
       window._workoutSortable = null;
     }
     container.innerHTML = `
-      <div class="empty-state" style="padding: 34px 20px; text-align: center; background: rgba(13, 17, 34, 0.6); border: 1.5px dashed rgba(139, 92, 246, 0.25); border-radius: 16px; margin-bottom: 20px;">
-        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(108, 99, 255, 0.14); border: 1px solid rgba(167, 139, 250, 0.3); display: inline-flex; align-items: center; justify-content: center; color: #c084fc; margin-bottom: 10px; box-shadow: 0 0 14px rgba(108, 99, 255, 0.2);">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 5v14M18 5v14M2 9h4v6H2zM18 9h4v6h-4zM6 12h12"/></svg>
+      <div class="empty-state" style="padding: 30px 20px; text-align: center; background: rgba(13, 17, 34, 0.6); border: 1.5px dashed rgba(139, 92, 246, 0.25); border-radius: 16px; margin-bottom: 18px;">
+        <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(108, 99, 255, 0.14); border: 1px solid rgba(167, 139, 250, 0.3); display: inline-flex; align-items: center; justify-content: center; color: #c084fc; margin-bottom: 10px; box-shadow: 0 0 14px rgba(108, 99, 255, 0.2);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 5v14M18 5v14M2 9h4v6H2zM18 9h4v6h-4zM6 12h12"/></svg>
         </div>
-        <div style="font-size: 14.5px; font-weight: 800; color: #f8fafc; margin-bottom: 4px;">Henüz Egzersiz Eklenmedi</div>
-        <div style="font-size: 12px; color: #94a3b8; max-width: 380px; margin: 0 auto;">Antrenmanınıza eklemek istediğiniz hareketleri yukarıdaki listeden veya arama kutusundan seçin.</div>
+        <div style="font-size: 14px; font-weight: 800; color: #f8fafc; margin-bottom: 4px;">Henüz Egzersiz Eklenmedi</div>
+        <div style="font-size: 12px; color: #94a3b8; max-width: 380px; margin: 0 auto;">Antrenmanınıza eklemek istediğiniz hareketleri yukarıdaki egzersiz havuzundan seçin.</div>
       </div>
     `;
     return;
@@ -23484,56 +24885,59 @@ function renderSelectedExercises() {
     const loadLabel = extraLoad ? 'Ek yük' : 'Ağırlık';
     const muscleLabel = ex.display_muscle || ex.muscle_group;
     return `
-      <div class="card history-card-animated selected-exercise-card" data-exercise-index="${idx}" style="margin-bottom: 16px; padding: 18px; border-radius: 16px; background: linear-gradient(160deg, rgba(22, 27, 48, 0.9) 0%, rgba(15, 19, 36, 0.95) 100%); border: 1px solid rgba(139, 92, 246, 0.28); box-shadow: 0 8px 24px rgba(0,0,0,0.25); --card-index: ${idx};">
-        <div class="selected-ex-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
-          <div class="selected-ex-header-left" style="display:flex; align-items:center; gap: 8px; flex-wrap: wrap;">
-            <span class="ex-drag-handle" title="Önceliği değiştirmek için sürükle" style="cursor:grab; color:#94a3b8; transition:0.2s; display:flex; align-items:center; padding:4px; border-radius:6px; background:rgba(255,255,255,0.04);" onmouseover="this.style.color='#c084fc';this.style.background='rgba(108,99,255,0.15)'" onmouseout="this.style.color='#94a3b8';this.style.background='rgba(255,255,255,0.04)'">
-              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
+      <div class="card history-card-animated selected-exercise-card" data-exercise-index="${idx}" style="margin-bottom: 14px; padding: 14px 10px; border-radius: 14px; background: linear-gradient(160deg, rgba(22, 27, 48, 0.92) 0%, rgba(15, 19, 36, 0.96) 100%); border: 1px solid rgba(139, 92, 246, 0.28); box-shadow: 0 6px 20px rgba(0,0,0,0.25); overflow: hidden; --card-index: ${idx};">
+        <div class="selected-ex-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <div class="selected-ex-header-left" style="display:flex; align-items:center; gap: 6px; flex-wrap: wrap; min-width: 0; flex: 1;">
+            <span class="ex-drag-handle" title="Önceliği değiştirmek için sürükle" style="cursor:grab; color:#94a3b8; transition:0.2s; display:flex; align-items:center; padding:3px 5px; border-radius:6px; background:rgba(255,255,255,0.04);" onmouseover="this.style.color='#c084fc';this.style.background='rgba(108,99,255,0.15)'" onmouseout="this.style.color='#94a3b8';this.style.background='rgba(255,255,255,0.04)'">
+              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
             </span>
-            <span class="selected-ex-name" style="font-size: 15px; font-weight: 800; color: #ffffff; letter-spacing: 0.2px;">${ex.exercise_name}</span>
-            <span class="badge ${bodyweightOnly ? 'badge-green' : 'badge-accent'}" style="font-size: 11px; font-weight: 750; padding: 3px 8px; border-radius: 6px;">${muscleLabel}</span>
-            ${bodyweightOnly ? '<span class="badge badge-green" style="font-size: 11px; font-weight: 750; padding: 3px 8px; border-radius: 6px;">Vücut Ağırlığı</span>' : ''}
-            ${extraLoad ? '<span class="badge badge-accent" style="font-size: 11px; font-weight: 750; padding: 3px 8px; border-radius: 6px;">Vücut Ağırlığı + Ek Yük</span>' : ''}
+            <span class="selected-ex-name" style="font-size: 14px; font-weight: 800; color: #ffffff; letter-spacing: 0.2px;">${ex.exercise_name}</span>
+            <span class="badge ${bodyweightOnly ? 'badge-green' : 'badge-accent'}" style="font-size: 10.5px; font-weight: 750; padding: 2px 7px; border-radius: 6px;">${muscleLabel}</span>
+            ${bodyweightOnly ? '<span class="badge badge-green" style="font-size: 10.5px; font-weight: 750; padding: 2px 7px; border-radius: 6px;">Vücut A.</span>' : ''}
+            ${extraLoad ? '<span class="badge badge-accent" style="font-size: 10.5px; font-weight: 750; padding: 2px 7px; border-radius: 6px;">+Ek Yük</span>' : ''}
           </div>
-          <button class="btn btn-sm btn-danger ex-remove-btn" onclick="removeExercise(${idx})" style="padding: 5px 12px; font-size: 11.5px; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; background: rgba(244, 63, 94, 0.14); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.35); box-shadow: 0 0 10px rgba(244, 63, 94, 0.15); transition: all 0.2s ease;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <button class="btn btn-sm btn-danger ex-remove-btn" onclick="removeExercise(${idx})" style="padding: 4px 10px; font-size: 11px; font-weight: 700; border-radius: 7px; display: inline-flex; align-items: center; gap: 4px; background: rgba(244, 63, 94, 0.14); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.35); box-shadow: 0 0 8px rgba(244, 63, 94, 0.15); transition: all 0.2s ease;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             <span>Kaldır</span>
           </button>
         </div>
-        <div style="overflow-x: auto;">
-          <table class="sets-table" style="width: 100%; border-collapse: separate; border-spacing: 0 6px;">
+        <div class="sets-table-wrap" style="width: 100%; overflow: hidden;">
+          <table class="sets-table" style="width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0 4px;">
             <thead>
               <tr style="background: rgba(139, 92, 246, 0.1); border-radius: 8px;">
-                <th style="padding: 8px; font-size: 11px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; border-radius: 8px 0 0 8px;">Set</th>
-                <th style="padding: 8px; font-size: 11px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;">${bodyweightOnly ? 'Yük' : loadLabel + ' (KG)'}</th>
-                <th style="padding: 8px; font-size: 11px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;">Tekrar</th>
-                <th style="padding: 8px; font-size: 11px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;" title="Reps In Reserve — sette tahmini kalan tekrar">RIR</th>
-                <th style="padding: 8px; font-size: 11px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; border-radius: 0 8px 8px 0;">İşlem</th>
+                <th style="width: 28px; padding: 5px 2px; font-size: 10.5px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.3px; text-align: center; border-radius: 7px 0 0 7px;">Set</th>
+                <th style="padding: 5px 2px; font-size: 10.5px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.3px; text-align: center;">${bodyweightOnly ? 'Yük' : loadLabel}</th>
+                <th style="padding: 5px 2px; font-size: 10.5px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.3px; text-align: center;">Tekrar</th>
+                <th style="padding: 5px 2px; font-size: 10.5px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.3px; text-align: center;" title="Reps In Reserve — sette tahmini kalan tekrar">RIR</th>
+                <th style="width: 32px; padding: 5px 2px; font-size: 10.5px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.3px; text-align: center; border-radius: 0 7px 7px 0;">İşlem</th>
               </tr>
             </thead>
             <tbody>
               ${(ex.sets_data || []).map((s, si) => {
                 const rir = (s.rir === null || s.rir === '' || s.rir === undefined) ? '' : (Number.isInteger(Number(s.rir)) && Number(s.rir) >= 0 && Number(s.rir) <= 5 ? Number(s.rir) : '');
                 return `
-                <tr style="background: rgba(15, 23, 42, 0.55); border-radius: 10px;">
-                  <td style="padding: 6px; text-align: center;">
-                    <span class="set-num-badge" style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(108, 99, 255, 0.15); color: #c084fc; font-weight: 800; font-size: 12px; border: 1px solid rgba(167, 139, 250, 0.35);">${si + 1}</span>
+                <tr style="background: rgba(15, 23, 42, 0.55); border-radius: 8px;">
+                  <td style="padding: 3px 2px; text-align: center;">
+                    <span class="set-num-badge" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: rgba(108, 99, 255, 0.15); color: #c084fc; font-weight: 800; font-size: 11px; border: 1px solid rgba(167, 139, 250, 0.35);">${si + 1}</span>
                   </td>
-                  <td style="padding: 6px; text-align: center;">${bodyweightOnly
-                    ? '<span style="display:inline-block;padding:4px 9px;border-radius:7px;background:rgba(34,197,94,0.12);color:#4ade80;font-weight:700;font-size:11px;border:1px solid rgba(34,197,94,0.3);">Vücut Ağırlığı</span>'
-                    : `<input type="number" inputmode="decimal" id="input_${idx}_${si}_weight_kg" value="${s.weight_kg}" min="0" max="500" step="0.5" oninput="updateSet(${idx},${si},'weight_kg',this.value)" class="workout-set-input" style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(139, 92, 246, 0.35); border-radius: 9px; color: #ffffff; padding: 6px 8px; font-size: 13.5px; font-weight: 750; text-align: center; width: 72px; margin: 0 auto; display: block; transition: all 0.2s ease;" />`
+                  <td style="padding: 3px 2px; text-align: center;">${bodyweightOnly
+                    ? '<span style="display:inline-block;padding:3px 5px;border-radius:6px;background:rgba(34,197,94,0.12);color:#4ade80;font-weight:700;font-size:10px;border:1px solid rgba(34,197,94,0.3);white-space:nowrap;">Vücut A.</span>'
+                    : `<input type="number" inputmode="decimal" id="input_${idx}_${si}_weight_kg" value="${s.weight_kg}" min="0" max="500" step="0.5" oninput="updateSet(${idx},${si},'weight_kg',this.value)" class="workout-set-input" style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(139, 92, 246, 0.32); border-radius: 8px; color: #ffffff; padding: 4px 2px; font-size: 13px; font-weight: 750; text-align: center; width: 100%; max-width: 56px; margin: 0 auto; display: block; box-sizing: border-box; transition: all 0.2s ease;" />`
                   }</td>
-                  <td style="padding: 6px; text-align: center;"><input type="number" inputmode="numeric" id="input_${idx}_${si}_reps" value="${s.reps}" min="1" max="30" oninput="updateSet(${idx},${si},'reps',this.value)" class="workout-set-input" style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(139, 92, 246, 0.35); border-radius: 9px; color: #ffffff; padding: 6px 8px; font-size: 13.5px; font-weight: 750; text-align: center; width: 72px; margin: 0 auto; display: block; transition: all 0.2s ease;" /></td>
-                  <td style="padding: 6px; text-align: center;"><select id="input_${idx}_${si}_rir" aria-label="${si + 1}. set RIR" oninput="updateSet(${idx},${si},'rir',this.value)" class="workout-set-select" style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(139, 92, 246, 0.35); border-radius: 9px; color: #ffffff; padding: 6px 8px; font-size: 13px; font-weight: 750; text-align: center; width: 68px; margin: 0 auto; display: block; cursor: pointer; transition: all 0.2s ease;"><option value="" ${rir === '' ? 'selected' : ''}>—</option>${[0,1,2,3,4,5].map(value => `<option value="${value}" ${rir === value ? 'selected' : ''}>${value}</option>`).join('')}</select></td>
-                  <td style="padding: 6px; text-align: center;">${si === 0 ? `<button class="btn btn-sm btn-secondary set-action-btn" onclick="addSet(${idx})" style="padding: 6px 12px; font-size: 11.5px; font-weight: 750; border-radius: 8px; background: rgba(56, 189, 248, 0.14); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15); display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s ease;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>Set</span></button>` : `<button class="btn btn-sm btn-danger set-action-btn" onclick="removeSet(${idx},${si})" style="padding: 6px 10px; font-size: 11.5px; font-weight: 750; border-radius: 8px; background: rgba(244, 63, 94, 0.14); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.35); transition: all 0.2s ease;">✕</button>`}</td>
+                  <td style="padding: 3px 2px; text-align: center;"><input type="number" inputmode="numeric" id="input_${idx}_${si}_reps" value="${s.reps}" min="0" max="30" oninput="updateSet(${idx},${si},'reps',this.value)" class="workout-set-input" style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(139, 92, 246, 0.32); border-radius: 8px; color: #ffffff; padding: 4px 2px; font-size: 13px; font-weight: 750; text-align: center; width: 100%; max-width: 48px; margin: 0 auto; display: block; box-sizing: border-box; transition: all 0.2s ease;" /></td>
+                  <td style="padding: 3px 2px; text-align: center;"><select id="input_${idx}_${si}_rir" aria-label="${si + 1}. set RIR" oninput="updateSet(${idx},${si},'rir',this.value)" class="workout-set-select" style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(139, 92, 246, 0.32); border-radius: 8px; color: #ffffff; padding: 4px 2px; font-size: 12.5px; font-weight: 750; text-align: center; width: 100%; max-width: 46px; margin: 0 auto; display: block; cursor: pointer; box-sizing: border-box; transition: all 0.2s ease;"><option value="" ${rir === '' ? 'selected' : ''}>—</option>${[0,1,2,3,4,5].map(value => `<option value="${value}" ${rir === value ? 'selected' : ''}>${value}</option>`).join('')}</select></td>
+                  <td style="padding: 3px 2px; text-align: center;">${si === 0
+                    ? `<button type="button" class="set-action-btn" onclick="addSet(${idx})" title="Set Ekle" style="width: 26px; height: 26px; min-width: 26px; padding: 0; border-radius: 7px; background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(167, 139, 250, 0.4); box-shadow: 0 0 8px rgba(139, 92, 246, 0.2); display: inline-flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; transition: all 0.2s ease;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>`
+                    : `<button type="button" class="set-action-btn" onclick="removeSet(${idx},${si})" title="Seti Sil" style="width: 26px; height: 26px; min-width: 26px; padding: 0; border-radius: 7px; background: rgba(244, 63, 94, 0.14); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.35); display: inline-flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; font-size: 11.5px; font-weight: 800; transition: all 0.2s ease;">✕</button>`
+                  }</td>
                 </tr>`;
               }).join('')}
             </tbody>
           </table>
         </div>
-        <div class="expert-injury-tip" style="margin-top: 12px; background: rgba(108, 99, 255, 0.07); border: 1px solid rgba(167, 139, 250, 0.25); color: #cbd5e1; font-size: 11.5px; padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; gap: 8px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-          <div><strong style="color: #c084fc;">RIR:</strong> Sette tükenişe kalan tahmini tekrar sayısı. <strong style="color: #f87171;">0</strong> = Tükeniş, <strong style="color: #34d399;">1–3</strong> = Hedef Hipertrofi, <strong style="color: #94a3b8;">4–5</strong> = Isınma/Hafif.</div>
+        <div class="expert-injury-tip" style="margin-top: 10px; background: rgba(108, 99, 255, 0.07); border: 1px solid rgba(167, 139, 250, 0.25); color: #cbd5e1; font-size: 11px; padding: 6px 10px; border-radius: 8px; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <div><strong style="color: #c084fc;">RIR:</strong> Sette tahmini kalan tekrar. <strong style="color: #f87171;">0</strong>=Tükeniş, <strong style="color: #34d399;">1–3</strong>=Hipertrofi, <strong style="color: #94a3b8;">4–5</strong>=Hafif.</div>
         </div>
       </div>
     `;
@@ -23567,10 +24971,7 @@ function renderSelectedExercises() {
       dragClass: 'sortable-drag',
       onEnd: function (evt) {
         if (typeof evt.oldIndex === 'number' && typeof evt.newIndex === 'number' && evt.oldIndex !== evt.newIndex) {
-          // 1. Önce kartlardaki input değerlerini orijinal exercise dizisine eşitleyelim
           syncWorkoutInputsToData();
-
-          // 2. Dizi sınırlarını kontrol ederek güvenli yer değiştirme yapalım
           if (evt.oldIndex >= 0 && evt.oldIndex < _selectedExercises.length &&
               evt.newIndex >= 0 && evt.newIndex < _selectedExercises.length) {
             const moved = _selectedExercises.splice(evt.oldIndex, 1)[0];
@@ -23578,8 +24979,6 @@ function renderSelectedExercises() {
               _selectedExercises.splice(evt.newIndex, 0, moved);
             }
           }
-          
-          // 3. Yenilenmiş sıra ve güncel data-exercise-index / id attribute'larıyla DOM'u baştan çizelim
           renderSelectedExercises();
         }
       }
@@ -23593,7 +24992,16 @@ function renderSelectedExercises() {
 function addSet(exIdx) {
   syncWorkoutInputsToData();
   if (!_selectedExercises[exIdx] || !_selectedExercises[exIdx].sets_data) return;
-  _selectedExercises[exIdx].sets_data.push({ reps: 0, weight_kg: 0, rir: null });
+  const prevSets = _selectedExercises[exIdx].sets_data;
+  const lastSet = prevSets.length > 0 ? prevSets[prevSets.length - 1] : null;
+  const prevWeight = lastSet ? (lastSet.weight_kg || 0) : 0;
+  const prevReps = lastSet ? (lastSet.reps || 0) : 0;
+  const prevRir = lastSet ? lastSet.rir : null;
+  _selectedExercises[exIdx].sets_data.push({
+    reps: prevReps,
+    weight_kg: prevWeight,
+    rir: prevRir
+  });
   renderSelectedExercises();
 }
 
@@ -23625,6 +25033,7 @@ function updateSet(exIdx, setIdx, field, value) {
         if (inputEl) inputEl.value = value;
       }
     }
+    updateWorkoutLiveStats();
     return;
   }
   
@@ -23642,6 +25051,8 @@ function updateSet(exIdx, setIdx, field, value) {
       if (inputEl) inputEl.value = val;
     }
   }
+
+  updateWorkoutLiveStats();
 }
 
 // ─── EGZERSİZİ TÜM SETLERİYLE BİRLİKTE ANTRENMANDAN ÇIKARMA ───
@@ -23656,7 +25067,6 @@ function removeExercise(idx) {
     renderExerciseList(_currentWorkoutMuscleFilter);
   };
 
-  // Animasyon desteklenmiyorsa veya kart bulunamazsa veri akışı yine sorunsuz sürer.
   if (!card || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     finalizeRemoval();
     return;
@@ -23693,6 +25103,7 @@ function resetWorkoutFormToNewMode() {
     const today = new Date();
     const offset = today.getTimezoneOffset() * 60000;
     dateInput.value = new Date(today - offset).toISOString().split('T')[0];
+    _updateWorkoutDateDisplay();
   }
   const typeInput = document.getElementById('workoutType');
   if (typeInput) typeInput.value = 'Push';
@@ -23724,13 +25135,11 @@ async function saveWorkout() {
   }
 
   const selectedDateStr = document.getElementById('workoutDate')?.value;
-  // Eğer tarih kutusu boşsa sistemi durdur!
   if (!selectedDateStr) {
     toast('Lütfen geçerli bir tarih seçin!', 'error');
     return;
   }
 
-  // Kullanıcı tarihi hacklerse (geleceği girerse) engelle!
   const selectedDate = new Date(selectedDateStr);
   selectedDate.setHours(0,0,0,0);
 
@@ -23739,7 +25148,7 @@ async function saveWorkout() {
 
   if (selectedDate > today) {
     toast('Gelecek bir tarihe antrenman kaydedemezsiniz!', 'error');
-    return; // Kayıt işlemini durdur!
+    return;
   }
 
   const selectedType = document.getElementById('workoutType')?.value || 'Push';
@@ -23759,14 +25168,17 @@ async function saveWorkout() {
       muscle_group: ex.muscle_group,
       is_bodyweight: ex.is_bodyweight,
       exercise_meta_version: 1,
-      sets_data: ex.sets_data
+      sets_data: (ex.sets_data || []).map(s => ({
+        reps: Number(s.reps) || 0,
+        weight_kg: Number(s.weight_kg) || 0,
+        rir: (s.rir !== null && s.rir !== undefined && s.rir !== '') ? Number(s.rir) : null
+      }))
     }))
   };
 
   try {
     const isEditing = _editingWorkoutId !== null;
     if (isEditing) {
-      // Genel düzenleme modunda POST kullanılmaz: aynı workout kimliği güncellenir.
       await apiPut(`/api/workouts/${_editingWorkoutId}`, data);
       toast('Antrenman başarıyla güncellendi!', 'success');
     } else {
@@ -23775,8 +25187,6 @@ async function saveWorkout() {
     }
 
     resetWorkoutFormToNewMode();
-
-    // Antrenman kaydedildikten sonra PR, XP ve İlerleme verilerini güncellemesi için Dashboard sayfasına yönlendir (Opsiyonel ama şık olur)
     sessionStorage.setItem('hx_just_saved_workout', 'true');
     navigate('dashboard');
   } catch(e) {
@@ -24216,7 +25626,10 @@ async function openWorkoutGeneralEdit(index, event) {
   await navigate('workout');
 
   const dateInput = document.getElementById('workoutDate');
-  if (dateInput) dateInput.value = String(workout.date || '').slice(0, 10);
+  if (dateInput) {
+    dateInput.value = String(workout.date || '').slice(0, 10);
+    _updateWorkoutDateDisplay();
+  }
 
   const typeInput = document.getElementById('workoutType');
   if (typeInput) {
@@ -26066,20 +27479,20 @@ function _updateNutriDateBadge(dateStr) {
 
   if (dateStr === todayStr) {
     badge.textContent = 'Bugün';
-    badge.style.background = 'rgba(56, 189, 248, 0.12)';
-    badge.style.borderColor = 'rgba(56, 189, 248, 0.3)';
-    badge.style.color = '#38bdf8';
-  } else if (dateStr === yesterdayStr) {
-    badge.textContent = 'Dün';
-    badge.style.background = 'rgba(168, 85, 247, 0.14)';
+    badge.style.background = 'rgba(168, 85, 247, 0.16)';
     badge.style.borderColor = 'rgba(168, 85, 247, 0.35)';
     badge.style.color = '#c084fc';
+  } else if (dateStr === yesterdayStr) {
+    badge.textContent = 'Dün';
+    badge.style.background = 'rgba(139, 92, 246, 0.18)';
+    badge.style.borderColor = 'rgba(167, 139, 250, 0.35)';
+    badge.style.color = '#a78bfa';
   } else {
     const [y, m, d] = dateStr.split('-');
     badge.textContent = `${d}.${m}.${y}`;
-    badge.style.background = 'rgba(245, 158, 11, 0.14)';
-    badge.style.borderColor = 'rgba(245, 158, 11, 0.35)';
-    badge.style.color = '#fbbf24';
+    badge.style.background = 'rgba(168, 85, 247, 0.10)';
+    badge.style.borderColor = 'rgba(168, 85, 247, 0.25)';
+    badge.style.color = '#c084fc';
   }
 }
 
@@ -27173,6 +28586,17 @@ async function loadProfile(username) {
     const avatarCircle = document.getElementById('profAvatarCircle');
     if (avatarCircle) {
       avatarCircle.textContent = getProfileInitials(rawName);
+    }
+
+    // Mobil çekmece kimlik kartını senkronize et
+    const smpName = document.getElementById('smpName');
+    if (smpName) smpName.textContent = rawName;
+    const smpAvatar = document.getElementById('smpAvatar');
+    if (smpAvatar) smpAvatar.textContent = String(rawName).charAt(0).toUpperCase();
+    const smpLevel = document.getElementById('smpLevel');
+    if (smpLevel && user.fitness_level) {
+      const levelMap = { 'Beginner': 'Başlangıç', 'Intermediate': 'Orta Seviye', 'Advanced': 'İleri Seviye' };
+      smpLevel.textContent = levelMap[user.fitness_level] || user.fitness_level;
     }
 
     updateProfileLiveMetrics();
