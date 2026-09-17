@@ -1,19 +1,3 @@
-"""
-HYPERTROPHY-X v4.1 — GÜVENLİK GÜNCELLEMESİ (JWT + bcrypt + .env)
-
-Bu dosya backend/main.py'nin GÜVENLİK BÖLÜMLERİNİ DEĞİŞTİRİLMİŞ HALİDİR.
-Kurulum talimatları "security_readme.md" dosyasındadır.
-
-YAPILAN DEĞİŞİKLİKLER:
-  1. Admin şifresi kodda sabit değil — .env dosyasından okunur
-  2. Şifreleme: SHA256 → bcrypt (eski hash'ler otomatik yükseltilir)
-  3. JWT token: login başarılı olunca imzalı token döner
-  4. Tüm endpoint'ler artık username parametresi yerine
-     "Authorization: Bearer <TOKEN>" başlığından kullanıcıyı çözer
-  5. Admin endpoint'leri JWT + admin rol kontrolüyle korunur
-  6. CORS artık .env'den yönetilir (default: [*] — production'da değiştir)
-"""
-
 import hashlib
 import secrets
 import os
@@ -1644,10 +1628,12 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
         if path.startswith("/api/"):
             response.headers["Cache-Control"] = "no-cache, no-store"
             response.headers["Pragma"] = "no-cache"
-        elif "." in path.split("/")[-1]:  # statik dosya: chart.js, css, png...)
+        elif "." in path.split("/")[-1] and not path.endswith((".html", ".htm")):  # statik dosya: chart.js, css, png...)
             response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
         else:  # SPA sayfası — index.html asla cache'lenmesin
-            response.headers["Cache-Control"] = "no-store"
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
         return response
 
 
