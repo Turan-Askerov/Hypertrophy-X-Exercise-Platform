@@ -5676,9 +5676,8 @@ tr:hover td { background: var(--bg-card-hover); }
 /* ═══ PROFILE SECTION (MODERN EXPERT PLATFORM GRADE) ═══ */
 .profile-hero-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
   gap: 16px;
   padding: 20px 24px;
   margin-bottom: 20px;
@@ -5692,7 +5691,7 @@ tr:hover td { background: var(--bg-card-hover); }
   align-items: center;
   gap: 16px;
   min-width: 0;
-  flex: 1 1 auto;
+  width: 100%;
 }
 .profile-avatar-box {
   position: relative;
@@ -5775,13 +5774,14 @@ tr:hover td { background: var(--bg-card-hover); }
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  margin-top: 14px;
-  padding: 10px 16px;
+  margin-top: 4px;
+  padding: 12px 18px;
   background: rgba(15, 23, 42, 0.65);
   border: 1px solid rgba(168, 85, 247, 0.25);
   border-radius: 12px;
   backdrop-filter: blur(8px);
   width: 100%;
+  box-sizing: border-box;
 }
 .prof-inline-stat-group {
   display: flex;
@@ -5963,7 +5963,7 @@ tr:hover td { background: var(--bg-card-hover); }
 /* PROFILE SECTIONS & FORM CARDS */
 .profile-sections-grid {
   display: grid;
-  grid-template-columns: 1.45fr 1fr;
+  grid-template-columns: 1.35fr 1fr;
   gap: 20px;
   align-items: stretch;
 }
@@ -5983,7 +5983,7 @@ tr:hover td { background: var(--bg-card-hover); }
 .profile-side-column {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   height: 100%;
 }
 .profile-side-column > .profile-glass-card {
@@ -6069,7 +6069,7 @@ tr:hover td { background: var(--bg-card-hover); }
   gap: 8px;
   font-size: 11.5px;
   font-weight: 800;
-  color: #38bdf8;
+  color: #c084fc;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 12px;
@@ -6123,13 +6123,13 @@ tr:hover td { background: var(--bg-card-hover); }
 }
 .profile-input-wrap input:hover,
 .profile-input-wrap select:hover {
-  border-color: rgba(56, 189, 248, 0.45);
+  border-color: rgba(168, 85, 247, 0.45);
   background: rgba(15, 23, 42, 0.85);
 }
 .profile-input-wrap input:focus,
 .profile-input-wrap select:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2), 0 0 14px rgba(56, 189, 248, 0.15);
+  border-color: #a855f7;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2), 0 0 14px rgba(168, 85, 247, 0.15);
   background: rgba(15, 23, 42, 0.95);
 }
 .profile-input-wrap select {
@@ -6148,7 +6148,7 @@ tr:hover td { background: var(--bg-card-hover); }
   transition: color 0.2s ease;
 }
 .profile-input-wrap:focus-within .profile-input-icon {
-  color: #38bdf8;
+  color: #c084fc;
 }
 .profile-password-toggle-btn {
   position: absolute;
@@ -6227,6 +6227,23 @@ tr:hover td { background: var(--bg-card-hover); }
   white-space: nowrap;
   flex-shrink: 0;
 }
+.profile-badge-neon-purple {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3.5px 11px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.03em;
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.16);
+  border: 1px solid rgba(168, 85, 247, 0.55);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.35);
+  text-shadow: 0 0 8px rgba(168, 85, 247, 0.65);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 .profile-secondary-action-btn {
   display: inline-flex;
   align-items: center;
@@ -6273,106 +6290,93 @@ tr:hover td { background: var(--bg-card-hover); }
   border-radius: 20px;
   font-size: 11px;
   font-weight: 750;
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  color: #38bdf8;
+  background: rgba(168, 85, 247, 0.14);
+  border: 1px solid rgba(168, 85, 247, 0.38);
+  color: #c084fc;
   transition: all 0.22s ease;
   cursor: pointer;
   white-space: nowrap;
 }
 .profile-hero-email-badge:hover {
-  background: rgba(56, 189, 248, 0.22);
-  border-color: rgba(56, 189, 248, 0.65);
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+  background: rgba(168, 85, 247, 0.24);
+  border-color: rgba(168, 85, 247, 0.65);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.3);
   transform: translateY(-1px);
+}
+.profile-email-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
 }
 .profile-email-save-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
   width: 100%;
-  padding: 10px 16px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(37, 99, 235, 0.26) 100%);
-  border: 1.5px solid rgba(56, 189, 248, 0.45);
-  color: #38bdf8;
-  font-size: 12.5px;
-  font-weight: 800;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.18) 0%, rgba(124, 58, 237, 0.26) 100%);
+  border: 1.5px solid rgba(192, 132, 252, 0.45);
+  color: #d8b4fe;
+  font-size: 12px;
+  font-weight: 750;
   cursor: pointer;
-  transition: all 0.22s ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
 }
 .profile-email-save-btn:hover {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.32) 0%, rgba(37, 99, 235, 0.42) 100%);
-  border-color: rgba(56, 189, 248, 0.75);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.32) 0%, rgba(124, 58, 237, 0.42) 100%);
+  border-color: rgba(192, 132, 252, 0.75);
   color: #ffffff;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
   transform: translateY(-1.5px);
 }
-.profile-forgot-box {
-  margin-top: 18px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.65) 0%, rgba(15, 23, 42, 0.8) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.28);
-  border-left: 3px solid #fbbf24;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+.profile-email-save-btn:active {
+  transform: translateY(0);
 }
-.profile-forgot-info {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-.profile-forgot-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: rgba(245, 158, 11, 0.15);
-  border: 1px solid rgba(251, 191, 36, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-.profile-forgot-title {
-  font-size: 12.5px;
-  font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 3px;
-}
-.profile-forgot-desc {
-  font-size: 11px;
-  color: #94a3b8;
-  line-height: 1.45;
-}
-.profile-forgot-action-btn {
+.profile-email-forgot-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
   width: 100%;
-  padding: 9px 14px;
+  min-height: 40px;
+  padding: 8px 14px;
   border-radius: 9px;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.28) 100%);
-  border: 1px solid rgba(251, 191, 36, 0.45);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.22) 100%);
+  border: 1.5px solid rgba(251, 191, 36, 0.38);
   color: #fef08a;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 750;
   cursor: pointer;
-  transition: all 0.22s ease;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
 }
-.profile-forgot-action-btn:hover {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.45) 100%);
-  border-color: rgba(251, 191, 36, 0.7);
+.profile-email-forgot-btn:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.38) 100%);
+  border-color: rgba(251, 191, 36, 0.65);
   color: #ffffff;
-  box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+  transform: translateY(-1.5px);
+}
+.profile-email-forgot-btn:active {
+  transform: translateY(0);
+}
+
+/* ═══ PROFILE PASSWORD GRID ═══ */
+.profile-password-new-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+.profile-forgot-box {
+  display: none;
 }
 
 @keyframes pulseEmailHighlight {
@@ -6760,6 +6764,17 @@ tr:hover td { background: var(--bg-card-hover); }
   background: linear-gradient(180deg, #c084fc, #7c3aed);
   box-shadow: 0 0 12px rgba(168, 85, 247, 0.6);
 }
+.admin-overview-bar-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #8c9ab5;
+  margin-top: 6px;
+  white-space: nowrap;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
 .admin-overview-legend {
   display: flex;
   gap: 18px;
@@ -6849,15 +6864,23 @@ tr:hover td { background: var(--bg-card-hover); }
   font-weight: 750;
   font-size: 12px;
   color: #f1f5f9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .admin-overview-act-sub {
   font-size: 11px;
   color: #8c9ab5;
   margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .admin-overview-act-time {
   color: #7785a1;
   font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .admin-overview-quick-list {
   display: grid;
@@ -9542,6 +9565,85 @@ tr:hover td { background: var(--bg-card-hover); }
       background: #8b6cff;
       box-shadow: 0 0 8px #8b6cff;
       flex-shrink: 0;
+    }
+
+    /* Uzman Split Hafta Barı ve Taslağı Yenile Butonu */
+    .expert-split-weeks-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 16px 0 14px;
+      gap: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .expert-split-weeks-bar .expert-data-subtabs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      border-bottom: none;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .expert-split-weeks-bar .expert-data-subtab {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(30, 41, 59, 0.6);
+      color: #94a3b8;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .expert-split-weeks-bar .expert-data-subtab:hover {
+      color: #ffffff;
+      background: rgba(139, 108, 255, 0.12);
+      border-color: rgba(139, 108, 255, 0.35);
+    }
+    .expert-split-weeks-bar .expert-data-subtab.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(108, 99, 255, 0.32) 0%, rgba(139, 92, 246, 0.26) 100%);
+      border-color: rgba(167, 139, 250, 0.55);
+      box-shadow: 0 2px 10px rgba(108, 99, 255, 0.22);
+    }
+    .expert-split-refresh-btn-mobile {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-shrink: 0;
+      margin-left: auto;
+      height: 33px;
+      min-height: 33px;
+      padding: 0 13px;
+      background: linear-gradient(135deg, rgba(108, 99, 255, 0.95) 0%, rgba(139, 92, 246, 0.95) 100%);
+      color: #ffffff;
+      border: 1px solid rgba(167, 139, 250, 0.45);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(108, 99, 255, 0.25);
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .expert-split-refresh-btn-mobile:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(108, 99, 255, 0.45);
+      background: linear-gradient(135deg, rgb(118, 109, 255) 0%, rgb(149, 102, 255) 100%);
+      border-color: rgba(192, 132, 252, 0.6);
+    }
+    .expert-split-refresh-btn-mobile:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 2px 6px rgba(108, 99, 255, 0.25);
+    }
+    .expert-split-desktop-refresh-container {
+      display: none !important;
     }
 
     /* Aşama (Stage) Geçiş Animasyonu & Kademeli Kart Girişi (Stagger) */
@@ -13080,19 +13182,20 @@ tr:hover td { background: var(--bg-card-hover); }
       pointer-events: auto;
     }
     .expert-confirm-modal-box {
-      background: linear-gradient(155deg, rgba(28, 33, 52, 0.96) 0%, rgba(16, 20, 34, 0.98) 100%);
-      border: 1px solid rgba(244, 63, 94, 0.38);
+      background: linear-gradient(155deg, rgba(28, 25, 48, 0.98) 0%, rgba(16, 18, 34, 0.98) 100%);
+      border: 1px solid rgba(239, 68, 68, 0.38);
       border-radius: 18px;
-      padding: 24px;
+      padding: 24px 22px;
       width: 100%;
-      max-width: 430px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(244, 63, 94, 0.2);
+      max-width: 420px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(239, 68, 68, 0.16);
       transform: scale(0.92) translateY(12px);
       transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
+      box-sizing: border-box;
     }
     .expert-confirm-modal-overlay.is-visible .expert-confirm-modal-box {
       transform: scale(1) translateY(0);
@@ -13101,14 +13204,14 @@ tr:hover td { background: var(--bg-card-hover); }
       width: 52px;
       height: 52px;
       border-radius: 14px;
-      background: linear-gradient(135deg, rgba(244, 63, 94, 0.2) 0%, rgba(225, 29, 72, 0.12) 100%);
-      border: 1px solid rgba(244, 63, 94, 0.45);
-      color: #fb7185;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(168, 85, 247, 0.15) 100%);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #f87171;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 14px;
-      box-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
+      box-shadow: 0 0 22px rgba(239, 68, 68, 0.25);
     }
     .expert-confirm-title {
       margin: 0 0 8px;
@@ -13124,69 +13227,79 @@ tr:hover td { background: var(--bg-card-hover); }
       line-height: 1.55;
     }
     .expert-confirm-highlight {
-      color: #38bdf8;
+      display: inline-block;
+      color: #c084fc;
+      background: rgba(168, 85, 247, 0.14);
+      border: 1px solid rgba(168, 85, 247, 0.32);
+      padding: 2px 9px;
+      border-radius: 7px;
       font-weight: 750;
+      font-size: 13px;
     }
     .expert-confirm-info-pill {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px;
-      background: rgba(251, 191, 36, 0.08);
-      border: 1px solid rgba(251, 191, 36, 0.25);
-      border-radius: 8px;
+      padding: 9px 12px;
+      background: rgba(168, 85, 247, 0.08);
+      border: 1px solid rgba(168, 85, 247, 0.22);
+      border-radius: 10px;
       font-size: 11.5px;
-      color: #fbbf24;
+      color: #d8b4fe;
       margin-bottom: 20px;
       text-align: left;
       line-height: 1.4;
       width: 100%;
+      box-sizing: border-box;
     }
     .expert-confirm-actions {
       display: flex;
       gap: 10px;
       width: 100%;
+      box-sizing: border-box;
     }
     .expert-confirm-btn {
       flex: 1;
-      padding: 10px 16px;
-      border-radius: 9px;
-      font-size: 12.5px;
+      padding: 11px 16px;
+      border-radius: 10px;
+      font-size: 13px;
       font-weight: 750;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 7px;
-      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      min-height: 42px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
       -webkit-user-select: none;
       user-select: none;
+      box-sizing: border-box;
     }
     .expert-confirm-btn.cancel {
-      background: rgba(244, 63, 94, 0.10) !important;
-      border: 1px solid rgba(244, 63, 94, 0.30) !important;
-      color: #fb7185 !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      color: #cbd5e1 !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
     }
     .expert-confirm-btn.cancel:hover {
-      background: rgba(244, 63, 94, 0.22) !important;
-      border-color: rgba(251, 113, 133, 0.60) !important;
+      background: rgba(255, 255, 255, 0.12) !important;
+      border-color: rgba(255, 255, 255, 0.25) !important;
       color: #ffffff !important;
-      transform: translateY(-1.5px) !important;
-      box-shadow: 0 4px 16px rgba(244, 63, 94, 0.25), 0 0 12px rgba(251, 113, 133, 0.20) !important;
+      transform: translateY(-1px) !important;
     }
     .expert-confirm-btn.confirm {
-      background: rgba(239, 68, 68, 0.10) !important;
-      border: 1px solid rgba(239, 68, 68, 0.30) !important;
-      color: #fca5a5 !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%) !important;
+      border: 1px solid rgba(252, 165, 165, 0.4) !important;
+      color: #ffffff !important;
+      font-weight: 800 !important;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;
     }
     .expert-confirm-btn.confirm:hover {
-      background: rgba(239, 68, 68, 0.22) !important;
-      border-color: rgba(248, 113, 113, 0.60) !important;
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 50%, #dc2626 100%) !important;
+      border-color: rgba(254, 202, 202, 0.6) !important;
       color: #ffffff !important;
       transform: translateY(-1.5px) !important;
-      box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25), 0 0 12px rgba(248, 113, 113, 0.20) !important;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5) !important;
     }
     .light-mode .expert-confirm-modal-box {
       background: #ffffff;
@@ -13203,6 +13316,193 @@ tr:hover td { background: var(--bg-card-hover); }
       background: #f1f5f9;
       border-color: #cbd5e1;
       color: #475569;
+    }
+
+    /* Split Gün Kartı Başlık Bölümü (Üst Satır: Başlık & Toplam Set / Alt Satır: Odak & Durum Rozeti) */
+    .expert-day-header-section {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+    }
+    .expert-day-header-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .expert-day-title-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 0 0 auto;
+    }
+    .expert-day-title-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+    .expert-day-header-sub-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      min-height: 24px;
+    }
+    .expert-day-focus-box {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+    .expert-day-focus-box:not(:empty) {
+      padding-left: 26px;
+    }
+    .expert-day-status-slot {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+    .expert-header-subtitle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 4px;
+      width: 100%;
+    }
+    .expert-header-step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 750;
+      color: #c084fc;
+      background: rgba(168, 85, 247, 0.12);
+      border: 1px solid rgba(168, 85, 247, 0.32);
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      letter-spacing: 0.2px;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    .expert-day-sets-badge {
+      font-size: 11.5px;
+      font-weight: 750;
+      padding: 4px 11px;
+      border-radius: 20px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      margin-left: 2px;
+    }
+
+    @media (min-width: 769px) {
+      .expert-day-header-top-row {
+        justify-content: flex-start !important;
+        gap: 10px !important;
+      }
+      .expert-day-title-left {
+        flex: 0 0 auto !important;
+      }
+      .expert-day-sets-badge {
+        margin-left: 2px !important;
+      }
+    }
+
+    /* Gün Seans Açıklama Notu */
+    .expert-day-reason-box {
+      margin-top: 2px;
+      padding: 7px 12px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--day-reason-border, rgba(168, 85, 247, 0.22));
+      border-left: 3px solid var(--day-theme-color, #a855f7);
+      border-radius: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      min-width: 0;
+      overflow: hidden;
+      transition: border-color 0.2s ease, border-left-color 0.2s ease;
+    }
+    .expert-day-card-done .expert-day-reason-box {
+      border-color: rgba(74, 222, 128, 0.22) !important;
+      border-left-color: #4ade80 !important;
+    }
+    .expert-day-card-rest .expert-day-reason-box {
+      border-color: rgba(251, 191, 36, 0.22) !important;
+      border-left-color: #fbbf24 !important;
+    }
+    .expert-day-card-missed .expert-day-reason-box {
+      border-color: rgba(248, 113, 113, 0.22) !important;
+      border-left-color: #f87171 !important;
+    }
+    .expert-day-card-neutral .expert-day-reason-box {
+      border-color: rgba(148, 163, 184, 0.22) !important;
+      border-left-color: #94a3b8 !important;
+    }
+    .expert-day-card-today .expert-day-reason-box {
+      border-color: rgba(56, 189, 248, 0.28) !important;
+      border-left-color: #38bdf8 !important;
+    }
+    .expert-day-card-purple .expert-day-reason-box,
+    .expert-day-card-workout .expert-day-reason-box {
+      border-color: rgba(168, 85, 247, 0.22) !important;
+      border-left-color: #a855f7 !important;
+    }
+    .light-mode .expert-day-card-done .expert-day-reason-box {
+      background: rgba(74, 222, 128, 0.08) !important;
+      border-color: rgba(74, 222, 128, 0.35) !important;
+      border-left-color: #16a34a !important;
+    }
+    .light-mode .expert-day-card-rest .expert-day-reason-box {
+      background: rgba(251, 191, 36, 0.08) !important;
+      border-color: rgba(251, 191, 36, 0.35) !important;
+      border-left-color: #d97706 !important;
+    }
+    .light-mode .expert-day-card-missed .expert-day-reason-box {
+      background: rgba(248, 113, 113, 0.08) !important;
+      border-color: rgba(248, 113, 113, 0.35) !important;
+      border-left-color: #dc2626 !important;
+    }
+    .light-mode .expert-day-card-neutral .expert-day-reason-box {
+      background: rgba(148, 163, 184, 0.08) !important;
+      border-color: rgba(148, 163, 184, 0.35) !important;
+      border-left-color: #64748b !important;
+    }
+    .light-mode .expert-day-card-today .expert-day-reason-box {
+      background: rgba(56, 189, 248, 0.08) !important;
+      border-color: rgba(56, 189, 248, 0.35) !important;
+      border-left-color: #0284c7 !important;
+    }
+    .light-mode .expert-day-card-purple .expert-day-reason-box,
+    .light-mode .expert-day-card-workout .expert-day-reason-box {
+      background: rgba(168, 85, 247, 0.08) !important;
+      border-color: rgba(168, 85, 247, 0.35) !important;
+      border-left-color: #9333ea !important;
+    }
+    .expert-day-reason-box .expert-day-reason-text {
+      color: #94a3b8;
+      font-size: 11.5px;
+      line-height: 1.35;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      display: block;
+      flex: 1 1 auto;
     }
 
     /* Alternatif Menü Animasyonu */
@@ -13307,6 +13607,19 @@ tr:hover td { background: var(--bg-card-hover); }
     .expert-recommendation-drag:active,
     .ex-drag-handle:active {
       cursor: grabbing !important;
+    }
+    .expert-recommendation-drag.is-locked,
+    .sort-disabled .expert-recommendation-drag {
+      cursor: default !important;
+      opacity: 0.35 !important;
+      color: #64748b !important;
+      transform: none !important;
+      touch-action: auto !important;
+    }
+    .expert-recommendation-drag.is-locked:hover,
+    .sort-disabled .expert-recommendation-drag:hover {
+      transform: none !important;
+      color: #64748b !important;
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -15533,15 +15846,16 @@ tr:hover td { background: var(--bg-card-hover); }
     padding: 12px 14px !important;
   }
   .dash-muscle-card .card-header-flex {
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
   .dash-muscle-chart-wrap {
-    height: 150px !important;
-    min-height: 150px !important;
-    max-height: 150px !important;
+    height: 240px !important;
+    min-height: 240px !important;
+    max-height: 260px !important;
   }
   #muscleChart {
-    max-height: 150px !important;
+    height: 240px !important;
+    max-height: 260px !important;
   }
 }
 @media (max-width: 480px) {
@@ -15551,13 +15865,17 @@ tr:hover td { background: var(--bg-card-hover); }
   .dash-muscle-card {
     padding: 10px 12px !important;
   }
+  .dash-muscle-card .card-header-flex {
+    margin-bottom: 6px;
+  }
   .dash-muscle-chart-wrap {
-    height: 135px !important;
-    min-height: 135px !important;
-    max-height: 135px !important;
+    height: 225px !important;
+    min-height: 225px !important;
+    max-height: 245px !important;
   }
   #muscleChart {
-    max-height: 135px !important;
+    height: 225px !important;
+    max-height: 245px !important;
   }
 }
 
@@ -16883,264 +17201,350 @@ tr:hover td { background: var(--bg-card-hover); }
 
 @media (max-width: 768px) {
   #page-profile {
-    padding: 14px 12px 90px 12px;
-    width: 100%;
-    max-width: 100vw;
-    box-sizing: border-box;
-    overflow-x: hidden;
+    padding: 14px 12px 90px 12px !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
   }
   .profile-hero-card {
-    padding: 16px 14px;
-    gap: 14px;
-    margin-bottom: 16px;
-    border-radius: 14px;
+    padding: 16px 14px !important;
+    gap: 14px !important;
+    margin-bottom: 16px !important;
+    border-radius: 14px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
   .profile-hero-main {
-    gap: 14px;
+    gap: 14px !important;
   }
   .profile-avatar-circle {
-    width: 50px;
-    height: 50px;
-    font-size: 18px;
-    border-radius: 14px;
+    width: 52px !important;
+    height: 52px !important;
+    font-size: 18px !important;
+    border-radius: 14px !important;
+  }
+  .profile-hero-name-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 6px 8px !important;
+    margin-bottom: 6px !important;
   }
   .profile-hero-username {
-    font-size: 16px;
+    font-size: 16px !important;
   }
   .profile-hero-desc {
-    font-size: 12px;
-    line-height: 1.45;
+    font-size: 11.5px !important;
+    line-height: 1.45 !important;
+  }
+  .profile-hero-rpg-inline {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-top: 12px !important;
+    border-radius: 12px !important;
+  }
+  .profile-hero-rpg-inline .prof-inline-stat-group {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+  }
+  .prof-inline-divider {
+    display: none !important;
   }
   .profile-stat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    margin-bottom: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
   }
   .profile-stat-card {
-    padding: 12px 14px;
-    gap: 10px;
-    border-radius: 12px;
+    padding: 12px 10px !important;
+    gap: 10px !important;
+    border-radius: 12px !important;
+    min-width: 0 !important;
   }
   .profile-stat-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 9px !important;
   }
   .profile-stat-icon svg {
-    width: 16px;
-    height: 16px;
+    width: 16px !important;
+    height: 16px !important;
   }
   .profile-stat-label {
-    font-size: 10px;
+    font-size: 9.5px !important;
   }
   .profile-stat-value {
-    font-size: 14px;
+    font-size: 14px !important;
+  }
+  .profile-metric-pill {
+    font-size: 9px !important;
+    padding: 2px 6px !important;
   }
   .profile-glass-card {
-    padding: 18px 16px;
-    border-radius: 14px;
+    padding: 18px 16px !important;
+    border-radius: 14px !important;
   }
   .profile-card-header {
-    padding-bottom: 14px;
-    margin-bottom: 14px;
+    padding-bottom: 14px !important;
+    margin-bottom: 14px !important;
+  }
+  .profile-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px 10px !important;
+  }
+  .profile-input-wrap input,
+  .profile-input-wrap select {
+    height: 42px !important;
+    font-size: 13px !important;
+    padding: 0 34px 0 11px !important;
+    border-radius: 9px !important;
   }
   .profile-primary-save-btn,
   .profile-secondary-action-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 12px 18px;
-    font-size: 13px;
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 12px 18px !important;
+    min-height: 44px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    border-radius: 10px !important;
   }
   .profile-action-footer {
-    justify-content: center;
-    width: 100%;
-    margin-top: 18px;
-    padding-top: 14px;
+    justify-content: center !important;
+    width: 100% !important;
+    margin-top: 18px !important;
+    padding-top: 14px !important;
+  }
+  .profile-side-column {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    width: 100% !important;
+  }
+  .profile-email-action-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    grid-template-columns: 1fr !important;
+  }
+  .profile-email-save-btn,
+  .profile-email-forgot-btn {
+    width: 100% !important;
+    min-height: 42px !important;
+    font-size: 12.5px !important;
+    font-weight: 750 !important;
+    padding: 10px 14px !important;
+  }
+  .profile-password-new-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .profile-danger-reset-btn {
+    width: 100% !important;
+    min-height: 42px !important;
+    font-size: 12.5px !important;
+    font-weight: 750 !important;
+    padding: 10px 14px !important;
   }
 }
 
 @media (max-width: 580px) {
   #page-profile {
-    padding: 10px 8px 90px 8px;
+    padding: 10px 8px 90px 8px !important;
   }
   .profile-hero-card {
-    padding: 14px 12px;
-    margin-bottom: 12px;
-    border-radius: 13px;
+    padding: 14px 12px !important;
+    margin-bottom: 12px !important;
+    border-radius: 13px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
   .profile-hero-main {
-    gap: 12px;
-    align-items: flex-start;
+    gap: 12px !important;
+    align-items: flex-start !important;
   }
   .profile-avatar-circle {
-    width: 46px;
-    height: 46px;
-    font-size: 17px;
-    border-radius: 12px;
+    width: 46px !important;
+    height: 46px !important;
+    font-size: 17px !important;
+    border-radius: 12px !important;
   }
   .profile-avatar-badge {
-    width: 17px;
-    height: 17px;
-    bottom: -2px;
-    right: -2px;
+    width: 17px !important;
+    height: 17px !important;
+    bottom: -2px !important;
+    right: -2px !important;
   }
   .profile-avatar-badge svg {
-    width: 9px;
-    height: 9px;
+    width: 9px !important;
+    height: 9px !important;
   }
   .profile-hero-name-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    margin-bottom: 4px;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-bottom: 4px !important;
   }
   .profile-hero-username {
-    font-size: 14.5px;
-    letter-spacing: 0.01em;
+    font-size: 14.5px !important;
+    letter-spacing: 0.01em !important;
   }
   .profile-hero-desc {
-    font-size: 11px;
-    line-height: 1.4;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
   }
   .profile-stat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-    margin-bottom: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
   }
   .profile-stat-card {
-    padding: 10px 10px;
-    gap: 8px;
-    border-radius: 10px;
+    padding: 10px 9px !important;
+    gap: 8px !important;
+    border-radius: 10px !important;
   }
   .profile-stat-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
   }
   .profile-stat-icon svg {
-    width: 15px;
-    height: 15px;
+    width: 15px !important;
+    height: 15px !important;
   }
   .profile-stat-label {
-    font-size: 9px;
-    letter-spacing: 0.02em;
+    font-size: 9px !important;
+    letter-spacing: 0.02em !important;
   }
   .profile-stat-val-row {
-    gap: 6px;
-    margin-top: 2px;
+    gap: 5px !important;
+    margin-top: 2px !important;
   }
   .profile-stat-value {
-    font-size: 13px;
+    font-size: 13px !important;
   }
   .profile-metric-pill {
-    font-size: 8.5px;
-    padding: 1px 5px;
+    font-size: 8.5px !important;
+    padding: 1px 5px !important;
   }
   .profile-glass-card {
-    padding: 15px 12px;
-    border-radius: 13px;
+    padding: 15px 12px !important;
+    border-radius: 13px !important;
   }
   .profile-card-header {
-    flex-wrap: wrap;
-    gap: 8px;
-    padding-bottom: 12px;
-    margin-bottom: 12px;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 12px !important;
   }
   .profile-card-header-left {
-    gap: 9px;
+    gap: 9px !important;
   }
   .profile-header-icon-box {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
   }
   .profile-header-icon-box svg {
-    width: 17px;
-    height: 17px;
+    width: 17px !important;
+    height: 17px !important;
   }
   .profile-card-title {
-    font-size: 13.5px;
+    font-size: 13.5px !important;
   }
   .profile-card-subtitle {
-    font-size: 10.5px;
-    line-height: 1.35;
+    font-size: 10.5px !important;
+    line-height: 1.35 !important;
   }
   .profile-badge-neon-cyan {
-    font-size: 9.5px;
-    padding: 2px 7px;
+    font-size: 9.5px !important;
+    padding: 2px 7px !important;
   }
   .profile-form-section-title {
-    font-size: 10.5px;
-    margin-bottom: 10px;
-    gap: 6px;
+    font-size: 10.5px !important;
+    margin-bottom: 10px !important;
+    gap: 6px !important;
   }
   .profile-form-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px 8px !important;
+  }
+  .profile-form-grid.profile-training-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
   }
   .profile-field-label {
-    font-size: 11px;
+    font-size: 11px !important;
   }
   .profile-unit-tag {
-    font-size: 9px;
-    padding: 1px 4px;
+    font-size: 9px !important;
+    padding: 1px 4px !important;
   }
   .profile-input-wrap input,
   .profile-input-wrap select {
-    height: 38px;
-    font-size: 12.5px;
-    padding: 0 32px 0 10px;
-    border-radius: 8px;
+    height: 40px !important;
+    font-size: 12.5px !important;
+    padding: 0 32px 0 10px !important;
+    border-radius: 8px !important;
   }
   .profile-input-icon {
-    right: 9px;
+    right: 9px !important;
   }
   .profile-input-icon svg {
-    width: 13px;
-    height: 13px;
+    width: 13px !important;
+    height: 13px !important;
   }
   .profile-password-toggle-btn {
-    right: 5px;
-    padding: 4px;
+    right: 5px !important;
+    padding: 4px !important;
   }
   .profile-password-toggle-btn svg {
-    width: 14px;
-    height: 14px;
+    width: 14px !important;
+    height: 14px !important;
   }
   .profile-action-footer {
-    margin-top: 14px;
-    padding-top: 12px;
+    margin-top: 14px !important;
+    padding-top: 12px !important;
   }
   .profile-primary-save-btn {
-    height: 40px;
-    font-size: 12.5px;
-    border-radius: 9px;
-    padding: 0 12px;
-    gap: 6px;
+    height: 42px !important;
+    font-size: 12.5px !important;
+    border-radius: 9px !important;
+    padding: 0 12px !important;
+    gap: 6px !important;
   }
   .profile-secondary-action-btn {
-    height: 40px;
-    font-size: 12.5px;
-    border-radius: 9px;
-    padding: 0 12px;
-    gap: 6px;
+    height: 42px !important;
+    font-size: 12.5px !important;
+    border-radius: 9px !important;
+    padding: 0 12px !important;
+    gap: 6px !important;
   }
   .profile-danger-note-box {
-    padding: 8px 10px;
-    gap: 8px;
-    font-size: 11px;
-    margin-bottom: 12px;
-    border-radius: 8px;
+    padding: 8px 10px !important;
+    gap: 8px !important;
+    font-size: 11px !important;
+    margin-bottom: 12px !important;
+    border-radius: 8px !important;
   }
   .profile-danger-note-box p {
-    font-size: 11px;
-    line-height: 1.4;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
   }
   .profile-danger-reset-btn {
-    height: 38px;
-    font-size: 12px;
-    border-radius: 8px;
-    padding: 0 12px;
+    height: 40px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+    padding: 0 12px !important;
   }
   .expert-reset-modal-box,
   .expert-doms-delete-box {
@@ -17209,20 +17613,591 @@ tr:hover td { background: var(--bg-card-hover); }
 /* 8. MOBİL SAYFA: YÖNETİCİ PANELİ (PAGE: ADMIN - MOBILE)                         */
 /* ────────────────────────────────────────────────────────────────────────────── */
 
+/* ─── ADMIN GENEL BAKIŞ (OVERVIEW) MOBİL UYUMLULUK ─── */
 @media (max-width: 900px) {
-  .admin-overview-grid4 { grid-template-columns: repeat(2, 1fr); }
-  .admin-overview-layout { grid-template-columns: 1fr; }
+  #page-admin {
+    padding: 16px 14px 96px 14px !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+  .admin-command-center {
+    gap: 16px !important;
+  }
+  .admin-overview-grid4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+  .admin-overview-layout {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .admin-top-banner {
+    padding: 16px 18px !important;
+    border-radius: 16px !important;
+    gap: 14px !important;
+  }
+  .admin-main-title {
+    font-size: 19px !important;
+  }
+  .admin-overview-chart {
+    height: 160px !important;
+    gap: 8px !important;
+  }
 }
-@media (max-width: 560px) {
-  .admin-overview-grid4 { grid-template-columns: 1fr; }
+
+@media (max-width: 768px) {
+  #page-admin {
+    padding: 14px 12px 96px 12px !important;
+  }
+  .admin-top-banner {
+    padding: 14px 14px !important;
+    border-radius: 14px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .admin-title-wrap {
+    width: 100% !important;
+    gap: 3px !important;
+  }
+  .admin-eyebrow {
+    font-size: 10px !important;
+    letter-spacing: 0.6px !important;
+  }
+  .admin-main-title {
+    font-size: 16.5px !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+  .admin-main-title .admin-badge {
+    font-size: 10px !important;
+    padding: 2px 7px !important;
+  }
+  .admin-subtitle {
+    font-size: 11.5px !important;
+    line-height: 1.4 !important;
+  }
+  .admin-banner-actions {
+    width: 100% !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+  .admin-status-pill {
+    padding: 5px 11px !important;
+    font-size: 11px !important;
+  }
+  .admin-banner-actions .btn-neon-purple {
+    padding: 6px 14px !important;
+    font-size: 11.5px !important;
+    border-radius: 8px !important;
+  }
+  .admin-overview-grid4 {
+    gap: 10px !important;
+  }
+  .admin-overview-metric {
+    padding: 13px 12px !important;
+    border-radius: 12px !important;
+  }
+  .admin-overview-metric-label {
+    font-size: 10px !important;
+    letter-spacing: 0.5px !important;
+  }
+  .admin-overview-metric-value {
+    font-size: 22px !important;
+    margin: 6px 0 3px !important;
+  }
+  .admin-overview-trend {
+    font-size: 10px !important;
+  }
+  .admin-overview-card {
+    padding: 14px 14px !important;
+    border-radius: 13px !important;
+  }
+  .admin-overview-card-head {
+    margin-bottom: 12px !important;
+    gap: 8px !important;
+  }
+  .admin-overview-card-title {
+    font-size: 13.5px !important;
+    gap: 6px !important;
+  }
+  .admin-overview-card-sub {
+    font-size: 10.5px !important;
+    margin-top: 2px !important;
+  }
+  .admin-overview-card-head button {
+    font-size: 11px !important;
+    padding: 4px 9px !important;
+    flex-shrink: 0 !important;
+  }
+  .admin-overview-chart {
+    height: 140px !important;
+    padding: 12px 6px 0 !important;
+    gap: 6px !important;
+  }
+  .admin-overview-bar {
+    min-height: 12px !important;
+    border-radius: 4px 4px 0 0 !important;
+  }
+  .admin-overview-bar-label {
+    font-size: 9.5px !important;
+    margin-top: 4px !important;
+  }
+  .admin-overview-legend {
+    font-size: 10.5px !important;
+    gap: 12px !important;
+    margin-top: 10px !important;
+    flex-wrap: wrap !important;
+  }
+  .admin-overview-health {
+    gap: 10px !important;
+  }
+  .admin-overview-health-row {
+    font-size: 11.5px !important;
+    gap: 6px !important;
+  }
+  .admin-overview-track {
+    height: 6px !important;
+  }
+  .admin-overview-alert {
+    margin-top: 12px !important;
+    padding: 10px 12px !important;
+    font-size: 11px !important;
+    border-radius: 9px !important;
+  }
+  .admin-overview-activity {
+    gap: 8px !important;
+  }
+  .admin-overview-act {
+    grid-template-columns: 28px minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+    padding: 7px 8px !important;
+    border-radius: 9px !important;
+  }
+  .admin-overview-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 11.5px !important;
+    border-radius: 8px !important;
+  }
+  .admin-overview-act-main {
+    font-size: 11.5px !important;
+  }
+  .admin-overview-act-sub {
+    font-size: 10px !important;
+    margin-top: 1px !important;
+  }
+  .admin-overview-act-time {
+    font-size: 10px !important;
+  }
+  .admin-overview-quick-list {
+    gap: 8px !important;
+  }
+  .admin-overview-quick-btn {
+    padding: 9px 12px !important;
+    font-size: 11.5px !important;
+    border-radius: 9px !important;
+  }
+  .admin-nav-tabs {
+    padding: 5px !important;
+    border-radius: 12px !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .admin-tab-btn {
+    padding: 8px 13px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+  }
 }
+
+@media (max-width: 480px) {
+  #page-admin {
+    padding: 10px 8px 96px 8px !important;
+  }
+  .admin-command-center {
+    gap: 12px !important;
+  }
+  .admin-top-banner {
+    padding: 12px 11px !important;
+    border-radius: 12px !important;
+    gap: 10px !important;
+  }
+  .admin-main-title {
+    font-size: 15px !important;
+  }
+  .admin-subtitle {
+    font-size: 11px !important;
+  }
+  .admin-overview-grid4 {
+    gap: 8px !important;
+  }
+  .admin-overview-metric {
+    padding: 10px 10px !important;
+    border-radius: 10px !important;
+  }
+  .admin-overview-metric-label {
+    font-size: 9px !important;
+  }
+  .admin-overview-metric-value {
+    font-size: 19px !important;
+    margin: 4px 0 2px !important;
+  }
+  .admin-overview-trend {
+    font-size: 9px !important;
+  }
+  .admin-overview-layout {
+    gap: 10px !important;
+  }
+  .admin-overview-card {
+    padding: 11px 11px !important;
+    border-radius: 11px !important;
+  }
+  .admin-overview-card-head {
+    margin-bottom: 9px !important;
+  }
+  .admin-overview-card-title {
+    font-size: 12.5px !important;
+  }
+  .admin-overview-card-sub {
+    font-size: 9.5px !important;
+  }
+  .admin-overview-chart {
+    height: 130px !important;
+    padding: 8px 2px 0 !important;
+    gap: 4px !important;
+  }
+  .admin-overview-bar-label {
+    font-size: 8px !important;
+    margin-top: 3px !important;
+  }
+  .admin-overview-legend {
+    font-size: 9.5px !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+  .admin-overview-act {
+    grid-template-columns: 24px minmax(0, 1fr) auto !important;
+    gap: 6px !important;
+    padding: 6px 6px !important;
+  }
+  .admin-overview-avatar {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 10.5px !important;
+    border-radius: 6px !important;
+  }
+  .admin-overview-act-main {
+    font-size: 11px !important;
+  }
+  .admin-overview-act-sub {
+    font-size: 9.5px !important;
+  }
+  .admin-overview-act-time {
+    font-size: 9px !important;
+  }
+  .admin-overview-quick-btn {
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 340px) {
+  .admin-overview-grid4 {
+    grid-template-columns: 1fr !important;
+  }
+}
+/* ─── ADMIN KULLANICI YÖNETİMİ (USERS) MOBİL UYUMLULUK ─── */
 @media (max-width: 1000px) {
-  .admin-users-layout { grid-template-columns: 1fr; }
-  .admin-users-detail { position: static; }
-  .admin-users-stats { grid-template-columns: repeat(2, 1fr); }
+  .admin-users-layout {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .admin-users-detail {
+    position: static !important;
+  }
+  .admin-users-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
 }
-@media (max-width: 560px) {
-  .admin-users-stats { grid-template-columns: 1fr; }
+
+@media (max-width: 768px) {
+  .admin-users-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+  }
+  .admin-users-stat {
+    padding: 13px 12px !important;
+    border-radius: 12px !important;
+  }
+  .admin-users-stat .label {
+    font-size: 10px !important;
+    letter-spacing: 0.5px !important;
+  }
+  .admin-users-stat .value {
+    font-size: 22px !important;
+    margin: 6px 0 3px !important;
+  }
+  .admin-users-stat .sub {
+    font-size: 10px !important;
+  }
+  #adminPane-users .admin-card {
+    padding: 14px 14px !important;
+    border-radius: 13px !important;
+  }
+  #adminPane-users .admin-card-head {
+    margin-bottom: 12px !important;
+    gap: 8px !important;
+  }
+  #adminPane-users .admin-card-title {
+    font-size: 13.5px !important;
+  }
+  #adminPane-users .admin-card-sub {
+    font-size: 10.5px !important;
+    margin-top: 2px !important;
+  }
+  #adminPane-users .admin-card-head button {
+    font-size: 11px !important;
+    padding: 4px 9px !important;
+    border-radius: 7px !important;
+  }
+  .admin-users-tools {
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+    width: 100% !important;
+  }
+  .admin-users-search {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+    padding: 9px 12px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+  .admin-users-select {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    padding: 9px 12px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+  .admin-users-table-wrap {
+    max-height: 420px !important;
+    border-radius: 8px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .admin-users-table {
+    min-width: 580px !important;
+  }
+  .admin-users-table th {
+    padding: 9px 8px !important;
+    font-size: 9.5px !important;
+  }
+  .admin-users-table td {
+    padding: 9px 8px !important;
+    font-size: 12px !important;
+  }
+  .admin-users-avatar {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 10.5px !important;
+    border-radius: 7px !important;
+  }
+  .admin-users-name {
+    font-size: 12px !important;
+  }
+  .admin-badge-v4 {
+    padding: 3px 6px !important;
+    font-size: 9.5px !important;
+    border-radius: 6px !important;
+  }
+  .admin-btn-neon-create {
+    width: 100% !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+  }
+  .admin-users-profile {
+    padding-bottom: 12px !important;
+    margin-bottom: 12px !important;
+    margin-top: 10px !important;
+    gap: 10px !important;
+  }
+  .admin-users-big-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 15px !important;
+    border-radius: 10px !important;
+  }
+  #adminDetailUsername {
+    font-size: 14.5px !important;
+  }
+  .admin-users-section-label {
+    margin: 12px 0 6px !important;
+    font-size: 9.5px !important;
+  }
+  .admin-users-kv {
+    padding: 7px 0 !important;
+    font-size: 11.5px !important;
+  }
+  .admin-users-action-neon {
+    padding: 9px 12px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+    margin: 6px 0 !important;
+  }
+  .admin-users-notice {
+    margin-top: 10px !important;
+    padding: 8px 10px !important;
+    font-size: 10.5px !important;
+    border-radius: 8px !important;
+  }
+  #adminDetailEditMode .admin-users-input {
+    padding: 7px 9px !important;
+    font-size: 12px !important;
+    border-radius: 7px !important;
+  }
+  .admin-inline-btn-cancel,
+  .admin-inline-btn-save {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    flex: 1 !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  #adminCreateUserModal .admin-card {
+    padding: 16px 14px !important;
+    border-radius: 14px !important;
+    max-width: 95vw !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-users-stats {
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+  .admin-users-stat {
+    padding: 10px 10px !important;
+    border-radius: 10px !important;
+  }
+  .admin-users-stat .label {
+    font-size: 9px !important;
+  }
+  .admin-users-stat .value {
+    font-size: 19px !important;
+    margin: 4px 0 2px !important;
+  }
+  .admin-users-stat .sub {
+    font-size: 9px !important;
+  }
+  #adminPane-users .admin-card {
+    padding: 11px 11px !important;
+    border-radius: 11px !important;
+  }
+  #adminPane-users .admin-card-head {
+    margin-bottom: 9px !important;
+  }
+  #adminPane-users .admin-card-title {
+    font-size: 12.5px !important;
+  }
+  #adminPane-users .admin-card-sub {
+    font-size: 9.5px !important;
+  }
+  .admin-users-search {
+    padding: 8px 10px !important;
+    font-size: 11.5px !important;
+  }
+  .admin-users-select {
+    padding: 8px 10px !important;
+    font-size: 11.5px !important;
+  }
+  .admin-users-table-wrap {
+    max-height: 380px !important;
+  }
+  .admin-users-table th {
+    padding: 8px 6px !important;
+    font-size: 9px !important;
+  }
+  .admin-users-table td {
+    padding: 8px 6px !important;
+    font-size: 11.5px !important;
+  }
+  .admin-users-avatar {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 10px !important;
+    border-radius: 6px !important;
+  }
+  .admin-users-name {
+    font-size: 11.5px !important;
+  }
+  .admin-badge-v4 {
+    padding: 2px 5px !important;
+    font-size: 9px !important;
+  }
+  .admin-btn-neon-create {
+    font-size: 11.5px !important;
+    padding: 9px 12px !important;
+  }
+  .admin-users-profile {
+    padding-bottom: 10px !important;
+    margin-bottom: 10px !important;
+    gap: 8px !important;
+  }
+  .admin-users-big-avatar {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+  }
+  #adminDetailUsername {
+    font-size: 13.5px !important;
+  }
+  .admin-users-section-label {
+    margin: 10px 0 5px !important;
+    font-size: 9px !important;
+  }
+  .admin-users-kv {
+    padding: 6px 0 !important;
+    font-size: 11px !important;
+  }
+  .admin-users-action-neon {
+    padding: 8px 10px !important;
+    font-size: 11.5px !important;
+    margin: 5px 0 !important;
+  }
+  .admin-users-notice {
+    padding: 7px 8px !important;
+    font-size: 10px !important;
+  }
+  #adminDetailEditMode .admin-users-input {
+    padding: 6px 8px !important;
+    font-size: 11.5px !important;
+  }
+  .admin-inline-btn-cancel,
+  .admin-inline-btn-save {
+    padding: 7px 10px !important;
+    font-size: 11.5px !important;
+  }
+  #adminCreateUserModal .admin-card {
+    padding: 12px 10px !important;
+    border-radius: 12px !important;
+  }
+}
+
+@media (max-width: 340px) {
+  .admin-users-stats {
+    grid-template-columns: 1fr !important;
+  }
 }
 @media (max-width: 1080px) {
   .audit-layout { grid-template-columns: 1fr; }
@@ -17243,15 +18218,49 @@ tr:hover td { background: var(--bg-card-hover); }
   .split-fg-row {
     padding: 0 12px 0 68px !important;
   }
+  /* Split pill date - mobilde gizlenerek kart başlığı ve parantez içi metinle çakışma önlenir */
+  .split-pill-date {
+    display: none !important;
+  }
+  .split-status-done-group,
+  .split-status-missed-group,
+  .split-status-rest-group,
+  .split-status-neutral-group {
+    gap: 6px !important;
+  }
+  .split-status-icon-circle {
+    width: 22px !important;
+    height: 22px !important;
+    flex-shrink: 0 !important;
+  }
+  .split-status-icon-circle svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
   .split-done-pill .split-done-label,
   .split-missed-pill .split-missed-label,
-  .split-rest-pill .split-rest-label {
-    display: none;
+  .split-rest-pill .split-rest-label,
+  .split-neutral-pill .split-neutral-label {
+    display: inline !important;
+    font-size: 9.5px !important;
+    font-weight: 750 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+  .split-done-pill,
+  .split-missed-pill,
+  .split-rest-pill,
+  .split-neutral-pill {
+    font-size: 9.5px !important;
+    padding: 3px 8px !important;
+    white-space: nowrap !important;
+    gap: 4px !important;
   }
   .split-type.split-type-done,
   .split-type.split-type-missed,
-  .split-type.split-type-rest {
-    margin-right: 92px !important;
+  .split-type.split-type-rest,
+  .split-type.split-type-neutral {
+    margin-right: 145px !important;
   }
   .split-type.split-type-today {
     margin-right: 64px !important;
@@ -17265,18 +18274,72 @@ tr:hover td { background: var(--bg-card-hover); }
     padding: 0 10px !important;
   }
   .split-fg-row {
-    padding: 0 8px 0 58px !important;
+    padding: 0 8px 0 54px !important;
+  }
+  .split-title-text {
+    font-size: 12.5px !important;
+    letter-spacing: 0.1px !important;
+  }
+  .split-subtitle-text {
+    font-size: 10.5px !important;
+    max-width: 100% !important;
+  }
+  .split-status-done-group,
+  .split-status-missed-group,
+  .split-status-rest-group,
+  .split-status-neutral-group {
+    gap: 5px !important;
+  }
+  .split-status-icon-circle {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+  }
+  .split-status-icon-circle svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+  .split-done-pill,
+  .split-missed-pill,
+  .split-rest-pill,
+  .split-neutral-pill {
+    font-size: 9px !important;
+    padding: 2.5px 6px !important;
+  }
+  .split-done-pill .split-done-label,
+  .split-missed-pill .split-missed-label,
+  .split-rest-pill .split-rest-label,
+  .split-neutral-pill .split-neutral-label {
+    font-size: 9px !important;
   }
   .split-type.split-type-done,
   .split-type.split-type-missed,
-  .split-type.split-type-rest {
-    margin-right: 80px !important;
+  .split-type.split-type-rest,
+  .split-type.split-type-neutral {
+    margin-right: 130px !important;
   }
   .split-type.split-type-today {
     margin-right: 56px !important;
   }
   .split-type.split-type-upcoming {
     margin-right: 24px !important;
+  }
+}
+@media (max-width: 380px) {
+  .split-fg-row {
+    padding: 0 6px 0 50px !important;
+  }
+  .split-title-text {
+    font-size: 12px !important;
+  }
+  .split-subtitle-text {
+    font-size: 10px !important;
+  }
+  .split-type.split-type-done,
+  .split-type.split-type-missed,
+  .split-type.split-type-rest,
+  .split-type.split-type-neutral {
+    margin-right: 122px !important;
   }
 }
 
@@ -17356,7 +18419,7 @@ tr:hover td { background: var(--bg-card-hover); }
 
   /* A. SAYFA GENEL YERLEŞİMİ & KAPSAYICILAR */
   #page-analyze {
-    padding: 12px 10px 125px 10px !important;
+    padding: 0 0 120px 0 !important;
     overflow-x: hidden !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -18509,80 +19572,653 @@ tr:hover td { background: var(--bg-card-hover); }
   }
 
 
-  /* J. ADIM 3: SPLIT TASLAĞI (SPLIT DRAFT) */
-  .expert-split-overview-grid {
-    grid-template-columns: 1fr !important;
+  /* ══════════════════════════════════════════════════════════════════════════ */
+  /* J. ADIM 3: SPLIT TASLAĞI & SEANS KARTLARI TAM MOBİL SİSTEMİ (SPLIT DRAFT)   */
+  /* ══════════════════════════════════════════════════════════════════════════ */
+  .expert-gym-workspace {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 1. ÜST KART & BAŞLIK ALANI */
+  .expert-gym-workspace > .expert-data-card {
+    padding: 12px 10px !important;
+    border-radius: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+  .expert-data-cardhead {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .expert-data-cardhead > div:first-child {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    flex: 1 1 auto !important;
+  }
+  .expert-data-cardhead > div:first-child > div:last-child {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+  .expert-data-cardhead .injury-board-icon-box {
+    width: 36px !important;
+    height: 36px !important;
+    flex: 0 0 36px !important;
+    border-radius: 9px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .expert-data-cardhead .injury-board-icon-box svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .expert-data-cardhead .injury-board-heading {
+    font-size: 15px !important;
+    font-weight: 850 !important;
+    line-height: 1.25 !important;
+    color: #ffffff !important;
+  }
+  .expert-data-cardhead .injury-board-sub {
+    font-size: 11.5px !important;
+    line-height: 1.4 !important;
+    color: #94a3b8 !important;
+    margin-top: 2px !important;
+    word-break: break-word !important;
+  }
+
+  /* 2. HAFTALIK İSTATİSTİK GRID (MOBİLDE 2 KART: DÜZEN & HACİM - HEDEF KASLAR GİZLİ, GENİŞ ALAN) */
+  .expert-gym-workspace .expert-gym-stat-grid,
+  .expert-gym-stat-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .expert-gym-workspace .expert-gym-stat-card:nth-child(3),
+  .expert-gym-stat-card:nth-child(3) {
+    grid-column: auto !important;
+  }
+  .expert-gym-workspace .expert-gym-stat-card,
+  .expert-gym-stat-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 9px !important;
+    padding: 10px 10px !important;
+    border-radius: 11px !important;
+    background: linear-gradient(145deg, rgba(22, 28, 46, 0.75) 0%, rgba(14, 18, 30, 0.9) 100%) !important;
+    border: 1px solid rgba(108, 99, 255, 0.18) !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    min-height: 56px !important;
+  }
+  .expert-gym-workspace .expert-gym-stat-card > div:last-child,
+  .expert-gym-stat-card > div:last-child {
+    min-width: 0 !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    flex: 1 1 auto !important;
+  }
+  .expert-gym-workspace .expert-gym-stat-icon,
+  .expert-gym-stat-icon {
+    width: 32px !important;
+    height: 32px !important;
+    flex: 0 0 32px !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .expert-gym-workspace .expert-gym-stat-icon svg,
+  .expert-gym-stat-icon svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+  .expert-gym-workspace .expert-gym-stat-label,
+  .expert-gym-stat-label {
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.25px !important;
+    color: #94a3b8 !important;
+    display: block !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .expert-gym-workspace .expert-gym-stat-value,
+  .expert-gym-stat-value {
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    line-height: 1.3 !important;
+    display: block !important;
+    margin-top: 1px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* ÖNCELİKLİ HEDEF KASLAR KARTINI MOBİLDE KESİNLİKLE GİZLE */
+  #page-analyze .expert-split-priority-stat-card,
+  #page-analyze .expert-gym-workspace .expert-split-priority-stat-card,
+  #page-analyze .expert-gym-workspace .expert-gym-stat-card.expert-split-priority-stat-card,
+  .expert-gym-workspace .expert-gym-stat-card.expert-split-priority-stat-card,
+  .expert-gym-stat-card.expert-split-priority-stat-card,
+  .expert-gym-workspace .expert-gym-stat-grid > .expert-gym-stat-card.expert-split-priority-stat-card,
+  .expert-gym-workspace .expert-gym-stat-grid > .expert-gym-stat-card:nth-child(2),
+  .expert-gym-stat-grid > .expert-gym-stat-card.expert-split-priority-stat-card,
+  .expert-gym-stat-grid > .expert-gym-stat-card:nth-child(2),
+  .expert-split-priority-stat-card {
+    display: none !important;
+  }
+
+  /* 3. SPLIT GÖRÜNÜM MODU SEÇİCİSİ (SEGMENTED SWITCHER - YAN YANA MOBİL) */
+  .expert-split-viewmode-bar {
+    margin: 0 0 12px !important;
+    padding: 10px 10px !important;
+    background: rgba(15, 23, 42, 0.75) !important;
+    border: 1px solid rgba(108, 99, 255, 0.22) !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
     gap: 8px !important;
     width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  .expert-split-viewmode-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .expert-split-viewmode-info > div:last-child {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+  .expert-split-viewmode-info strong {
+    font-size: 12.5px !important;
+  }
+  .expert-split-viewmode-info span {
+    display: block !important;
+    font-size: 10.5px !important;
+    line-height: 1.3 !important;
+    word-break: break-word !important;
+  }
+  .expert-split-viewmode-toggle-group {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 5px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: rgba(22, 28, 46, 0.85) !important;
+    padding: 4px !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-sizing: border-box !important;
+  }
+  .expert-viewmode-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    padding: 6px 4px !important;
+    font-size: 10.5px !important;
+    font-weight: 750 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    border-radius: 8px !important;
+    gap: 5px !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
+    line-height: 1.2 !important;
+    transition: all 0.18s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  .expert-viewmode-btn:active {
+    transform: scale(0.96) !important;
+  }
+  .expert-viewmode-btn svg {
+    width: 12px !important;
+    height: 12px !important;
+    flex-shrink: 0 !important;
+  }
+  .expert-viewmode-btn span {
+    min-width: 0 !important;
+    display: inline-block !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+  }
+
+  /* 4. HAFTA SEÇİCİ SUBTABS & MOBİL TASLAĞI YENİLE */
+  .expert-split-weeks-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 12px 0 10px !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .expert-gym-workspace .expert-split-weeks-bar .expert-data-subtabs {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-bottom: none !important;
+    scrollbar-width: none !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+  .expert-gym-workspace .expert-split-weeks-bar .expert-data-subtab {
+    flex-shrink: 0 !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+    white-space: nowrap !important;
+  }
+  .expert-split-refresh-btn-mobile {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 10px !important;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.95) 0%, rgba(139, 92, 246, 0.95) 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(167, 139, 250, 0.45) !important;
+    border-radius: 8px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 8px rgba(108, 99, 255, 0.25) !important;
+    white-space: nowrap !important;
+    touch-action: manipulation !important;
+    transition: transform 0.15s ease, opacity 0.15s ease !important;
+  }
+  .expert-split-refresh-btn-mobile:active {
+    transform: scale(0.96) !important;
+    opacity: 0.9 !important;
+  }
+  .expert-split-desktop-refresh-container {
+    display: none !important;
+  }
+  .expert-gym-workspace .expert-data-subtabs {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    padding: 4px 0 8px !important;
+    margin: 10px 0 !important;
+    scrollbar-width: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .expert-gym-workspace .expert-data-subtabs::-webkit-scrollbar {
+    display: none !important;
+  }
+  .expert-gym-workspace .expert-data-subtab {
+    flex-shrink: 0 !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    padding: 7px 14px !important;
+    border-radius: 8px !important;
+    white-space: nowrap !important;
+  }
+
+  /* 5. GÜN KARTLARI (DAY CARDS - SIFIR TAŞMA) */
+  #expertRecommendationDays {
+    display: grid !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
   }
   .expert-day-card {
     position: relative !important;
     width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
     padding: 12px 10px !important;
     border-radius: 12px !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 2px !important;
+    border-left-width: 4px !important;
+    overflow: hidden !important;
   }
   .expert-day-card > div {
-    gap: 8px !important;
-  }
-  .expert-day-title-text {
-    font-size: 13.5px !important;
-  }
-  .expert-day-type-text {
-    font-size: 12.5px !important;
-  }
-  .expert-day-focus-text {
-    font-size: 11.5px !important;
-  }
-  .expert-day-sets-badge {
-    font-size: 10px !important;
-    padding: 3px 7px !important;
-  }
-  .split-rest-pill, .split-done-pill, .split-missed-pill {
-    font-size: 10px !important;
-    padding: 3px 7px !important;
-  }
-  .expert-recommendation-drag {
-    position: static !important;
-    width: 24px !important;
-    height: 24px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    flex-shrink: 0 !important;
-    cursor: grab !important;
-  }
-  .expert-exercise-sortable {
-    width: 100% !important;
-    margin-top: 8px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 6px !important;
-  }
-  .expert-recommendation-exercise {
+    gap: 10px !important;
     width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+  }
+
+  /* 6. GÜN KART BAŞLIĞI VE ROZETLERİ (MOBILE HEADER & SUB-ROW) */
+  .expert-day-header-section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
   }
-  .expert-exercise-row-item {
+  .expert-day-header-top-row {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 7px 9px !important;
-    border-radius: 8px !important;
-    gap: 6px !important;
+    gap: 8px !important;
     width: 100% !important;
+    min-width: 0 !important;
     box-sizing: border-box !important;
+  }
+  .expert-day-title-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+  .expert-day-title-group {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    flex-wrap: wrap !important;
+  }
+  .expert-recommendation-drag {
+    width: 22px !important;
+    height: 22px !important;
+    flex: 0 0 22px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #64748b !important;
+    cursor: grab !important;
+    margin-top: 1px !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: none !important;
+  }
+  .expert-recommendation-drag svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+  .expert-recommendation-drag.is-locked,
+  .sort-disabled .expert-recommendation-drag {
+    cursor: default !important;
+    opacity: 0.35 !important;
+    color: #64748b !important;
+    transform: none !important;
+    touch-action: auto !important;
+  }
+  .expert-day-title-text {
+    font-size: 14px !important;
+    font-weight: 850 !important;
+    color: #ffffff !important;
+    letter-spacing: 0.1px !important;
+  }
+  .expert-day-type-text {
+    font-size: 13px !important;
+    font-weight: 750 !important;
+  }
+  .expert-day-header-sub-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .expert-day-focus-box {
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+  .expert-day-focus-box:not(:empty) {
+    padding-left: 29px !important;
+  }
+  .expert-day-focus-text {
+    font-size: 11.5px !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    color: #cbd5e1 !important;
+    margin: 0 !important;
+    word-break: break-word !important;
+  }
+  .expert-day-status-slot {
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+  }
+  .expert-header-subtitle-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    margin-top: 3px !important;
+    width: 100% !important;
+  }
+  .expert-header-step-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 10.5px !important;
+    font-weight: 750 !important;
+    color: #c084fc !important;
+    background: rgba(168, 85, 247, 0.12) !important;
+    border: 1px solid rgba(168, 85, 247, 0.32) !important;
+    padding: 2.5px 8px !important;
+    border-radius: 20px !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+  }
+  .expert-day-sets-badge {
+    position: static !important;
+    font-size: 10.5px !important;
+    font-weight: 750 !important;
+    padding: 3px 8.5px !important;
+    border-radius: 20px !important;
+    letter-spacing: 0.2px !important;
+    white-space: nowrap !important;
+    line-height: 1.2 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+  }
+  .expert-day-reason-box {
+    margin-top: 0 !important;
+    padding: 5px 9px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+  .expert-day-reason-box .reason-icon {
+    display: none !important;
+  }
+  .expert-day-reason-box .expert-day-reason-text {
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+  .split-rest-pill,
+  .split-done-pill,
+  .split-missed-pill,
+  .split-status-today-group > span,
+  .split-status-neutral-group > span {
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    padding: 3px 8.5px !important;
+    border-radius: 20px !important;
+    white-space: nowrap !important;
+    line-height: 1.2 !important;
+    max-width: 100% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+  .split-done-pill .split-done-label,
+  .split-rest-pill .split-rest-label,
+  .split-missed-pill .split-missed-label {
+    display: inline !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+  }
+  .split-done-pill span,
+  .split-rest-pill span,
+  .split-missed-pill span {
+    font-size: 10.5px !important;
+    line-height: 1 !important;
+  }
+  .split-status-done-group,
+  .split-status-rest-group,
+  .split-status-missed-group,
+  .split-status-today-group,
+  .split-status-neutral-group,
+  .expert-day-status-slot > .gym-badge-default,
+  .expert-day-header-right > .gym-badge-default {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+    margin-left: 0 !important;
+  }
+  .split-status-done-group > div:last-child,
+  .split-status-rest-group > div:last-child,
+  .split-status-missed-group > div:last-child,
+  .split-status-today-group > div:last-child,
+  .split-status-neutral-group > div:last-child {
+    width: 22px !important;
+    height: 22px !important;
+    flex: 0 0 22px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .split-status-done-group svg,
+  .split-status-rest-group svg,
+  .split-status-missed-group svg,
+  .split-status-today-group svg,
+  .split-status-neutral-group svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  /* 7. HAREKET LİSTESİ VE SIRALANABİLİR KONTEYNER */
+  .expert-exercise-sortable {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 8. HAREKET SATIRI KAPSAYICISI (DİKEY ESNEKLİK - ALTERNATİF TRAY DOSTU) */
+  .expert-recommendation-exercise,
+  .expert-exercise-row-item {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    background: linear-gradient(145deg, rgba(28, 35, 58, 0.75) 0%, rgba(20, 25, 42, 0.9) 100%) !important;
+    border: 1px solid rgba(108, 99, 255, 0.2) !important;
+    border-radius: 11px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  }
+
+  /* 9. HAREKET ANA SATIRI (İSİM + DOKUNMATİK AKSİYON KÜMESİ) */
+  .expert-exercise-main-row,
+  .expert-exercise-row-item > div:first-child {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 8px 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 6px !important;
+    min-height: 48px !important;
+    min-width: 0 !important;
+  }
+
+  /* 10. HAREKET İSİM VE SÜRÜKLEME ALANI (SOL TARAF) */
+  .expert-exercise-info-side,
+  .expert-exercise-row-item > div:first-child > div:first-child {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    width: 0 !important;
+    flex: 1 1 0% !important;
+    overflow: hidden !important;
   }
   .ex-drag-handle {
     width: 20px !important;
-    height: 20px !important;
+    height: 28px !important;
     flex: 0 0 20px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    color: #64748b !important;
+    cursor: grab !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: none !important;
   }
   .ex-drag-handle svg {
     width: 14px !important;
@@ -18590,37 +20226,172 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .expert-exercise-name {
     font-size: 12px !important;
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    max-width: calc(100vw - 190px) !important;
+    font-weight: 750 !important;
+    color: #ffffff !important;
+    letter-spacing: 0.1px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    line-height: 1.3 !important;
   }
+
+  /* 11. DOKUNMATİK BUTONLAR KÜMESİ (SAĞ TARAF - KUSURSUZ MİKRO HİZALAMA) */
+  .expert-exercise-actions-cluster,
+  .expert-exercise-row-item > div:first-child > div:last-child {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    flex-shrink: 0 !important;
+    height: 32px !important;
+  }
+
+  /* BUTON 1: SET VE TEKRAR HAP BUTONU (ICONLU & ŞIK EDİT) */
   .expert-set-rep-pill {
-    padding: 3.5px 7px !important;
-    font-size: 10.5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     gap: 4px !important;
-    border-radius: 6px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 7px !important;
+    font-size: 10.5px !important;
+    font-weight: 750 !important;
+    border-radius: 8px !important;
+    background: rgba(108, 99, 255, 0.2) !important;
+    border: 1px solid rgba(167, 139, 250, 0.38) !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  .expert-set-rep-pill:active {
+    transform: scale(0.93) !important;
+    background: rgba(108, 99, 255, 0.35) !important;
+  }
+  .expert-set-rep-text {
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    line-height: 1 !important;
+  }
+  .expert-set-rep-pill svg {
+    width: 10px !important;
+    height: 10px !important;
+    display: inline-block !important;
+    opacity: 0.85 !important;
+    flex-shrink: 0 !important;
+    color: #c084fc !important;
+  }
+
+  /* BUTON 2: ALTERNATİF / YENİLEME BUTONU (CYAN AKSAN) */
+  .expert-icon-action-btn.alt-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    border-radius: 8px !important;
+    background: rgba(56, 189, 248, 0.14) !important;
+    border: 1px solid rgba(56, 189, 248, 0.32) !important;
+    color: #38bdf8 !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.12) !important;
+    transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  .expert-icon-action-btn.alt-btn:active {
+    transform: scale(0.92) !important;
+    background: rgba(56, 189, 248, 0.3) !important;
+    border-color: #38bdf8 !important;
+  }
+  .expert-icon-action-btn.alt-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+    stroke-width: 2.4 !important;
     flex-shrink: 0 !important;
   }
-  .expert-icon-action-btn {
-    width: 26px !important;
-    height: 26px !important;
-    border-radius: 6px !important;
+
+  /* BUTON 3: ÇIKAR / SİL BUTONU (ROSE AKSAN) */
+  .expert-icon-action-btn.delete-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    border-radius: 8px !important;
+    background: rgba(244, 63, 94, 0.12) !important;
+    border: 1px solid rgba(244, 63, 94, 0.28) !important;
+    color: #fb7185 !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.1) !important;
+    transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  .expert-icon-action-btn.delete-btn:active {
+    transform: scale(0.92) !important;
+    background: rgba(244, 63, 94, 0.3) !important;
+    border-color: #f43f5e !important;
+  }
+  .expert-icon-action-btn.delete-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+    stroke-width: 2.4 !important;
     flex-shrink: 0 !important;
   }
-  .expert-icon-action-btn svg {
-    width: 13px !important;
-    height: 13px !important;
+
+  /* 12. ALTERNATİF MENÜ TRAY (AÇILIR SEÇENEK ÇEKMECESİ) */
+  .expert-alternative-tray-slot {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border-top: 1px solid rgba(108, 99, 255, 0.18) !important;
+    transition: max-height 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
   }
   .expert-alternative-menu {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
     padding: 10px !important;
-    border-radius: 10px !important;
-    margin: 6px 0 4px !important;
+    border-radius: 0 0 11px 11px !important;
+    background: rgba(15, 20, 35, 0.96) !important;
+    margin: 0 !important;
+  }
+  .expert-alternative-menu-head {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    color: #38bdf8 !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 8px !important;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.2) !important;
+  }
+  .expert-alternative-close {
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 6px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
   .expert-alternative-options {
     display: flex !important;
@@ -18632,25 +20403,156 @@ tr:hover td { background: var(--bg-card-hover); }
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    padding: 7px 9px !important;
+    gap: 8px !important;
+    padding: 8px 10px !important;
     font-size: 11.5px !important;
     border-radius: 8px !important;
-    min-height: 38px !important;
+    background: rgba(30, 41, 59, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    min-height: 42px !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  .expert-alternative-item:active {
+    transform: scale(0.98) !important;
+    background: rgba(56, 189, 248, 0.15) !important;
+    border-color: rgba(56, 189, 248, 0.35) !important;
+  }
+  .expert-alternative-item-main {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    gap: 2px !important;
   }
   .expert-alternative-item-name {
-    font-size: 11.5px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .expert-alternative-item-meta {
+    font-size: 10px !important;
+    color: #94a3b8 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
   .expert-alternative-apply {
-    font-size: 10px !important;
+    font-size: 10.5px !important;
+    font-weight: 750 !important;
+    color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.15) !important;
+    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    padding: 5px 9px !important;
+    border-radius: 6px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
   }
+
+  /* 13. YENİ HAREKET EKLE BUTONU */
   .expert-add-exercise-btn {
-    padding: 8px 10px !important;
-    font-size: 11px !important;
-    border-radius: 8px !important;
     width: 100% !important;
+    min-height: 40px !important;
+    padding: 9px 12px !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
     justify-content: center !important;
+    gap: 7px !important;
+    margin-top: 8px !important;
+    box-sizing: border-box !important;
+    border: 1.5px dashed rgba(108, 99, 255, 0.32) !important;
+    color: #c7d2fe !important;
+    background: rgba(108, 99, 255, 0.08) !important;
+    transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  .expert-add-exercise-btn:active {
+    transform: scale(0.98) !important;
+    background: rgba(56, 189, 248, 0.15) !important;
+    border-color: #38bdf8 !important;
+    color: #38bdf8 !important;
+  }
+
+  /* 14. ALT TASLAĞI YENİLE BUTON ALANI */
+  .expert-doms-save-container {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: stretch !important;
+    margin-top: 14px !important;
+    box-sizing: border-box !important;
+  }
+  .expert-doms-save-container .expert-doms-save-btn {
+    width: 100% !important;
+    min-height: 44px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 15. AÇIK TEMA (LIGHT MODE) MOBİL UYARLAMALARI */
+  .light-mode .expert-gym-stat-card {
+    background: #ffffff !important;
+    border-color: rgba(226, 232, 240, 0.95) !important;
+  }
+  .light-mode .expert-split-viewmode-bar {
+    background: #f8fafc !important;
+    border-color: rgba(226, 232, 240, 0.95) !important;
+  }
+  .light-mode .expert-split-viewmode-toggle-group {
+    background: #edf2f7 !important;
+    border-color: rgba(226, 232, 240, 0.9) !important;
+  }
+  .light-mode .expert-exercise-row-item {
+    background: #ffffff !important;
+    border-color: rgba(108, 99, 255, 0.18) !important;
+  }
+  .light-mode .expert-exercise-name {
+    color: #0f172a !important;
+  }
+  .light-mode .expert-set-rep-pill {
+    background: rgba(108, 99, 255, 0.1) !important;
+    border-color: rgba(108, 99, 255, 0.25) !important;
+    color: #4338ca !important;
+  }
+  .light-mode .expert-set-rep-text {
+    color: #4338ca !important;
+  }
+  .light-mode .expert-set-rep-pill svg {
+    color: #6366f1 !important;
+  }
+  .light-mode .expert-icon-action-btn.alt-btn {
+    background: rgba(2, 132, 199, 0.1) !important;
+    border-color: rgba(2, 132, 199, 0.3) !important;
+    color: #0284c7 !important;
+  }
+  .light-mode .expert-icon-action-btn.delete-btn {
+    background: rgba(225, 29, 72, 0.1) !important;
+    border-color: rgba(225, 29, 72, 0.28) !important;
+    color: #e11d48 !important;
+  }
+  .light-mode .expert-alternative-menu {
+    background: #ffffff !important;
+    border-color: rgba(226, 232, 240, 0.95) !important;
+  }
+  .light-mode .expert-alternative-item {
+    background: #f8fafc !important;
+    border-color: rgba(226, 232, 240, 0.9) !important;
+  }
+  .light-mode .expert-alternative-item-name {
+    color: #0f172a !important;
   }
 
   /* K. ADIM 3: ANALİZ ÖZETİ & KOÇLUK CHATBOTU (ANALYSIS & CHATBOT) */
@@ -18899,6 +20801,12 @@ tr:hover td { background: var(--bg-card-hover); }
   .expert-split-unified-card {
     padding: 10px 8px !important;
   }
+  .expert-split-priority-stat-card,
+  .expert-gym-stat-card.expert-split-priority-stat-card,
+  .expert-gym-workspace .expert-split-priority-stat-card,
+  .expert-gym-workspace .expert-gym-stat-grid > .expert-gym-stat-card:nth-child(2) {
+    display: none !important;
+  }
   .expert-gym-cards-grid {
     gap: 10px !important;
     padding: 2px 2px 12px 2px !important;
@@ -18947,18 +20855,68 @@ tr:hover td { background: var(--bg-card-hover); }
     font-size: 10px !important;
   }
   .expert-day-card {
-    padding: 10px 8px !important;
+    padding: 11px 10px !important;
+    border-radius: 12px !important;
+  }
+  .expert-exercise-main-row {
+    padding: 7px 8px !important;
+    gap: 6px !important;
+    min-height: 44px !important;
   }
   .expert-exercise-name {
-    max-width: calc(100vw - 165px) !important;
-    font-size: 11.5px !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    font-size: 12px !important;
+  }
+  .expert-exercise-actions-cluster {
+    gap: 5px !important;
+    height: 30px !important;
   }
   .expert-set-rep-pill {
-    padding: 3px 6px !important;
-    font-size: 10px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 7px !important;
+    font-size: 10.5px !important;
+    gap: 4px !important;
+    border-radius: 7px !important;
+  }
+  .expert-set-rep-text {
+    font-size: 10.5px !important;
   }
   .expert-set-rep-pill svg {
-    display: none !important;
+    width: 10px !important;
+    height: 10px !important;
+    display: inline-block !important;
+    opacity: 0.85 !important;
+  }
+  .expert-icon-action-btn.alt-btn,
+  .expert-icon-action-btn.delete-btn {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    border-radius: 7px !important;
+  }
+  .expert-icon-action-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+  .split-done-pill,
+  .split-rest-pill,
+  .split-missed-pill {
+    font-size: 9px !important;
+    padding: 2.5px 6px !important;
+  }
+  .split-done-pill .split-done-label,
+  .split-rest-pill .split-rest-label,
+  .split-missed-pill .split-missed-label,
+  .split-done-pill span,
+  .split-rest-pill span,
+  .split-missed-pill span {
+    display: inline !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
   }
   .expert-data-choice-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
@@ -20220,7 +22178,10 @@ tr:hover td { background: var(--bg-card-hover); }
       <div class="page page-animated" id="page-analyze">
         <div class="page-header">
           <div class="page-title">Uzman Sistemi</div>
-          <div class="page-subtitle">Kural tabanlı toparlanma ve hipertrofi karar desteği</div>
+          <div class="expert-header-subtitle-row">
+            <div class="page-subtitle" style="margin-top:0;">Kural tabanlı toparlanma ve hipertrofi karar desteği</div>
+            <span id="expertHeaderStepBadge" class="expert-header-step-badge">Adım 1/3</span>
+          </div>
         </div>
         <div id="analyzeContent">
           <div class="card expert-loading-card">
@@ -20858,49 +22819,45 @@ tr:hover td { background: var(--bg-card-hover); }
                   </svg>
                   <span id="profHeroEmailText">E-posta Tanımlanmamış</span>
                 </div>
-                <span class="gym-badge-default" style="font-size:11px; padding:3px 9px;">
-                  <span style="width:6px; height:6px; border-radius:50%; background:#34d399; box-shadow:0 0 6px #34d399;"></span>
-                  Aktif Biyometrik Model
-                </span>
               </div>
               <p class="profile-hero-desc">Biyometrik parametrelerin; hipertrofi hacim hesaplamaları, kalori gereksinimi ve uzman öneri motoruna doğrudan rehberlik eder.</p>
+            </div>
+          </div>
 
-              <!-- Gelişim Seviyesi & XP Bilgisi (Kart içinde entegre, sade ve şık) -->
-              <div class="profile-hero-rpg-inline" id="profRpgInline">
-                <div class="prof-inline-stat-group">
-                  <span class="prof-inline-label">GELİŞİM SEVİYESİ</span>
-                  <div class="prof-inline-val">
-                    <strong id="profInlineLevelTitle" style="color:#ffffff; font-size:13.5px; font-weight:800;">Çaylak</strong>
-                    <span id="profInlineLevelBadge" class="badge badge-accent" style="font-size:10px; padding:2px 7px; font-weight:800; border-radius:6px;">LVL 1</span>
-                  </div>
-                </div>
+          <!-- Gelişim Seviyesi & XP Bilgisi (Kart içinde entegre, tam genişlikte) -->
+          <div class="profile-hero-rpg-inline" id="profRpgInline">
+            <div class="prof-inline-stat-group">
+              <span class="prof-inline-label">GELİŞİM SEVİYESİ</span>
+              <div class="prof-inline-val">
+                <strong id="profInlineLevelTitle" style="color:#ffffff; font-size:13.5px; font-weight:800;">Çaylak</strong>
+                <span id="profInlineLevelBadge" class="badge badge-accent" style="font-size:10px; padding:2px 7px; font-weight:800; border-radius:6px;">LVL 1</span>
+              </div>
+            </div>
 
-                <div class="prof-inline-divider"></div>
+            <div class="prof-inline-divider"></div>
 
-                <div class="prof-inline-stat-group" style="flex: 1 1 240px; max-width: 420px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                    <span class="prof-inline-label" id="profInlineXpLabel">SEVİYE İLERLEMESİ</span>
-                    <strong id="profInlineXpText" style="font-size:11.5px; color:#38bdf8; font-weight:800;">0 / 500 XP (%0)</strong>
-                  </div>
-                  <div class="prof-inline-bar-track">
-                    <div id="profInlineXpFill" class="prof-inline-bar-fill" style="width: 0%;"></div>
-                  </div>
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:3px; gap:8px;">
-                    <span id="profInlineNextText" style="font-size:10.5px; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">🎯 Seviye 2 için 500 XP kaldı</span>
-                    <span id="profInlineTotalXp" style="font-size:10.5px; color:#cbd5e1; font-weight:700; white-space:nowrap;">0 XP Toplam</span>
-                  </div>
-                </div>
+            <div class="prof-inline-stat-group" style="flex: 1 1 240px; max-width: 420px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span class="prof-inline-label" id="profInlineXpLabel">SEVİYE İLERLEMESİ</span>
+                <strong id="profInlineXpText" style="font-size:11.5px; color:#c084fc; font-weight:800;">0 / 500 XP (%0)</strong>
+              </div>
+              <div class="prof-inline-bar-track">
+                <div id="profInlineXpFill" class="prof-inline-bar-fill" style="width: 0%;"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:3px; gap:8px;">
+                <span id="profInlineNextText" style="font-size:10.5px; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">🎯 Seviye 2 için 500 XP kaldı</span>
+                <span id="profInlineTotalXp" style="font-size:10.5px; color:#cbd5e1; font-weight:700; white-space:nowrap;">0 XP Toplam</span>
+              </div>
+            </div>
 
-                <div class="prof-inline-divider"></div>
+            <div class="prof-inline-divider"></div>
 
-                <div class="prof-inline-stat-group">
-                  <span class="prof-inline-label">HAFTALIK SERİ</span>
-                  <div class="prof-inline-val">
-                    <span id="profInlineStreakBadge" class="prof-rpg-streak-pill" title="Haftalık Split Tamamlama Serisi">
-                      🔥 <span id="profInlineStreakText">1 Hafta</span>
-                    </span>
-                  </div>
-                </div>
+            <div class="prof-inline-stat-group">
+              <span class="prof-inline-label">HAFTALIK SERİ</span>
+              <div class="prof-inline-val">
+                <span id="profInlineStreakBadge" class="prof-rpg-streak-pill" title="Haftalık Split Tamamlama Serisi">
+                  🔥 <span id="profInlineStreakText">1 Hafta</span>
+                </span>
               </div>
             </div>
           </div>
@@ -20989,7 +22946,7 @@ tr:hover td { background: var(--bg-card-hover); }
           <div class="profile-glass-card profile-main-card">
             <div class="profile-card-header">
               <div class="profile-card-header-left">
-                <div class="profile-header-icon-box cyan">
+                <div class="profile-header-icon-box purple">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="8.5" cy="7" r="4"></circle>
@@ -21002,7 +22959,7 @@ tr:hover td { background: var(--bg-card-hover); }
                   <p class="profile-card-subtitle">Vücut ölçülerin ve antrenman kapasiten algoritma tarafından işlenir</p>
                 </div>
               </div>
-              <span class="profile-badge-neon-cyan"><span style="width:6px;height:6px;border-radius:50%;background:#38bdf8;box-shadow:0 0 6px #38bdf8;"></span>Biyometrik Veriler</span>
+              <span class="profile-badge-neon-purple"><span style="width:6px;height:6px;border-radius:50%;background:#a855f7;box-shadow:0 0 6px #a855f7;"></span>Biyometrik Veriler</span>
             </div>
 
             <div class="profile-form-inner">
@@ -21075,7 +23032,7 @@ tr:hover td { background: var(--bg-card-hover); }
                 <span>Antrenman ve Hedef Düzeni</span>
               </div>
 
-              <div class="profile-form-grid">
+              <div class="profile-form-grid profile-training-grid">
                 <div class="profile-field-group">
                   <label class="profile-field-label" for="profLevel">
                     <span>Deneyim Seviyesi</span>
@@ -21169,11 +23126,11 @@ tr:hover td { background: var(--bg-card-hover); }
 
 
           <div class="profile-side-column">
-            <!-- PROFİL: HESAP & E-POSTA (GMAIL) BİLGİSİ VE GÜNCELLEME KARTI -->
+            <!-- PROFİL: HESAP & E-POSTA (GMAIL) BİLGİSİ VE ŞİFRE KURTARMA KARTI -->
             <div class="profile-glass-card">
               <div class="profile-card-header">
                 <div class="profile-card-header-left">
-                  <div class="profile-header-icon-box cyan">
+                  <div class="profile-header-icon-box purple">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                       <polyline points="22,6 12,13 2,6"></polyline>
@@ -21181,10 +23138,10 @@ tr:hover td { background: var(--bg-card-hover); }
                   </div>
                   <div>
                     <h3 class="profile-card-title">Hesap & E-posta (Gmail)</h3>
-                    <p class="profile-card-subtitle">Şifre kurtarma ve güvenlik bildirimleri</p>
+                    <p class="profile-card-subtitle">Güvenlik bildirimleri ve şifre kurtarma merkezi</p>
                   </div>
                 </div>
-                <span class="profile-metric-pill" id="profEmailStatusBadge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.35);">E-posta</span>
+                <span class="profile-metric-pill purple" id="profEmailStatusBadge" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.35);">E-posta</span>
               </div>
 
               <div class="profile-form-inner">
@@ -21205,18 +23162,27 @@ tr:hover td { background: var(--bg-card-hover); }
                 </div>
 
                 <div style="font-size:11.5px; color:#94a3b8; line-height:1.45; display:flex; align-items:center; gap:6px;">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                  <span>Şifrenizi unuttuğunuzda 4 haneli güvenlik onay kodu bu adrese iletilir.</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                  <span>Şifre kurtarma 4 haneli onay kodu bu adrese iletilir.</span>
                 </div>
 
-                <button class="profile-email-save-btn" id="profSaveEmailBtn" onclick="saveProfileEmailOnly()" type="button">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                  </svg>
-                  <span>E-posta Adresini Güncelle</span>
-                </button>
+                <div class="profile-email-action-row">
+                  <button class="profile-email-save-btn" id="profSaveEmailBtn" onclick="saveProfileEmailOnly()" type="button">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                      <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                      <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    <span>E-postayı Güncelle</span>
+                  </button>
+                  <button type="button" class="profile-email-forgot-btn" onclick="showForgotPassword(true)" title="E-postanıza 4 haneli onay kodu alarak anında şifrenizi yenileyin">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <span>Şifremi Sıfırla (Kod İste)</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -21232,7 +23198,7 @@ tr:hover td { background: var(--bg-card-hover); }
                   </div>
                   <div>
                     <h3 class="profile-card-title">Şifre & Güvenlik</h3>
-                    <p class="profile-card-subtitle">Hesap oturum güvenliğinizi güncelleyin</p>
+                    <p class="profile-card-subtitle">Hesap oturum şifrenizi güncelleyin</p>
                   </div>
                 </div>
               </div>
@@ -21251,71 +23217,44 @@ tr:hover td { background: var(--bg-card-hover); }
                   </div>
                 </div>
 
-                <div class="profile-field-group" style="margin-top:10px;">
-                  <label class="profile-field-label" for="newPassword">Yeni Şifre</label>
-                  <div class="profile-input-wrap">
-                    <input type="password" id="newPassword" placeholder="En az 6 karakter" />
-                    <button type="button" class="profile-password-toggle-btn" onclick="togglePasswordVisibility('newPassword', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
+                <div class="profile-password-new-grid">
+                  <div class="profile-field-group">
+                    <label class="profile-field-label" for="newPassword">Yeni Şifre</label>
+                    <div class="profile-input-wrap">
+                      <input type="password" id="newPassword" placeholder="En az 6 karakter" />
+                      <button type="button" class="profile-password-toggle-btn" onclick="togglePasswordVisibility('newPassword', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="profile-field-group">
+                    <label class="profile-field-label" for="newPasswordConfirm">Yeni Şifre (Tekrar)</label>
+                    <div class="profile-input-wrap">
+                      <input type="password" id="newPasswordConfirm" placeholder="Yeni şifreyi onaylayın" />
+                      <button type="button" class="profile-password-toggle-btn" onclick="togglePasswordVisibility('newPasswordConfirm', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <div class="profile-field-group" style="margin-top:10px;">
-                  <label class="profile-field-label" for="newPasswordConfirm">Yeni Şifre (Tekrar)</label>
-                  <div class="profile-input-wrap">
-                    <input type="password" id="newPasswordConfirm" placeholder="Yeni şifreyi onaylayın" />
-                    <button type="button" class="profile-password-toggle-btn" onclick="togglePasswordVisibility('newPasswordConfirm', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                <button class="profile-secondary-action-btn" onclick="changePassword()" type="button" style="margin-top:14px;">
+                <button class="profile-secondary-action-btn" onclick="changePassword()" type="button" style="margin-top:6px;">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                   </svg>
                   <span>Şifreyi Güncelle</span>
                 </button>
-
-                <!-- ŞİFREMİ UNUTTUM KUTUSU (PROFİL İÇİ HIZLI BAŞLATICI) -->
-                <div class="profile-forgot-box">
-                  <div class="profile-forgot-info">
-                    <div class="profile-forgot-icon">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="profile-forgot-title">Mevcut Şifrenizi Hatırlamıyor musunuz?</div>
-                      <div class="profile-forgot-desc">Profil sayfasından ayrılmadan veya çıkış yapmadan, e-postanıza 4 haneli onay kodu alarak anında şifrenizi yenileyebilirsiniz.</div>
-                    </div>
-                  </div>
-                  <button type="button" class="profile-forgot-action-btn" onclick="showForgotPassword(true)">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    <span>E-posta ile Şifremi Sıfırla (4 Haneli Kod)</span>
-                  </button>
-                </div>
               </div>
             </div>
 
-            
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-<!-- PROFİL: VERİ YÖNETİMİ VE SİSTEM SIFIRLAMA KARTI                            -->
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-
-
+            <!-- PROFİL: VERİ YÖNETİMİ VE SİSTEM SIFIRLAMA KARTI -->
             <div class="profile-glass-card profile-danger-card">
               <div class="profile-card-header">
                 <div class="profile-card-header-left">
@@ -21328,7 +23267,7 @@ tr:hover td { background: var(--bg-card-hover); }
                   </div>
                   <div>
                     <h3 class="profile-card-title" style="color:#f87171;">Uzman Sistemi Verileri</h3>
-                    <p class="profile-card-subtitle">Yalnızca bu hesaba ait uzman sistemi verilerini sıfırlar</p>
+                    <p class="profile-card-subtitle">Yalnızca bu hesaba ait split taslak ve öneri verilerini sıfırlar</p>
                   </div>
                 </div>
                 <span class="profile-metric-pill red">Hassas İşlem</span>
@@ -23445,6 +25384,7 @@ function doLogout() {
   localStorage.removeItem('hx_pass');
   _currentUser = null;
   _isAdmin = false;
+  buildMobileBottomNav();
   showLogin();
   closeDropdown();
   closeMobileSidebar();
@@ -23595,6 +25535,89 @@ function buildSidebar() {
   }
 
   nav.innerHTML = html;
+  buildMobileBottomNav();
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ALT BÖLÜM 6.2: MOBİL ALT MENÜ OLUŞTURUCU (MOBILE BOTTOM NAV BUILDER)
+────────────────────────────────────────────────────────────────────────── */
+function buildMobileBottomNav() {
+  const nav = document.getElementById('mobileBottomNav');
+  if (!nav) return;
+
+  if (_isAdmin) {
+    nav.innerHTML = `
+      <button class="mobile-nav-btn active" data-page="admin" onclick="navigate('admin', this)" aria-label="Genel Bakış" title="Genel Bakış">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-2.573 1.066c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-1.066 2.573c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066 2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 116 0z"/></svg>
+        </div>
+        <span>Genel Bakış</span>
+      </button>
+      <button class="mobile-nav-btn" data-page="admin-users" onclick="navigate('admin-users', this)" aria-label="Kullanıcılar" title="Kullanıcı Yönetimi">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </div>
+        <span>Kullanıcılar</span>
+      </button>
+      <button class="mobile-nav-btn" data-page="admin-workouts" onclick="navigate('admin-workouts', this)" aria-label="Denetim" title="Seans Denetimi">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        </div>
+        <span>Denetim</span>
+      </button>
+      <button class="mobile-nav-btn" data-page="admin-diagnostics" onclick="navigate('admin-diagnostics', this)" aria-label="Teşhis" title="Sistem ve Teşhis">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <span>Teşhis</span>
+      </button>
+      <button class="mobile-nav-btn" data-page="db-management" onclick="navigate('db-management', this)" aria-label="Veritabanı" title="Veritabanı Yönetimi">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+        </div>
+        <span>Veritabanı</span>
+      </button>
+    `;
+  } else {
+    nav.innerHTML = `
+      <button class="mobile-nav-btn active" data-page="dashboard" onclick="navigate('dashboard', this)" aria-label="Kontrol Paneli" title="Kontrol Paneli">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        </div>
+        <span>Kontrol</span>
+      </button>
+      <button class="mobile-nav-btn" data-page="workout" onclick="navigate('workout', this)" aria-label="Antrenman" title="Antrenman">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+        </div>
+        <span>Antrenman</span>
+      </button>
+      <button class="mobile-nav-btn" data-page="history" onclick="navigate('history', this)" aria-label="Geçmiş" title="Geçmiş">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <span>Geçmiş</span>
+      </button>
+      <button class="mobile-nav-btn" data-page="progress" onclick="navigate('progress', this)" aria-label="İlerleme" title="İlerleme">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        </div>
+        <span>İlerleme</span>
+      </button>
+      <button class="mobile-nav-btn" data-page="nutrition" onclick="navigate('nutrition', this)" aria-label="Beslenme" title="Beslenme">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+        </div>
+        <span>Beslenme</span>
+      </button>
+      <button class="mobile-nav-btn" data-page="analyze" onclick="navigate('analyze', this)" aria-label="Uzman Sistemi" title="Uzman Sistemi">
+        <div class="nav-icon-wrap">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 10-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        </div>
+        <span>Uzman</span>
+      </button>
+    `;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -23636,7 +25659,16 @@ async function navigate(page, el) {
 
   // Update active mobile bottom nav
   document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-page') === page || (targetDivId === 'admin' && btn.getAttribute('data-page') === 'admin') || (targetDivId === 'db-management' && btn.getAttribute('data-page') === 'db-management'));
+    const btnPage = btn.getAttribute('data-page');
+    let isActive = false;
+    if (btnPage === page) {
+      isActive = true;
+    } else if (btnPage === 'admin' && (page === 'admin' || page === 'admin-overview')) {
+      isActive = true;
+    } else if (btnPage === 'db-management' && (page === 'db-management' || page.startsWith('db-'))) {
+      isActive = true;
+    }
+    btn.classList.toggle('active', isActive);
   });
 
   // Show page — page div'ini görünür yap
@@ -26025,9 +28057,9 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
         <div class="split-status-rest-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
           <span class="split-rest-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(245,158,11,0.12); border:1px solid rgba(251,191,36,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
             <span class="split-rest-label" style="color:#fbbf24; font-weight:700;">Dinlenme</span>
-            <span style="color:#ffffff; font-weight:500;">· ${restDateText}</span>
+            <span class="split-pill-date" style="color:#ffffff; font-weight:500;">· ${restDateText}</span>
           </span>
-          <div style="width:24px; height:24px; border-radius:50%; background:rgba(245,158,11,0.18); border:1px solid rgba(251,191,36,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <div class="split-status-icon-circle" style="width:24px; height:24px; border-radius:50%; background:rgba(245,158,11,0.18); border:1px solid rgba(251,191,36,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
             <svg style="width:13px; height:13px; color:#fbbf24;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
             </svg>
@@ -26041,9 +28073,9 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
         <div class="split-status-done-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
           <span class="split-done-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(34,197,94,0.1); border:1px solid rgba(74,222,128,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
             <span class="split-done-label" style="color:#4ade80; font-weight:700;">Antrenman yapıldı</span>
-            <span style="color:#ffffff; font-weight:500;">· ${completedDateText}</span>
+            <span class="split-pill-date" style="color:#ffffff; font-weight:500;">· ${completedDateText}</span>
           </span>
-          <div style="width:24px; height:24px; border-radius:50%; background:rgba(34,197,94,0.18); border:1px solid rgba(74,222,128,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <div class="split-status-icon-circle" style="width:24px; height:24px; border-radius:50%; background:rgba(34,197,94,0.18); border:1px solid rgba(74,222,128,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
             <svg style="width:13px; height:13px; color:#4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
             </svg>
@@ -26056,10 +28088,10 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
       statusIcon = `
         <div class="split-status-neutral-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
           <span class="split-neutral-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
-            <span style="color:#94a3b8; font-weight:700;">Plan Öncesi</span>
-            <span style="color:#cbd5e1; font-weight:500;">· ${preDateText}</span>
+            <span class="split-neutral-label" style="color:#94a3b8; font-weight:700;">Plan Öncesi</span>
+            <span class="split-pill-date" style="color:#cbd5e1; font-weight:500;">· ${preDateText}</span>
           </span>
-          <div style="width:24px; height:24px; border-radius:50%; background:rgba(148,163,184,0.16); border:1px solid rgba(148,163,184,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <div class="split-status-icon-circle" style="width:24px; height:24px; border-radius:50%; background:rgba(148,163,184,0.16); border:1px solid rgba(148,163,184,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
             <svg style="width:13px; height:13px; color:#94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
@@ -26068,7 +28100,7 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
       `;
     } else if (isToday) {
       statusClass = 'split-today';
-      statusIcon = `<span style="font-size:10px; font-weight:700; color:var(--accent); background:var(--accent-soft); padding:3px 8px; border-radius:12px; letter-spacing:0.3px;">BUGÜN</span>`;
+      statusIcon = `<span class="split-today-pill" style="font-size:10px; font-weight:700; color:var(--accent); background:var(--accent-soft); padding:3px 8px; border-radius:12px; letter-spacing:0.3px; white-space:nowrap;">BUGÜN</span>`;
     } else if (isMissed) {
       statusClass = 'split-missed';
       const missedDateText = formatToDMY(dateStr);
@@ -26076,9 +28108,9 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
         <div class="split-status-missed-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
           <span class="split-missed-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(239,68,68,0.1); border:1px solid rgba(248,113,113,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
             <span class="split-missed-label" style="color:#f87171; font-weight:700;">Antrenman yapılmadı</span>
-            <span style="color:#ffffff; font-weight:500;">· ${missedDateText}</span>
+            <span class="split-pill-date" style="color:#ffffff; font-weight:500;">· ${missedDateText}</span>
           </span>
-          <div style="width:24px; height:24px; border-radius:50%; background:rgba(239,68,68,0.18); border:1px solid rgba(248,113,113,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <div class="split-status-icon-circle" style="width:24px; height:24px; border-radius:50%; background:rgba(239,68,68,0.18); border:1px solid rgba(248,113,113,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
             <svg style="width:13px; height:13px; color:#f87171;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -26146,8 +28178,8 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     }
 
     const displayTypeHTML = `
-      <span style="font-size:13.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">${displayTitle}</span>
-      ${displaySubtitle ? `<span style="display:block; font-size:11px; color:var(--text-muted); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">(${displaySubtitle})</span>` : ''}
+      <span class="split-title-text" style="font-size:13.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">${displayTitle}</span>
+      ${displaySubtitle ? `<span class="split-subtitle-text" style="display:block; font-size:11px; color:var(--text-muted); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">(${displaySubtitle})</span>` : ''}
     `;
 
     // Kayıt oluşturulmuş / kesinleşmiş günlerde sürükle bırak devre dışı kalır
@@ -26164,13 +28196,20 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     fgHTML += `
       <div data-index="${i}" class="${animClass} ${isLocked ? 'sort-disabled' : ''} split-fg-row" style="${animStyle} height:64px; margin:0; border-radius:12px; display:flex; align-items:center; gap:8px; transition:background 0.2s;"
            onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
-         ${(reorderContext && !isLocked) ? `
+         ${reorderContext ? (
+           !isLocked ? `
            <div class="drag-handle" title="Kaydırarak yer değiştir" style="cursor:grab; color:rgba(255,255,255,0.15); display:flex; align-items:center; transition:0.2s; flex-shrink:0; width:18px;"
                 onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.15)'">
               <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
-           </div>` : '<div style="width:14px; flex:0 0 14px;"></div>'}
+           </div>` : `
+           <div class="drag-handle is-locked" title="Antrenman tamamlandı (Kilitli)" style="cursor:default; color:rgba(255,255,255,0.06); opacity:0.35; display:flex; align-items:center; flex-shrink:0; width:18px;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+           </div>`
+         ) : '<div style="width:14px; flex:0 0 14px;"></div>'}
 
          <div class="split-type ${statusModifier}">
             ${displayTypeHTML}
@@ -26191,8 +28230,9 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
 
     if (reorderContext && typeof Sortable !== 'undefined') {
       new Sortable(document.getElementById('fgSortableList'), {
-        handle: '.drag-handle',
-        filter: '.sort-disabled',
+        handle: '.drag-handle:not(.is-locked)',
+        filter: '.sort-disabled, .is-locked',
+        preventOnFilter: true,
         animation: 250,
         ghostClass: 'sortable-ghost',
         onMove: function(evt) {
@@ -30772,9 +32812,9 @@ function updateProfileEmailDisplays(email) {
     }
     if (statusBadge) {
       statusBadge.textContent = 'Doğrulanmış / Aktif';
-      statusBadge.style.background = 'rgba(56, 189, 248, 0.15)';
-      statusBadge.style.color = '#38bdf8';
-      statusBadge.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+      statusBadge.style.background = 'rgba(168, 85, 247, 0.15)';
+      statusBadge.style.color = '#c084fc';
+      statusBadge.style.borderColor = 'rgba(168, 85, 247, 0.35)';
     }
   } else {
     if (heroText) heroText.textContent = 'E-posta Tanımlanmamış';
@@ -33209,8 +35249,22 @@ function expertDataInjectStyles() {
 /* ──────────────────────────────────────────────────────────────────────────
    ALT BÖLÜM 24.2: UZMAN SİSTEMİ MODERN STEPPER VE SEKME GEZİNME MOTORU
 ────────────────────────────────────────────────────────────────────────── */
+function expertUpdateHeaderStepBadge(stepIdx) {
+  const badge = document.getElementById('expertHeaderStepBadge');
+  if (!badge) return;
+  let num = 1;
+  if (typeof stepIdx === 'number') {
+    num = stepIdx + 1;
+  } else if (typeof expertDataTab !== 'undefined') {
+    num = expertDataTab === 'health' ? 1 : (expertDataTab === 'setup' ? 2 : 3);
+  }
+  badge.textContent = `Adım ${num}/3`;
+}
+window.expertUpdateHeaderStepBadge = expertUpdateHeaderStepBadge;
+
 function expertDataTabs() {
   const currentIdx = expertDataTab === 'health' ? 0 : (expertDataTab === 'setup' ? 1 : 2);
+  expertUpdateHeaderStepBadge(currentIdx);
 
   // 1. ADIM: Kas Ağrısı ve Sakatlıklar Durum Analizi
   const injuriesList = Array.isArray(expertDataState?.injuries) ? expertDataState.injuries : [];
@@ -33283,7 +35337,7 @@ function expertDataTabs() {
   let planningSubtitleClass = 'status-done';
   let planningStepClass = 'is-done';
   let planningNumContent = '✓';
-  let planningStatusText = 'Öneri programı ve analiz hazır';
+  let planningStatusText = '';
   let planningBadgeClass = 'badge-done';
 
   if (missingPlanning.length > 0) {
@@ -33369,13 +35423,12 @@ function expertDataTabs() {
         <h2 class="expert-context-title">${currentStep.title}</h2>
         <p class="expert-context-desc">${currentStep.desc}</p>
       </div>
-      <div class="expert-context-meta">
-        <div class="expert-status-pill expert-step-counter">${currentIdx + 1} / 3 adım</div>
+      ${currentStep.statusText ? `<div class="expert-context-meta">
         <div class="expert-status-pill expert-data-status-badge ${currentStep.statusBadgeClass}">
           <span class="expert-status-dot"></span>
           <span>${currentStep.statusText}</span>
         </div>
-      </div>
+      </div>` : ''}
     </div>
   </div>`;
 }
@@ -36271,14 +38324,14 @@ function expertDataRecommendationDayCard(day, index) {
       : `${expertDataEscape(setsCount)} × ${expertDataEscape(repsStr)}`;
 
     return `<div class="expert-recommendation-exercise expert-alternative-shell expert-exercise-row-item ${isLocked ? 'sort-disabled' : ''}" data-exercise-id="${expertDataEscape(exerciseId)}" data-slot-id="${expertDataEscape(slotId)}" style="${isLocked ? 'cursor:default;' : ''}">
-      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
-        <div style="display:flex; align-items:center; gap: 10px; min-width: 0;">
+      <div class="expert-exercise-main-row" style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
+        <div class="expert-exercise-info-side" style="display:flex; align-items:center; gap: 10px; min-width: 0;">
           <span class="ex-drag-handle" title="${isLocked ? 'Antrenman tamamlandı (Sıralama kilitli)' : 'Sıralamayı değiştirmek için sürükle'}" style="cursor:${isLocked ? 'default' : 'grab'}; color:${isLocked ? '#334155' : '#64748b'}; opacity:${isLocked ? '0.35' : '1'}; transition:all 0.2s ease; display:inline-flex; align-items:center; flex-shrink:0;">
             <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
           </span>
           <span class="expert-exercise-name" style="font-size: 13px; font-weight: 700; color: #ffffff; letter-spacing: 0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${expertDataEscape(exName)}</span>
         </div>
-        <div style="display:flex; align-items:center; gap: 7px; flex-shrink: 0;">
+        <div class="expert-exercise-actions-cluster" style="display:flex; align-items:center; gap: 7px; flex-shrink: 0;">
           <button type="button" class="expert-set-rep-pill" ${isLocked ? 'disabled style="pointer-events:none; cursor:default; background:rgba(108,99,255,0.18); border-color:rgba(167,139,250,0.3);"' : `onclick="expertDataEditExerciseSetsReps(${safeWeekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')"`} title="${isLocked ? 'Antrenman tamamlandı (Set sayısı kilitli)' : 'Set ve Tekrar Aralığını Düzenle'}">
             <span class="expert-set-rep-text" style="color:#ffffff; font-weight:750;">${pillText}</span>
             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4" style="opacity:${isLocked ? '0.25' : '0.75'};"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -36334,7 +38387,7 @@ function expertDataRecommendationDayCard(day, index) {
       themeColor = '#fbbf24';
       badgeHtml = `
         <div class="split-status-rest-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-          <span class="split-rest-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(245,158,11,0.12); border:1px solid rgba(251,191,36,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+          <span class="split-rest-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; line-height:1; background:rgba(245,158,11,0.12); border:1px solid rgba(251,191,36,0.28); padding:4px 11px; border-radius:20px; white-space:nowrap;">
             <span class="split-rest-label" style="color:#fbbf24; font-weight:700;">Dinlenme Günü</span>
             <span style="color:#ffffff; font-weight:500;">· Taslak</span>
           </span>
@@ -36348,7 +38401,7 @@ function expertDataRecommendationDayCard(day, index) {
     } else {
       statusCardClass = 'expert-day-card-purple';
       themeColor = '#c084fc';
-      badgeHtml = `<span class="gym-badge-default" style="font-size:11px; padding:4px 11px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.38); color:#c084fc; font-weight:700; border-radius:20px;">Taslak Seans</span>`;
+      badgeHtml = `<span class="gym-badge-default" style="font-size:11.5px; padding:4px 11px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.38); color:#c084fc; font-weight:700; border-radius:20px;">Taslak Seans</span>`;
     }
   } else {
     // Antrenman Takip Durumu
@@ -36358,7 +38411,7 @@ function expertDataRecommendationDayCard(day, index) {
       const completedDateText = formatToDMY(dateStr);
       badgeHtml = `
         <div class="split-status-done-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-          <span class="split-done-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(34,197,94,0.1); border:1px solid rgba(74,222,128,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+          <span class="split-done-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; line-height:1; background:rgba(34,197,94,0.1); border:1px solid rgba(74,222,128,0.25); padding:4px 11px; border-radius:20px; white-space:nowrap;">
             <span class="split-done-label" style="color:#4ade80; font-weight:700;">Antrenman yapıldı</span>
             <span style="color:#ffffff; font-weight:500;">· ${completedDateText}</span>
           </span>
@@ -36375,7 +38428,7 @@ function expertDataRecommendationDayCard(day, index) {
       const restDateText = formatToDMY(dateStr);
       badgeHtml = `
         <div class="split-status-rest-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-          <span class="split-rest-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(245,158,11,0.12); border:1px solid rgba(251,191,36,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+          <span class="split-rest-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; line-height:1; background:rgba(245,158,11,0.12); border:1px solid rgba(251,191,36,0.28); padding:4px 11px; border-radius:20px; white-space:nowrap;">
             <span class="split-rest-label" style="color:#fbbf24; font-weight:700;">Dinlenme</span>
             <span style="color:#ffffff; font-weight:500;">· ${restDateText}</span>
           </span>
@@ -36392,7 +38445,7 @@ function expertDataRecommendationDayCard(day, index) {
       const preDateText = formatToDMY(dateStr);
       badgeHtml = `
         <div class="split-status-neutral-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-          <span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.28); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+          <span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; line-height:1; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.28); padding:4px 11px; border-radius:20px; white-space:nowrap;">
             <span style="color:#94a3b8; font-weight:700;">Plan Öncesi Gün</span>
             <span style="color:#cbd5e1; font-weight:500;">· ${preDateText}</span>
           </span>
@@ -36409,11 +38462,11 @@ function expertDataRecommendationDayCard(day, index) {
       const todayDateText = formatToDMY(dateStr);
       badgeHtml = `
         <div class="split-status-today-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-          <span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.42); padding:4px 9px; border-radius:20px; white-space:nowrap;">
-            <span style="color:#38bdf8; font-weight:800; letter-spacing:0.3px;">BUGÜNKÜ SEANS</span>
+          <span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; line-height:1; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.38); padding:4px 11px; border-radius:20px; white-space:nowrap;">
+            <span style="color:#38bdf8; font-weight:700;">Bugünkü Seans</span>
             <span style="color:#ffffff; font-weight:500;">· ${todayDateText}</span>
           </span>
-          <div style="width:24px; height:24px; border-radius:50%; background:rgba(56,189,248,0.22); border:1px solid rgba(56,189,248,0.52); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <div style="width:24px; height:24px; border-radius:50%; background:rgba(56,189,248,0.18); border:1px solid rgba(56,189,248,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
             <svg style="width:13px; height:13px; color:#38bdf8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="9" stroke-width="2"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7v5l3 3"></path>
             </svg>
@@ -36426,7 +38479,7 @@ function expertDataRecommendationDayCard(day, index) {
       const missedDateText = formatToDMY(dateStr);
       badgeHtml = `
         <div class="split-status-missed-group" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-          <span class="split-missed-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; line-height:1; background:rgba(239,68,68,0.1); border:1px solid rgba(248,113,113,0.25); padding:4px 9px; border-radius:20px; white-space:nowrap;">
+          <span class="split-missed-pill" style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; line-height:1; background:rgba(239,68,68,0.1); border:1px solid rgba(248,113,113,0.25); padding:4px 11px; border-radius:20px; white-space:nowrap;">
             <span class="split-missed-label" style="color:#f87171; font-weight:700;">Antrenman yapılmadı</span>
             <span style="color:#ffffff; font-weight:500;">· ${missedDateText}</span>
           </span>
@@ -36441,7 +38494,7 @@ function expertDataRecommendationDayCard(day, index) {
       statusCardClass = 'expert-day-card-purple';
       themeColor = '#c084fc';
       const futureDateText = formatToDMY(dateStr);
-      badgeHtml = `<span class="gym-badge-default" style="font-size:10.5px; padding:3.5px 10px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.38); color:#c084fc; font-weight:700;">Seans · ${futureDateText}</span>`;
+      badgeHtml = `<span class="gym-badge-default" style="font-size:11.5px; padding:4px 11px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.38); color:#c084fc; font-weight:700; border-radius:20px;">Seans · ${futureDateText}</span>`;
     }
   }
 
@@ -36507,29 +38560,37 @@ function expertDataRecommendationDayCard(day, index) {
   const dragHandleHtml = (!isLocked) ? `
     <div class="expert-recommendation-drag" title="Seans içeriğini başka güne taşımak için sürükle" style="cursor:grab; color:#64748b; transition:all 0.22s ease; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;" onmouseover="this.style.color='${themeColor}'; this.style.transform='scale(1.18)';" onmouseout="this.style.color='#64748b'; this.style.transform='none';">
       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
-    </div>` : '<div style="width:18px; flex-shrink:0;"></div>';
+    </div>` : `
+    <div class="expert-recommendation-drag is-locked" title="Antrenman tamamlandı (Sıralama kilitli)" style="cursor:default; color:#64748b; opacity:0.35; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; user-select:none;">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
+    </div>`;
 
   return `
-    <article data-index="${index}" data-slot-id="${expertDataEscape(slotId)}" class="expert-day-card ${statusCardClass} ${isLocked ? 'sort-disabled' : ''} history-card-animated" style="--card-index: ${index}; margin:0; padding:18px; border-radius:14px; position:relative;">
+    <article data-index="${index}" data-slot-id="${expertDataEscape(slotId)}" class="expert-day-card ${statusCardClass} ${isLocked ? 'sort-disabled' : ''} history-card-animated" style="--card-index: ${index}; --day-theme-color: ${themeColor}; margin:0; padding:16px; border-radius:14px; position:relative;">
       <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; width:100%;">
-          <div style="display:flex; align-items:flex-start; gap:10px; min-width:0; flex:1 1 auto;">
-            ${dragHandleHtml}
-            <div style="display:flex; flex-direction:column; gap:3px; min-width:0;">
-              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <div class="expert-day-header-section">
+          <div class="expert-day-header-top-row">
+            <div class="expert-day-title-left">
+              ${dragHandleHtml}
+              <div class="expert-day-title-group">
                 <span class="expert-day-title-text" style="font-size:15px; font-weight:850; color:#ffffff; letter-spacing:0.2px;">${expertDataEscape(slotLabel)}</span>
-                <span style="color:#64748b; opacity:0.6;">•</span>
+                <span style="color:#64748b; opacity:0.6; font-size:12px;">•</span>
                 <span class="expert-day-type-text" style="font-size:13.5px; font-weight:750; color:${themeColor};">${expertDataEscape(displayTitle)}</span>
               </div>
+            </div>
+            <span class="expert-day-sets-badge gym-equipment-count-badge" style="font-size:11.5px; padding:4px 11px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.38); color:#d8b4fe; font-weight:750; ${totalSets > 0 ? '' : 'display:none;'}">TOPLAM ${totalSets} SET</span>
+          </div>
+
+          <div class="expert-day-header-sub-row">
+            <div class="expert-day-focus-box">
               ${displaySubtitle ? `<p class="expert-day-focus-text" style="color:#cbd5e1; font-size:12.5px; font-weight:500; line-height:1.4; margin:0;">(${expertDataEscape(displaySubtitle)})</p>` : ''}
             </div>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end;">
-            <span class="expert-day-sets-badge gym-equipment-count-badge" style="background:rgba(168,85,247,0.16); border-color:rgba(168,85,247,0.4); color:#d8b4fe; font-weight:800; ${totalSets > 0 ? '' : 'display:none;'}">TOPLAM ${totalSets} SET</span>
-            ${badgeHtml}
+            <div class="expert-day-status-slot">
+              ${badgeHtml}
+            </div>
           </div>
         </div>
-        ${displayReason ? `<div style="margin-top:2px; padding:9px 13px; background:rgba(15,23,42,0.6); border:1px solid rgba(56,189,248,0.2); border-left:3px solid #38bdf8; border-radius:8px; display:flex; gap:9px; align-items:flex-start;"><span style="font-size:13px; flex-shrink:0;">💡</span><small style="color:#94a3b8; font-size:12px; line-height:1.45; font-weight:500;">${expertDataEscape(displayReason)}</small></div>` : ''}
+        ${displayReason ? `<div class="expert-day-reason-box" style="border-left-color:${themeColor}; border-color:${themeColor}38;"><span class="reason-icon" style="font-size:13px; flex-shrink:0;">💡</span><small class="expert-day-reason-text" title="${expertDataEscape(displayReason)}">${expertDataEscape(displayReason)}</small></div>` : ''}
         ${exerciseRows}
       </div>
     </article>
@@ -36579,7 +38640,16 @@ function expertDataRecommendationPane() {
   }
   const safeWeek = Math.max(0, Math.min(recommendation.weeks.length - 1, expertRecommendationWeekIndex));
   const week = recommendation.weeks[safeWeek] || { days: [] };
-  const tabs = recommendation.weeks.length > 1 ? `<div class="expert-data-subtabs" style="margin:16px 0 12px">${recommendation.weeks.map((item, index) => `<button type="button" class="expert-data-subtab ${index === safeWeek ? 'active' : ''}" onclick="expertDataSetRecommendationWeek(${index})">${expertDataEscape(item.label || `${index + 1}. Hafta`)}</button>`).join('')}</div>` : '';
+  const weeksCount = recommendation.weeks ? recommendation.weeks.length : 0;
+  const tabs = weeksCount > 0 ? `<div class="expert-split-weeks-bar ${weeksCount === 1 ? 'expert-split-single-week' : ''}">
+      <div class="expert-data-subtabs expert-split-week-subtabs">
+        ${recommendation.weeks.map((item, index) => `<button type="button" class="expert-data-subtab ${index === safeWeek ? 'active' : ''}" onclick="expertDataSetRecommendationWeek(${index})">${expertDataEscape(item.label || `${index + 1}. Hafta`)}</button>`).join('')}
+      </div>
+      <button class="expert-split-refresh-btn-mobile" type="button" onclick="expertDataGenerateRecommendation()" title="Taslağı Yenile">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        <span>Taslağı Yenile</span>
+      </button>
+    </div>` : '';
   
   const priorityLabels = Array.isArray(recommendation.priority_muscle_labels) && recommendation.priority_muscle_labels.length
     ? recommendation.priority_muscle_labels.map(expertDataEscape)
@@ -36635,24 +38705,20 @@ function expertDataRecommendationPane() {
           <p class="injury-board-sub" style="color:#cbd5e1;">${expertDataEscape(recommendation.generated_on_display || 'Bugün')} tarihinde üretildi · Profilindeki ${expertDataEscape(recommendation.days_per_week || 0)} antrenman gününe göre ${expertDataEscape(recommendation.duration_weeks || 1)} haftalık taslak.</p>
         </div>
       </div>
-      <span class="gym-badge-default" style="display:inline-flex;align-items:center;gap:6px;">
-        <span style="width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;"></span>
-        Kontrol Paneli ile Senkron
-      </span>
     </div>
 
     <div class="expert-gym-stat-grid" style="margin-bottom:16px;">
       <div class="expert-gym-stat-card">
-        <div class="expert-gym-stat-icon" style="color:#38bdf8;background:rgba(56,189,248,0.16);border-color:rgba(56,189,248,0.38);">
+        <div class="expert-gym-stat-icon" style="color:#c084fc;background:rgba(168,85,247,0.16);border-color:rgba(168,85,247,0.38);box-shadow:0 0 12px rgba(168,85,247,0.2);">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
         </div>
         <div>
           <span class="expert-gym-stat-label">Haftalık Düzen</span>
-          <strong class="expert-gym-stat-value" style="color:#38bdf8;text-shadow:0 0 10px rgba(56,189,248,0.35);">${expertDataEscape(recommendation.days_per_week || 0)} Antrenman Günü</strong>
+          <strong class="expert-gym-stat-value" style="color:#c084fc;text-shadow:0 0 10px rgba(192,132,252,0.35);">${expertDataEscape(recommendation.days_per_week || 0)} Antrenman Günü</strong>
         </div>
       </div>
 
-      <div class="expert-gym-stat-card">
+      <div class="expert-gym-stat-card expert-split-priority-stat-card">
         <div class="expert-gym-stat-icon" style="color:#a78bfa;background:rgba(108,99,255,0.16);border-color:rgba(167,139,250,0.38);">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
         </div>
@@ -36674,8 +38740,8 @@ function expertDataRecommendationPane() {
     </div>
 
     <!-- GÖRÜNÜM MODU SEÇİCİ (Haftalık Toplam Hacim Kartının Hemen Altında) -->
-    <div style="margin: 0 0 16px; padding: 12px 16px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(108, 99, 255, 0.22); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-      <div style="display: flex; align-items: center; gap: 9px;">
+    <div class="expert-split-viewmode-bar" style="margin: 0 0 16px; padding: 12px 16px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(108, 99, 255, 0.22); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div class="expert-split-viewmode-info" style="display: flex; align-items: center; gap: 9px;">
         <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(108,99,255,0.18); border: 1px solid rgba(167,139,250,0.3); display: flex; align-items: center; justify-content: center; color: #a78bfa; flex-shrink: 0;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         </div>
@@ -36684,7 +38750,7 @@ function expertDataRecommendationPane() {
           <span style="color: #94a3b8; font-size: 11px;">Saf taslak şablonu veya dinamik antrenman takip durumu</span>
         </div>
       </div>
-      <div style="display: inline-flex; gap: 8px; background: rgba(30, 41, 59, 0.7); padding: 4px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
+      <div class="expert-split-viewmode-toggle-group" style="display: inline-flex; gap: 8px; background: rgba(30, 41, 59, 0.7); padding: 4px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
         <button type="button" data-mode="template" onclick="setExpertSplitViewMode('template')" class="expert-viewmode-btn ${expertSplitViewMode === 'template' ? 'active' : ''}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           <span>Öneri Taslağı (Saf Hal)</span>
@@ -36703,7 +38769,7 @@ function expertDataRecommendationPane() {
       ${(week.days || []).map(expertDataRecommendationDayCard).join('')}
     </div>
 
-    <div class="expert-doms-save-container" style="justify-content:flex-end;">
+    <div class="expert-doms-save-container expert-split-desktop-refresh-container" style="justify-content:flex-end;">
       <button class="expert-doms-save-btn" type="button" onclick="expertDataGenerateRecommendation()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
         <span>Taslağı Yenile</span>
@@ -36868,60 +38934,105 @@ function expertDataEditExerciseSetsReps(weekIdx, slotId, exerciseId) {
   overlay.style.left = '0';
   overlay.style.width = '100vw';
   overlay.style.height = '100vh';
-  overlay.style.background = 'rgba(10, 10, 15, 0.85)';
-  overlay.style.backdropFilter = 'blur(8px)';
+  overlay.style.background = 'rgba(7, 9, 18, 0.85)';
+  overlay.style.backdropFilter = 'blur(12px)';
+  overlay.style.webkitBackdropFilter = 'blur(12px)';
   overlay.style.zIndex = '999999';
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
+  overlay.style.padding = '16px';
+  overlay.style.boxSizing = 'border-box';
   overlay.style.opacity = '0';
   overlay.style.transition = 'opacity 0.25s ease';
 
   const modal = document.createElement('div');
-  modal.style.background = 'linear-gradient(145deg, rgba(30,30,40,0.95), rgba(20,20,30,0.95))';
-  modal.style.border = '1px solid rgba(108,99,255,0.3)';
-  modal.style.borderRadius = '16px';
-  modal.style.padding = '24px';
-  modal.style.width = '90%';
-  modal.style.maxWidth = '360px';
-  modal.style.boxShadow = '0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(108,99,255,0.15)';
-  modal.style.transform = 'scale(0.95) translateY(10px)';
-  modal.style.transition = 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+  modal.style.background = 'linear-gradient(160deg, rgba(26, 22, 45, 0.98) 0%, rgba(16, 17, 30, 0.98) 100%)';
+  modal.style.border = '1px solid rgba(168, 85, 247, 0.38)';
+  modal.style.borderRadius = '18px';
+  modal.style.padding = '24px 22px';
+  modal.style.width = '100%';
+  modal.style.maxWidth = '370px';
+  modal.style.boxShadow = '0 20px 50px rgba(0,0,0,0.65), 0 0 35px rgba(168,85,247,0.2)';
+  modal.style.transform = 'scale(0.92) translateY(12px)';
+  modal.style.transition = 'all 0.28s cubic-bezier(0.16, 1, 0.3, 1)';
   modal.style.display = 'flex';
   modal.style.flexDirection = 'column';
   modal.style.gap = '16px';
+  modal.style.boxSizing = 'border-box';
 
   modal.innerHTML = `
-    <div>
-      <h3 style="margin:0; font-size:16px; color:#fff; font-weight:700;">Set ve Tekrar Düzenle</h3>
-      <p style="margin:6px 0 0; font-size:13px; color:var(--text-muted); line-height:1.4;">
-        <span style="color:var(--accent); font-weight:600;">${expertDataEscape(ex.name)}</span> için değerleri güncelleyin.
-      </p>
+    <div style="text-align:center;">
+      <div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, rgba(168, 85, 247, 0.22) 0%, rgba(108, 99, 255, 0.16) 100%); border:1px solid rgba(168, 85, 247, 0.45); color:#c084fc; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; box-shadow:0 0 18px rgba(168, 85, 247, 0.28);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+        </svg>
+      </div>
+      <h3 style="margin:0 0 6px; font-size:17px; font-weight:800; color:#ffffff; letter-spacing:-0.01em;">Set ve Tekrar Düzenle</h3>
+      <div style="margin-top:4px;">
+        <span style="display:inline-block; color:#c084fc; background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.3); padding:3px 10px; border-radius:8px; font-weight:750; font-size:12.5px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${expertDataEscape(ex.name)}</span>
+      </div>
     </div>
     
-    <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+    <div style="display:flex; flex-direction:column; gap:14px;">
       <div>
-        <label style="display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px; letter-spacing:0.5px;">SET SAYISI</label>
-        <div style="display:flex; align-items:center; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:8px; overflow:hidden;">
-          <button type="button" onclick="this.nextElementSibling.stepDown()" style="background:transparent; color:var(--accent); border:none; padding:10px 14px; cursor:pointer; font-size:18px; font-weight:bold; transition:0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">-</button>
-          <input type="number" id="modalSetsInput" value="${currentSets}" min="1" max="20" style="flex:1; background:transparent; border:none; color:#fff; text-align:center; padding:10px 0; font-size:15px; font-weight:600; outline:none; -moz-appearance:textfield;" onfocus="this.parentElement.style.borderColor='var(--accent)'" onblur="this.parentElement.style.borderColor='rgba(255,255,255,0.1)'">
-          <button type="button" onclick="this.previousElementSibling.stepUp()" style="background:transparent; color:var(--accent); border:none; padding:10px 14px; cursor:pointer; font-size:18px; font-weight:bold; transition:0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">+</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label style="font-size:11px; font-weight:800; color:#a78bfa; letter-spacing:0.6px; text-transform:uppercase;">SET SAYISI</label>
+          <span style="font-size:11px; color:#94a3b8; font-weight:600;">Hedef Set</span>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(12, 14, 25, 0.85); border:1px solid rgba(168, 85, 247, 0.28); border-radius:12px; padding:5px 6px;">
+          <button type="button" id="modalSetsMinusBtn" style="width:38px; height:38px; border-radius:9px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.35); color:#c084fc; font-size:18px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.18s ease;" onmouseover="this.style.background='rgba(168,85,247,0.28)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(168,85,247,0.14)'; this.style.color='#c084fc';">−</button>
+          <input type="number" id="modalSetsInput" value="${currentSets}" min="1" max="20" style="width:70px; background:transparent; border:none; color:#ffffff; text-align:center; font-size:22px; font-weight:850; outline:none; -moz-appearance:textfield;">
+          <button type="button" id="modalSetsPlusBtn" style="width:38px; height:38px; border-radius:9px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.35); color:#c084fc; font-size:18px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.18s ease;" onmouseover="this.style.background='rgba(168,85,247,0.28)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(168,85,247,0.14)'; this.style.color='#c084fc';">+</button>
         </div>
       </div>
       <div>
-        <label style="display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px; letter-spacing:0.5px;">TEKRAR ARALIĞI</label>
-        <input type="text" id="modalRepsInput" value="${currentReps}" placeholder="Örn: 8-12" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px 14px; border-radius:8px; font-size:15px; font-weight:600; outline:none; transition:0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label style="font-size:11px; font-weight:800; color:#a78bfa; letter-spacing:0.6px; text-transform:uppercase;">TEKRAR ARALIĞI</label>
+          <span style="font-size:11px; color:#94a3b8; font-weight:600;">Örn: 8-12</span>
+        </div>
+        <input type="text" id="modalRepsInput" value="${currentReps}" placeholder="Örn: 8-12" style="width:100%; background:rgba(12, 14, 25, 0.85); border:1px solid rgba(168, 85, 247, 0.28); color:#ffffff; padding:11px 14px; border-radius:12px; font-size:14px; font-weight:700; outline:none; box-sizing:border-box; transition:border-color 0.2s ease;" onfocus="this.style.borderColor='#c084fc'" onblur="this.style.borderColor='rgba(168, 85, 247, 0.28)'">
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+          ${['6-8', '8-12', '10-12', '12-15', '15-20'].map(preset => `<button type="button" class="expert-modal-reps-preset" data-preset="${preset}" style="padding:4px 9px; border-radius:7px; background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.25); color:#d8b4fe; font-size:11px; font-weight:700; cursor:pointer; transition:all 0.15s ease;" onmouseover="this.style.background='rgba(168,85,247,0.25)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(168,85,247,0.1)'; this.style.color='#d8b4fe';">${preset}</button>`).join('')}
+        </div>
       </div>
     </div>
     
-    <div style="display:flex; gap:10px; margin-top:10px;">
-      <button id="modalCancelBtn" type="button" style="flex:1; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--text-secondary); padding:10px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">İptal</button>
-      <button id="modalSaveBtn" type="button" style="flex:1; background:var(--accent); border:none; color:#fff; padding:10px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:0 0 10px rgba(108,99,255,0.3); transition:0.2s;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(108,99,255,0.4)'" onmouseout="this.style.transform='none'; this.style.boxShadow='0 0 10px rgba(108,99,255,0.3)'">Kaydet</button>
+    <div style="display:flex; gap:10px; margin-top:6px;">
+      <button id="modalCancelBtn" type="button" style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); color:#cbd5e1; padding:11px 16px; border-radius:10px; font-size:13px; font-weight:750; cursor:pointer; min-height:42px; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.12)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">Vazgeç</button>
+      <button id="modalSaveBtn" type="button" style="flex:1; background:linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #a855f7 100%); border:1px solid rgba(192, 132, 252, 0.45); color:#ffffff; padding:11px 16px; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; min-height:42px; box-shadow:0 4px 16px rgba(147, 51, 234, 0.4); display:flex; align-items:center; justify-content:center; gap:7px; transition:all 0.2s ease;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 22px rgba(147, 51, 234, 0.55)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 16px rgba(147, 51, 234, 0.4)';">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>Kaydet</span>
+      </button>
     </div>
   `;
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+
+  // Stepper events
+  const setsInput = modal.querySelector('#modalSetsInput');
+  const minusBtn = modal.querySelector('#modalSetsMinusBtn');
+  const plusBtn = modal.querySelector('#modalSetsPlusBtn');
+  if (minusBtn && setsInput) {
+    minusBtn.onclick = () => {
+      setsInput.value = Math.max(1, (parseInt(setsInput.value) || 1) - 1);
+    };
+  }
+  if (plusBtn && setsInput) {
+    plusBtn.onclick = () => {
+      setsInput.value = Math.min(20, (parseInt(setsInput.value) || 1) + 1);
+    };
+  }
+
+  // Presets events
+  const repsInput = modal.querySelector('#modalRepsInput');
+  modal.querySelectorAll('.expert-modal-reps-preset').forEach(btn => {
+    btn.onclick = () => {
+      if (repsInput) repsInput.value = btn.getAttribute('data-preset');
+    };
+  });
 
   requestAnimationFrame(() => {
     overlay.style.opacity = '1';
@@ -36982,9 +39093,10 @@ function expertDataInitRecommendationSortable() {
     list._sortable.destroy();
   }
   list._sortable = new Sortable(list, { 
-    handle: '.expert-recommendation-drag', 
+    handle: '.expert-recommendation-drag:not(.is-locked)', 
     draggable: '.expert-day-card',
-    filter: '.sort-disabled',
+    filter: '.sort-disabled, .is-locked',
+    preventOnFilter: true,
     animation: 280, 
     easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
     ghostClass: 'expert-day-ghost', 
@@ -37088,7 +39200,7 @@ window.expertDataConfirmRemoveExercise = function(weekIndex, slotId, exerciseId)
         <span class="expert-confirm-highlight">"${expertDataEscape(exName)}"</span> hareketini <strong style="color:#ffffff;">${expertDataEscape(slotLabel)}</strong> seansından çıkarmak istediğine emin misin?
       </p>
       <div class="expert-confirm-info-pill">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
         <span>Bu seanstaki haftalık hacim ve set dağılımı otomatik olarak güncellenecektir.</span>
       </div>
       <div class="expert-confirm-actions">
@@ -37312,14 +39424,14 @@ window.expertDataAddRecommendedExercise = async function(weekIndex, slotId) {
       rowWrapper.setAttribute('data-slot-id', slotId);
       rowWrapper.style.animation = 'expertItemFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both';
       rowWrapper.innerHTML = `
-        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
-          <div style="display:flex; align-items:center; gap: 10px; min-width: 0;">
+        <div class="expert-exercise-main-row" style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
+          <div class="expert-exercise-info-side" style="display:flex; align-items:center; gap: 10px; min-width: 0;">
             <span class="ex-drag-handle" title="Sıralamayı değiştirmek için sürükle" style="cursor:grab; color:#64748b; transition:all 0.2s ease; display:inline-flex; align-items:center; flex-shrink:0;">
               <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16"></path></svg>
             </span>
             <span class="expert-exercise-name" style="font-size: 13px; font-weight: 700; color: #ffffff; letter-spacing: 0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${expertDataEscape(newEx.name)}</span>
           </div>
-          <div style="display:flex; align-items:center; gap: 7px; flex-shrink: 0;">
+          <div class="expert-exercise-actions-cluster" style="display:flex; align-items:center; gap: 7px; flex-shrink: 0;">
             <button type="button" class="expert-set-rep-pill" onclick="expertDataEditExerciseSetsReps(${weekIndex}, '${expertDataEscape(slotId)}', '${expertDataEscape(exerciseId)}')" title="Set ve Tekrar Aralığını Düzenle">
               <span class="expert-set-rep-text" style="color:#ffffff; font-weight:750;">${newEx.sets || 3} × ${newEx.reps || '8-12'}</span>
               <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4" style="opacity:0.75;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -37384,6 +39496,7 @@ function expertDataAutoScrollTabs() {
 function _renderExpertSystemCore(animate = true) {
   const content = document.getElementById('analyzeContent');
   if (!content || !expertDataState) return;
+  expertUpdateHeaderStepBadge();
   expertDataInjectStyles();
 
   const shell = content.querySelector('.expert-data-shell');
