@@ -4425,6 +4425,14 @@ tr:hover td { background: var(--bg-card-hover); }
   padding-bottom: 16px;
   border-bottom: 1px solid rgba(139, 92, 246, 0.16);
   margin-bottom: 18px;
+  position: relative;
+}
+/* En İyi İlerlemeler Panosu: Neon Güç Artışı Rozeti */
+#progTopGainsBadgeWrap {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 .prog-card-title-group {
   display: flex;
@@ -4481,7 +4489,7 @@ tr:hover td { background: var(--bg-card-hover); }
 .prog-search-input {
   width: 100%;
   height: 44px;
-  padding: 0 40px 0 42px;
+  padding: 0 40px 0 46px !important;
   background: rgba(15, 23, 42, 0.75);
   border: 1.5px solid rgba(139, 92, 246, 0.3);
   border-radius: 11px;
@@ -4507,6 +4515,7 @@ tr:hover td { background: var(--bg-card-hover); }
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2;
 }
 
 /* BUTTONS & PILLS */
@@ -4546,6 +4555,104 @@ tr:hover td { background: var(--bg-card-hover); }
   box-shadow: 0 2px 10px rgba(139, 92, 246, 0.4);
 }
 
+/* EGZERSİZ GRAFİĞİ: MASAÜSTÜ TAM SIĞMA (SCROLLSUZ), MOBİLDE YATAY KAYDIRMA */
+.prog-chart-scroll-wrap {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  box-sizing: border-box !important;
+}
+.prog-chart-scroll-wrap::-webkit-scrollbar {
+  height: 8px !important;
+  display: block !important;
+  background: rgba(15, 23, 42, 0.9) !important;
+  border-radius: 8px !important;
+}
+.prog-chart-scroll-wrap::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border-radius: 8px !important;
+  margin: 0 4px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+.prog-chart-scroll-wrap::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #8b5cf6, #3b82f6) !important;
+  border-radius: 8px !important;
+  border: 1.5px solid rgba(15, 23, 42, 0.9) !important;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.6) !important;
+}
+.prog-chart-scroll-wrap::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #a855f7, #60a5fa) !important;
+}
+
+/* PROGRESS SEKMELERİ (UZMAN SİSTEMİ TİPİ SEKMELENDİRME) */
+.prog-subtabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  margin-bottom: 20px;
+  padding: 0 0 0 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.prog-subtabs::-webkit-scrollbar {
+  display: none;
+}
+.prog-subtab {
+  border: 0;
+  border-bottom: 2.5px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  padding: 11px 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: 750;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 8px 8px 0 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.prog-subtab:hover {
+  color: #ffffff;
+  background: rgba(139, 92, 246, 0.06);
+  border-bottom-color: rgba(139, 92, 246, 0.4);
+}
+.prog-subtab.active {
+  color: #ffffff;
+  border-bottom-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.1);
+  box-shadow: 0 2px 0 #8b5cf6;
+}
+.prog-tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a855f7;
+  box-shadow: 0 0 8px #a855f7;
+  flex-shrink: 0;
+}
+@keyframes progTabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.prog-tab-pane {
+  width: 100%;
+  animation: progTabFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* TOP PROGRESS GAINS (EN İYİ İLERLEMELER) STYLING */
 .prog-top-gains-grid {
   display: grid;
@@ -4556,10 +4663,10 @@ tr:hover td { background: var(--bg-card-hover); }
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
-  padding: 15px 16px;
+  padding: 13px 15px;
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 9px;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   position: relative;
@@ -4593,7 +4700,18 @@ tr:hover td { background: var(--bg-card-hover); }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+.prog-gain-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
 .prog-gain-muscle-tag {
   font-size: 10.5px;
@@ -4603,25 +4721,8 @@ tr:hover td { background: var(--bg-card-hover); }
   border-radius: 6px;
   display: inline-flex;
   align-items: center;
-}
-.prog-gain-session-tag {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #94a3b8;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 2px 8px;
-  border-radius: 12px;
   white-space: nowrap;
-}
-.prog-gain-title {
-  font-size: 14.5px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 .prog-gain-progression-row {
   display: flex;
@@ -4696,7 +4797,73 @@ tr:hover td { background: var(--bg-card-hover); }
   opacity: 1;
 }
 
+/* En İyi İlerlemeler: Kart Giriş Animasyonu */
+@keyframes progGainCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.prog-gain-card-anim {
+  opacity: 0;
+  animation: progGainCardEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* En İyi İlerlemeler: Alt Sağ Buton Satırı */
+.prog-gains-action-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 14px;
+  width: 100%;
+}
+
+/* En İyi İlerlemeler: Daha Fazla Görüntüle / Daha Az Göster Butonu */
+.prog-gains-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #34d399;
+  padding: 6px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+}
+.prog-gains-more-btn:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: rgba(52, 211, 153, 0.6);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+.prog-gains-more-btn:active {
+  transform: translateY(0);
+}
+.prog-gains-more-btn svg {
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Light Mode Overrides */
+.light-mode .prog-gains-more-btn {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #059669;
+}
+.light-mode .prog-gains-more-btn:hover {
+  background: rgba(16, 185, 129, 0.16);
+  color: #047857;
+}
 .light-mode .prog-gain-card {
   background: rgba(255, 255, 255, 0.8);
   border-color: rgba(0, 0, 0, 0.08);
@@ -7285,11 +7452,56 @@ tr:hover td { background: var(--bg-card-hover); }
   font-size: 27px;
   font-weight: 850;
   margin: 10px 0 4px;
-  color: #f8fafc;
+  color: #f8fafc !important;
 }
 .audit-kpi .good { color: #3ed6a0; font-size: 12px; font-weight: 600; }
 .audit-kpi .warn { color: #f5be52; font-size: 12px; font-weight: 600; }
+.audit-kpi strong.warn { color: #f8fafc !important; }
 .audit-kpi .muted { color: #8d96b3; font-size: 12px; font-weight: 500; }
+
+/* Yenile butonu yumuşak geçiş ve ikon dönüş animasyonu */
+.audit-top .btn-neon-purple {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.audit-top .btn-neon-purple:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 18px rgba(124, 58, 237, 0.45), 0 0 12px rgba(168, 85, 247, 0.3);
+}
+.audit-top .btn-neon-purple:active {
+  transform: translateY(0);
+}
+.audit-refresh-icon {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+}
+.audit-refreshing .audit-refresh-icon {
+  animation: smoothRotate 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes smoothRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.admin-audit-container {
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.admin-audit-container.audit-refreshing {
+  opacity: 0.65;
+  filter: blur(0.6px);
+  pointer-events: none;
+}
+.audit-tablewrap {
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.audit-tablewrap.audit-refreshing {
+  opacity: 0.5;
+  pointer-events: none;
+}
 
 /* Toolbar */
 .audit-toolbar {
@@ -8289,6 +8501,81 @@ tr:hover td { background: var(--bg-card-hover); }
 @keyframes adminTerminalBlink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════════
+   DIAGNOSTICS CONSOLE BUTTONS (PURPLE GLOW)
+═══════════════════════════════════════════════ */
+.diagnostics-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.btn-diag-purple {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  user-select: none;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.btn-diag-primary {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.32) 0%, rgba(168, 85, 247, 0.18) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.55);
+  color: #f3e8ff;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.btn-diag-primary:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.52) 0%, rgba(168, 85, 247, 0.35) 100%);
+  border-color: rgba(192, 132, 252, 0.85);
+  color: #ffffff;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 22px rgba(147, 51, 234, 0.38), 0 0 16px rgba(168, 85, 247, 0.32);
+}
+
+.btn-diag-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(147, 51, 234, 0.28);
+}
+
+.btn-diag-outline {
+  background: rgba(30, 27, 75, 0.45);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #d8b4fe;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.btn-diag-outline:hover {
+  background: rgba(124, 58, 237, 0.22);
+  border-color: rgba(168, 85, 247, 0.65);
+  color: #f5f3ff;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.28), 0 0 12px rgba(168, 85, 247, 0.25);
+}
+
+.btn-diag-outline:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-diag-icon {
+  font-size: 13px;
+  line-height: 1;
+  filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.4));
 }
 
 /* ═══════════════════════════════════════════════
@@ -11389,8 +11676,8 @@ tr:hover td { background: var(--bg-card-hover); }
     }
     .expert-data-choice-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
     }
     .expert-goals-actions {
       display: flex;
@@ -11407,15 +11694,15 @@ tr:hover td { background: var(--bg-card-hover); }
       flex: 0.8;
     }
     .expert-data-choice {
-      min-height: 72px;
+      min-height: 52px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 12px 10px;
+      padding: 7px 8px;
       border: 1.5px solid rgba(108, 99, 255, 0.2);
-      border-radius: 12px;
+      border-radius: 10px;
       background: linear-gradient(145deg, rgba(26, 32, 52, 0.85) 0%, rgba(18, 22, 38, 0.92) 100%);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.05);
       cursor: pointer;
@@ -11425,7 +11712,17 @@ tr:hover td { background: var(--bg-card-hover); }
       outline: none;
       width: 100%;
       box-sizing: border-box;
-      gap: 6px;
+      gap: 3px;
+    }
+    .expert-data-choice .expert-choice-name {
+      font-size: 12.5px !important;
+    }
+    .expert-data-choice .expert-choice-rank-pill {
+      font-size: 9.5px !important;
+      padding: 1.5px 7px !important;
+    }
+    .expert-data-choice .expert-choice-empty-pill {
+      font-size: 9.5px !important;
     }
     .expert-data-choice:hover {
       border-color: rgba(108, 99, 255, 0.6);
@@ -12673,39 +12970,48 @@ tr:hover td { background: var(--bg-card-hover); }
     }
     .expert-gym-form-actions {
       display: flex;
-      flex-direction: column;
-      gap: 8px;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
       margin-top: 18px;
       padding-top: 14px;
       border-top: 1px solid rgba(108, 99, 255, 0.15);
       width: 100%;
       box-sizing: border-box;
+      flex-wrap: wrap;
     }
     .expert-gym-form-btns-top {
-      display: flex;
+      display: inline-flex;
+      align-items: center;
       gap: 10px;
-      width: 100%;
+      width: auto;
     }
     .expert-gym-form-btns-top .expert-doms-save-btn {
-      flex: 1.2;
-      justify-content: center;
-      min-height: 42px;
+      min-height: 38px;
+      padding: 8px 20px;
       margin: 0;
+      width: auto;
+      flex: none;
     }
     .expert-gym-form-btns-top .expert-btn-cancel {
-      flex: 0.8;
-      justify-content: center;
-      min-height: 42px;
+      min-height: 38px;
+      padding: 8px 16px;
       margin: 0;
+      width: auto;
+      flex: none;
     }
     .expert-gym-form-btns-bottom {
-      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      width: auto;
     }
     .expert-gym-form-btns-bottom .expert-btn-clear {
-      width: 100%;
-      justify-content: center;
+      width: auto;
       min-height: 38px;
+      padding: 8px 16px;
       margin: 0;
+      flex: none;
     }
     .expert-gym-default-mobile-toggle {
       display: none !important;
@@ -14376,11 +14682,15 @@ tr:hover td { background: var(--bg-card-hover); }
     overflow-x: hidden !important;
   }
   .page-content {
-    padding: 14px 12px calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 14px 12px calc(64px + env(safe-area-inset-bottom, 0px) + 2px) !important;
     width: 100% !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
     min-width: 0 !important;
+  }
+  .page > *:last-child,
+  .page-content > *:last-child {
+    margin-bottom: 0 !important;
   }
   .page-header {
     margin-bottom: 14px;
@@ -14723,6 +15033,31 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .light-mode .smp-avatar {
     box-shadow: 0 0 0 2px #ffffff, 0 0 0 3.5px rgba(124, 58, 237, 0.5), 0 0 10px rgba(124, 58, 237, 0.25);
+  }
+
+  /* Admin Modunda Profil Kartı (Buton gibi çalışmaz, salt-okunur kimlik rozeti) */
+  .sidebar-mobile-profile.is-admin {
+    cursor: default !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.16) 0%, rgba(15, 23, 42, 0.85) 100%) !important;
+    border-color: rgba(168, 85, 247, 0.45) !important;
+    box-shadow: 0 4px 18px rgba(124, 58, 237, 0.18) !important;
+  }
+  .sidebar-mobile-profile.is-admin:active {
+    transform: none !important;
+  }
+  .sidebar-mobile-profile.is-admin .smp-arrow {
+    display: none !important;
+  }
+  .sidebar-mobile-profile.is-admin .smp-badge-role {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.35) 0%, rgba(147, 51, 234, 0.25) 100%) !important;
+    color: #f3e8ff !important;
+    border-color: rgba(192, 132, 252, 0.65) !important;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.35) !important;
+  }
+  .sidebar-mobile-profile.is-admin .smp-badge-level {
+    display: none !important;
   }
 
   /* Drawer Büyük Dokunma Alanları (48px Min Yükseklik & Sol Neon Aksan Çizgisi) */
@@ -15737,7 +16072,7 @@ tr:hover td { background: var(--bg-card-hover); }
 
 @media (max-width: 480px) {
   .page-content {
-    padding: 12px 10px calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 12px 10px calc(64px + env(safe-area-inset-bottom, 0px) + 2px) !important;
   }
   .card,
   .stat-card {
@@ -16690,19 +17025,146 @@ tr:hover td { background: var(--bg-card-hover); }
     border-radius: 14px !important;
     margin-bottom: 14px !important;
   }
+
+  /* MOBİL: İLERLEME SEKMELERİ (UZMAN SİSTEMİ İLE BİREBİR) */
+  .prog-subtabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px !important;
+    padding: 2px 0 6px 0 !important;
+    margin-bottom: 14px !important;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.25) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .prog-subtabs::-webkit-scrollbar {
+    display: none !important;
+  }
+  .prog-subtab {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    border-radius: 8px 8px 0 0 !important;
+    min-height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* EN İYİ İLERLEMELER: MOBİLDE 2'Lİ KART GRUPLARI - MASAÜSTÜ İLE BİREBİR HİZALAMA */
   .prog-top-gains-grid {
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
   }
   .prog-gain-card {
-    padding: 12px 13px !important;
-    gap: 9px !important;
+    padding: 10px 8px !important;
+    gap: 6px !important;
+    border-radius: 11px !important;
+    min-width: 0 !important;
+  }
+  .prog-gain-card-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+    min-width: 0 !important;
+    width: 100% !important;
   }
   .prog-gain-title {
-    font-size: 13.5px !important;
+    font-size: 11.5px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+  }
+  .prog-gain-muscle-tag {
+    font-size: 8.5px !important;
+    padding: 1.5px 4.5px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+  .prog-gain-progression-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 5px 6px !important;
+    gap: 4px !important;
+    border-radius: 6px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   .prog-gain-numbers {
-    font-size: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: 10px !important;
+    gap: 2.5px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+  .gain-from {
+    white-space: nowrap !important;
+  }
+  .gain-arrow {
+    font-size: 9.5px !important;
+    white-space: nowrap !important;
+  }
+  .gain-to {
+    white-space: nowrap !important;
+  }
+  /* Yeşil neon yüzde rozeti: daha kompakt, taşma yapmaz, sadece yüzdelik dilim */
+  .prog-gain-delta-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 1.5px 4px !important;
+    gap: 0 !important;
+    border-radius: 4.5px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.25) !important;
+    border: 1px solid rgba(52, 211, 153, 0.4) !important;
+    line-height: 1.2 !important;
+  }
+  .gain-pct {
+    font-size: 9.5px !important;
+    font-weight: 850 !important;
+    white-space: nowrap !important;
+  }
+  .prog-gain-footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-size: 8.5px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    gap: 4px !important;
+    margin-top: 1px !important;
+  }
+  .prog-gain-date-range {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    font-size: 8px !important;
+    letter-spacing: -0.2px !important;
+  }
+  .prog-gain-date-range svg {
+    display: none !important;
+  }
+  .prog-gain-inspect-hint {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    font-size: 8.5px !important;
   }
   .prog-card-header {
     flex-direction: column !important;
@@ -16710,6 +17172,30 @@ tr:hover td { background: var(--bg-card-hover); }
     gap: 12px !important;
     padding-bottom: 12px !important;
     margin-bottom: 14px !important;
+  }
+  /* En İyi İlerlemeler ve Kişisel Rekorlar (PR): Başlık ile Neon Rozeti Mobilde En Üstte Aynı Hizada Tut */
+  #progTopGainsCard .prog-card-header,
+  #progPersonalRecordsCard .prog-card-header {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+  }
+  #progTopGainsCard .prog-card-header > div:last-child,
+  #progTopGainsBadgeWrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    align-self: flex-start !important;
+    margin-left: auto !important;
+    margin-top: 2px !important;
+    flex-shrink: 0 !important;
+    width: auto !important;
+  }
+  #progTopGainsCountBadge {
+    font-size: 10.5px !important;
+    padding: 4px 8px !important;
+    white-space: nowrap !important;
   }
   .prog-card-title-group {
     gap: 10px !important;
@@ -16730,8 +17216,10 @@ tr:hover td { background: var(--bg-card-hover); }
     font-size: 11px !important;
   }
   .prog-badge-pr-total {
-    align-self: flex-end !important;
+    align-self: flex-start !important;
     margin-left: auto !important;
+    margin-top: 2px !important;
+    flex-shrink: 0 !important;
     padding: 4px 10px !important;
     border-radius: 8px !important;
     gap: 6px !important;
@@ -16777,7 +17265,7 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .prog-search-input {
     height: 39px !important;
-    padding: 0 32px 0 36px !important;
+    padding: 0 32px 0 40px !important;
     font-size: 12.5px !important;
     border-radius: 9px !important;
   }
@@ -16793,71 +17281,130 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .prog-chart-scroll-wrap {
     width: 100% !important;
+    max-width: 100% !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
-    padding-bottom: 6px !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-x !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #8b5cf6 rgba(15, 23, 42, 0.9) !important;
+    padding-bottom: 8px !important;
+  }
+  .prog-chart-scroll-wrap::-webkit-scrollbar {
+    height: 6px !important;
+    display: block !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+    border-radius: 6px !important;
+  }
+  .prog-chart-scroll-wrap::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-radius: 6px !important;
+  }
+  .prog-chart-scroll-wrap::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #8b5cf6, #3b82f6) !important;
+    border-radius: 6px !important;
   }
   .prog-chart-inner {
-    height: 290px !important;
-    min-width: 100% !important;
+    height: 330px !important;
     position: relative !important;
   }
   .prog-chart-scroll-hint {
-    display: flex;
+    display: flex !important;
   }
   #page-progress .prog-table-wrap {
     border-radius: 10px !important;
     width: 100% !important;
-    overflow-x: auto !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    box-sizing: border-box !important;
   }
   #page-progress .prog-table {
-    width: max-content !important;
-    min-width: 500px !important;
-    table-layout: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
   }
-  #page-progress .prog-table th:nth-child(1), #page-progress .prog-table td:nth-child(1) { width: auto !important; min-width: 130px !important; }
-  #page-progress .prog-table th:nth-child(2), #page-progress .prog-table td:nth-child(2) { width: auto !important; min-width: 80px !important; }
-  #page-progress .prog-table th:nth-child(3), #page-progress .prog-table td:nth-child(3) { width: auto !important; min-width: 100px !important; }
-  #page-progress .prog-table th:nth-child(4), #page-progress .prog-table td:nth-child(4) { width: auto !important; min-width: 75px !important; }
-  #page-progress .prog-table th:nth-child(5), #page-progress .prog-table td:nth-child(5) { width: auto !important; min-width: 90px !important; }
+  /* Mobilde Hedef Kas sütununu tamamen gizle */
+  #page-progress .prog-table .prog-th-muscle,
+  #page-progress .prog-table .prog-td-muscle,
+  #page-progress .prog-table th:nth-child(2),
+  #page-progress .prog-table td.prog-td-muscle {
+    display: none !important;
+  }
+  /* Bölüm başlıkları (Compound ve Bölgesel) 4 sütuna yayılır */
+  #page-progress .prog-table td.prog-td-section {
+    font-size: 11px !important;
+    padding: 9px 10px !important;
+  }
+  /* Kalan 4 sütunun genişlik dağılımı */
+  #page-progress .prog-table th.prog-th-exercise,
+  #page-progress .prog-table td.prog-td-exercise {
+    width: 40% !important;
+    min-width: 0 !important;
+    padding: 9px 6px 9px 8px !important;
+    font-size: 12px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.3 !important;
+  }
+  #page-progress .prog-table th.prog-th-weight,
+  #page-progress .prog-table td.prog-td-weight {
+    width: 24% !important;
+    min-width: 0 !important;
+    padding: 8px 4px !important;
+    text-align: center !important;
+  }
+  #page-progress .prog-table th.prog-th-reps,
+  #page-progress .prog-table td.prog-td-reps {
+    width: 18% !important;
+    min-width: 0 !important;
+    padding: 8px 4px !important;
+    text-align: center !important;
+  }
+  #page-progress .prog-table th.prog-th-date,
+  #page-progress .prog-table td.prog-td-date {
+    width: 18% !important;
+    min-width: 0 !important;
+    padding: 8px 4px !important;
+    text-align: center !important;
+  }
 
   .prog-table thead th {
-    padding: 9px 5px !important;
-    font-size: 10px !important;
+    padding: 8px 4px !important;
+    font-size: 9.5px !important;
     white-space: nowrap !important;
+    text-align: center !important;
+  }
+  .prog-table thead th.prog-th-exercise {
+    text-align: left !important;
   }
   .prog-pr-row td {
     padding: 8px 4px !important;
     font-size: 11.5px !important;
   }
-  .prog-muscle-badge {
-    padding: 2.5px 6px !important;
-    font-size: 10px !important;
-    white-space: nowrap !important;
-    letter-spacing: 0.2px !important;
-    display: inline-block !important;
-  }
   .prog-pr-weight-badge {
-    padding: 3px 6px !important;
-    font-size: 10.5px !important;
+    padding: 3px 5px !important;
+    font-size: 10px !important;
     border-radius: 5px !important;
     white-space: nowrap !important;
     display: inline-flex !important;
+    letter-spacing: 0.1px !important;
   }
   .prog-bw-text {
     white-space: nowrap !important;
-    font-size: 9.5px !important;
+    font-size: 8.5px !important;
     letter-spacing: -0.2px !important;
   }
   .prog-pr-reps-badge {
-    padding: 3px 6px !important;
-    font-size: 10.5px !important;
+    padding: 3px 5px !important;
+    font-size: 10px !important;
     border-radius: 5px !important;
     white-space: nowrap !important;
     display: inline-flex !important;
   }
   .prog-pr-date {
-    font-size: 10px !important;
+    font-size: 9.5px !important;
     white-space: nowrap !important;
   }
 }
@@ -16893,43 +17440,71 @@ tr:hover td { background: var(--bg-card-hover); }
   .prog-chart-inner {
     height: 270px !important;
   }
-  #page-progress .prog-table {
-    width: max-content !important;
-    min-width: 480px !important;
-    table-layout: auto !important;
+  #page-progress .prog-table-wrap {
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    width: 100% !important;
   }
-  #page-progress .prog-table th:nth-child(1), #page-progress .prog-table td:nth-child(1) { width: auto !important; min-width: 125px !important; }
-  #page-progress .prog-table th:nth-child(2), #page-progress .prog-table td:nth-child(2) { width: auto !important; min-width: 75px !important; }
-  #page-progress .prog-table th:nth-child(3), #page-progress .prog-table td:nth-child(3) { width: auto !important; min-width: 95px !important; }
-  #page-progress .prog-table th:nth-child(4), #page-progress .prog-table td:nth-child(4) { width: auto !important; min-width: 70px !important; }
-  #page-progress .prog-table th:nth-child(5), #page-progress .prog-table td:nth-child(5) { width: auto !important; min-width: 85px !important; }
+  #page-progress .prog-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+  #page-progress .prog-table .prog-th-muscle,
+  #page-progress .prog-table .prog-td-muscle,
+  #page-progress .prog-table th:nth-child(2),
+  #page-progress .prog-table td.prog-td-muscle {
+    display: none !important;
+  }
+  #page-progress .prog-table th.prog-th-exercise,
+  #page-progress .prog-table td.prog-td-exercise {
+    width: 40% !important;
+    min-width: 0 !important;
+    font-size: 11.5px !important;
+    padding: 7px 4px 7px 6px !important;
+  }
+  #page-progress .prog-table th.prog-th-weight,
+  #page-progress .prog-table td.prog-td-weight {
+    width: 24% !important;
+    min-width: 0 !important;
+    padding: 6px 2px !important;
+  }
+  #page-progress .prog-table th.prog-th-reps,
+  #page-progress .prog-table td.prog-td-reps {
+    width: 18% !important;
+    min-width: 0 !important;
+    padding: 6px 2px !important;
+  }
+  #page-progress .prog-table th.prog-th-date,
+  #page-progress .prog-table td.prog-td-date {
+    width: 18% !important;
+    min-width: 0 !important;
+    padding: 6px 2px !important;
+  }
 
   .prog-table thead th {
-    padding: 7px 3px !important;
-    font-size: 9px !important;
+    padding: 7px 2px !important;
+    font-size: 8.5px !important;
   }
   .prog-pr-row td {
-    padding: 7px 3px !important;
-    font-size: 10.5px !important;
-  }
-  .prog-muscle-badge {
-    padding: 2px 5px !important;
-    font-size: 9px !important;
+    padding: 7px 2px !important;
+    font-size: 10px !important;
   }
   .prog-pr-weight-badge {
     padding: 2px 4px !important;
     font-size: 9.5px !important;
   }
   .prog-bw-text {
-    font-size: 8.5px !important;
+    font-size: 8px !important;
     letter-spacing: -0.3px !important;
   }
   .prog-pr-reps-badge {
-    padding: 2px 5px !important;
-    font-size: 9.5px !important;
+    padding: 2px 4px !important;
+    font-size: 9px !important;
   }
   .prog-pr-date {
-    font-size: 9px !important;
+    font-size: 8.5px !important;
   }
 }
 
@@ -18366,6 +18941,9 @@ tr:hover td { background: var(--bg-card-hover); }
     width: 100% !important;
     box-sizing: border-box !important;
   }
+  .audit-searchrow > .audit-field:first-child {
+    grid-column: span 2 !important;
+  }
   .audit-searchrow button {
     grid-column: span 2 !important;
   }
@@ -18420,26 +18998,39 @@ tr:hover td { background: var(--bg-card-hover); }
     overflow: hidden !important;
     text-overflow: ellipsis !important;
   }
+
   .audit-toolbar {
-    padding: 14px 14px !important;
+    padding: 12px 12px !important;
     border-radius: 13px !important;
   }
   .audit-searchrow {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr 1fr !important;
     gap: 8px !important;
   }
+  .audit-searchrow > .audit-field:first-child {
+    grid-column: span 2 !important;
+  }
   .audit-searchrow button {
-    grid-column: auto !important;
+    grid-column: span 2 !important;
     width: 100% !important;
     height: 38px !important;
     font-size: 12px !important;
     justify-content: center !important;
   }
+  .audit-field {
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
   .audit-field input,
   .audit-field select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
     height: 38px !important;
-    font-size: 12px !important;
-    padding: 0 11px !important;
+    font-size: 11.5px !important;
+    padding: 0 8px !important;
+    text-overflow: ellipsis !important;
   }
   .audit-userbar {
     padding: 10px 12px !important;
@@ -18496,14 +19087,86 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .audit-tablewrap {
     max-height: 420px !important;
+    overflow-x: hidden !important;
+  }
+  .audit-table {
+    min-width: 100% !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+  }
+  /* Mobilde Seans ID ve Hacim sütunları kaldırılır (scroll gerektirmez) */
+  .audit-col-session-id,
+  .audit-col-volume {
+    display: none !important;
   }
   .audit-table th,
   .audit-table td {
-    padding: 9px 8px !important;
-    font-size: 11.5px !important;
+    padding: 8px 4px !important;
+    font-size: 11px !important;
+    box-sizing: border-box !important;
+    word-break: break-word !important;
   }
   .audit-table th {
+    font-size: 9px !important;
+    letter-spacing: 0.2px !important;
+  }
+  /* Sütun genişlik ve boşluk dengesi: Sporcu ile Veri Durumu arasındaki gereksiz boşluk kapatıldı, sütunlar eşit ve dengeli dağıtıldı */
+  .audit-table th.audit-col-athlete,
+  .audit-table td.audit-col-athlete {
+    width: 26% !important;
+    padding-right: 4px !important;
+  }
+  .audit-table th.audit-col-status,
+  .audit-table td.audit-col-status {
+    width: 22% !important;
+    padding-left: 2px !important;
+    padding-right: 4px !important;
+  }
+  .audit-table th.audit-col-type,
+  .audit-table td.audit-col-type {
+    width: 18% !important;
+    padding-left: 2px !important;
+    padding-right: 4px !important;
+  }
+  .audit-table th.audit-col-date,
+  .audit-table td.audit-col-date {
+    width: 20% !important;
+    padding-left: 2px !important;
+    padding-right: 4px !important;
+    white-space: nowrap !important;
+  }
+  .audit-table th.audit-col-actions,
+  .audit-table td.audit-col-actions {
+    width: 14% !important;
+    padding: 6px 2px !important;
+    text-align: center !important;
+  }
+  /* Veri durumu rozeti ve neon çerçevesi küçültüldü */
+  .audit-status {
+    padding: 2px 5px !important;
     font-size: 9.5px !important;
+    font-weight: 650 !important;
+    border-radius: 5px !important;
+    gap: 3px !important;
+    letter-spacing: 0 !important;
+    line-height: 1.2 !important;
+    box-shadow: none !important;
+    border-width: 1px !important;
+    white-space: nowrap !important;
+  }
+  .audit-type {
+    padding: 2px 5px !important;
+    font-size: 9.5px !important;
+    border-radius: 5px !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap !important;
+  }
+  .audit-btn-inspect {
+    padding: 4px 6px !important;
+    font-size: 10px !important;
+    border-radius: 6px !important;
+    line-height: 1.1 !important;
+    letter-spacing: 0 !important;
   }
   .audit-detail {
     padding: 16px 14px !important;
@@ -18532,16 +19195,327 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .audit-exercise {
     padding: 8px 10px !important;
-    font-size: 12px !important;
+    font-size: 11.5px !important;
     border-radius: 8px !important;
+    min-height: auto !important;
+  }
+  .audit-exercise-list {
+    min-height: auto !important;
+    gap: 6px !important;
   }
   .audit-set-badge {
-    font-size: 11px !important;
+    font-size: 10.5px !important;
+    padding: 2px 6px !important;
+  }
+  .audit-top-timeline {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-top: 8px !important;
+  }
+  .audit-timeline {
+    margin-left: 4px !important;
+    padding-left: 10px !important;
+  }
+  .audit-event {
+    font-size: 11.5px !important;
   }
   .audit-btn-clear {
     font-size: 12px !important;
     padding: 10px 14px !important;
     border-radius: 8px !important;
+  }
+  #adminDeleteWorkoutModal .cust-modal-dialog {
+    padding: 16px 14px !important;
+    max-width: 94vw !important;
+    border-radius: 14px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Teşhis Sayfası (Diagnostics) Mobile 768px */
+  #adminPane-diagnostics .admin-hero-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  #adminPane-diagnostics .admin-hero-card {
+    padding: 13px 12px !important;
+    border-radius: 13px !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  #adminPane-diagnostics .admin-hero-label {
+    font-size: 10px !important;
+    letter-spacing: 0.3px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  #adminPane-diagnostics .admin-hero-icon {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 9px !important;
+    flex-shrink: 0 !important;
+  }
+  #adminPane-diagnostics .admin-hero-icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  #adminPane-diagnostics .admin-hero-value {
+    font-size: 17px !important;
+    margin: 8px 0 3px !important;
+    line-height: 1.2 !important;
+    word-break: break-word !important;
+  }
+  #adminPane-diagnostics .admin-hero-subtext {
+    font-size: 10px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  #adminPane-diagnostics .admin-card {
+    padding: 14px 12px !important;
+    border-radius: 13px !important;
+    margin-top: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  #adminPane-diagnostics .admin-card-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 12px !important;
+  }
+  #adminPane-diagnostics .admin-card-title {
+    font-size: 13px !important;
+    line-height: 1.3 !important;
+  }
+  #adminPane-diagnostics .admin-card-header > div:last-child,
+  #adminPane-diagnostics .diagnostics-btn-group {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  #adminPane-diagnostics .diagnostics-btn-group .btn-diag-purple,
+  #adminPane-diagnostics .admin-card-header .btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+    font-size: 11px !important;
+    padding: 8px 6px !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+  #adminPane-diagnostics .admin-terminal-log {
+    padding: 10px 11px !important;
+    font-size: 11px !important;
+    max-height: 280px !important;
+    border-radius: 10px !important;
+    line-height: 1.5 !important;
+    word-break: break-all !important;
+  }
+  #adminPane-diagnostics .admin-terminal-line {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    margin-bottom: 6px !important;
+  }
+  #adminPane-diagnostics .admin-terminal-time {
+    font-size: 10px !important;
+  }
+  #adminPane-diagnostics .admin-terminal-tag {
+    font-size: 10px !important;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     VERİTABANI YÖNETİMİ & SQL TERMİNAL (MOBILE 768px)
+  ═══════════════════════════════════════════════════ */
+  #page-db-management .admin-hero-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  #page-db-management .admin-hero-card {
+    padding: 13px 12px !important;
+    border-radius: 13px !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  #page-db-management .admin-hero-label {
+    font-size: 10px !important;
+    letter-spacing: 0.3px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  #page-db-management .admin-hero-icon {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 9px !important;
+    flex-shrink: 0 !important;
+  }
+  #page-db-management .admin-hero-icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  #page-db-management .admin-hero-value {
+    font-size: 18px !important;
+    margin: 8px 0 3px !important;
+    line-height: 1.2 !important;
+    word-break: break-word !important;
+  }
+  #page-db-management .admin-hero-subtext {
+    font-size: 10px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* DB Overview Modül Kartları (768px) */
+  #page-db-management .db-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    margin-top: 14px !important;
+  }
+  #page-db-management .db-overview-grid .admin-card {
+    padding: 14px 12px !important;
+    border-radius: 13px !important;
+    box-sizing: border-box !important;
+  }
+  #page-db-management .db-overview-grid .admin-card-title {
+    font-size: 13.5px !important;
+  }
+  #page-db-management .db-overview-grid p {
+    font-size: 11.5px !important;
+    line-height: 1.5 !important;
+  }
+
+  /* DB SQL Terminali (768px) */
+  #page-db-management .db-sql-editor-container {
+    border-radius: 10px !important;
+    margin-top: 8px !important;
+  }
+  #page-db-management .db-sql-editor-header {
+    padding: 7px 12px !important;
+    font-size: 11px !important;
+  }
+  #page-db-management .db-sql-textarea {
+    font-size: 12px !important;
+    padding: 10px 12px !important;
+    min-height: 85px !important;
+  }
+  #page-db-management .db-sql-editor-footer {
+    padding: 8px 12px !important;
+    gap: 8px !important;
+  }
+  #page-db-management .db-query-preset {
+    font-size: 10.5px !important;
+    padding: 4px 9px !important;
+    border-radius: 7px !important;
+  }
+
+  /* DB Migrasyon İstasyonu (768px) - Carousel Track */
+  #page-db-management .db-migration-grid.dash-hybrid-track {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px !important;
+    margin-bottom: 6px !important;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  #page-db-management .db-migration-grid.dash-hybrid-track::-webkit-scrollbar {
+    display: none;
+  }
+  #page-db-management .db-migration-card.dash-hybrid-card {
+    flex: 0 0 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
+    box-sizing: border-box !important;
+    margin-bottom: 0 !important;
+    padding: 16px 14px !important;
+    border-radius: 13px !important;
+    gap: 14px !important;
+  }
+  #page-db-management #dbMigrationDots {
+    display: flex !important;
+  }
+  #page-db-management .db-migration-title {
+    font-size: 14px !important;
+  }
+  #page-db-management .db-migration-desc {
+    font-size: 11.5px !important;
+  }
+  #page-db-management .db-migration-feature {
+    font-size: 11px !important;
+  }
+  #page-db-management .db-migration-btn-green,
+  #page-db-management .db-migration-btn-blue {
+    height: 42px !important;
+    font-size: 12px !important;
+  }
+
+  /* DB Migration Terminal Günlüğü (768px) - Soldan Düzgün Hizalama */
+  #page-db-management #dbMigrationTerminalLog {
+    text-align: left !important;
+    padding: 10px 12px !important;
+    border-radius: 10px !important;
+  }
+  #page-db-management #dbMigrationTerminalLog .admin-terminal-line {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: baseline !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin-bottom: 6px !important;
+    width: 100% !important;
+  }
+  #page-db-management #dbMigrationTerminalLog .admin-terminal-line > span:last-child {
+    text-align: left !important;
+    word-break: break-word !important;
+  }
+
+  /* DB Tablolar & Şema (768px) */
+  #page-db-management #dbTableSelect {
+    min-width: 140px !important;
+    font-size: 12px !important;
+    padding: 6px 8px !important;
+  }
+  #page-db-management .admin-table-container {
+    max-height: 400px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #page-db-management .admin-table th,
+  #page-db-management .admin-table td {
+    padding: 8px 6px !important;
+    font-size: 11px !important;
+  }
+
+  /* DB Bakım Modülü (768px) */
+  #page-db-management .db-maintenance-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  #page-db-management .db-maintenance-grid .admin-card {
+    padding: 16px 14px !important;
+    border-radius: 13px !important;
   }
 }
 
@@ -18561,7 +19535,7 @@ tr:hover td { background: var(--bg-card-hover); }
     margin: 4px 0 2px !important;
   }
   .audit-toolbar {
-    padding: 11px 11px !important;
+    padding: 10px 10px !important;
     border-radius: 11px !important;
   }
   .audit-tablecard {
@@ -18569,15 +19543,287 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .audit-tablewrap {
     max-height: 380px !important;
+    overflow-x: hidden !important;
   }
   .audit-detail {
     padding: 12px 11px !important;
     border-radius: 11px !important;
   }
+  .audit-table th,
+  .audit-table td {
+    padding: 7px 3px !important;
+    font-size: 10px !important;
+  }
+  .audit-table th {
+    font-size: 8.5px !important;
+  }
+  .audit-status {
+    font-size: 8.5px !important;
+    padding: 1.5px 4px !important;
+  }
+  .audit-type {
+    font-size: 8.5px !important;
+    padding: 1.5px 4px !important;
+  }
+  .audit-btn-inspect {
+    font-size: 9px !important;
+    padding: 3px 4px !important;
+  }
+  .audit-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+  .audit-stat {
+    padding: 8px 8px !important;
+  }
+  .audit-stat small {
+    font-size: 8.5px !important;
+    margin-bottom: 3px !important;
+  }
+  /* Teşhis Sayfası (Diagnostics) Mobile 480px */
+  #adminPane-diagnostics .admin-hero-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  #adminPane-diagnostics .admin-hero-card {
+    padding: 10px 10px !important;
+    border-radius: 11px !important;
+  }
+  #adminPane-diagnostics .admin-hero-label {
+    font-size: 9px !important;
+  }
+  #adminPane-diagnostics .admin-hero-icon {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 8px !important;
+  }
+  #adminPane-diagnostics .admin-hero-icon svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  #adminPane-diagnostics .admin-hero-value {
+    font-size: 15px !important;
+    margin: 6px 0 2px !important;
+  }
+  #adminPane-diagnostics .admin-hero-subtext {
+    font-size: 9px !important;
+  }
+  #adminPane-diagnostics .admin-card {
+    padding: 12px 10px !important;
+    border-radius: 11px !important;
+  }
+  #adminPane-diagnostics .admin-card-header > div:last-child,
+  #adminPane-diagnostics .diagnostics-btn-group {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+  #adminPane-diagnostics .diagnostics-btn-group .btn-diag-purple,
+  #adminPane-diagnostics .admin-card-header .btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    height: 36px !important;
+    font-size: 10px !important;
+    padding: 6px 4px !important;
+    gap: 5px !important;
+  }
+  #adminPane-diagnostics .admin-terminal-log {
+    max-height: 240px !important;
+    font-size: 10.5px !important;
+    padding: 8px 9px !important;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     VERİTABANI YÖNETİMİ & SQL TERMİNAL (MOBILE 480px)
+  ═══════════════════════════════════════════════════ */
+  #page-db-management .admin-hero-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  #page-db-management .admin-hero-card {
+    padding: 10px 10px !important;
+    border-radius: 11px !important;
+  }
+  #page-db-management .admin-hero-label {
+    font-size: 9px !important;
+  }
+  #page-db-management .admin-hero-icon {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 8px !important;
+  }
+  #page-db-management .admin-hero-icon svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  #page-db-management .admin-hero-value {
+    font-size: 15px !important;
+    margin: 6px 0 2px !important;
+  }
+  #page-db-management .admin-hero-subtext {
+    font-size: 9px !important;
+  }
+
+  /* Overview Modül Kartları (480px) */
+  #page-db-management .db-overview-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  #page-db-management .db-overview-grid .admin-card {
+    padding: 12px 11px !important;
+    border-radius: 11px !important;
+  }
+  #page-db-management .db-overview-grid .admin-card-title {
+    font-size: 13px !important;
+  }
+
+  /* SQL Terminal (480px) */
+  #page-db-management #dbPane-terminal .admin-card {
+    padding: 12px 10px !important;
+    border-radius: 11px !important;
+  }
+  #page-db-management .db-sql-editor-container {
+    border-radius: 9px !important;
+  }
+  #page-db-management .db-sql-editor-header {
+    padding: 6px 10px !important;
+    font-size: 10px !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+  #page-db-management .db-sql-textarea {
+    font-size: 11px !important;
+    padding: 8px 10px !important;
+    min-height: 75px !important;
+    line-height: 1.45 !important;
+  }
+  #page-db-management .db-sql-editor-footer {
+    padding: 8px 10px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+  #page-db-management .db-sql-editor-footer .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    font-size: 11.5px !important;
+    padding: 8px !important;
+  }
+  #page-db-management .db-query-preset {
+    font-size: 9.5px !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+  }
+
+  /* Migrasyon Kartları (480px) */
+  #page-db-management .db-migration-grid.dash-hybrid-track {
+    gap: 10px !important;
+  }
+  #page-db-management .db-migration-card.dash-hybrid-card {
+    padding: 14px 11px !important;
+    border-radius: 12px !important;
+    gap: 12px !important;
+  }
+  #page-db-management .db-migration-title {
+    font-size: 13px !important;
+  }
+  #page-db-management .db-migration-desc {
+    font-size: 11px !important;
+  }
+  #page-db-management .db-migration-feature {
+    font-size: 10.5px !important;
+  }
+  #page-db-management .db-migration-btn-green,
+  #page-db-management .db-migration-btn-blue {
+    height: 38px !important;
+    font-size: 11.5px !important;
+  }
+  #page-db-management #dbMigrationTerminalLog {
+    max-height: 180px !important;
+    font-size: 10px !important;
+    padding: 8px 9px !important;
+    text-align: left !important;
+  }
+  #page-db-management #dbMigrationTerminalLog .admin-terminal-line {
+    text-align: left !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Tablolar & Şema (480px) */
+  #page-db-management #dbPane-tables .admin-card-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+  #page-db-management #dbPane-tables .admin-card-header > div:last-child {
+    display: flex !important;
+    width: 100% !important;
+    gap: 6px !important;
+  }
+  #page-db-management #dbTableSelect {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    font-size: 11px !important;
+    padding: 6px 8px !important;
+  }
+  #page-db-management .admin-table-container {
+    max-height: 340px !important;
+  }
+  #page-db-management .admin-table th,
+  #page-db-management .admin-table td {
+    padding: 6px 4px !important;
+    font-size: 10px !important;
+  }
+
+  /* Bakım Kartları (480px) */
+  #page-db-management .db-maintenance-grid .admin-card {
+    padding: 14px 11px !important;
+    border-radius: 11px !important;
+  }
+  #page-db-management .db-maintenance-grid .admin-card .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .audit-stats {
+    grid-template-columns: 1fr !important;
+  }
+  .audit-table {
+    min-width: 100% !important;
+  }
+  .audit-table th,
+  .audit-table td {
+    padding: 6px 2px !important;
+    font-size: 9.5px !important;
+  }
+  .audit-status {
+    font-size: 8px !important;
+    padding: 1px 3px !important;
+  }
+  .audit-type {
+    font-size: 8px !important;
+    padding: 1px 3px !important;
+  }
+  .audit-sort-btn {
+    font-size: 10px !important;
+    padding: 5px 6px !important;
+  }
+  #adminDeleteWorkoutModal .cust-modal-dialog {
+    padding: 12px 10px !important;
+    border-radius: 12px !important;
+  }
 }
 
 @media (max-width: 340px) {
   .audit-kpis {
+    grid-template-columns: 1fr !important;
+  }
+  #adminPane-diagnostics .admin-hero-grid,
+  #page-db-management .admin-hero-grid {
     grid-template-columns: 1fr !important;
   }
 }
@@ -21525,40 +22771,73 @@ tr:hover td { background: var(--bg-card-hover); }
     width: 100% !important;
   }
   
-  /* Progress page mobile table styling - horizontal scroll for dates */
+  /* Progress page mobile table styling - fit cleanly without horizontal scroll */
   #page-progress .prog-table-wrap {
     width: 100% !important;
-    overflow-x: auto !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    box-sizing: border-box !important;
   }
   #page-progress table.prog-table {
-    width: max-content !important;
-    min-width: 490px !important;
-    table-layout: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
   }
-  #page-progress .prog-table th:nth-child(1), #page-progress .prog-table td:nth-child(1) {
-    width: auto !important;
-    min-width: 125px !important;
+  /* Mobilde Hedef Kas sütununu kaldır */
+  #page-progress .prog-table .prog-th-muscle,
+  #page-progress .prog-table .prog-td-muscle,
+  #page-progress .prog-table th:nth-child(2),
+  #page-progress .prog-table td:nth-child(2) {
+    display: none !important;
+  }
+  /* 4 sütunlu dengeli dağılım */
+  #page-progress .prog-table th.prog-th-exercise,
+  #page-progress .prog-table td.prog-td-exercise,
+  #page-progress .prog-table th:nth-child(1),
+  #page-progress .prog-table td:nth-child(1) {
+    width: 40% !important;
+    min-width: 0 !important;
     white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.3 !important;
+    padding: 9px 6px 9px 8px !important;
+    font-size: 12px !important;
   }
-  #page-progress .prog-table th:nth-child(2), #page-progress .prog-table td:nth-child(2) {
-    width: auto !important;
-    min-width: 75px !important;
+  #page-progress .prog-table th.prog-th-weight,
+  #page-progress .prog-table td.prog-td-weight,
+  #page-progress .prog-table th:nth-child(3),
+  #page-progress .prog-table td:nth-child(3) {
+    width: 24% !important;
+    min-width: 0 !important;
     white-space: nowrap !important;
+    text-align: center !important;
+    padding: 8px 4px !important;
   }
-  #page-progress .prog-table th:nth-child(3), #page-progress .prog-table td:nth-child(3) {
-    width: auto !important;
-    min-width: 95px !important;
+  #page-progress .prog-table th.prog-th-reps,
+  #page-progress .prog-table td.prog-td-reps,
+  #page-progress .prog-table th:nth-child(4),
+  #page-progress .prog-table td:nth-child(4) {
+    width: 18% !important;
+    min-width: 0 !important;
     white-space: nowrap !important;
+    text-align: center !important;
+    padding: 8px 4px !important;
   }
-  #page-progress .prog-table th:nth-child(4), #page-progress .prog-table td:nth-child(4) {
-    width: auto !important;
-    min-width: 70px !important;
+  #page-progress .prog-table th.prog-th-date,
+  #page-progress .prog-table td.prog-td-date,
+  #page-progress .prog-table th:nth-child(5),
+  #page-progress .prog-table td:nth-child(5) {
+    width: 18% !important;
+    min-width: 0 !important;
     white-space: nowrap !important;
+    text-align: center !important;
+    padding: 8px 4px !important;
   }
-  #page-progress .prog-table th:nth-child(5), #page-progress .prog-table td:nth-child(5) {
-    width: auto !important;
-    min-width: 85px !important;
-    white-space: nowrap !important;
+  #page-progress .prog-table td.prog-td-section {
+    font-size: 11px !important;
+    padding: 9px 10px !important;
   }
   #prTable td span.prog-pr-reps-badge {
     white-space: nowrap !important;
@@ -21568,27 +22847,21 @@ tr:hover td { background: var(--bg-card-hover); }
     align-items: center !important;
     justify-content: center !important;
     gap: 4px !important;
-    padding: 3px 6px !important;
-    font-size: 10.5px !important;
+    padding: 3px 5px !important;
+    font-size: 10px !important;
   }
   #prTable td span.prog-pr-weight-badge {
     white-space: nowrap !important;
     overflow: visible !important;
     text-overflow: clip !important;
     display: inline-flex !important;
-    padding: 3px 6px !important;
-    font-size: 10.5px !important;
+    padding: 3px 5px !important;
+    font-size: 10px !important;
   }
   #prTable td span.prog-bw-text {
     white-space: nowrap !important;
-    font-size: 9.5px !important;
+    font-size: 8.5px !important;
     display: inline !important;
-  }
-  #prTable td span.prog-muscle-badge {
-    white-space: nowrap !important;
-    display: inline-block !important;
-    padding: 2.5px 6px !important;
-    font-size: 10px !important;
   }
   #page-progress .prog-chart-scroll-wrap {
     width: 100% !important;
@@ -21969,7 +23242,7 @@ tr:hover td { background: var(--bg-card-hover); }
         <div class="brand-sub">Antrenman Platformu</div>
       </div>
     </div>
-    <div class="sidebar-mobile-profile" id="sidebarMobileProfile" onclick="navigate('profile');closeMobileSidebar()">
+    <div class="sidebar-mobile-profile" id="sidebarMobileProfile" onclick="handleSidebarProfileClick()">
       <div class="smp-avatar" id="smpAvatar">?</div>
       <div class="smp-info">
         <div class="smp-name" id="smpName">Kullanıcı</div>
@@ -22045,7 +23318,7 @@ tr:hover td { background: var(--bg-card-hover); }
               </div>
               <div class="dd-role" id="ddRole">Kullanıcı</div>
             </div>
-            <div class="dropdown-item" onclick="navigate('profile');closeDropdown()">
+            <div class="dropdown-item" id="ddProfileItem" onclick="navigate('profile');closeDropdown()">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 118 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
               Profili Düzenle
             </div>
@@ -22600,137 +23873,158 @@ tr:hover td { background: var(--bg-card-hover); }
         </div>
 
         <!-- ────────────────────────────────────────────────────────────────────────── -->
-        <!-- İLERLEME: EN İYİ İLERLEMELER (GÜÇ VE PR ARTIŞLARI VİTRİNİ)                -->
+        <!-- İLERLEME: UZMAN SİSTEMİ TİPİ SEKME SEÇİCİ (ANALİZ & REKORLAR)              -->
         <!-- ────────────────────────────────────────────────────────────────────────── -->
-        <div class="prog-glass-card" id="progTopGainsCard">
-          <div class="prog-card-header" style="margin-bottom: 16px;">
-            <div class="prog-card-title-group">
-              <div class="prog-card-icon-box emerald">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                  <polyline points="17 6 23 6 23 12"></polyline>
-                </svg>
+        <nav class="prog-subtabs" aria-label="İlerleme ve PR sekmeleri">
+          <button type="button" class="prog-subtab active" id="progTabBtn_analysis" onclick="switchProgressTab('analysis')">
+            <span class="prog-tab-dot"></span>
+            <span>Grafik & İlerleme Kartları</span>
+          </button>
+          <button type="button" class="prog-subtab" id="progTabBtn_records" onclick="switchProgressTab('records')">
+            <span class="prog-tab-dot" style="display: none;"></span>
+            <span>Kişisel Rekorlar (PR)</span>
+          </button>
+        </nav>
+
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- SEKME 1: GRAFİK VE İLERLEME KARTLARI (ALT ALTA SIRALI)                     -->
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <div class="prog-tab-pane" id="progTabPane_analysis">
+          <!-- PANO 1: EN İYİ İLERLEMELER -->
+          <div class="prog-glass-card" id="progTopGainsCard">
+            <div class="prog-card-header" style="margin-bottom: 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+              <div class="prog-card-title-group" style="align-items: flex-start;">
+                <div class="prog-card-icon-box emerald" style="margin-top: 1px;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="prog-card-title" style="line-height: 1.25;">En İyi İlerlemeler</h3>
+                  <p class="prog-card-subtitle" style="margin-top: 4px;">Güç artışı sağladığınız hareketler</p>
+                </div>
               </div>
-              <div>
-                <h3 class="prog-card-title">En İyi İlerlemeler</h3>
-                <p class="prog-card-subtitle">İlk kayıttan güncel zirve rekorunuza kadar en yüksek güç artışı sağladığınız hareketler</p>
+              <div id="progTopGainsBadgeWrap" style="display: inline-flex; align-items: center; justify-content: flex-end; flex-shrink: 0; margin-left: auto; margin-top: 2px;">
+                <span class="gym-badge-default" id="progTopGainsCountBadge" style="font-size: 11px; padding: 4px 10px; color: #34d399; border-color: rgba(52, 211, 153, 0.35); background: rgba(52, 211, 153, 0.1); white-space: nowrap; box-shadow: 0 0 10px rgba(52, 211, 153, 0.15);">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 6px #34d399;"></span>
+                  <span id="progTopGainsCountText">Zirveye Koşanlar</span>
+                </span>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="gym-badge-default" id="progTopGainsCountBadge" style="font-size: 11px; padding: 4px 10px; color: #34d399; border-color: rgba(52, 211, 153, 0.35); background: rgba(52, 211, 153, 0.1);">
-                <span style="width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 6px #34d399;"></span>
-                Zirveye Koşanlar 🚀
-              </span>
+
+            <!-- Kartlar Grid Konteynırı -->
+            <div class="prog-top-gains-grid" id="progTopGainsGrid">
+              <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: #94a3b8;">
+                Gelişim verileri yükleniyor...
+              </div>
+            </div>
+
+            <!-- Daha Fazla / Daha Az Göster Butonu (Alt Sağda) -->
+            <div class="prog-gains-action-row">
+              <button type="button" id="progTopGainsMoreBtn" class="prog-gains-more-btn" onclick="toggleTopProgressGains()" style="display: none;">
+                <span id="progTopGainsMoreBtnText">Daha Fazla</span>
+                <svg id="progTopGainsMoreBtnIcon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
             </div>
           </div>
 
-          <!-- Kartlar Grid Konteynırı -->
-          <div class="prog-top-gains-grid" id="progTopGainsGrid">
-            <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: #94a3b8;">
-              Gelişim verileri yükleniyor...
+          <!-- PANO 2: GRAFİK İLERLEMESİ -->
+          <div class="prog-glass-card" id="progExerciseChartCard">
+            <div class="prog-card-header">
+              <div class="prog-card-title-group">
+                <div class="prog-card-icon-box purple">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="prog-card-title">Egzersiz İlerleme Analizi</h3>
+                  <div id="progressChartSubtitle" class="prog-card-subtitle">Seçilen hareketin zaman içindeki kaldırdığı ağırlık değişimi — PR çizgisi ve set detayları</div>
+                </div>
+              </div>
+              <div class="prog-buttons-wrapper">
+                <div class="prog-segmented-group">
+                  <button id="progView_weight" class="tf-pill active" onclick="switchProgChartMode('weight')">Ağırlık</button>
+                  <button id="progView_reps_weight" class="tf-pill" onclick="switchProgChartMode('reps_weight')">Ağırlık + Tekrar</button>
+                </div>
+                <div class="prog-segmented-group">
+                  <button id="progTime_monthly" class="tf-pill active" onclick="switchProgTimeframe('monthly')">Aylık</button>
+                  <button id="progTime_yearly" class="tf-pill" onclick="switchProgTimeframe('yearly')">Yıllık</button>
+                  <button id="progTime_all" class="tf-pill" onclick="switchProgTimeframe('all')">Genel</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="prog-search-box">
+              <div class="prog-search-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
+              <input type="text" id="exerciseSearchInput" class="prog-search-input" placeholder="Egzersiz ara veya seç..."
+                    onfocus="window.showExerciseDropdown()" oninput="window.filterExerciseDropdown(this.value)" autocomplete="off" />
+              <div id="exerciseDropdownList" class="custom-dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 100; max-height: 240px; overflow-y: auto;">
+              </div>
+            </div>
+
+            <div class="prog-chart-scroll-wrap" id="progChartScrollWrap" style="position: relative; width: 100%; min-width: 0;">
+              <div class="prog-chart-inner" id="progChartInner" style="position: relative; height: 360px; width: 100%; min-width: 100%;">
+                <canvas id="exerciseProgressChart"></canvas>
+              </div>
+            </div>
+            <div id="progChartScrollHint" class="prog-chart-scroll-hint" style="display: none; align-items: center; justify-content: flex-end; gap: 5px; margin-top: 6px; font-size: 11px; color: #a78bfa; font-weight: 600;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Tüm tarihleri görmek için kaydırın</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
           </div>
         </div>
 
-        
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-<!-- İLERLEME: EGZERSİZ İLERLEME ANALİZİ VE GRAFİK KARTI                        -->
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-
-
-        <div class="prog-glass-card">
-          <div class="prog-card-header">
-            <div class="prog-card-title-group">
-              <div class="prog-card-icon-box purple">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                </svg>
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- SEKME 2: KİŞİSEL REKORLAR (PR) TABLOSU VE ARAMA PANELİ                    -->
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <div class="prog-tab-pane" id="progTabPane_records" style="display: none;">
+          <div class="prog-glass-card" id="progPersonalRecordsCard">
+            <div class="prog-card-header" style="margin-bottom: 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+              <div class="prog-card-title-group" style="align-items: flex-start;">
+                <div class="prog-card-icon-box gold" style="margin-top: 1px;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                    <path d="M4 22h16"></path>
+                    <path d="M10 14.66V17c0 .55-.45 1-1 1H7c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h10c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-2c-.55 0-1-.45-1-1v-2.34"></path>
+                    <path d="M6 4h12v5a6 6 0 0 1-12 0V4z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="prog-card-title" style="line-height: 1.25;">Kişisel Rekorlar (PR)</h3>
+                  <p class="prog-card-subtitle" style="margin-top: 4px;">En iyi dereceleriniz</p>
+                </div>
               </div>
-              <div>
-                <h3 class="prog-card-title">Egzersiz İlerleme Analizi</h3>
-                <div id="progressChartSubtitle" class="prog-card-subtitle">Seçilen hareketin zaman içindeki kaldırdığı ağırlık değişimi — PR çizgisi ve set detayları</div>
-              </div>
-            </div>
-            <div class="prog-buttons-wrapper">
-              <div class="prog-segmented-group">
-                <button id="progView_weight" class="tf-pill active" onclick="switchProgChartMode('weight')">Ağırlık</button>
-                <button id="progView_reps_weight" class="tf-pill" onclick="switchProgChartMode('reps_weight')">Ağırlık + Tekrar</button>
-              </div>
-              <div class="prog-segmented-group">
-                <button id="progTime_monthly" class="tf-pill active" onclick="switchProgTimeframe('monthly')">Aylık</button>
-                <button id="progTime_yearly" class="tf-pill" onclick="switchProgTimeframe('yearly')">Yıllık</button>
-                <button id="progTime_all" class="tf-pill" onclick="switchProgTimeframe('all')">Genel</button>
+              <div class="prog-badge-pr-total" style="display: inline-flex; align-items: center; justify-content: flex-end; flex-shrink: 0; margin-left: auto; margin-top: 2px;">
+                <span class="prog-badge-pr-dot"></span>
+                <span class="prog-badge-pr-label">Toplam:</span>
+                <span id="progTotalPRCount" class="prog-badge-pr-val">0 rekor</span>
               </div>
             </div>
-          </div>
 
-          <div class="prog-search-box">
-            <div class="prog-search-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
+            <div class="prog-table-wrap">
+              <table class="prog-table">
+                <thead>
+                  <tr>
+                    <th class="prog-th-exercise" style="width: 32%;">Hareket</th>
+                    <th class="prog-th-muscle" style="width: 24%;">Hedef Kas</th>
+                    <th class="prog-th-weight" style="width: 18%;">Ağırlık</th>
+                    <th class="prog-th-reps" style="width: 14%;">Tekrar</th>
+                    <th class="prog-th-date" style="width: 12%;">Tarih</th>
+                  </tr>
+                </thead>
+                <tbody id="prTable"></tbody>
+              </table>
             </div>
-            <input type="text" id="exerciseSearchInput" class="prog-search-input" placeholder="🔍 Egzersiz ara veya seç..."
-                  onfocus="window.showExerciseDropdown()" oninput="window.filterExerciseDropdown(this.value)" autocomplete="off" />
-            <div id="exerciseDropdownList" class="custom-dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 100; max-height: 240px; overflow-y: auto;">
-            </div>
-          </div>
-
-          <div class="prog-chart-scroll-wrap" id="progChartScrollWrap" style="position: relative; width: 100%; min-width: 0; overflow-x: auto; overflow-y: hidden;">
-            <div class="prog-chart-inner" id="progChartInner" style="position: relative; height: 360px; width: 100%; min-width: 100%;">
-              <canvas id="exerciseProgressChart"></canvas>
-            </div>
-          </div>
-          <div id="progChartScrollHint" class="prog-chart-scroll-hint" style="display: none; align-items: center; justify-content: flex-end; gap: 5px; margin-top: 6px; font-size: 11px; color: #a78bfa; font-weight: 600;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            <span>Tüm tarihleri görmek için kaydırın</span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </div>
-        </div>
-
-        
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-<!-- İLERLEME: KİŞİSEL REKORLAR (PR) TABLOSU VE ARAMA PANELİ                    -->
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-
-
-        <div class="prog-glass-card">
-          <div class="prog-card-header">
-            <div class="prog-card-title-group">
-              <div class="prog-card-icon-box gold">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
-                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
-                  <path d="M4 22h16"></path>
-                  <path d="M10 14.66V17c0 .55-.45 1-1 1H7c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h10c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-2c-.55 0-1-.45-1-1v-2.34"></path>
-                  <path d="M6 4h12v5a6 6 0 0 1-12 0V4z"></path>
-                </svg>
-              </div>
-              <div>
-                <h3 class="prog-card-title">Kişisel Rekorlar (PR)</h3>
-                <p class="prog-card-subtitle">Kas gruplarına ve hareket türüne göre en iyi dereceleriniz</p>
-              </div>
-            </div>
-            <div class="prog-badge-pr-total">
-              <span class="prog-badge-pr-dot"></span>
-              <span class="prog-badge-pr-label">Toplam Rekor:</span>
-              <span id="progTotalPRCount" class="prog-badge-pr-val">0 Rekor</span>
-            </div>
-          </div>
-
-          <div class="prog-table-wrap">
-            <table class="prog-table">
-              <thead>
-                <tr>
-                  <th style="width: 32%;">Hareket</th>
-                  <th style="width: 24%;">Hedef Kas</th>
-                  <th style="width: 18%;">Zirve Ağırlık</th>
-                  <th style="width: 14%;">Tekrar</th>
-                  <th style="width: 12%;">Tarih</th>
-                </tr>
-              </thead>
-              <tbody id="prTable"></tbody>
-            </table>
           </div>
         </div>
 
@@ -24068,8 +25362,8 @@ tr:hover td { background: var(--bg-card-hover); }
                     <span class="pulse-dot"></span>
                     <span>Sistem sağlıklı</span>
                   </span>
-                  <button class="btn-neon-purple btn-neon-purple-sm" onclick="adminAuditResetFilters(true)">
-                    ↻ Yenile
+                  <button class="btn-neon-purple btn-neon-purple-sm" id="auditRefreshBtn" onclick="adminAuditResetFilters(true)">
+                    <span class="audit-refresh-icon">↻</span> Yenile
                   </button>
                 </div>
               </header>
@@ -24098,7 +25392,7 @@ tr:hover td { background: var(--bg-card-hover); }
                 </div>
                 <div class="audit-kpi">
                   <small>İnceleme gereken</small>
-                  <strong class="warn" id="auditKpiWarn">—</strong>
+                  <strong id="auditKpiWarn">—</strong>
                   <span class="warn" id="auditKpiWarnSub">Eksik veya şüpheli kayıt</span>
                 </div>
               </section>
@@ -24174,15 +25468,15 @@ tr:hover td { background: var(--bg-card-hover); }
                     <table class="audit-table">
                       <thead>
                         <tr>
-                          <th>Seans</th>
-                          <th>Sporcu</th>
-                          <th>Veri durumu</th>
-                          <th>Tür</th>
-                          <th>Hacim</th>
-                          <th onclick="adminAuditToggleSort()" style="cursor:pointer; user-select:none;" title="Tarihe göre sırala">
+                          <th class="audit-col-session-id">Seans</th>
+                          <th class="audit-col-athlete">Sporcu</th>
+                          <th class="audit-col-status">Veri durumu</th>
+                          <th class="audit-col-type">Tür</th>
+                          <th class="audit-col-volume">Hacim</th>
+                          <th class="audit-col-date" onclick="adminAuditToggleSort()" style="cursor:pointer; user-select:none;" title="Tarihe göre sırala">
                             Tarih <span id="adminAuditThSortIcon" style="font-size:11px; color:#c084fc; margin-left:2px;">↓</span>
                           </th>
-                          <th style="text-align:center; min-width:105px;">İşlemler</th>
+                          <th class="audit-col-actions" style="text-align:center;">İşlem</th>
                         </tr>
                       </thead>
                       <tbody id="adminAuditRows">
@@ -24268,11 +25562,15 @@ tr:hover td { background: var(--bg-card-hover); }
                 <div class="admin-card-title">
                   <span>📡</span> Yönetici Teşhis Konsolu & Olay Günlüğü
                 </div>
-                <div style="display:flex; gap:10px;">
-                  <button class="btn btn-sm btn-secondary" onclick="adminRunDiagnostics()">
-                    <span>🔍</span> Teşhis Testini Başlat
+                <div class="diagnostics-btn-group">
+                  <button class="btn-diag-purple btn-diag-primary" onclick="adminRunDiagnostics()">
+                    <span class="btn-diag-icon">🔍</span>
+                    <span>Teşhis Testini Başlat</span>
                   </button>
-                  <button class="btn btn-sm btn-secondary" onclick="adminClearConsoleLog()">Günlüğü Temizle</button>
+                  <button class="btn-diag-purple btn-diag-outline" onclick="adminClearConsoleLog()">
+                    <span class="btn-diag-icon">🧹</span>
+                    <span>Günlüğü Temizle</span>
+                  </button>
                 </div>
               </div>
 
@@ -24379,7 +25677,7 @@ tr:hover td { background: var(--bg-card-hover); }
 <!-- ────────────────────────────────────────────────────────────────────────── -->
 
 
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
+            <div class="db-overview-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
               <div class="admin-card" style="display:flex; flex-direction:column; justify-content:space-between; cursor:pointer;" onclick="navigate('db-terminal')">
                 <div>
                   <div class="admin-card-header" style="margin-bottom:10px;">
@@ -24588,10 +25886,10 @@ tr:hover td { background: var(--bg-card-hover); }
 <!-- ────────────────────────────────────────────────────────────────────────── -->
 
 
-              <div class="db-migration-grid">
+              <div class="db-migration-grid dash-hybrid-track" id="dbMigrationCardsTrack" onscroll="handleHybridScroll('dbMigrationCardsTrack', null, 'dbMigrationDots')">
                 
                 <!-- MİGRASYON SEÇENEĞİ 1: SQLITE -> POSTGRESQL AKTARIMI -->
-                <div class="db-migration-card cloud-push">
+                <div class="db-migration-card cloud-push dash-hybrid-card">
                   <div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                       <div class="db-migration-title" style="color:#c084fc;">
@@ -24628,7 +25926,7 @@ tr:hover td { background: var(--bg-card-hover); }
                 </div>
 
                 <!-- MİGRASYON SEÇENEĞİ 2: POSTGRESQL -> SQLITE AKTARIMI -->
-                <div class="db-migration-card cloud-pull">
+                <div class="db-migration-card cloud-pull dash-hybrid-card">
                   <div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                       <div class="db-migration-title" style="color:#38bdf8;">
@@ -24657,6 +25955,12 @@ tr:hover td { background: var(--bg-card-hover); }
                   </div>
                 </div>
 
+              </div>
+
+              <!-- DB Migration Mobile Carousel Dots (Sağa/Sola Kaydırma Göstergesi) -->
+              <div class="dash-carousel-dots" id="dbMigrationDots" style="display:none; margin: -6px 0 16px;">
+                <div class="dash-dot active" onclick="switchHybridSlide('dbMigrationCardsTrack', 0)"></div>
+                <div class="dash-dot" onclick="switchHybridSlide('dbMigrationCardsTrack', 1)"></div>
               </div>
 
               
@@ -24756,7 +26060,7 @@ tr:hover td { background: var(--bg-card-hover); }
 
 
           <div class="admin-tab-pane" id="dbPane-maintenance">
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+            <div class="db-maintenance-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
               
               
 <!-- ────────────────────────────────────────────────────────────────────────── -->
@@ -25760,6 +27064,12 @@ function doLogout() {
   closeMobileSidebar();
 }
 
+function handleSidebarProfileClick() {
+  if (_isAdmin) return;
+  navigate('profile');
+  closeMobileSidebar();
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    BÖLÜM 5: UYGULAMAYA GİRİŞ VE ARAYÜZ BAŞLATICI (ENTER APP)
 ══════════════════════════════════════════════════════════════════════════ */
@@ -25780,19 +27090,31 @@ function enterApp() {
   if (ddDateEl) {
     ddDateEl.textContent = formatDateTR(new Date().toISOString().slice(0, 10));
   }
+  const ddProfileItem = document.getElementById('ddProfileItem');
+  if (ddProfileItem) {
+    ddProfileItem.style.display = _isAdmin ? 'none' : '';
+  }
 
   // Update mobile sidebar profile card
+  const smpCard = document.getElementById('sidebarMobileProfile');
+  if (smpCard) smpCard.classList.toggle('is-admin', Boolean(_isAdmin));
   const smpAvatar = document.getElementById('smpAvatar');
   if (smpAvatar) smpAvatar.textContent = name.charAt(0).toUpperCase();
   const smpName = document.getElementById('smpName');
   if (smpName) smpName.textContent = name;
   const smpRole = document.getElementById('smpRole');
-  if (smpRole) smpRole.textContent = _isAdmin ? 'Admin' : 'Kullanıcı';
+  if (smpRole) smpRole.textContent = _isAdmin ? 'Yönetici' : 'Kullanıcı';
   const smpLevel = document.getElementById('smpLevel');
   if (smpLevel) {
-    const rawLevel = _currentUser?.fitness_level || 'Beginner';
-    const levelMap = { 'Beginner': 'Başlangıç', 'Intermediate': 'Orta Seviye', 'Advanced': 'İleri Seviye' };
-    smpLevel.textContent = levelMap[rawLevel] || rawLevel;
+    if (_isAdmin) {
+      smpLevel.style.display = 'none';
+      smpLevel.textContent = '';
+    } else {
+      smpLevel.style.display = '';
+      const rawLevel = _currentUser?.fitness_level || 'Beginner';
+      const levelMap = { 'Beginner': 'Başlangıç', 'Intermediate': 'Orta Seviye', 'Advanced': 'İleri Seviye' };
+      smpLevel.textContent = levelMap[rawLevel] || rawLevel;
+    }
   }
 
   // Build sidebar
@@ -26173,7 +27495,13 @@ function updateThemeIcon() {
 /* ──────────────────────────────────────────────────────────────────────────
    ALT BÖLÜM 10.1: PROFİL AÇILIR MENÜ AÇMA / KAPAMA
 ────────────────────────────────────────────────────────────────────────── */
-function toggleDropdown() { document.getElementById('userDropdown').classList.toggle('show'); }
+function toggleDropdown() {
+  const ddProfileItem = document.getElementById('ddProfileItem');
+  if (ddProfileItem) {
+    ddProfileItem.style.display = _isAdmin ? 'none' : '';
+  }
+  document.getElementById('userDropdown').classList.toggle('show');
+}
 function closeDropdown() { document.getElementById('userDropdown').classList.remove('show'); }
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.user-dropdown')) closeDropdown();
@@ -30688,32 +32016,70 @@ let _progHistoricalRecords = [];
 let _progExercise = '';
 let _progTimeframe = 'monthly';
 let _progChartMode = 'weight';
+let _activeProgressTab = 'analysis';
 
-// ── EN İYİ İLERLEMELER (TOP PROGRESS GAINS) ÇİZİCİ ──
-function renderTopProgressGains(topGains) {
+function switchProgressTab(tabId) {
+  _activeProgressTab = tabId;
+  const tabs = ['analysis', 'records'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('progTabBtn_' + t);
+    const pane = document.getElementById('progTabPane_' + t);
+    if (btn) {
+      const isActive = t === tabId;
+      btn.classList.toggle('active', isActive);
+      const dot = btn.querySelector('.prog-tab-dot');
+      if (dot) dot.style.display = isActive ? 'inline-block' : 'none';
+    }
+    if (pane) {
+      pane.style.display = t === tabId ? 'block' : 'none';
+    }
+  });
+
+  if (tabId === 'analysis' && _exerciseProgressChart) {
+    setTimeout(() => {
+      try { _exerciseProgressChart.resize(); } catch(e) {}
+    }, 40);
+  }
+}
+window.switchProgressTab = switchProgressTab;
+
+// ── EN İYİ İLERLEMELER (TOP PROGRESS GAINS) ÇİZİCİ VE YÖNETİCİSİ ──
+let _progTopGainsList = [];
+let _progTopGainsExpanded = false;
+
+function toggleTopProgressGains() {
+  _progTopGainsExpanded = !_progTopGainsExpanded;
+  renderTopProgressGainsGrid();
+}
+window.toggleTopProgressGains = toggleTopProgressGains;
+
+function renderTopProgressGainsGrid() {
   const container = document.getElementById('progTopGainsGrid');
-  const badgeEl = document.getElementById('progTopGainsCountBadge');
+  const moreBtn = document.getElementById('progTopGainsMoreBtn');
+  const moreBtnText = document.getElementById('progTopGainsMoreBtnText');
+  const moreBtnIcon = document.getElementById('progTopGainsMoreBtnIcon');
   if (!container) return;
 
-  const list = Array.isArray(topGains) ? topGains : [];
+  const list = _progTopGainsList;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const defaultLimit = isMobile ? 6 : 8;
+  const showAll = _progTopGainsExpanded;
+  const displayList = showAll ? list : list.slice(0, defaultLimit);
 
-  if (badgeEl) {
-    if (list.length > 0) {
-      badgeEl.innerHTML = `<span style="width:6px; height:6px; border-radius:50%; background:#34d399; box-shadow:0 0 6px #34d399;"></span> ${list.length} Güç Artışı 🚀`;
+  if (moreBtn) {
+    if (list.length > defaultLimit) {
+      moreBtn.style.display = 'inline-flex';
+      if (showAll) {
+        if (moreBtnText) moreBtnText.textContent = 'Daha Az';
+        if (moreBtnIcon) moreBtnIcon.style.transform = 'rotate(180deg)';
+      } else {
+        const remaining = list.length - defaultLimit;
+        if (moreBtnText) moreBtnText.textContent = `Daha Fazla (+${remaining})`;
+        if (moreBtnIcon) moreBtnIcon.style.transform = 'rotate(0deg)';
+      }
     } else {
-      badgeEl.innerHTML = `<span style="width:6px; height:6px; border-radius:50%; background:#94a3b8;"></span> Kayıt Bekleniyor`;
+      moreBtn.style.display = 'none';
     }
-  }
-
-  if (list.length === 0) {
-    container.innerHTML = `
-      <div style="grid-column: 1 / -1; padding: 26px 20px; text-align: center; color: #94a3b8; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1);">
-        <div style="font-size: 26px; margin-bottom: 8px;">📈</div>
-        <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px;">Henüz Karşılaştırmalı Gelişim Kaydı Yok</div>
-        <div style="font-size: 12px; color: #94a3b8; max-width: 420px; margin: 0 auto;">En iyi güç ilerlemelerini görebilmek için hareketlerinizi en az 2 farklı antrenman seansında kaydedin.</div>
-      </div>
-    `;
-    return;
   }
 
   const formatDateTr = (dateStr) => {
@@ -30739,7 +32105,7 @@ function renderTopProgressGains(topGains) {
   };
 
   let cardsHTML = '';
-  list.forEach(r => {
+  displayList.forEach((r, idx) => {
     const isReps = r.metric_type === 'reps';
     const unit = isReps ? 'tkr' : 'kg';
     const mStyle = muscleColorMap[r.muscle] || { bg: 'rgba(255, 255, 255, 0.1)', border: 'rgba(255, 255, 255, 0.2)', text: '#ffffff' };
@@ -30751,15 +32117,15 @@ function renderTopProgressGains(topGains) {
 
     const safeExercise = (r.exercise || '').replace(/'/g, "\\'");
     const safeId = (r.exercise_id || '').replace(/'/g, "\\'");
+    // Animasyon kademelendirmesi (daha belirgin ve akıcı dalga etkisi)
+    const animDelay = Math.min(idx * 0.055, 0.7);
 
     cardsHTML += `
-      <div class="prog-gain-card" onclick="selectProgressExercise('${safeId}', '${safeExercise}'); document.getElementById('exerciseProgressChart')?.scrollIntoView({behavior:'smooth', block:'center'}); toast('${safeExercise} grafiği açıldı.', 'info');" title="Grafiği incelemek için tıkla">
+      <div class="prog-gain-card prog-gain-card-anim" style="animation-delay: ${animDelay}s;" onclick="selectProgressExercise('${safeId}', '${safeExercise}'); document.getElementById('exerciseProgressChart')?.scrollIntoView({behavior:'smooth', block:'center'});" title="Grafiği incelemek için tıkla">
         <div class="prog-gain-card-header">
+          <div class="prog-gain-title" title="${safeExercise}">${r.exercise}</div>
           <span class="prog-gain-muscle-tag" style="${badgeStyle}">${r.muscle}</span>
-          <span class="prog-gain-session-tag">🔥 ${r.sessions_count} Seans</span>
         </div>
-
-        <div class="prog-gain-title">${r.exercise}</div>
 
         <div class="prog-gain-progression-row">
           <div class="prog-gain-numbers">
@@ -30768,8 +32134,7 @@ function renderTopProgressGains(topGains) {
             <span class="gain-to">${peakValStr} ${unit}</span>
           </div>
           <div class="prog-gain-delta-badge">
-            <span class="gain-diff">+${diffValStr} ${unit}</span>
-            <span class="gain-pct">(+${r.percentage}%)</span>
+            <span class="gain-pct">+${r.percentage}%</span>
           </div>
         </div>
 
@@ -30785,6 +32150,37 @@ function renderTopProgressGains(topGains) {
   });
 
   container.innerHTML = cardsHTML;
+}
+
+function renderTopProgressGains(topGains) {
+  const container = document.getElementById('progTopGainsGrid');
+  const badgeEl = document.getElementById('progTopGainsCountBadge');
+  const moreBtn = document.getElementById('progTopGainsMoreBtn');
+  if (!container) return;
+
+  _progTopGainsList = Array.isArray(topGains) ? topGains : [];
+
+  if (badgeEl) {
+    if (_progTopGainsList.length > 0) {
+      badgeEl.innerHTML = `<span style="width:6px; height:6px; border-radius:50%; background:#34d399; box-shadow:0 0 6px #34d399;"></span> ${_progTopGainsList.length} Güç Artışı`;
+    } else {
+      badgeEl.innerHTML = `<span style="width:6px; height:6px; border-radius:50%; background:#94a3b8;"></span> Kayıt Bekleniyor`;
+    }
+  }
+
+  if (_progTopGainsList.length === 0) {
+    if (moreBtn) moreBtn.style.display = 'none';
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; padding: 26px 20px; text-align: center; color: #94a3b8; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1);">
+        <div style="font-size: 26px; margin-bottom: 8px;">📈</div>
+        <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px;">Henüz Karşılaştırmalı Gelişim Kaydı Yok</div>
+        <div style="font-size: 12px; color: #94a3b8; max-width: 420px; margin: 0 auto;">En iyi güç ilerlemelerini görebilmek için hareketlerinizi en az 2 farklı antrenman seansında ağırlık artışıyla kaydedin.</div>
+      </div>
+    `;
+    return;
+  }
+
+  renderTopProgressGainsGrid();
 }
 window.renderTopProgressGains = renderTopProgressGains;
 
@@ -30987,15 +32383,15 @@ async function loadProgress(username) {
 
         // Toplam Rekor Sayısını Güncelle
         const totalPRCountEl = document.getElementById('progTotalPRCount');
-        if (totalPRCountEl) totalPRCountEl.textContent = `${prs.length} Rekor`;
+        if (totalPRCountEl) totalPRCountEl.textContent = `${prs.length} rekor`;
 
         let tableHTML = '';
 
         // 1. BİLEŞİK HAREKETLER
         if (compoundPRs.length > 0) {
           tableHTML += `
-            <tr style="background: linear-gradient(90deg, rgba(139, 92, 246, 0.28) 0%, rgba(6, 182, 212, 0.12) 100%); border-left: 4px solid #8b5cf6;">
-              <td colspan="5" style="padding: 12px 16px; font-weight: 900; font-size: 12.5px; color: #e9d5ff; letter-spacing: 0.8px; text-transform: uppercase;">
+            <tr class="prog-pr-section-header" style="background: linear-gradient(90deg, rgba(139, 92, 246, 0.28) 0%, rgba(6, 182, 212, 0.12) 100%); border-left: 4px solid #8b5cf6;">
+              <td colspan="5" class="prog-td-section" style="padding: 12px 16px; font-weight: 900; font-size: 12.5px; color: #e9d5ff; letter-spacing: 0.8px; text-transform: uppercase;">
                 ⚡ BİLEŞİK HAREKETLER (COMPOUND)
               </td>
             </tr>
@@ -31008,11 +32404,11 @@ async function loadProgress(username) {
             const singleMuscleText = r.muscle || primaryList[0] || 'Diğer';
             tableHTML += `
               <tr class="prog-pr-row" onclick="window.scrollTo({top:0, behavior:'smooth'}); selectProgressExercise('${r.exercise_id}', '${r.exercise}')">
-                <td style="padding: 13px 16px; font-weight: 700; color: #ffffff; font-size: 13.5px;">${r.exercise}</td>
-                <td><span class="prog-muscle-badge" style="${compBadge}"><span class="desktop-txt">${fullMuscleText}</span><span class="mobile-txt">${singleMuscleText}</span></span></td>
-                <td><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span class="prog-bw-text">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
-                <td><span class="prog-pr-reps-badge">${r.max_reps}<span class="desktop-txt">&nbsp;Tekrar</span><span class="mobile-txt">&nbsp;Tkr</span></span></td>
-                <td><span class="prog-pr-date">${r.formattedDate}</span></td>
+                <td class="prog-td-exercise" style="padding: 13px 16px; font-weight: 700; color: #ffffff; font-size: 13.5px;">${r.exercise}</td>
+                <td class="prog-td-muscle"><span class="prog-muscle-badge" style="${compBadge}"><span class="desktop-txt">${fullMuscleText}</span><span class="mobile-txt">${singleMuscleText}</span></span></td>
+                <td class="prog-td-weight"><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span class="prog-bw-text">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
+                <td class="prog-td-reps"><span class="prog-pr-reps-badge">${r.max_reps}<span class="desktop-txt">&nbsp;Tekrar</span><span class="mobile-txt">&nbsp;Tkr</span></span></td>
+                <td class="prog-td-date"><span class="prog-pr-date">${r.formattedDate}</span></td>
               </tr>
             `;
           });
@@ -31035,8 +32431,8 @@ async function loadProgress(username) {
           groupPRs.sort((a, b) => a.muscle.localeCompare(b.muscle, 'tr-TR'));
 
           tableHTML += `
-            <tr style="background: ${theme.bg}; border-left: 4px solid ${theme.border};">
-              <td colspan="5" style="padding: 11px 16px; font-weight: 850; font-size: 12px; color: ${theme.text}; letter-spacing: 0.6px; text-transform: uppercase;">
+            <tr class="prog-pr-section-header" style="background: ${theme.bg}; border-left: 4px solid ${theme.border};">
+              <td colspan="5" class="prog-td-section" style="padding: 11px 16px; font-weight: 850; font-size: 12px; color: ${theme.text}; letter-spacing: 0.6px; text-transform: uppercase;">
                 ${mainGroup} HAREKETLERİ
               </td>
             </tr>
@@ -31047,12 +32443,12 @@ async function loadProgress(username) {
             const fullMuscleText = primaryList.join(', ') || r.muscle || 'Diğer';
             const singleMuscleText = r.muscle || primaryList[0] || 'Diğer';
             tableHTML += `
-              <tr class="prog-pr-row" onclick="window.scrollTo({top:0, behavior:'smooth'}); selectProgressExercise('${r.exercise_id}', '${r.exercise}')">
-                <td style="padding: 13px 16px 13px 22px; font-weight: 650; color: #f1f5f9; font-size: 13.5px;">${r.exercise}</td>
-                <td><span class="prog-muscle-badge" style="${getThemeForMuscle(r.muscle).badge}"><span class="desktop-txt">${fullMuscleText}</span><span class="mobile-txt">${singleMuscleText}</span></span></td>
-                <td><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span class="prog-bw-text">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
-                <td><span class="prog-pr-reps-badge">${r.max_reps}<span class="desktop-txt">&nbsp;Tekrar</span><span class="mobile-txt">&nbsp;Tkr</span></span></td>
-                <td><span class="prog-pr-date">${r.formattedDate}</span></td>
+              <tr class="prog-pr-row" onclick="document.getElementById('progExerciseChartCard')?.scrollIntoView({behavior:'smooth', block:'start'}); selectProgressExercise('${r.exercise_id}', '${r.exercise}')">
+                <td class="prog-td-exercise" style="padding: 13px 16px 13px 22px; font-weight: 650; color: #f1f5f9; font-size: 13.5px;">${r.exercise}</td>
+                <td class="prog-td-muscle"><span class="prog-muscle-badge" style="${getThemeForMuscle(r.muscle).badge}"><span class="desktop-txt">${fullMuscleText}</span><span class="mobile-txt">${singleMuscleText}</span></span></td>
+                <td class="prog-td-weight"><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span class="prog-bw-text">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
+                <td class="prog-td-reps"><span class="prog-pr-reps-badge">${r.max_reps}<span class="desktop-txt">&nbsp;Tekrar</span><span class="mobile-txt">&nbsp;Tkr</span></span></td>
+                <td class="prog-td-date"><span class="prog-pr-date">${r.formattedDate}</span></td>
               </tr>
             `;
           });
@@ -31482,15 +32878,20 @@ function renderExerciseProgressChart(exName, raw) {
     }
     const hasData = daySummaries.length > 0;
     const numDates = daySummaries.length;
-    const isScrollable = isMobileChart && numDates > 4;
+    // Yalnızca mobil ekranda sağa-sola kaydırma ve geniş alan; masaüstünde tam sığma
+    const isScrollable = isMobileChart && numDates > 3;
     if (innerEl) {
       if (isScrollable) {
+        const minSpacingPerDate = 105;
+        const calculatedWidth = numDates * minSpacingPerDate;
         const containerW = scrollWrap ? scrollWrap.clientWidth : 340;
-        const targetW = Math.max(containerW, numDates * 70);
+        const targetW = Math.max(containerW, calculatedWidth);
         innerEl.style.width = targetW + 'px';
+        innerEl.style.minWidth = targetW + 'px';
         if (scrollHint) scrollHint.style.display = 'flex';
       } else {
         innerEl.style.width = '100%';
+        innerEl.style.minWidth = '100%';
         if (scrollHint) scrollHint.style.display = 'none';
       }
     }
@@ -31512,10 +32913,10 @@ function renderExerciseProgressChart(exName, raw) {
             pointBorderColor: '#ffffff',
             pointBorderWidth: pBorder,
             pointRadius: pRadius,
-            pointHoverRadius: 9,
+            pointHoverRadius: 9
           },
           {
-            label: 'En ağır sette — Tekrar',
+            label: 'Bu ağırlıktaki tekrar',
             data: hasData ? daySummaries.map(day => day.repsAtMaxWeight) : [0],
             yAxisID: 'yReps',
             borderColor: '#22c55e',
@@ -31527,9 +32928,9 @@ function renderExerciseProgressChart(exName, raw) {
             pointBorderColor: '#ffffff',
             pointBorderWidth: pBorder,
             pointRadius: pRadius,
-            pointHoverRadius: 9,
-          },
-        ],
+            pointHoverRadius: 9
+          }
+        ]
       },
       options: {
         responsive: true,
@@ -31538,28 +32939,29 @@ function renderExerciseProgressChart(exName, raw) {
         interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: {
-            display: hasData,
-            position: 'bottom',
-            labels: { color: '#c8cad8', usePointStyle: true, boxWidth: 9, padding: 16 },
+            display: true,
+            position: 'top',
+            labels: { color: '#d1d5e0', font: { size: tickFontSize, weight: '600' }, boxWidth: 14 }
           },
           title: {
             display: !hasData,
-            text: 'Bu zaman aralığında tekrar ve ağırlık verisi bulunmuyor.',
-            color: '#9ca3b4', font: { size: 13, weight: '500' }, padding: 20,
+            text: 'Bu zaman aralığında ağırlık + tekrar kaydı bulunmuyor.',
+            color: '#9ca3b4',
+            font: { size: 13, weight: '500' },
+            padding: 20
           },
           tooltip: {
-            backgroundColor: 'rgba(20, 22, 32, 0.96)',
-            borderColor: 'rgba(108, 99, 255, 0.55)',
+            backgroundColor: 'rgba(20, 22, 32, 0.95)',
+            borderColor: 'rgba(108, 99, 255, 0.5)',
             borderWidth: 1,
-            titleColor: '#e8eaf0', bodyColor: '#d1d5e0', padding: 12,
+            titleColor: '#e8eaf0',
+            bodyColor: '#d1d5e0',
+            padding: 12,
             callbacks: {
               title: context => context[0]?.label || '',
               label: context => {
-                const day = daySummaries[context.dataIndex];
-                if (!day) return '';
-                return context.dataset.yAxisID === 'yWeight'
-                  ? `  En ağır set: ${day.maxWeight} kg`
-                  : `  Bu ağırlıkta tekrar: ${day.repsAtMaxWeight}`;
+                if (context.datasetIndex === 0) return `  En ağır set: ${context.parsed.y} kg`;
+                return `  Tekrar sayısı: ${context.parsed.y} tekrar`;
               },
               afterBody: context => {
                 const day = daySummaries[context[0]?.dataIndex];
@@ -31577,11 +32979,12 @@ function renderExerciseProgressChart(exName, raw) {
             grid: { display: false },
             ticks: {
               color: '#9ca3b4',
-              maxRotation: isScrollable ? 0 : 45,
+              maxRotation: 0,
+              minRotation: 0,
               autoSkip: !isScrollable,
               maxTicksLimit: isScrollable ? undefined : 12,
               font: { size: tickFontSize },
-              padding: 6
+              padding: 8
             },
             title: { display: true, text: 'Tarih', color: '#9ca3b4', font: { size: titleFontSize, weight: '700' } },
           },
@@ -31640,15 +33043,20 @@ function renderExerciseProgressChart(exName, raw) {
 
   const hasSingleData = chartPoints.length > 0;
   const numDates = chartPoints.length;
-  const isScrollable = isMobileChart && numDates > 4;
+  // Yalnızca mobil ekranda sağa-sola kaydırma ve geniş alan; masaüstünde tam sığma
+  const isScrollable = isMobileChart && numDates > 3;
   if (innerEl) {
     if (isScrollable) {
+      const minSpacingPerDate = 105;
+      const calculatedWidth = numDates * minSpacingPerDate;
       const containerW = scrollWrap ? scrollWrap.clientWidth : 340;
-      const targetW = Math.max(containerW, numDates * 70);
+      const targetW = Math.max(containerW, calculatedWidth);
       innerEl.style.width = targetW + 'px';
+      innerEl.style.minWidth = targetW + 'px';
       if (scrollHint) scrollHint.style.display = 'flex';
     } else {
       innerEl.style.width = '100%';
+      innerEl.style.minWidth = '100%';
       if (scrollHint) scrollHint.style.display = 'none';
     }
   }
@@ -31752,11 +33160,12 @@ function renderExerciseProgressChart(exName, raw) {
           grid: { display: false },
           ticks: {
             color: '#9ca3b4',
-            maxRotation: isScrollable ? 0 : 45,
+            maxRotation: 0,
+            minRotation: 0,
             autoSkip: !isScrollable,
             maxTicksLimit: isScrollable ? undefined : 12,
             font: { size: tickFontSize },
-            padding: 6
+            padding: 8
           },
           title: { display: true, text: 'Tarih', color: '#9ca3b4', font: { size: titleFontSize, weight: '700' } }
         }
@@ -33151,7 +34560,7 @@ async function loadProfile(username) {
     const smpAvatar = document.getElementById('smpAvatar');
     if (smpAvatar) smpAvatar.textContent = String(rawName).charAt(0).toUpperCase();
     const smpLevel = document.getElementById('smpLevel');
-    if (smpLevel && user.fitness_level) {
+    if (smpLevel && !_isAdmin && user.fitness_level) {
       const levelMap = { 'Beginner': 'Başlangıç', 'Intermediate': 'Orta Seviye', 'Advanced': 'İleri Seviye' };
       smpLevel.textContent = levelMap[user.fitness_level] || user.fitness_level;
     }
@@ -34268,8 +35677,17 @@ function _evaluateWorkoutQuality(w) {
 async function loadAdminAuditPage(forceReload = false) {
   if (_auditIsLoading) return;
   _auditIsLoading = true;
+
+  const refreshBtn = document.getElementById('auditRefreshBtn');
+  const tableWrap = document.querySelector('.audit-tablewrap');
+  const auditContainer = document.querySelector('.admin-audit-container');
+  if (refreshBtn) refreshBtn.classList.add('audit-refreshing');
+  if (tableWrap) tableWrap.classList.add('audit-refreshing');
+  if (auditContainer) auditContainer.classList.add('audit-refreshing');
+
+  const startTime = Date.now();
   const tbody = document.getElementById('adminAuditRows');
-  if (tbody && (!_auditSessionsCache.length || forceReload)) {
+  if (tbody && !_auditSessionsCache.length) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;" class="audit-muted">Seans kayıtları ve sporcu verileri yükleniyor...</td></tr>';
   }
 
@@ -34344,6 +35762,13 @@ async function loadAdminAuditPage(forceReload = false) {
     toast('Seans verileri alınamadı: ' + e.message, 'error');
   } finally {
     _auditIsLoading = false;
+    const elapsed = Date.now() - startTime;
+    const remainingWait = Math.max(0, 500 - elapsed);
+    setTimeout(() => {
+      if (refreshBtn) refreshBtn.classList.remove('audit-refreshing');
+      if (tableWrap) tableWrap.classList.remove('audit-refreshing');
+      if (auditContainer) auditContainer.classList.remove('audit-refreshing');
+    }, remainingWait);
   }
 }
 
@@ -34556,18 +35981,18 @@ function adminAuditRender() {
 
     return `
       <tr class="${isSelected ? 'selected' : ''}" data-session-id="${s.id}">
-        <td><strong style="color:#c084fc;">#${s.id}</strong></td>
-        <td>
+        <td class="audit-col-session-id"><strong style="color:#c084fc;">#${s.id}</strong></td>
+        <td class="audit-col-athlete">
           <span style="font-weight:700; color:#f1f5f9;">${escapeHtml(s.user_name)}</span>
           <small class="audit-muted" style="display:block; font-size:11px;">ID #${s.user_id}</small>
         </td>
-        <td><span class="audit-status ${statusClass}">${escapeHtml(s.qualityText)}</span></td>
-        <td><span class="audit-type">${escapeHtml(s.session_type || 'Custom')}</span></td>
-        <td><strong style="color:#fbbf24;">${volStr}</strong></td>
-        <td style="color:#e2e8f0; font-size:12.5px;">${dateStr}</td>
-        <td style="text-align:center;">
-          <button class="btn-neon-purple btn-neon-purple-sm" onclick="adminAuditShowDetail(${s.id})" title="İncele">
-            İncele →
+        <td class="audit-col-status"><span class="audit-status ${statusClass}">${escapeHtml(s.qualityText)}</span></td>
+        <td class="audit-col-type"><span class="audit-type">${escapeHtml(s.session_type || 'Custom')}</span></td>
+        <td class="audit-col-volume"><strong style="color:#fbbf24;">${volStr}</strong></td>
+        <td class="audit-col-date" style="color:#e2e8f0; font-size:12.5px;">${dateStr}</td>
+        <td class="audit-col-actions" style="text-align:center;">
+          <button class="btn-neon-purple btn-neon-purple-sm audit-btn-inspect" onclick="adminAuditShowDetail(${s.id})" title="İncele">
+            İncele
           </button>
         </td>
       </tr>
@@ -34583,6 +36008,42 @@ function adminAuditShowDetail(id, reRenderTable = true) {
   const s = _auditSessionsCache.find(x => x.id === id);
   const detailEl = document.getElementById('adminAuditDetail');
   if (!detailEl) return;
+
+  // Grafikten seans seçildiğinde de seçili kullanıcıyı senkronize et
+  if (s && s.user_id) {
+    const user = _auditUsersList.find(u => u.id === s.user_id) || _adminUsersCache.find(u => u.id === s.user_id);
+    const uname = s.user_name || (user ? (user.username || user.name) : `Kullanıcı #${s.user_id}`);
+    const userSessionsCount = _auditSessionsCache.filter(item => item.user_id === s.user_id).length;
+    _auditSelectedUser = {
+      id: s.user_id,
+      name: uname,
+      sessions: userSessionsCount,
+      target: user ? (user.target || 'bulk') : 'bulk'
+    };
+
+    const input = document.getElementById('adminAuditUserSearch');
+    if (input) input.value = `${uname} · ID #${s.user_id}`;
+
+    const box = document.getElementById('adminAuditSuggestions');
+    if (box) box.classList.remove('show');
+
+    const bar = document.getElementById('adminAuditUserBar');
+    if (bar) {
+      bar.style.display = 'flex';
+      bar.innerHTML = `
+        <div class="audit-avatar">${uname.charAt(0).toUpperCase()}</div>
+        <div class="audit-userbar-info">
+          <strong>${escapeHtml(uname)} · ID #${s.user_id}</strong>
+          <div class="audit-muted">${userSessionsCount} seans · hedef: ${escapeHtml(user?.target || 'bulk')}</div>
+        </div>
+        <button class="btn-neon-purple btn-neon-purple-sm" style="margin-left:auto;" onclick="adminAuditClearUser()">
+          Seçimi kaldır
+        </button>
+      `;
+    }
+
+    adminAuditUpdateKpis();
+  }
 
   if (!s) {
     detailEl.innerHTML = `
@@ -34700,6 +36161,14 @@ function adminAuditShowDetail(id, reRenderTable = true) {
     });
     const clickedRow = document.querySelector(`#adminAuditRows tr[data-session-id="${id}"]`);
     if (clickedRow) clickedRow.classList.add('selected');
+
+    // On smaller screens or when out of view, smoothly glide into detail view
+    if (window.innerWidth <= 1080 && detailEl) {
+      const rect = detailEl.getBoundingClientRect();
+      if (rect.top < 60 || rect.bottom > window.innerHeight) {
+        detailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
   }
 
   adminAuditInitResizeSync();

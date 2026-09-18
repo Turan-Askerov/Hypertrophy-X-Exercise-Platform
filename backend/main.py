@@ -4230,9 +4230,14 @@ def get_personal_records(workouts):
     return list(records.values())
 
 
-def get_top_progress(workouts, limit: int = 8) -> list:
-    """Her hareket için ilk seanstaki başlangıç ağırlığı ile ulaşılan PR (zirve) ağırlığı
-    karşılaştırıp en çok net kilo/tekrar artışı sağlanan en iyi ilerlemeleri döner.
+def get_top_progress(workouts, limit: Optional[int] = None) -> list:
+    """Her hareket için kronolojik antrenman seanslarını analiz eder.
+    Kart oluşturma gereksinimi:
+      - En az 2 antrenman kaydı bulunmalıdır (len(history) >= 2).
+      - Kilo değişimi gerçekleşmiş olmalıdır (başlangıç ve tepe ağırlık arasında pozitif artış: diff > 0).
+      - Kilo değişimi olmadan (örneğin 3 seansta da 80 kg) girildiyse kart oluşturulmaz.
+      - Ağırlık artışı her tespit edildiğinde, en son artış tarihi (last_increase_date) belirlenir.
+      - Sıralama: En son ağırlık artışı yaşanan hareket güncellenip ilk sıraya yerleşir (last_increase_date azalan, ardından diff azalan).
     """
     if not workouts:
         return []
@@ -4293,13 +4298,25 @@ def get_top_progress(workouts, limit: int = 8) -> list:
         hist = data["history"]
         if len(hist) < 2:
             continue
-        first_entry = hist[0]
-        max_entry = max(hist, key=lambda x: x["value"])
-        first_val = first_entry["value"]
-        max_val = max_entry["value"]
-        diff = round(max_val - first_val, 1)
 
-        if diff > 0 and first_val > 0:
+        first_entry = hist[0]
+        first_val = first_entry["value"]
+        
+        # En son kilo artışının gerçekleştiği seansı ve tepe değeri bul
+        running_max = first_val
+        last_increase_date = first_entry["date"]
+        has_increase = False
+
+        for h in hist[1:]:
+            if h["value"] > running_max:
+                running_max = h["value"]
+                last_increase_date = h["date"]
+                has_increase = True
+
+        diff = round(running_max - first_val, 1)
+
+        # Kilo değişimi yoksa (ör. tüm seanslar 80 kg ise has_increase=False) kart oluşturulmaz
+        if has_increase and diff > 0 and first_val > 0:
             pct = round((diff / first_val) * 100, 1)
             name_lower = data["exercise"].lower()
             is_compound = any(k in name_lower for k in COMPOUND_KEYWORDS)
@@ -4310,17 +4327,20 @@ def get_top_progress(workouts, limit: int = 8) -> list:
                 "metric_type": data["metric_type"],
                 "first_value": first_val,
                 "first_date": first_entry["date"],
-                "current_pr_value": max_val,
-                "current_pr_date": max_entry["date"],
+                "current_pr_value": running_max,
+                "current_pr_date": last_increase_date,
+                "last_increase_date": last_increase_date,
                 "diff": diff,
                 "percentage": pct,
                 "sessions_count": len(hist),
                 "is_compound": is_compound
             })
 
-    # Sıralama: En yüksek kg artışı ve yüzde artışı olanlar
-    top_list.sort(key=lambda x: (x["diff"], x["percentage"]), reverse=True)
-    return top_list[:limit]
+    # Sıralama: En son ağırlık artışı yaşanan hareket en başta (last_increase_date DESC), ardından diff DESC
+    top_list.sort(key=lambda x: (x.get("last_increase_date", "") or "", x["diff"], x["percentage"]), reverse=True)
+    if limit is not None:
+        return top_list[:limit]
+    return top_list
 
 
 # ═══════════════════════════════════════════════
