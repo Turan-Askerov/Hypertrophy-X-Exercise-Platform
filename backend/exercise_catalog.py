@@ -136,7 +136,7 @@ EXERCISE_POOL = [
 
     _exercise("single-arm-pulldown", "Single-Arm Pulldown", "Back", "compound", False,
               family="lat_pulldown", variation="single_arm", primary_muscles=["lats"],
-              secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              secondary_muscles=["biceps", "upper_back"], movement_pattern="vertical_pull",
               equipment=["cable_machine", "single_handle"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("pull-ups-bw", "Pull Ups (Barfiks)", "Back", "compound", True,
@@ -146,18 +146,18 @@ EXERCISE_POOL = [
 
     _exercise("weighted-pull-up", "Weighted Pull Up (Barfiks)", "Back", "compound", False,
               family="pull_up", variation="weighted_pronated", primary_muscles=["lats"],
-              secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              secondary_muscles=["biceps", "upper_back"], movement_pattern="vertical_pull",
               equipment=["pull_up_bar", "bodyweight", "dip_belt"], load_mode="bodyweight_plus_external",
               minimum_level="intermediate", fatigue_cost="high"),
 
     _exercise("chin-ups-bw", "Chin Ups", "Back", "compound", True,
               family="chin_up", variation="bodyweight_supinated", primary_muscles=["lats", "biceps"],
-              secondary_muscles=["upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              secondary_muscles=["upper_back", "erector_spinae"], movement_pattern="vertical_pull",
               equipment=["pull_up_bar", "bodyweight"], load_mode="bodyweight", fatigue_cost="medium"),
 
     _exercise("chin-ups-weighted", "Chin Ups", "Back", "compound", False,
               family="chin_up", variation="weighted_supinated", primary_muscles=["lats", "biceps"],
-              secondary_muscles=["upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              secondary_muscles=["upper_back", "erector_spinae"], movement_pattern="vertical_pull",
               equipment=["pull_up_bar", "bodyweight", "dip_belt"], load_mode="bodyweight_plus_external",
               minimum_level="intermediate", fatigue_cost="high"),
 
@@ -192,8 +192,8 @@ EXERCISE_POOL = [
               equipment=["bar_or_suspension_trainer", "bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
 
     _exercise("deadlift", "Deadlift", "Back", "compound", False,
-              family="deadlift", variation="barbell_conventional", primary_muscles=["glutes", "hamstrings", "spinal_erectors"],
-              secondary_muscles=["upper_back", "traps", "quads"], movement_pattern="hip_hinge",
+              family="deadlift", variation="barbell_conventional", primary_muscles=["spinal_erectors"],
+              secondary_muscles=["glutes", "hamstrings"], movement_pattern="hip_hinge",
               equipment=["barbell"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
 
     # --- İzolasyon (Isolation) Egzersizleri ---
@@ -245,12 +245,12 @@ EXERCISE_POOL = [
               equipment=["cable_machine", "single_handle"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
 
     _exercise("scapular-pull-ups-bw", "Scapular Pull Ups", "Back", "isolation", True,
-              family="scapular_pull_up", variation="bodyweight", primary_muscles=["lower_traps", "lats"],
+              family="scapular_depression", variation="bodyweight", primary_muscles=["lower_traps", "lats"],
               secondary_muscles=["rhomboids", "mid_traps", "upper_back"], movement_pattern="scapular_depression",
               equipment=["pull_up_bar", "bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
 
     _exercise("scapular-pull-ups-weighted", "Scapular Pull Ups", "Back", "isolation", False,
-              family="scapular_pull_up", variation="weighted", primary_muscles=["lower_traps", "lats"],
+              family="scapular_depression", variation="weighted", primary_muscles=["lower_traps", "lats"],
               secondary_muscles=["rhomboids", "mid_traps", "upper_back"], movement_pattern="scapular_depression",
               equipment=["pull_up_bar", "bodyweight", "dip_belt"], load_mode="bodyweight_plus_external",
               minimum_level="intermediate", fatigue_cost="medium"),
@@ -259,22 +259,22 @@ EXERCISE_POOL = [
     # --- Bileşik (Compound) Egzersizler ---
     _exercise("arnold-press", "Arnold Press", "Shoulders", "compound", False,
               family="shoulder_press", variation="arnold_dumbbell", primary_muscles=["front_delts", "side_delts"],
-              secondary_muscles=["triceps"], movement_pattern="vertical_press",
+              secondary_muscles=["triceps", "rotator_cuff"], movement_pattern="vertical_press",
               equipment=["dumbbell", "bench_optional"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
 
     _exercise("dumbbell-shoulder-press", "Dumbbell Shoulder Press", "Shoulders", "compound", False,
-              family="shoulder_press", variation="dumbbell", primary_muscles=["front_delts"],
-              secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
+              family="shoulder_press", variation="dumbbell", primary_muscles=["front_delts", "side_delts"],
+              secondary_muscles=["triceps", "rotator_cuff"], movement_pattern="vertical_press",
               equipment=["dumbbell", "bench_optional"], load_mode="external_load", unilateral=True, fatigue_cost="medium"),
 
     _exercise("overhead-press", "Overhead Press", "Shoulders", "compound", False,
               family="shoulder_press", variation="barbell_standing", primary_muscles=["front_delts", "side_delts"],
-              secondary_muscles=["triceps"], movement_pattern="vertical_press",
+              secondary_muscles=["triceps", "rotator_cuff"], movement_pattern="vertical_press",
               equipment=["barbell"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("shoulder-press", "Shoulder Press", "Shoulders", "compound", False,
               family="shoulder_press", variation="generic", primary_muscles=["front_delts", "side_delts"],
-              secondary_muscles=["triceps"], movement_pattern="vertical_press",
+              secondary_muscles=["triceps", "rotator_cuff"], movement_pattern="vertical_press",
               equipment=["free_weight_or_machine"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("shoulder-press-machine", "Shoulder Press Machine", "Shoulders", "compound", False,
@@ -282,16 +282,16 @@ EXERCISE_POOL = [
               secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
               equipment=["shoulder_press_machine"], load_mode="external_load", fatigue_cost="low"),
 
-    _exercise("upright-row", "Upright Row", "Shoulders", "compound", False,
-              family="upright_row", variation="bar", primary_muscles=["side_delts"],
-              secondary_muscles=["biceps"], movement_pattern="vertical_pull_upright", equipment=["bar"],
-              load_mode="external_load", minimum_level="intermediate", fatigue_cost="medium"),
-
     # --- İzolasyon (Isolation) Egzersizleri ---
     _exercise("face-pulls", "Face Pulls", "Shoulders", "isolation", False,
               family="face_pull", variation="cable_rope", primary_muscles=["rear_delts", "upper_back"],
               secondary_muscles=["traps"], movement_pattern="external_rotation_pull", equipment=["cable_machine", "rope"],
               load_mode="external_load", fatigue_cost="low"),
+              
+    _exercise("upright-row", "Upright Row", "Shoulders", "isolation", False,
+              family="upright_row", variation="bar", primary_muscles=["side_delts"],
+              secondary_muscles=["biceps"], movement_pattern="vertical_pull_upright", equipment=["bar"],
+              load_mode="external_load", minimum_level="intermediate", fatigue_cost="medium"),
 
     _exercise("dumbbell-front-raises", "Dumbbell Front Raises", "Shoulders", "isolation", False,
               family="front_raise", variation="dumbbell", primary_muscles=["front_delts"], secondary_muscles=[],
@@ -474,17 +474,27 @@ EXERCISE_POOL = [
               movement_pattern="trunk_rotation", equipment=["dumbbell_or_plate", "floor"],
               load_mode="bodyweight_plus_external", fatigue_cost="low"),
 
-    # ── ROTATOR / SKAPULA / KALÇA EGZERSİZLERİ ──────────────────────────────────────────
+    # ── ROTATOR / SKAPULA EGZERSİZLERİ ──────────────────────────────────────────
     # --- İzolasyon (Isolation) Egzersizleri ---
     _exercise("cable-90-90-external-rotation", "Cable 90/90 External Rotation", "Rotator Cuff", "isolation", False,
               family="shoulder_rotation", variation="cable_90_90_external", primary_muscles=["teres_minor"],
               secondary_muscles=["infraspinatus"], movement_pattern="shoulder_external_rotation",
               equipment=["cable_machine", "single_handle"], load_mode="external_load", unilateral=True, minimum_level="intermediate", fatigue_cost="low"),
 
+    _exercise("dumbbell-90-90-external-rotation", "Dumbbell 90/90 External Rotation", "Rotator Cuff", "isolation", False,
+              family="shoulder_rotation", variation="dumbbell_external_rotation", primary_muscles=["teres_minor"],
+              secondary_muscles=["infraspinatus"], movement_pattern="shoulder_external_rotation",
+              equipment=["dumbbell"], load_mode="external_load", unilateral=True, minimum_level="intermediate", fatigue_cost="low"),
+
     _exercise("cable-shoulder-external-rotation", "Cable Shoulder External Rotation", "Rotator Cuff", "isolation", False,
-              family="shoulder_rotation", variation="cable_external_rotation", primary_muscles=["infraspinatus"],
-              secondary_muscles=["teres_minor"], movement_pattern="shoulder_external_rotation",
+              family="shoulder_rotation", variation="cable_external_rotation", primary_muscles=["infraspinatus", "romboids"],
+              secondary_muscles=["posterior_deltoids", "middle_trapezius"], movement_pattern="shoulder_external_rotation",
               equipment=["cable_machine", "single_handle"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
+
+    _exercise("dumbbell-shoulder-external-rotation", "Dumbbell Shoulder External Rotation", "Rotator Cuff", "isolation", False,
+              family="shoulder_rotation", variation="dumbbell_external_rotation", primary_muscles=["infraspinatus", "romboids"],
+              secondary_muscles=["posterior_deltoids", "middle_trapezius"], movement_pattern="shoulder_external_rotation",
+              equipment=["dumbbell"], load_mode="external_load", unilateral=True, minimum_level="intermediate", fatigue_cost="low"),
 
     _exercise("cable-shoulder-internal-rotation", "Cable Shoulder Internal Rotation", "Rotator Cuff", "isolation", False,
               family="shoulder_rotation", variation="cable_internal_rotation", primary_muscles=["subscapularis"],
@@ -504,8 +514,8 @@ EXERCISE_POOL = [
               load_mode="bodyweight", fatigue_cost="medium"),
 
     _exercise("dips-weighted", "Dips", "Triceps", "compound", False,
-              family="dip", variation="weighted", primary_muscles=["triceps", "chest"],
-              secondary_muscles=["front_delts"], movement_pattern="vertical_press",
+              family="dip", variation="weighted", primary_muscles=["triceps"],
+              secondary_muscles=["front_delts", "chest"], movement_pattern="vertical_press",
               equipment=["dip_bars", "bodyweight", "dip_belt"], load_mode="bodyweight_plus_external",
               minimum_level="intermediate", fatigue_cost="high"),
 

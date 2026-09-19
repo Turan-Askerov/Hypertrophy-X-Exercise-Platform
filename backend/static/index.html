@@ -112,7 +112,7 @@ input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):focus, sele
 
 /* Canvas ve kapsayıcılarının taşmasını kesin olarak engeller */
 .chart-container,
-div:has(> canvas) {
+div:has(> canvas):not(#progChartInner) {
   position: relative !important;
   width: 100% !important;
   min-width: 0 !important;
@@ -4585,6 +4585,52 @@ tr:hover td { background: var(--bg-card-hover); }
 }
 .prog-chart-scroll-wrap::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(90deg, #a855f7, #60a5fa) !important;
+}
+
+/* GRAFİK ALT ORTA LEJANT (EN AĞIR SET / TEKRAR BİLGİSİ) */
+.prog-chart-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 10px;
+  padding: 4px 10px;
+}
+.prog-chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #d1d5e0;
+}
+.prog-chart-legend-line {
+  display: inline-block;
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+}
+.prog-chart-legend-line.purple {
+  background: #6c63ff;
+  box-shadow: 0 0 6px rgba(108, 99, 255, 0.6);
+}
+.prog-chart-legend-line.green {
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+}
+.prog-chart-legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+}
+.prog-chart-legend-dot.purple {
+  background: #6c63ff;
+}
+.prog-chart-legend-dot.green {
+  background: #22c55e;
 }
 
 /* PROGRESS SEKMELERİ (UZMAN SİSTEMİ TİPİ SEKMELENDİRME) */
@@ -17308,7 +17354,7 @@ tr:hover td { background: var(--bg-card-hover); }
     height: 330px !important;
     position: relative !important;
   }
-  .prog-chart-scroll-hint {
+  .prog-chart-legend {
     display: flex !important;
   }
   #page-progress .prog-table-wrap {
@@ -22760,7 +22806,7 @@ tr:hover td { background: var(--bg-card-hover); }
   }
 
   /* Prevent horizontal scroll on charts and tables, force them to shrink */
-  .chart-container, div:has(> canvas) {
+  .chart-container, div:has(> canvas):not(#progChartInner) {
     overflow: hidden !important;
     min-width: 0 !important;
     width: 100% !important;
@@ -23975,11 +24021,7 @@ tr:hover td { background: var(--bg-card-hover); }
                 <canvas id="exerciseProgressChart"></canvas>
               </div>
             </div>
-            <div id="progChartScrollHint" class="prog-chart-scroll-hint" style="display: none; align-items: center; justify-content: flex-end; gap: 5px; margin-top: 6px; font-size: 11px; color: #a78bfa; font-weight: 600;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-              <span>Tüm tarihleri görmek için kaydırın</span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </div>
+            <div id="progChartLegend" class="prog-chart-legend"></div>
           </div>
         </div>
 
@@ -32853,7 +32895,7 @@ function renderExerciseProgressChart(exName, raw) {
   const points = _progFilteredPoints();
   const scrollWrap = document.getElementById('progChartScrollWrap');
   const innerEl = document.getElementById('progChartInner');
-  const scrollHint = document.getElementById('progChartScrollHint');
+  const legendEl = document.getElementById('progChartLegend');
 
   // Vücut ağırlıklı hareket seçilmişse hem "Ağırlık" hem de "Ağırlık + Tekrar" modunda aynı tekrar ekranı yüklenir.
   const isDualAxisMode = !isBodyweight && _progChartMode === 'reps_weight';
@@ -32888,12 +32930,15 @@ function renderExerciseProgressChart(exName, raw) {
         const targetW = Math.max(containerW, calculatedWidth);
         innerEl.style.width = targetW + 'px';
         innerEl.style.minWidth = targetW + 'px';
-        if (scrollHint) scrollHint.style.display = 'flex';
       } else {
         innerEl.style.width = '100%';
         innerEl.style.minWidth = '100%';
-        if (scrollHint) scrollHint.style.display = 'none';
       }
+    }
+    if (legendEl) {
+      legendEl.innerHTML =
+        '<span class="prog-chart-legend-item"><span class="prog-chart-legend-line purple"></span>En ağır set — Ağırlık (kg)</span>' +
+        '<span class="prog-chart-legend-item"><span class="prog-chart-legend-line green"></span>Bu ağırlıktaki tekrar</span>';
     }
     _exerciseProgressChart = new Chart(ctx, {
       type: 'line',
@@ -32938,11 +32983,7 @@ function renderExerciseProgressChart(exName, raw) {
         animation: _hxChartAnimation(),
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: {
-            display: true,
-            position: 'top',
-            labels: { color: '#d1d5e0', font: { size: tickFontSize, weight: '600' }, boxWidth: 14 }
-          },
+          legend: { display: false },
           title: {
             display: !hasData,
             text: 'Bu zaman aralığında ağırlık + tekrar kaydı bulunmuyor.',
@@ -33053,12 +33094,16 @@ function renderExerciseProgressChart(exName, raw) {
       const targetW = Math.max(containerW, calculatedWidth);
       innerEl.style.width = targetW + 'px';
       innerEl.style.minWidth = targetW + 'px';
-      if (scrollHint) scrollHint.style.display = 'flex';
     } else {
       innerEl.style.width = '100%';
       innerEl.style.minWidth = '100%';
-      if (scrollHint) scrollHint.style.display = 'none';
     }
+  }
+  if (legendEl) {
+    const _color = isBodyweight ? 'green' : 'purple';
+    const _label = isBodyweight ? 'En yüksek tekrar' : (metricLabel || 'PR ağırlık (kg)');
+    legendEl.innerHTML =
+      '<span class="prog-chart-legend-item"><span class="prog-chart-legend-line ' + _color + '"></span>' + _label + '</span>';
   }
 
   const gradient = ctx.createLinearGradient(0, 0, 0, 400);
