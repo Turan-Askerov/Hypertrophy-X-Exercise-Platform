@@ -157,11 +157,10 @@ canvas {
 }
 
 #nutritionStatsChart {
-  position: absolute !important;
-  top: 0;
-  left: 0;
   width: 100% !important;
-  height: 100% !important;
+  height: 250px !important;
+  display: block;
+  touch-action: pan-x pan-y !important;
 }
 
 
@@ -10524,6 +10523,128 @@ tr:hover td { background: var(--bg-card-hover); }
       box-shadow: 0 0 12px rgba(108, 99, 255, 0.2);
     }
 
+    /* HEDEF KASLAR PANOSU: MASAÜSTÜNDE YAN YANA 3 KART, MOBİLDE ŞIK DİKEY AKIŞ */
+    .expert-goals-board-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+      box-sizing: border-box;
+      align-items: stretch;
+    }
+    .expert-goals-single-wrap .expert-goals-board-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .expert-data-grid .expert-goals-board-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    .expert-goal-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 16px;
+      border-radius: 16px;
+      background: linear-gradient(155deg, rgba(28, 34, 52, 0.9) 0%, rgba(18, 22, 34, 0.98) 100%);
+      border: 1px solid rgba(108, 99, 255, 0.22);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+      min-height: 230px;
+    }
+    .light-mode .expert-goal-card {
+      background: linear-gradient(155deg, #ffffff 0%, #f8fafc 100%);
+      border-color: rgba(108, 99, 255, 0.2);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    }
+    .expert-goal-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.35), 0 0 22px rgba(108, 99, 255, 0.18);
+    }
+    .expert-goal-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .expert-goal-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+    .expert-goal-card-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .expert-goal-card-meta {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .expert-goal-card-main {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .expert-goal-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    .light-mode .expert-goal-card-title {
+      color: #1e293b;
+    }
+    .expert-goal-card-vol-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      width: fit-content;
+    }
+    .expert-goal-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin-top: auto;
+    }
+    .light-mode .expert-goal-card-footer {
+      border-top-color: rgba(0,0,0,0.06);
+    }
+    .expert-goal-card.empty-slot {
+      background: rgba(15, 23, 42, 0.35);
+      border: 1.5px dashed rgba(148, 163, 184, 0.35);
+      opacity: 0.85;
+      justify-content: center;
+      text-align: center;
+      align-items: center;
+      padding: 24px 16px;
+    }
+    .light-mode .expert-goal-card.empty-slot {
+      background: rgba(241, 245, 249, 0.6);
+      border-color: rgba(148, 163, 184, 0.4);
+    }
+
     /* List and Card */
     .expert-injury-unified-list {
       display: flex;
@@ -14684,19 +14805,89 @@ tr:hover td { background: var(--bg-card-hover); }
   display: none !important;
 }
 .nutri-scroll-badge {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.28);
+  border-radius: 6px;
+  padding: 2px 7px;
+  letter-spacing: 0.2px;
 }
 .nutri-chart-scroll-wrapper {
   position: relative;
   width: 100%;
   min-width: 0;
-  overflow: hidden;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  padding-bottom: 10px;
+  scrollbar-width: thin !important;
+  scrollbar-color: #a855f7 rgba(15, 23, 42, 0.7);
+  cursor: grab;
+  user-select: none;
+}
+.nutri-chart-scroll-wrapper:active {
+  cursor: grabbing;
+}
+.nutri-chart-scroll-wrapper::-webkit-scrollbar {
+  height: 8px !important;
+  display: block !important;
+}
+.nutri-chart-scroll-wrapper::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.7) !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(168, 85, 247, 0.25) !important;
+}
+.nutri-chart-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #7c3aed, #c084fc) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.6) !important;
+}
+.nutri-chart-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #9333ea, #e879f9) !important;
+}
+.light-mode .nutri-chart-scroll-wrapper {
+  scrollbar-color: #7c3aed rgba(226, 232, 240, 0.85);
+}
+.light-mode .nutri-chart-scroll-wrapper::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.85) !important;
+  border-color: rgba(124, 58, 237, 0.2) !important;
+}
+.light-mode .nutri-chart-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #6d28d9, #a855f7) !important;
 }
 .nutri-chart-canvas-container {
   position: relative;
-  height: 240px;
+  height: 250px;
   width: 100%;
-  min-width: 0;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+.nutri-chart-scroll-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #c084fc;
+  margin-top: 8px;
+  padding: 6px 14px;
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  border-radius: 20px;
+  text-align: center;
+  letter-spacing: 0.1px;
+}
+.light-mode .nutri-chart-scroll-hint {
+  background: rgba(124, 58, 237, 0.07);
+  border-color: rgba(124, 58, 237, 0.25);
+  color: #6d28d9;
 }
 
 
@@ -17770,25 +17961,27 @@ tr:hover td { background: var(--bg-card-hover); }
       -webkit-overflow-scrolling: touch;
       touch-action: pan-x pan-y;
       padding-bottom: 8px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(168, 85, 247, 0.45) rgba(15, 23, 42, 0.6);
+      scrollbar-width: thin !important;
+      scrollbar-color: #a855f7 rgba(15, 23, 42, 0.7);
     }
     .nutri-chart-scroll-wrapper::-webkit-scrollbar {
-      height: 5px;
-      display: block;
+      height: 7px !important;
+      display: block !important;
     }
     .nutri-chart-scroll-wrapper::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
-      border-radius: 9999px;
+      background: rgba(15, 23, 42, 0.7) !important;
+      border-radius: 9999px !important;
+      border: 1px solid rgba(168, 85, 247, 0.25) !important;
     }
     .nutri-chart-scroll-wrapper::-webkit-scrollbar-thumb {
-      background: linear-gradient(90deg, #7c3aed, #a855f7);
-      border-radius: 9999px;
+      background: linear-gradient(90deg, #7c3aed, #c084fc) !important;
+      border-radius: 9999px !important;
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.6) !important;
     }
     .nutri-chart-canvas-container {
       position: relative !important;
       height: 240px !important;
-      min-width: 580px !important;
+      min-width: 100%;
     }
     .nutri-chart-canvas-container canvas {
       touch-action: pan-x pan-y;
@@ -20265,6 +20458,7 @@ tr:hover td { background: var(--bg-card-hover); }
   /* D. GENEL KARTLAR, BAŞLIKLAR VE KAPSAYICI IZGARALAR */
   .expert-layout,
   .expert-data-grid,
+  .expert-goals-board-grid,
   .expert-gym-workspace,
   .expert-gym-bottom-grid {
     display: flex !important;
@@ -24356,6 +24550,11 @@ tr:hover td { background: var(--bg-card-hover); }
             <canvas id="nutritionStatsChart"></canvas>
           </div>
         </div>
+        <div class="nutri-chart-scroll-hint" id="nutriChartScrollHint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span>Grafiği yatay kaydırarak tüm günleri detaylı inceleyebilirsiniz</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
 
       </div>
 
@@ -25800,8 +25999,9 @@ tr:hover td { background: var(--bg-card-hover); }
           <div class="admin-tab-pane" id="dbPane-terminal">
             <div class="admin-card">
               <div class="admin-card-header">
-                <div class="admin-card-title">
-                  <span>💻</span> Canlı SQL Sorgu Konsolu
+                <div class="admin-card-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span>💻 Canlı SQL Sorgu Konsolu</span>
+                  <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:11px; padding:3px 8px; border-radius:6px; font-weight:700;">🔒 Read-Only Güvenli Mod</span>
                 </div>
                 <div style="display:flex; gap:8px;">
                   <button class="btn btn-sm btn-secondary" onclick="dbFormatQuery()">Biçimlendir</button>
@@ -25815,8 +26015,8 @@ tr:hover td { background: var(--bg-card-hover); }
                 <button class="db-query-preset" onclick="dbSetPreset('SELECT * FROM users LIMIT 10;')">👤 Kullanıcılar (10)</button>
                 <button class="db-query-preset" onclick="dbSetPreset('SELECT * FROM workouts ORDER BY id DESC LIMIT 10;')">🏋️‍♂️ Son Antrenmanlar (10)</button>
                 <button class="db-query-preset" onclick="dbSetPreset('SELECT session_type, COUNT(*) as adet, ROUND(SUM(total_volume)) as toplam_kg FROM workouts GROUP BY session_type;')">📊 Seans Türü Hacimleri</button>
-                <button class="db-query-preset" onclick="dbSetPreset('SELECT * FROM expert_profiles;')">🧠 Uzman Profilleri</button>
-                <button class="db-query-preset" onclick="dbSetPreset('SELECT name, type FROM sqlite_master WHERE type=\'table\';')">🗂️ SQLite Tabloları</button>
+                <button class="db-query-preset" onclick="dbSetPreset('SELECT * FROM expert_profiles LIMIT 10;')">🧠 Uzman Profilleri</button>
+                <button class="db-query-preset" onclick="dbSetPreset((_dbInfoCache && _dbInfoCache.backend === 'postgresql') ? 'SELECT table_name FROM information_schema.tables WHERE table_schema = \'public\';' : 'SELECT name, type FROM sqlite_master WHERE type=\'table\';')">🗂️ Tüm Tablolar</button>
               </div>
 
               
@@ -33971,20 +34171,55 @@ function _renderNutritionStatsChart(timeline, metric) {
   const isMobile = window.innerWidth <= 768;
 
   if (chartContainer) {
-    if (isMobile && timeline && timeline.length > 0) {
-      const dynamicWidth = Math.max(580, timeline.length * 52);
-      chartContainer.style.width = dynamicWidth + 'px';
-      chartContainer.style.minWidth = dynamicWidth + 'px';
+    if (timeline && timeline.length > 0) {
+      const wrapperWidth = (scrollWrapper && scrollWrapper.clientWidth) ? scrollWrapper.clientWidth : (isMobile ? window.innerWidth - 32 : 800);
+      const minSpacing = isMobile ? 80 : 85;
+      const calculatedWidth = timeline.length * minSpacing;
+
+      // Hem mobilde hem bilgisayarda grafik büyüdükçe scroll ona uygun genişler
+      const targetWidth = Math.max(wrapperWidth + (isMobile ? 220 : 160), calculatedWidth);
+      chartContainer.style.width = targetWidth + 'px';
+      chartContainer.style.minWidth = targetWidth + 'px';
     } else {
       chartContainer.style.width = '100%';
-      chartContainer.style.minWidth = '0';
+      chartContainer.style.minWidth = '100%';
     }
+  }
+
+  // Bilgisayarda fare ile sürükleyerek kaydırma (Drag-to-Scroll)
+  if (scrollWrapper && !scrollWrapper._dragAttached) {
+    scrollWrapper._dragAttached = true;
+    let isDown = false;
+    let startX = 0;
+    let scrollStart = 0;
+
+    scrollWrapper.addEventListener('mousedown', (e) => {
+      isDown = true;
+      scrollWrapper.style.cursor = 'grabbing';
+      startX = e.pageX - scrollWrapper.offsetLeft;
+      scrollStart = scrollWrapper.scrollLeft;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDown) {
+        isDown = false;
+        if (scrollWrapper) scrollWrapper.style.cursor = 'grab';
+      }
+    });
+
+    scrollWrapper.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - scrollWrapper.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      scrollWrapper.scrollLeft = scrollStart - walk;
+    });
   }
 
   if (timeline.length === 0) {
     if (chartContainer) {
       chartContainer.style.width = '100%';
-      chartContainer.style.minWidth = '0';
+      chartContainer.style.minWidth = '100%';
     }
     _nutritionStatsChart = new Chart(ctx, {
       type: 'line',
@@ -34017,7 +34252,7 @@ function _renderNutritionStatsChart(timeline, metric) {
         backgroundColor: c.bg,
         fill: true,
         tension: 0.4,
-        pointRadius: 5,
+        pointRadius: isMobile ? 4.5 : 5,
         pointBackgroundColor: c.color,
         pointBorderColor: c.color,
         pointHoverRadius: 7,
@@ -34042,7 +34277,15 @@ function _renderNutritionStatsChart(timeline, metric) {
         }
       },
       scales: {
-        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 }, maxRotation: 45 } },
+        x: {
+          grid: { color: gridColor },
+          ticks: {
+            color: textColor,
+            font: { size: isMobile ? 10.5 : 11 },
+            maxRotation: 45,
+            autoSkip: timeline.length > 70
+          }
+        },
         y: {
           grid: { color: gridColor },
           ticks: { color: textColor, font: { size: 11 } },
@@ -34055,10 +34298,21 @@ function _renderNutritionStatsChart(timeline, metric) {
   window._nutritionStatsChart = _nutritionStatsChart;
   _playHxBeamReveal(_nutritionStatsChart, c.color);
 
-  if (scrollWrapper && isMobile) {
-    setTimeout(() => {
-      scrollWrapper.scrollLeft = scrollWrapper.scrollWidth;
-    }, 60);
+  if (scrollWrapper && chartContainer) {
+    const isScrollable = chartContainer.scrollWidth > (scrollWrapper.clientWidth + 5);
+    const badge = document.querySelector('.nutri-scroll-badge');
+    if (badge) {
+      badge.style.display = isScrollable ? 'inline-flex' : 'none';
+    }
+    const hintEl = document.getElementById('nutriChartScrollHint');
+    if (hintEl) {
+      hintEl.style.display = (timeline && timeline.length > 0) ? 'flex' : 'none';
+    }
+    if (isScrollable) {
+      setTimeout(() => {
+        scrollWrapper.scrollLeft = scrollWrapper.scrollWidth;
+      }, 70);
+    }
   }
 }
 
@@ -37731,7 +37985,7 @@ function expertDataDomsPane() {
 /* ──────────────────────────────────────────────────────────────────────────
    ALT BÖLÜM 24.4: HEDEF VE KAS ÖNCELİKLERİ YÖNETİM PANOSU (UNIFIED GOALS BOARD)
 ────────────────────────────────────────────────────────────────────────── */
-function expertDataUnifiedGoalsBoard(selectedIds, currentNote) {
+function expertDataUnifiedGoalsBoard(selectedIds, currentNote, isReadOnly = false) {
   if (!selectedIds || !selectedIds.length) {
     return `<div class="expert-injury-empty-box">
       <div class="injury-empty-icon-shield" style="background:linear-gradient(135deg, rgba(108,99,255,0.2) 0%, rgba(167,139,250,0.15) 100%);color:#c7d2fe;border-color:rgba(108,99,255,0.45);box-shadow:0 0 18px rgba(108,99,255,0.25);">
@@ -37793,49 +38047,52 @@ function expertDataUnifiedGoalsBoard(selectedIds, currentNote) {
     const cfg = rankConfig[index] || rankConfig[0];
     const safeMuscle = JSON.stringify(muscleId);
 
-    return `<div class="expert-injury-unified-row" style="border-left-color:${cfg.color};box-shadow:0 4px 16px rgba(0,0,0,0.22), 0 0 14px ${cfg.color}15;">
-      <div class="injury-card-top">
-        <div class="injury-card-main">
-          <div class="injury-card-title-row">
-            <span class="injury-area-title" title="${expertDataEscape(muscle.label)}" style="color:#ffffff;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${cfg.color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 6px ${cfg.color});">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polygon points="12 6 13.8 10.2 18.3 10.5 14.8 13.5 15.9 17.9 12 15.5 8.1 17.9 9.2 13.5 5.7 10.5 10.2 10.2 12 6"></polygon>
-              </svg>
-              <span>${expertDataEscape(muscle.label)}</span>
-            </span>
+    const actionHtml = isReadOnly
+      ? `<span style="font-size:11px;font-weight:750;color:${cfg.color};background:${cfg.bg};border:1px solid ${cfg.border};padding:4px 10px;border-radius:6px;box-shadow:0 0 8px ${cfg.glow};display:inline-flex;align-items:center;gap:4px;">
+          <span style="width:5px;height:5px;border-radius:50%;background:${cfg.color};box-shadow:0 0 6px ${cfg.color};"></span>
+          Aktif Öncelik
+        </span>`
+      : `<button class="expert-injury-btn delete" type="button" title="Listeden Çıkar" onclick='expertDataTogglePriority(${safeMuscle})' style="padding:4px 10px;font-size:11.5px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          <span>Kaldır</span>
+        </button>`;
+
+    return `<div class="expert-goal-card" style="border-top-color:${cfg.color};box-shadow:0 8px 24px rgba(0,0,0,0.28), 0 0 16px ${cfg.color}18;">
+      <div class="expert-goal-card-top">
+        <span class="expert-goal-card-badge" style="background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};box-shadow:0 0 10px ${cfg.glow};">
+          <span class="dot" style="background:${cfg.color};box-shadow:0 0 6px ${cfg.color};"></span>
+          ${cfg.title}
+        </span>
+        <span class="expert-goal-card-meta">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${cfg.color}" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+          <span>${cfg.position}</span>
+        </span>
+      </div>
+
+      <div class="expert-goal-card-main">
+        <div class="expert-goal-card-title">
+          <div style="width:34px;height:34px;border-radius:10px;background:${cfg.color}15;border:1px solid ${cfg.color}40;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 12px ${cfg.glow};">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${cfg.color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="12 6 13.8 10.2 18.3 10.5 14.8 13.5 15.9 17.9 12 15.5 8.1 17.9 9.2 13.5 5.7 10.5 10.2 10.2 12 6"></polygon>
+            </svg>
           </div>
-          <div class="injury-card-meta">
-            <span class="injury-date-pill">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${cfg.color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-              <span style="color:#ffffff;font-weight:600;">${cfg.position}</span>
-            </span>
-          </div>
+          <span style="word-break:break-word;">${expertDataEscape(muscle.label)}</span>
         </div>
 
-        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-          <span class="injury-state-badge" style="background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};box-shadow:0 0 10px ${cfg.glow};">
-            <span class="state-dot" style="background:${cfg.color};box-shadow:0 0 8px ${cfg.color};"></span>
-            ${cfg.title}
-          </span>
+        <div class="expert-goal-card-vol-box" style="background:${cfg.color}14;border:1px solid ${cfg.color}35;color:${cfg.color};box-shadow:0 0 10px ${cfg.glow};">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          <span>${cfg.volume}</span>
+        </div>
+
+        <div class="expert-data-track" style="margin-top:6px;height:6px;border-radius:999px;background:rgba(255,255,255,0.08);">
+          <span class="expert-data-fill" style="width:${cfg.pct}%;background:${cfg.color};box-shadow:0 0 8px ${cfg.color};border-radius:999px;"></span>
         </div>
       </div>
 
-      <div class="expert-data-track" style="margin-top:12px;height:5px;border-radius:999px;background:rgba(255,255,255,0.08);">
-        <span class="expert-data-fill" style="width:${cfg.pct}%;background:${cfg.color};box-shadow:0 0 8px ${cfg.color};"></span>
-      </div>
-
-      <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(108,99,255,0.12);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-        <div class="injury-severity-pill" style="color:${cfg.color};background:${cfg.color}18;border:1px solid ${cfg.color}45;box-shadow:0 0 10px ${cfg.glow};">
-          <span style="color:${cfg.color};font-weight:850;text-shadow:0 0 8px ${cfg.color}55;">${cfg.volume}</span>
-        </div>
-
-        <div class="injury-card-actions">
-          <button class="expert-injury-btn delete" type="button" title="Listeden Çıkar" onclick='expertDataTogglePriority(${safeMuscle})'>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            <span>Kaldır</span>
-          </button>
-        </div>
+      <div class="expert-goal-card-footer">
+        <span style="font-size:11px;color:#94a3b8;font-weight:600;">Hipertrofi Odağı: %${cfg.pct}</span>
+        ${actionHtml}
       </div>
     </div>`;
   }).join('');
@@ -37843,37 +38100,35 @@ function expertDataUnifiedGoalsBoard(selectedIds, currentNote) {
   let emptySlotsHtml = '';
   if (selectedIds.length < 3) {
     for (let i = selectedIds.length + 1; i <= 3; i++) {
-      emptySlotsHtml += `<div class="expert-injury-unified-row" style="border-left-color:rgba(148,163,184,0.3);border-style:dashed;background:rgba(15,23,42,0.3);opacity:0.75;padding:12px 14px;max-width:100%;box-sizing:border-box;">
-        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-wrap:wrap;gap:8px;">
-          <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto;">
-            <div style="width:28px;height:28px;border-radius:8px;border:1.5px dashed rgba(148,163,184,0.45);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;font-weight:800;flex-shrink:0;">#${i}</div>
-            <div style="min-width:0;">
-              <div style="color:#ffffff;font-size:13px;font-weight:700;">Boş Hedef Slotu</div>
-              <div style="color:#94a3b8;font-size:11px;line-height:1.35;word-break:break-word;">Sol panelden bir kas seçerek #${i} öncelik atayabilirsin</div>
-            </div>
-          </div>
-          <span style="font-size:11px;font-weight:600;color:#94a3b8;border:1px dashed rgba(148,163,184,0.3);padding:3px 8px;border-radius:6px;flex-shrink:0;">Boşta</span>
+      emptySlotsHtml += `<div class="expert-goal-card empty-slot">
+        <div style="width:38px;height:38px;border-radius:10px;border:1.5px dashed rgba(148,163,184,0.4);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;font-weight:800;margin-bottom:8px;">#${i}</div>
+        <div style="color:#ffffff;font-size:14px;font-weight:800;margin-bottom:4px;">Boş Hedef Slotu</div>
+        <div style="color:#94a3b8;font-size:11px;line-height:1.4;max-width:220px;margin-bottom:10px;">
+          ${isReadOnly ? 'Hedefleri Güncelle butonuyla bu slota kas atayabilirsin.' : 'Sol panelden bir kas seçerek #' + i + ' öncelik atayabilirsin.'}
         </div>
+        <span style="font-size:11px;font-weight:700;color:#94a3b8;border:1px dashed rgba(148,163,184,0.3);padding:3px 10px;border-radius:6px;">Boşta</span>
       </div>`;
     }
   }
 
-  const noteBubbleHtml = currentNote ? `<div class="injury-notes-bubble" style="margin-top:14px;background:linear-gradient(145deg, rgba(30, 37, 58, 0.85) 0%, rgba(20, 26, 42, 0.95) 100%);border:1px solid rgba(167,139,250,0.35);border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 4px 14px rgba(0,0,0,0.2), 0 0 12px rgba(167,139,250,0.12);">
+  const noteBubbleHtml = currentNote ? `<div class="injury-notes-bubble" style="margin-top:16px;background:linear-gradient(145deg, rgba(30, 37, 58, 0.85) 0%, rgba(20, 26, 42, 0.95) 100%);border:1px solid rgba(167,139,250,0.35);border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 4px 14px rgba(0,0,0,0.2), 0 0 12px rgba(167,139,250,0.12);">
     <div style="width:26px;height:26px;border-radius:7px;background:rgba(167,139,250,0.18);border:1px solid rgba(167,139,250,0.35);color:#c7d2fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
     </div>
     <div style="flex:1;min-width:0;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
         <span style="font-size:10.5px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:#a78bfa;text-shadow:0 0 8px rgba(167,139,250,0.35);">Hedef & Odak Notun</span>
-        <span style="font-size:10px;color:#94a3b8;">Aktif Taslak</span>
+        <span style="font-size:10px;color:#94a3b8;">${isReadOnly ? 'Kayıtlı Odak Notu' : 'Aktif Taslak'}</span>
       </div>
       <p style="margin:0;font-size:12.5px;color:#ffffff;font-weight:500;line-height:1.5;word-break:break-word;">${expertDataEscape(currentNote)}</p>
     </div>
   </div>` : '';
 
-  return `<div class="expert-injury-unified-list">
-    ${cardsHtml}
-    ${emptySlotsHtml}
+  return `<div class="expert-goals-unified-container">
+    <div class="expert-goals-board-grid">
+      ${cardsHtml}
+      ${emptySlotsHtml}
+    </div>
     ${noteBubbleHtml}
   </div>`;
 }
@@ -37890,6 +38145,49 @@ function expertDataGoalsPane() {
       ? 'Yağ kaybı döneminde kas koruma hacmi tüm vücuda dengeli dağıtılır. İsteğe bağlı olarak 1-3 öncelikli kas seçebilirsiniz.'
       : 'Durum koruma döneminde minimum koruma hacmi uygulanır. İsteğe bağlı olarak 1-3 öncelikli kas seçebilirsiniz.');
 
+  // EĞER KULLANICI HEDEF BELİRLEMİŞSE VE GÜNCELLEME MODUNDA DEĞİLSE: SADECE ÖNCELİKLİ HEDEF PANOSU AÇILSIN
+  if (selectedMuscles.length > 0 && !window._expertGoalsEditMode) {
+    return `<div class="expert-goals-single-wrap" style="max-width:1040px;margin:0 auto;width:100%;box-sizing:border-box;">
+      <aside class="expert-data-card expert-injury-board-card" style="width:100%;box-sizing:border-box;background:linear-gradient(160deg, rgba(26, 31, 46, 0.95) 0%, rgba(18, 22, 34, 0.98) 100%);border:1px solid rgba(108,99,255,0.25);border-radius:18px;box-shadow:0 10px 36px rgba(0,0,0,0.35), 0 0 20px rgba(108,99,255,0.08);">
+        <div class="expert-injury-board-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(108,99,255,0.15);">
+          <div class="injury-board-title-group" style="display:flex;align-items:center;gap:12px;">
+            <div class="injury-board-icon-box" style="background:linear-gradient(135deg, rgba(251,191,36,0.22) 0%, rgba(245,158,11,0.14) 100%);color:#fbbf24;border-color:rgba(251,191,36,0.45);box-shadow:0 0 16px rgba(251,191,36,0.25);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
+            <div>
+              <h3 class="injury-board-heading" style="color:#ffffff;font-size:17px;font-weight:800;letter-spacing:-0.01em;">Öncelikli Hedef Panosu</h3>
+              <p style="margin:2px 0 0;font-size:12px;color:#94a3b8;">Aktif antrenman programınız bu hedeflere göre optimize edilmektedir.</p>
+            </div>
+          </div>
+          <div class="injury-header-badges" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span class="injury-counter-pill total">3 Maks Slot</span>
+            <span class="injury-counter-pill active"><span class="counter-dot"></span>${selectedMuscles.length} Aktif Öncelik</span>
+            <button type="button" class="expert-doms-save-btn" onclick="window.expertGoalsSetEditMode(true)" style="padding:7px 16px;font-size:12.5px;font-weight:750;display:inline-flex;align-items:center;gap:6px;border-radius:8px;cursor:pointer;background:linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%);color:#fff;box-shadow:0 4px 14px rgba(108,99,255,0.35);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              <span>Hedefleri Güncelle</span>
+            </button>
+          </div>
+        </div>
+
+        ${expertDataUnifiedGoalsBoard(selectedMuscles, currentNote, true)}
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(108,99,255,0.15);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div style="font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span>Farklı kaslara öncelik vermek veya odağı değiştirmek istediğinizde hedeflerinizi güncelleyebilirsiniz.</span>
+          </div>
+          <button type="button" class="expert-doms-save-btn" onclick="window.expertGoalsSetEditMode(true)" style="display:inline-flex;align-items:center;gap:8px;padding:9px 20px;font-size:13px;font-weight:750;border-radius:9px;cursor:pointer;background:linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%);color:#fff;box-shadow:0 4px 14px rgba(108,99,255,0.35);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            <span>Hedefleri Güncelle</span>
+          </button>
+        </div>
+      </aside>
+    </div>`;
+  }
+
+  // DÜZENLEME MODU VEYA HEDEF BELİRLENMEMİŞ DURUM: HER İKİ PANO BİRLİKTE GÖRÜNÜR
   const rankPillConfigs = [
     { text: '#fbbf24', bg: 'rgba(251,191,36,0.22)', border: 'rgba(251,191,36,0.55)', glow: 'rgba(251,191,36,0.35)' },
     { text: '#38bdf8', bg: 'rgba(56,189,248,0.22)', border: 'rgba(56,189,248,0.55)', glow: 'rgba(56,189,248,0.35)' },
@@ -38000,6 +38298,11 @@ function expertDataGoalsPane() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             <span>Hedefleri Kaydet</span>
           </button>
+          ${window._expertGoalsEditMode ? `
+          <button class="expert-btn-action" type="button" onclick="window.expertGoalsCancelEdit()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:#cbd5e1;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span>Vazgeç</span>
+          </button>` : ''}
           <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataClearGoalDraft()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             <span>Seçimleri Sıfırla</span>
@@ -38027,7 +38330,7 @@ function expertDataGoalsPane() {
         </div>
       </div>
 
-      ${expertDataUnifiedGoalsBoard(selectedMuscles, currentNote)}
+      ${expertDataUnifiedGoalsBoard(selectedMuscles, currentNote, false)}
     </aside>
   </div>`;
 }
@@ -41453,6 +41756,7 @@ async function loadExpertSystem() {
       cachedUserData.user = Object.assign({}, cachedUserData.user || {}, expertDataState.user);
     }
     const target = expertDataState.target_muscles || {};
+    window._expertGoalsEditMode = false;
     expertDataGoalDraft = { primary_goal: expertDataProfileGoal(), priority_muscles: [...(target.priority_muscles || [])], priority_note: target.priority_note || '' };
     expertDataGymDraft = null;
     expertDataEquipmentDraft = null;
@@ -41468,6 +41772,24 @@ async function loadExpertSystem() {
   }
 }
 
+window._expertGoalsEditMode = false;
+
+window.expertGoalsSetEditMode = function(isEdit) {
+  window._expertGoalsEditMode = !!isEdit;
+  renderExpertSystem(false);
+};
+
+window.expertGoalsCancelEdit = function() {
+  const target = expertDataState?.target_muscles || {};
+  expertDataGoalDraft = {
+    primary_goal: expertDataProfileGoal(),
+    priority_muscles: [...(target.priority_muscles || [])],
+    priority_note: target.priority_note || ''
+  };
+  window._expertGoalsEditMode = false;
+  renderExpertSystem(false);
+};
+
 window.expertDataSwitchTab = function(tab) {
   if (tab === 'doms' || tab === 'injuries') {
     expertDataTab = 'health';
@@ -41475,6 +41797,7 @@ window.expertDataSwitchTab = function(tab) {
   } else if (tab === 'goals' || tab === 'gyms' || tab === 'equipment-preferences') {
     expertDataTab = 'setup';
     expertDataSetupTab = tab;
+    window._expertGoalsEditMode = false;
   } else if (tab === 'split' || tab === 'analysis') {
     expertDataTab = 'planning';
     expertDataPlanningTab = tab;
@@ -41498,6 +41821,7 @@ window.expertDataSwitchSetupTab = function(tab) {
   if (!['goals', 'gyms', 'equipment-preferences'].includes(tab)) return;
   expertDataTab = 'setup';
   expertDataSetupTab = tab;
+  window._expertGoalsEditMode = false;
   renderExpertSystem(true);
 };
 // HX_EXPERT_ANALYSIS_TAB_LOADING_FIX_V1
@@ -41551,6 +41875,7 @@ window.expertDataTogglePriority = function(muscle) {
 
 window.expertDataClearGoalDraft = function() {
   expertDataGoalDraft = { primary_goal: expertDataProfileGoal(), priority_muscles: [], priority_note: '' };
+  window._expertGoalsEditMode = true;
   renderExpertSystem(false);
 };
 
@@ -41569,6 +41894,7 @@ window.expertDataSaveGoals = async function() {
     expertDataGoalDraft.primary_goal = profileGoal;
     expertDataState = await apiPut('/api/expert-data/goals', { ...expertDataGoalDraft, priority_note: note });
     expertDataGoalDraft.priority_note = note;
+    window._expertGoalsEditMode = false;
     toast('Hedeflerin kaydedildi.', 'success');
     renderExpertSystem(false);
   } catch (error) {
