@@ -3608,13 +3608,16 @@ def admin_migrate_sqlite_to_postgres(data: AdminMigrateRequest = Body(...),
     """Admin: SQLite verilerini PostgreSQL'e güvenle aktar ve birleştir."""
     _require_admin(admin)
     db_url = (data.database_url or "").strip()
-    if not db_url or "ep-xyz.neon.tech" in db_url or "user:password@" in db_url:
+    
+    # URL boşsa, varsayılan şablonlar içeriyorsa VEYA sansürlü (***) geldiyse .env kullan!
+    if not db_url or "ep-xyz.neon.tech" in db_url or "user:password@" in db_url or "***" in db_url:
         db_url = os.environ.get("DATABASE_URL", "").strip() or db_url
+        
     if not db_url:
         raise HTTPException(status_code=400, detail="Hedef PostgreSQL bağlantı adresi (DATABASE_URL) belirtilmelidir.")
     if not db_url.startswith(("postgres://", "postgresql://")):
         raise HTTPException(status_code=400, detail="Geçersiz PostgreSQL bağlantı şeması (postgres:// veya postgresql:// ile başlamalıdır).")
-
+    
     try:
         import psycopg
     except ImportError:
@@ -3722,14 +3725,19 @@ def admin_migrate_sqlite_to_postgres(data: AdminMigrateRequest = Body(...),
 @app.post("/api/admin/db/migrate/postgres-to-sqlite")
 def admin_migrate_postgres_to_sqlite(data: AdminMigrateRequest = Body(...),
                                      admin: dict = Depends(_resolve_current_user)):
-    """Admin: PostgreSQL verilerini yerel SQLite'a çek ve senkronize et."""
+    """Admin: PostgreSQL verilerini (Tüm tablolar dahil) yerel SQLite'a çek ve senkronize et."""
     _require_admin(admin)
+    
     db_url = (data.database_url or "").strip()
-    if not db_url or "ep-xyz.neon.tech" in db_url or "user:password@" in db_url:
+    # URL boşsa, varsayılan şablonlar içeriyorsa VEYA sansürlü (***) geldiyse .env kullan!
+    if not db_url or "ep-xyz.neon.tech" in db_url or "user:password@" in db_url or "***" in db_url:
         db_url = os.environ.get("DATABASE_URL", "").strip() or db_url
+        
     if not db_url:
-        raise HTTPException(status_code=400, detail="Kaynak PostgreSQL bağlantı adresi (DATABASE_URL) belirtilmelidir.")
-
+        raise HTTPException(status_code=400, detail="Hedef PostgreSQL bağlantı adresi (DATABASE_URL) belirtilmelidir.")
+    if not db_url.startswith(("postgres://", "postgresql://")):
+        raise HTTPException(status_code=400, detail="Geçersiz PostgreSQL bağlantı şeması (postgres:// veya postgresql:// ile başlamalıdır).")
+    
     try:
         import psycopg
     except ImportError:
@@ -3746,6 +3754,7 @@ def admin_migrate_postgres_to_sqlite(data: AdminMigrateRequest = Body(...),
     try:
         with psycopg.connect(db_url) as pg_conn:
             with pg_conn.cursor() as pg_cur:
+                # 1. Mevcut Tablolar
                 pg_cur.execute("SELECT id, " + ", ".join(m_pg2sq.USER_COLUMNS) + " FROM users")
                 pg_users = [[m_pg2sq._adapt_for_sqlite(v) for v in row] for row in pg_cur.fetchall()]
 
@@ -3755,11 +3764,19 @@ def admin_migrate_postgres_to_sqlite(data: AdminMigrateRequest = Body(...),
                 pg_cur.execute("SELECT user_id, " + ", ".join(m_pg2sq.PROFILE_COLUMNS) + " FROM expert_profiles")
                 pg_profiles = [[m_pg2sq._adapt_for_sqlite(v) for v in row] for row in pg_cur.fetchall()]
 
-        log(f"PostgreSQL okundu: {len(pg_users)} kullanıcı, {len(pg_workouts)} antrenman, {len(pg_profiles)} profil.")
+                # 2. Yeni Eklenen Tablolar
+                pg_cur.execute("SELECT user_id, " + ", ".join(m_pg2sq.ATHLETE_PROFILE_COLUMNS) + " FROM athlete_profiles")
+                pg_athlete_profiles = [[m_pg2sq._adapt_for_sqlite(v) for v in row] for row in pg_cur.fetchall()]
+
+                pg_cur.execute("SELECT user_id, " + ", ".join(m_pg2sq.ADMIN_ROLE_COLUMNS) + " FROM admin_roles")
+                pg_admin_roles = [[m_pg2sq._adapt_for_sqlite(v) for v in row] for row in pg_cur.fetchall()]
+
+        log(f"PostgreSQL okundu: {len(pg_users)} kullanıcı, {len(pg_workouts)} antrenman, {len(pg_profiles)} uzman, {len(pg_athlete_profiles)} atlet, {len(pg_admin_roles)} admin.")
 
         sl_conn = sqlite3.connect(sqlite_path)
         sl_cur = sl_conn.cursor()
 
+        # 1. Mevcut Tabloları Yaz
         sl_cur.execute("SELECT id FROM users")
         sl_user_ids = {row[0] for row in sl_cur.fetchall()}
         added_users = 0
@@ -3784,10 +3801,27 @@ def admin_migrate_postgres_to_sqlite(data: AdminMigrateRequest = Body(...),
                 sl_cur.execute(f"INSERT INTO expert_profiles (user_id, {','.join(m_pg2sq.PROFILE_COLUMNS)}) VALUES ({','.join(['?'] * len(row))})", row)
                 added_profiles += 1
 
+        # 2. Yeni Eklenen Tabloları Yaz
+        sl_cur.execute("SELECT user_id FROM athlete_profiles")
+        sl_athlete_ids = {row[0] for row in sl_cur.fetchall()}
+        added_athlete_profiles = 0
+        for row in pg_athlete_profiles:
+            if row[0] not in sl_athlete_ids:
+                sl_cur.execute(f"INSERT INTO athlete_profiles (user_id, {','.join(m_pg2sq.ATHLETE_PROFILE_COLUMNS)}) VALUES ({','.join(['?'] * len(row))})", row)
+                added_athlete_profiles += 1
+
+        sl_cur.execute("SELECT user_id FROM admin_roles")
+        sl_admin_ids = {row[0] for row in sl_cur.fetchall()}
+        added_admin_roles = 0
+        for row in pg_admin_roles:
+            if row[0] not in sl_admin_ids:
+                sl_cur.execute(f"INSERT INTO admin_roles (user_id, {','.join(m_pg2sq.ADMIN_ROLE_COLUMNS)}) VALUES ({','.join(['?'] * len(row))})", row)
+                added_admin_roles += 1
+
         sl_conn.commit()
         sl_conn.close()
 
-        log(f"SQLite'a aktarılan yeni kayıtlar: {added_users} kullanıcı, {added_workouts} antrenman, {added_profiles} profil.")
+        log(f"SQLite'a aktarılan yeni kayıtlar: {added_users} kullanıcı, {added_workouts} antrenman, {added_profiles} uzman, {added_athlete_profiles} atlet, {added_admin_roles} admin.")
         log("PostgreSQL -> SQLite aktarımı başarıyla tamamlandı!")
 
         return {
@@ -3795,17 +3829,20 @@ def admin_migrate_postgres_to_sqlite(data: AdminMigrateRequest = Body(...),
             "added_users": added_users,
             "added_workouts": added_workouts,
             "added_profiles": added_profiles,
+            "added_athlete_profiles": added_athlete_profiles,
+            "added_admin_roles": added_admin_roles,
             "source_totals": {
                 "users": len(pg_users),
                 "workouts": len(pg_workouts),
-                "profiles": len(pg_profiles)
+                "expert_profiles": len(pg_profiles),
+                "athlete_profiles": len(pg_athlete_profiles),
+                "admin_roles": len(pg_admin_roles)
             },
             "logs": logs
         }
     except Exception as e:
         log(f"Hata: {str(e)}")
         raise HTTPException(status_code=500, detail=f"SQLite aktarımı başarısız: {str(e)}")
-
 
 # ═══════════════════════════════════════════════
 # ANALİZ

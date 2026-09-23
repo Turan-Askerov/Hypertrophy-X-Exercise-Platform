@@ -22,6 +22,13 @@ PROFILE_COLUMNS = (
     "target_muscles_json", "doms_daily_json", "gym_equipment_json", "injuries_json",
     "created_at", "updated_at",
 )
+ATHLETE_PROFILE_COLUMNS = [
+    "age", "gender", "height", "weight", "fitness_level", "goal", "days_per_week"
+]
+
+ADMIN_ROLE_COLUMNS = [
+    "role_title", "permissions_json", "last_login", "created_at", "updated_at"
+]
 
 def _adapt_for_sqlite(value):
     if isinstance(value, (dict, list)):
