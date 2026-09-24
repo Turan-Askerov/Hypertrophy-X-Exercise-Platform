@@ -6946,64 +6946,258 @@ tr:hover td { background: var(--bg-card-hover); }
   font-size: 11.5px;
   margin-top: 4px;
 }
-.admin-overview-chart {
-  height: 190px;
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  padding: 16px 12px 0;
-  border-bottom: 1px solid rgba(52, 64, 90, 0.6);
-  background: linear-gradient(180deg, rgba(124, 99, 255, 0.08), transparent);
-  border-radius: 8px 8px 0 0;
-}
-.admin-overview-bar-wrap {
-  flex: 1;
+/* Modern Platform Aktivitesi Paneli & Grafiği */
+.admin-act-panel {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  height: 100%;
+}
+.admin-act-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+.admin-act-caption {
+  color: #8995b2;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.admin-act-title {
+  margin: 2px 0 3px;
+  font-size: 21px;
+  letter-spacing: -.03em;
+  font-weight: 800;
+  color: #f5f7ff;
+}
+.admin-act-sub {
+  margin: 0;
+  color: #8995b2;
+  font-size: 12px;
+}
+.admin-act-controls {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
   justify-content: flex-end;
 }
-.admin-overview-bar {
-  width: 100%;
-  background: linear-gradient(180deg, #a78bfa, #5750b4);
-  border-radius: 6px 6px 0 0;
-  min-height: 18px;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
-}
-.admin-overview-bar:hover {
-  background: linear-gradient(180deg, #c084fc, #7c3aed);
-  box-shadow: 0 0 12px rgba(168, 85, 247, 0.6);
-}
-.admin-overview-bar-label {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #8c9ab5;
-  margin-top: 6px;
-  white-space: nowrap;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-.admin-overview-legend {
-  display: flex;
-  gap: 18px;
-  color: #8c9ab5;
+.admin-act-btn {
+  border: 1px solid rgba(157, 177, 226, .14);
+  border-radius: 9px;
+  padding: 6px 11px;
+  color: #8995b2;
+  background: rgba(255, 255, 255, .035);
   font-size: 11.5px;
-  margin-top: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s ease;
 }
-.admin-overview-legend span {
-  display: inline-flex;
+.admin-act-btn:hover, .admin-act-btn.active {
+  color: #ffffff;
+  border-color: rgba(167, 139, 250, .65);
+  background: rgba(124, 91, 226, .22);
+}
+.admin-act-top-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.admin-act-trend-pill {
+  display: flex;
   align-items: center;
   gap: 6px;
+  padding: 5px 11px;
+  border-radius: 10px;
+  border: 1px solid rgba(67, 214, 173, .3);
+  background: rgba(67, 214, 173, .08);
 }
-.admin-overview-legend i {
-  display: inline-block;
+.admin-act-trend-pill small {
+  color: #8995b2;
+  font-size: 11px;
+}
+.admin-act-trend-pill b {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #43d6ad;
+  letter-spacing: -.02em;
+}
+.admin-chart-shell {
+  position: relative;
+  height: 250px;
+  padding: 16px 8px 0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(4, 9, 21, .25), rgba(4, 9, 21, .55));
+  border: 1px solid rgba(157, 177, 226, .09);
+  overflow: visible;
+  transition: opacity .25s ease;
+}
+.admin-chart-grid {
+  position: absolute;
+  inset: 18px 16px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.admin-chart-grid i {
+  height: 1px;
+  background: rgba(157, 177, 226, .12);
+  display: block;
+}
+.admin-chart-svg {
+  position: absolute;
+  inset: 12px 16px 32px;
+  width: calc(100% - 32px);
+  height: calc(100% - 44px);
+  overflow: visible;
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.admin-chart-area {
+  fill: url(#adminActAreaGrad);
+  opacity: .92;
+  transition: d 0.35s ease;
+}
+.admin-chart-line {
+  fill: none;
+  stroke: #a78bfa;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px rgba(167, 139, 250, .45));
+  transition: d 0.35s ease;
+}
+.admin-chart-user-line {
+  fill: none;
+  stroke: #39c6ef;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px rgba(57, 198, 239, .55));
+  transition: d 0.35s ease;
+}
+.admin-chart-point {
+  fill: #0e1528;
+  stroke: #a78bfa;
+  stroke-width: 2.5;
+  cursor: pointer;
+  transition: r .18s ease, fill .18s ease, cx 0.35s ease, cy 0.35s ease;
+}
+.admin-chart-point:hover {
+  fill: #a78bfa;
+  r: 7.5;
+}
+.admin-chart-point.point-user {
+  stroke: #39c6ef;
+}
+.admin-chart-point.point-user:hover {
+  fill: #39c6ef;
+  r: 8;
+}
+.admin-chart-tooltip {
+  position: absolute;
+  min-width: 175px;
+  max-width: 290px;
+  pointer-events: none;
+  padding: 10px 14px;
+  border: 1px solid rgba(167, 139, 250, .55);
+  border-radius: 13px;
+  background: rgba(18, 25, 46, 0.98);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, .75), 0 0 20px rgba(167, 139, 250, 0.22);
+  opacity: 0;
+  transition: opacity .18s ease;
+  z-index: 50;
+}
+.admin-chart-tooltip b {
+  display: block;
+  margin-bottom: 4px;
+  color: #f8fafc;
+  font-size: 12px;
+}
+.admin-chart-tooltip span {
+  display: block;
+  color: #8995b2;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+.admin-chart-xlabels {
+  position: absolute;
+  bottom: 8px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  color: #8995b2;
+  font-size: 11px;
+  transition: opacity .25s ease;
+}
+.admin-act-legend {
+  display: flex;
+  gap: 18px;
+  margin-top: 14px;
+  color: #8995b2;
+  font-size: 12px;
+}
+.admin-act-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.admin-act-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  background: #a78bfa;
+  box-shadow: 0 0 10px #a78bfa;
+}
+.admin-act-dot.cyan {
+  background: #39c6ef;
+  box-shadow: 0 0 10px #39c6ef;
+}
+.admin-act-footer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  margin-top: 16px;
+}
+.admin-act-insight {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 11px 14px;
+  border: 1px solid rgba(248, 186, 104, .24);
+  border-radius: 12px;
+  color: #f6d49a;
+  background: rgba(248, 186, 104, .07);
+}
+.admin-act-insight strong {
+  display: block;
+  color: #ffe4b3;
+  margin-bottom: 2px;
+  font-size: 12.5px;
+}
+.admin-act-insight p {
+  margin: 0;
+  color: #cbb88f;
+  font-size: 11.5px;
+}
+.admin-act-peak {
+  text-align: right;
+}
+.admin-act-peak small {
+  color: #8995b2;
+  display: block;
+  font-size: 11px;
+}
+.admin-act-peak b {
+  font-size: 17px;
+  color: #43d6ad;
 }
 .admin-overview-health {
   display: grid;
@@ -7094,6 +7288,175 @@ tr:hover td { background: var(--bg-card-hover); }
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+/* ─── PLATFORM AKTİVİTESİ ÜST METRİK ŞERİDİ ─── */
+.admin-chart-stats-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(14, 21, 40, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+}
+.admin-chart-stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.admin-chart-stat-chip .chip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.admin-chart-stat-chip .chip-dot.workout {
+  background: #a78bfa;
+  box-shadow: 0 0 8px #a78bfa;
+}
+.admin-chart-stat-chip .chip-dot.user {
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+.admin-chart-stat-chip .chip-label {
+  color: #8c98b4;
+  font-size: 11.5px;
+}
+.admin-chart-stat-chip .chip-val {
+  color: #f8fafc;
+  font-weight: 750;
+  font-size: 13px;
+}
+.admin-chart-stat-chip .chip-trend {
+  color: #43d6ad;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(67, 214, 173, 0.12);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+/* ─── SON PLATFORM HAREKETLERİ SCROLL VE MODAL STİLLERİ ─── */
+.admin-overview-activity.is-expanded {
+  max-height: 480px !important;
+  overflow-y: auto !important;
+  padding-right: 4px;
+}
+.admin-overview-activity::-webkit-scrollbar {
+  width: 5px;
+}
+.admin-overview-activity::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.3);
+  border-radius: 10px;
+}
+
+/* Modal Arka Planı (Saydam Cam Görünümü & Tam Ekran Ortalanmış) */
+.admin-activity-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
+  background: rgba(4, 8, 18, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.admin-activity-modal-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.admin-activity-modal-dialog {
+  width: 100%;
+  max-width: 820px;
+  max-height: 85vh;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(150deg, rgba(16, 24, 46, 0.96), rgba(10, 15, 30, 0.98));
+  border: 1px solid rgba(167, 139, 250, 0.32);
+  border-radius: 20px;
+  box-shadow: 0 25px 65px -10px rgba(0, 0, 0, 0.8), 0 0 40px rgba(167, 139, 250, 0.16);
+  overflow: hidden;
+  transform: scale(0.92) translateY(20px);
+  opacity: 0;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.admin-activity-modal-backdrop.active .admin-activity-modal-dialog {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+.admin-activity-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+}
+.admin-activity-modal-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(167, 139, 250, 0.16);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  color: #c084fc;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+.admin-activity-modal-close {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.18s ease;
+}
+.admin-activity-modal-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+.admin-activity-modal-search {
+  padding: 12px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(10, 15, 30, 0.5);
+}
+.admin-activity-modal-body {
+  padding: 16px 24px 24px;
+  overflow-y: auto;
+  display: grid;
+  gap: 10px;
+  max-height: calc(85vh - 145px);
+}
+.admin-activity-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.admin-activity-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.35);
+  border-radius: 10px;
+}
+
 .admin-overview-quick-list {
   display: grid;
   gap: 10px;
@@ -7125,6 +7488,268 @@ tr:hover td { background: var(--bg-card-hover); }
   font-size: 16px;
   color: #a78bfa;
   display: inline-flex;
+}
+
+/* ═══ ADMIN ÜRÜN BAŞARISI (PRODUCT SUCCESS) V4 BİLEŞENLERİ ═══ */
+.admin-ps-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.admin-ps-kpi {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(17, 27, 50, 0.96), rgba(11, 18, 35, 0.96));
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.admin-ps-kpi:hover {
+  transform: translateY(-2px);
+  border-color: rgba(167, 139, 250, 0.45);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45), 0 0 16px rgba(167, 139, 250, 0.15);
+}
+.admin-ps-kpi small {
+  display: block;
+  color: #8c98b4;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+.admin-ps-kpi strong {
+  font-size: 29px;
+  font-weight: 850;
+  color: #f5f7ff;
+  letter-spacing: -0.04em;
+}
+.admin-ps-trend {
+  font-size: 11px;
+  margin-left: 8px;
+  color: #43d6ad;
+  font-weight: 700;
+}
+.admin-ps-grid {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.admin-ps-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(17, 27, 50, 0.96), rgba(11, 18, 35, 0.96));
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.25s ease;
+}
+.admin-ps-card:hover {
+  border-color: rgba(167, 139, 250, 0.28);
+}
+.admin-ps-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.admin-ps-card-head h2 {
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.admin-ps-card-head p {
+  color: #8c98b4;
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.45;
+}
+.admin-ps-link {
+  color: #a78bfa;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+.admin-ps-link:hover {
+  color: #c4b5fd;
+  transform: translateX(2px);
+}
+
+/* Sinyal Listesi */
+.admin-ps-signal-list {
+  display: grid;
+  gap: 11px;
+}
+.admin-ps-signal {
+  display: grid;
+  grid-template-columns: 42px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  transition: all 0.2s ease;
+}
+.admin-ps-signal:hover {
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(167, 139, 250, 0.22);
+}
+.admin-ps-signal-icon {
+  height: 38px;
+  width: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  font-weight: 800;
+  font-size: 13.5px;
+}
+.admin-ps-signal.icon-violet .admin-ps-signal-icon { color: #a78bfa; background: rgba(167, 139, 250, 0.16); }
+.admin-ps-signal.icon-cyan .admin-ps-signal-icon { color: #39c6ef; background: rgba(57, 198, 239, 0.16); }
+.admin-ps-signal.icon-mint .admin-ps-signal-icon { color: #43d6ad; background: rgba(67, 214, 173, 0.16); }
+.admin-ps-signal.icon-red .admin-ps-signal-icon { color: #ff7898; background: rgba(255, 120, 152, 0.16); }
+.admin-ps-signal.icon-amber .admin-ps-signal-icon { color: #f8ba68; background: rgba(248, 186, 104, 0.16); }
+.admin-ps-signal b {
+  display: block;
+  font-size: 13px;
+  font-weight: 750;
+  color: #f1f5f9;
+}
+.admin-ps-signal small {
+  display: block;
+  color: #8c98b4;
+  font-size: 11px;
+  margin-top: 2px;
+}
+.admin-ps-signal-value {
+  text-align: right;
+}
+.admin-ps-signal-value strong {
+  font-size: 20px;
+  font-weight: 850;
+  color: #ffffff;
+}
+.admin-ps-signal-value small {
+  display: block;
+  color: #43d6ad;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+/* Dönüşüm Hunisi (Funnel) */
+.admin-ps-funnel {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+.admin-ps-funnel-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 64px;
+  align-items: center;
+  gap: 12px;
+  font-size: 12.5px;
+}
+.admin-ps-funnel-row label {
+  color: #8c98b4;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.admin-ps-bar {
+  height: 25px;
+  border-radius: 8px;
+  background: #18233c;
+  overflow: hidden;
+  position: relative;
+}
+.admin-ps-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.admin-ps-funnel-row:nth-child(1) .admin-ps-bar i { background: linear-gradient(90deg, #7058db, #a78bfa); box-shadow: 0 0 16px rgba(140, 109, 245, 0.35); }
+.admin-ps-funnel-row:nth-child(2) .admin-ps-bar i { background: linear-gradient(90deg, #297fab, #39c6ef); box-shadow: 0 0 16px rgba(57, 198, 239, 0.35); }
+.admin-ps-funnel-row:nth-child(3) .admin-ps-bar i { background: linear-gradient(90deg, #259b83, #43d6ad); box-shadow: 0 0 16px rgba(67, 214, 173, 0.35); }
+.admin-ps-funnel-row:nth-child(4) .admin-ps-bar i { background: linear-gradient(90deg, #b1793e, #f8ba68); box-shadow: 0 0 16px rgba(248, 186, 104, 0.35); }
+.admin-ps-funnel-row b {
+  text-align: right;
+  font-weight: 800;
+  color: #e2e8f0;
+  font-size: 12px;
+}
+.admin-ps-funnel-note {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-left: 3px solid #f8ba68;
+  background: rgba(248, 186, 104, 0.08);
+  border-radius: 0 10px 10px 0;
+  color: #f6d487;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* Antrenman Ekosistemi */
+.admin-ps-ecosystem {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.admin-ps-rank-list {
+  display: grid;
+  gap: 12px;
+}
+.admin-ps-rank {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.admin-ps-rank-num {
+  color: #8c98b4;
+  font-size: 11.5px;
+  font-weight: 800;
+}
+.admin-ps-rank-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+.admin-ps-rank-bar {
+  height: 6px;
+  margin-top: 5px;
+  border-radius: 6px;
+  background: #1f2b45;
+  overflow: hidden;
+}
+.admin-ps-rank-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.6s ease;
+}
+.admin-ps-rank:nth-child(1) .admin-ps-rank-bar i { background: #39c6ef; box-shadow: 0 0 8px rgba(57, 198, 239, 0.4); }
+.admin-ps-rank:nth-child(2) .admin-ps-rank-bar i { background: #a78bfa; box-shadow: 0 0 8px rgba(167, 139, 250, 0.4); }
+.admin-ps-rank:nth-child(3) .admin-ps-rank-bar i { background: #43d6ad; box-shadow: 0 0 8px rgba(67, 214, 173, 0.4); }
+.admin-ps-rank strong {
+  font-size: 12.5px;
+  font-weight: 850;
+  color: #dce3fb;
 }
 
 /* ═══ ADMIN USER MANAGEMENT V4 (KULLANICI YÖNETİMİ) ═══ */
@@ -9990,6 +10615,7 @@ tr:hover td { background: var(--bg-card-hover); }
       100% { opacity: 1; transform: translateY(0) scale(1); }
     }
     .expert-data-stage-animated .expert-data-card,
+    .expert-data-stage-animated .expert-goals-single-wrap > aside,
     .expert-data-stage-animated .expert-data-grid > section,
     .expert-data-stage-animated .expert-data-grid > aside,
     .expert-data-stage-animated .expert-equipment-group,
@@ -9999,6 +10625,9 @@ tr:hover td { background: var(--bg-card-hover); }
     }
     .expert-data-stage-animated .expert-data-grid > section { animation-delay: 0.03s; }
     .expert-data-stage-animated .expert-data-grid > aside { animation-delay: 0.08s; }
+    .expert-data-stage-animated .expert-goal-card:nth-child(1) { animation: expertItemFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both; }
+    .expert-data-stage-animated .expert-goal-card:nth-child(2) { animation: expertItemFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.10s both; }
+    .expert-data-stage-animated .expert-goal-card:nth-child(3) { animation: expertItemFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both; }
     .expert-data-stage-animated .expert-data-history-item:nth-child(1),
     .expert-data-stage-animated .expert-doms-unified-row:nth-child(1),
     .expert-data-stage-animated .expert-injury-unified-row:nth-child(1) { animation: expertItemFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.04s both; }
@@ -10522,109 +11151,164 @@ tr:hover td { background: var(--bg-card-hover); }
       color: #c7d2fe;
       box-shadow: 0 0 12px rgba(108, 99, 255, 0.2);
     }
+    .expert-goal-counter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #34d399;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+      transition: all 0.2s ease;
+    }
+    .expert-goal-counter-pill .counter-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: goalPulseGreen 2s infinite ease-in-out;
+    }
+    @keyframes goalPulseGreen {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.7; }
+    }
 
-    /* HEDEF KASLAR PANOSU: MASAÜSTÜNDE YAN YANA 3 KART, MOBİLDE ŞIK DİKEY AKIŞ */
+    /* HEDEF KASLAR PANOSU: TAM GENİŞLİK, DÜZENLEMEDE ALT ALTA (DİKEY), TEK PANODA YAN YANA */
+    .expert-goals-single-wrap {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box;
+    }
     .expert-goals-board-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 14px;
       width: 100%;
       box-sizing: border-box;
       align-items: stretch;
     }
     .expert-goals-single-wrap .expert-goals-board-grid {
-      grid-template-columns: repeat(3, 1fr);
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 14px;
     }
     .expert-data-grid .expert-goals-board-grid {
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px !important;
     }
     .expert-goal-card {
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 18px 16px;
+      padding: 16px 16px;
       border-radius: 16px;
-      background: linear-gradient(155deg, rgba(28, 34, 52, 0.9) 0%, rgba(18, 22, 34, 0.98) 100%);
+      background: linear-gradient(150deg, rgba(28, 34, 52, 0.88) 0%, rgba(18, 22, 34, 0.96) 100%);
       border: 1px solid rgba(108, 99, 255, 0.22);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05);
+      border-top: 3px solid #818cf8;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.30), 0 0 16px rgba(129, 140, 248, 0.08), inset 0 1px 0 rgba(255,255,255,0.06);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       box-sizing: border-box;
-      min-height: 230px;
+      min-height: 200px;
+      overflow: hidden;
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
     }
     .light-mode .expert-goal-card {
       background: linear-gradient(155deg, #ffffff 0%, #f8fafc 100%);
       border-color: rgba(108, 99, 255, 0.2);
+      border-top-color: #6366f1;
       box-shadow: 0 6px 20px rgba(0,0,0,0.06);
     }
     .expert-goal-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 14px 34px rgba(0,0,0,0.35), 0 0 22px rgba(108, 99, 255, 0.18);
+      transform: translateY(-2px);
+      border-color: rgba(129, 140, 248, 0.5);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.38), 0 0 24px rgba(129, 140, 248, 0.22);
+    }
+    .expert-data-grid .expert-goal-card {
+      min-height: auto;
+      padding: 14px 14px;
     }
     .expert-goal-card-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .expert-goal-card-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: 9999px;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-    }
-    .expert-goal-card-badge .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-    }
-    .expert-goal-card-meta {
-      font-size: 11px;
-      color: #94a3b8;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .expert-goal-card-main {
-      display: flex;
-      flex-direction: column;
       gap: 10px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .light-mode .expert-goal-card-top {
+      border-bottom-color: rgba(0, 0, 0, 0.05);
     }
     .expert-goal-card-title {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 16px;
-      font-weight: 800;
+      gap: 9px;
+      font-size: 15px;
+      font-weight: 850;
       color: #ffffff;
       letter-spacing: -0.01em;
-      line-height: 1.3;
+      line-height: 1.25;
+      min-width: 0;
+      flex: 1;
     }
     .light-mode .expert-goal-card-title {
       color: #1e293b;
+    }
+    .expert-goal-card-meta {
+      font-size: 11px;
+      color: #34d399;
+      font-weight: 750;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+      background: rgba(16, 185, 129, 0.14);
+      padding: 3.5px 9px;
+      border-radius: 6px;
+      border: 1px solid rgba(16, 185, 129, 0.40);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.20);
+    }
+    .expert-goal-card-meta .meta-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+    .expert-goal-card-main {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
     }
     .expert-goal-card-vol-box {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 800;
       width: fit-content;
+      background: rgba(129, 140, 248, 0.12);
+      border: 1px solid rgba(129, 140, 248, 0.3);
+      color: #c7d2fe;
+      box-shadow: 0 0 8px rgba(129, 140, 248, 0.15);
     }
     .expert-goal-card-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 12px;
+      padding-top: 10px;
       border-top: 1px solid rgba(255,255,255,0.06);
       margin-top: auto;
     }
@@ -10632,17 +11316,107 @@ tr:hover td { background: var(--bg-card-hover); }
       border-top-color: rgba(0,0,0,0.06);
     }
     .expert-goal-card.empty-slot {
-      background: rgba(15, 23, 42, 0.35);
+      background: rgba(15, 23, 42, 0.40);
       border: 1.5px dashed rgba(148, 163, 184, 0.35);
-      opacity: 0.85;
+      border-top: 1.5px dashed rgba(148, 163, 184, 0.35);
+      opacity: 0.9;
       justify-content: center;
       text-align: center;
       align-items: center;
-      padding: 24px 16px;
+      padding: 18px 12px;
+      min-height: 200px;
+    }
+    .expert-data-grid .expert-goal-card.empty-slot {
+      min-height: 140px;
+      padding: 14px 12px;
     }
     .light-mode .expert-goal-card.empty-slot {
-      background: rgba(241, 245, 249, 0.6);
+      background: rgba(241, 245, 249, 0.65);
       border-color: rgba(148, 163, 184, 0.4);
+    }
+
+    /* MOBİL UYUMLULUK: ÖNCELİKLİ HEDEF PANOSU (SADECE MOBİLDE TEK SÜTUN / AKICI YERLEŞİM) */
+    @media (max-width: 768px) {
+      .expert-goals-single-wrap .expert-goals-board-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+      .expert-goals-single-wrap .expert-injury-board-header {
+        display: block !important;
+        padding-bottom: 14px !important;
+        margin-bottom: 14px !important;
+      }
+      .expert-goals-single-wrap .injury-board-title-group {
+        display: flex !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        width: 100% !important;
+      }
+      .expert-goals-single-wrap .expert-goals-title-text-wrap {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+      }
+      .expert-goals-single-wrap .expert-goals-heading-row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+      }
+      .expert-goals-single-wrap .expert-goals-heading-row .injury-board-heading {
+        font-size: 15px !important;
+        line-height: 1.25 !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+      }
+      .expert-goals-single-wrap .expert-goals-mobile-pill-wrap {
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+      }
+      .expert-goals-single-wrap .expert-goals-mobile-pill-wrap .expert-goal-counter-pill {
+        padding: 4px 9px !important;
+        font-size: 10.5px !important;
+        white-space: nowrap !important;
+      }
+      .expert-goals-single-wrap .expert-goals-desc-text {
+        margin: 4px 0 0 !important;
+        font-size: 11.5px !important;
+        line-height: 1.4 !important;
+        color: #94a3b8 !important;
+      }
+      .expert-goals-single-wrap .expert-goals-header-badges {
+        display: none !important;
+      }
+      .expert-goals-single-wrap .expert-goals-mobile-btn-wrap {
+        display: block !important;
+        width: 100% !important;
+      }
+      .expert-goals-single-wrap .expert-goals-mobile-btn-wrap .expert-goals-update-action-btn {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 11px 18px !important;
+        font-size: 13.5px !important;
+        border-radius: 10px !important;
+      }
+      .expert-goals-single-wrap .expert-goal-card {
+        min-height: auto !important;
+        padding: 14px 14px !important;
+      }
+      .expert-goals-single-wrap .expert-goal-card-top {
+        gap: 8px !important;
+        margin-bottom: 10px !important;
+      }
+      .expert-goals-single-wrap .expert-goal-card-title {
+        font-size: 14.5px !important;
+      }
+      .expert-goals-single-wrap .expert-goal-card.empty-slot {
+        min-height: 120px !important;
+        padding: 14px 12px !important;
+      }
     }
 
     /* List and Card */
@@ -11902,25 +12676,14 @@ tr:hover td { background: var(--bg-card-hover); }
       text-shadow: 0 0 12px rgba(56, 189, 248, 0.7) !important;
     }
     .expert-data-choice.selected {
-      border-color: #a78bfa;
-      background: linear-gradient(145deg, rgba(108, 99, 255, 0.28) 0%, rgba(139, 92, 246, 0.16) 100%);
-      box-shadow: 0 0 18px rgba(167, 139, 250, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      border-color: #818cf8;
+      background: linear-gradient(145deg, rgba(129, 140, 248, 0.28) 0%, rgba(99, 102, 241, 0.16) 100%);
+      box-shadow: 0 0 18px rgba(129, 140, 248, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.18);
       animation: expertChoicePop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }
-    .expert-data-choice.selected.rank-1 {
-      border-color: #fbbf24;
-      background: linear-gradient(145deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.08) 100%);
-      box-shadow: 0 0 20px rgba(251, 191, 36, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-    }
-    .expert-data-choice.selected.rank-2 {
-      border-color: #38bdf8;
-      background: linear-gradient(145deg, rgba(56, 189, 248, 0.2) 0%, rgba(14, 165, 233, 0.08) 100%);
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-    }
-    .expert-data-choice.selected.rank-3 {
-      border-color: #a78bfa;
-      background: linear-gradient(145deg, rgba(167, 139, 250, 0.2) 0%, rgba(139, 92, 246, 0.08) 100%);
-      box-shadow: 0 0 20px rgba(167, 139, 250, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    .expert-data-choice.selected .expert-choice-name {
+      color: #c7d2fe !important;
+      text-shadow: 0 0 12px rgba(129, 140, 248, 0.7), 0 0 2px #ffffff !important;
     }
     .expert-choice-empty-dot {
       width: 6px;
@@ -11932,9 +12695,9 @@ tr:hover td { background: var(--bg-card-hover); }
       transition: all 0.2s ease;
     }
     .expert-data-choice:hover .expert-choice-empty-dot {
-      background: #38bdf8;
-      border-color: #38bdf8;
-      box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+      background: #818cf8;
+      border-color: #818cf8;
+      box-shadow: 0 0 8px rgba(129, 140, 248, 0.6);
     }
     .light-mode .expert-goal-profile-banner {
       background: #ffffff;
@@ -11949,31 +12712,15 @@ tr:hover td { background: var(--bg-card-hover); }
       text-shadow: none;
     }
     .light-mode .expert-data-choice.selected {
-      background: rgba(108, 99, 255, 0.08);
-      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.12);
+      border-color: #6366f1;
     }
-    .light-mode .expert-data-choice.selected.rank-1 {
-      background: rgba(251, 191, 36, 0.12);
-      border-color: #d97706;
+    .light-mode .expert-data-choice.selected .expert-choice-name {
+      color: #4338ca !important;
+      text-shadow: none !important;
     }
-    .light-mode .expert-data-choice.selected.rank-1 .expert-choice-name {
-      color: #b45309;
-      text-shadow: none;
-    }
-    .light-mode .expert-data-choice.selected.rank-2 {
-      background: rgba(56, 189, 248, 0.12);
-      border-color: #0284c7;
-    }
-    .light-mode .expert-data-choice.selected.rank-2 .expert-choice-name {
-      color: #0369a1;
-      text-shadow: none;
-    }
-    .light-mode .expert-data-choice.selected.rank-3 {
-      background: rgba(167, 139, 250, 0.12);
-      border-color: #7c3aed;
-    }
-    .light-mode .expert-data-choice.selected.rank-3 .expert-choice-name {
-      color: #6d28d9;
+    .light-mode .expert-data-choice:hover {
+      color: #6d28d9; 
       text-shadow: none;
     }
     @keyframes expertChoicePop {
@@ -18628,6 +19375,34 @@ tr:hover td { background: var(--bg-card-hover); }
     border-radius: 8px !important;
     flex-shrink: 0 !important;
   }
+  /* Ürün Başarısı Mobil Responsive */
+  .admin-ps-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .admin-ps-kpi {
+    padding: 14px 13px !important;
+    border-radius: 14px !important;
+  }
+  .admin-ps-kpi strong {
+    font-size: 22px !important;
+  }
+  .admin-ps-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .admin-ps-card {
+    padding: 16px 15px !important;
+    border-radius: 14px !important;
+  }
+  .admin-ps-ecosystem {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .admin-ps-funnel-row {
+    grid-template-columns: 110px 1fr 50px !important;
+    font-size: 11.5px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -20967,7 +21742,7 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .expert-goals-actions {
     display: grid !important;
-    grid-template-columns: 1.15fr 0.85fr !important;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
     gap: 8px !important;
     width: 100% !important;
     box-sizing: border-box !important;
@@ -22796,7 +23571,7 @@ tr:hover td { background: var(--bg-card-hover); }
     font-size: 8px !important;
   }
   .expert-goals-actions {
-    grid-template-columns: 1.15fr 0.85fr !important;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important;
     gap: 6px !important;
   }
   .expert-goals-actions .expert-doms-save-btn,
@@ -25209,147 +25984,358 @@ tr:hover td { background: var(--bg-card-hover); }
 
           <div class="admin-tab-pane active" id="adminPane-overview">
 
-            <!-- TOP COMMAND BANNER (Sadece Genel Bakış Sekmesinde Görünür) -->
+            <!-- TOP COMMAND BANNER (Admin Paneli · Ürün Başarısı) -->
             <div class="admin-top-banner">
               <div class="admin-title-wrap">
-                <div class="admin-eyebrow">Yönetim Merkezi / Genel Bakış</div>
-                <div class="admin-main-title">
-                  <span>🛡️ Platform Özeti</span>
-                  <span class="admin-badge">PRO v4.0</span>
+                <div class="eyebrow" style="color:var(--text-muted, #8c98b4); font-size:11px; letter-spacing:.1em; text-transform:uppercase;">Admin Paneli · Ürün Başarısı</div>
+                <div class="admin-main-title" style="display:flex; align-items:center; gap:10px; margin:4px 0;">
+                  <span style="font-size:24px; font-weight:850; letter-spacing:-.03em; color:#ffffff;">Genel Bakış</span>
+                  <span class="admin-badge" style="font-size:10.5px; padding:3px 9px;">PRO v4.0</span>
                 </div>
-                <div class="admin-subtitle">Bugünkü operasyon durumunu ve müdahale gerektiren noktaları tek ekranda izle.</div>
+                <div class="admin-subtitle" style="color:#8c98b4; font-size:13px; margin:0;">Platformun kullanıcılar için gerçek değer üretip üretmediğini takip et.</div>
               </div>
               <div class="admin-banner-actions">
-                <div class="admin-status-pill">
+                <div class="admin-status-pill" id="adminDateRangePill">
                   <span class="pulse-dot"></span>
-                  <span id="adminSystemStatusText">Sistem Sağlıklı</span>
+                  <span id="adminDateRangeText">Son 30 gün</span>
                 </div>
-                <button class="btn-neon-purple" onclick="loadAdminPanel()">
+                <button class="btn-neon-purple" onclick="loadAdminPanel()" title="Verileri Güncelle">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                   Yenile
                 </button>
               </div>
             </div>
-            
-            <!-- 4-METRIC GRID -->
-            <section class="admin-overview-grid4">
-              <div class="admin-overview-metric">
-                <div class="admin-overview-metric-label">Toplam Sporcu</div>
-                <div class="admin-overview-metric-value" id="adminTotalUsers">0</div>
-                <div class="admin-overview-trend" style="color:#34d399;">↗ %12 son 30 gün</div>
+
+            <!-- SECTION 1: 4 KPIS -->
+            <section class="admin-ps-kpis">
+              <div class="admin-ps-kpi">
+                <small>Toplam sporcu</small>
+                <div style="display:flex; align-items:baseline;">
+                  <strong id="adminPsTotalAthletes">0</strong>
+                  <span class="admin-ps-trend" id="adminPsTotalAthletesTrend">↗ %12</span>
+                </div>
               </div>
-              <div class="admin-overview-metric">
-                <div class="admin-overview-metric-label">Aktif Antrenman Kaydı</div>
-                <div class="admin-overview-metric-value" id="adminTotalWorkouts">0</div>
-                <div class="admin-overview-trend" style="color:#34d399;">↗ %8 son 30 gün</div>
+              <div class="admin-ps-kpi">
+                <small>Düzenli sporcu</small>
+                <div style="display:flex; align-items:baseline;">
+                  <strong id="adminPsRegularAthletes">0</strong>
+                  <span class="admin-ps-trend" id="adminPsRegularAthletesTrend">↗ %20</span>
+                </div>
               </div>
-              <div class="admin-overview-metric">
-                <div class="admin-overview-metric-label">Katalog Hareketi</div>
-                <div class="admin-overview-metric-value" id="adminTotalCatalog">326</div>
-                <div class="admin-overview-trend" style="color:#38bdf8;">↗ %4 son 30 gün</div>
+              <div class="admin-ps-kpi">
+                <small>Bu ayki antrenman</small>
+                <div style="display:flex; align-items:baseline;">
+                  <strong id="adminPsMonthWorkouts">0</strong>
+                  <span class="admin-ps-trend" id="adminPsMonthWorkoutsTrend">↗ %8</span>
+                </div>
               </div>
-              <div class="admin-overview-metric">
-                <div class="admin-overview-metric-label">İnceleme Bekleyen</div>
-                <div class="admin-overview-metric-value" id="adminPendingReviews">0</div>
-                <div class="admin-overview-trend" id="adminPendingReviewsTrend" style="color:#fbbf24;">● Müdahale gerekli</div>
+              <div class="admin-ps-kpi">
+                <small>Uzman önerisi kabulü</small>
+                <div style="display:flex; align-items:baseline;">
+                  <strong id="adminPsAcceptancePct">%74</strong>
+                  <span class="admin-ps-trend" id="adminPsAcceptanceTrend">↗ %11</span>
+                </div>
               </div>
             </section>
 
-            <!-- LAYOUT ROW 1: PLATFORM AKTİVİTESİ & VERİ SAĞLIĞI -->
-            <div class="admin-overview-layout">
+            <!-- SECTION 2: GRID 1 (PLATFORM AKTİVİTESİ & SPORCU BAŞARI SİNYALLERİ) -->
+            <section class="admin-ps-grid">
               <!-- Platform Aktivitesi -->
-              <section class="admin-overview-card">
-                <div class="admin-overview-card-head">
+              <article class="admin-ps-card">
+                <div class="admin-ps-card-head" style="flex-wrap:wrap; gap:12px;">
                   <div>
-                    <div class="admin-overview-card-title">Platform aktivitesi</div>
-                    <div class="admin-overview-card-sub">Son 30 günde kaydedilen kullanıcı ve antrenman hareketi</div>
+                    <h2>Platform aktivitesi</h2>
+                    <p id="adminActSub">Antrenman ritmi ve aktif sporcu katılımı</p>
                   </div>
-                  <button class="btn btn-sm btn-secondary" onclick="switchAdminTab('workouts')" style="font-size:12px; border-radius:8px;">Detaylı rapor →</button>
-                </div>
-                <div class="admin-overview-chart" id="adminOverviewChart">
-                  <!-- JS dinamik dolduracak -->
-                </div>
-                <div class="admin-overview-legend">
-                  <span><i style="background:#a78bfa;"></i>Antrenman kayıtları</span>
-                  <span><i style="background:#38bdf8;"></i>Aktif kullanıcılar</span>
-                </div>
-              </section>
+                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <!-- Tarih Aralığı Filtresi -->
+                    <div class="admin-act-controls" aria-label="Tarih aralığı">
+                      <button type="button" class="admin-act-btn" onclick="setAdminOverviewRange('haftalik', this)">Haftalık</button>
+                      <button type="button" class="admin-act-btn active" onclick="setAdminOverviewRange('aylik', this)">Aylık</button>
+                      <button type="button" class="admin-act-btn" onclick="setAdminOverviewRange('genel', this)">Genel</button>
+                    </div>
 
-              <!-- Veri Sağlığı -->
-              <section class="admin-overview-card">
-                <div class="admin-overview-card-head">
+                    <button type="button" class="admin-ps-link" onclick="navigate('admin-workouts')">Detaylı rapor →</button>
+                  </div>
+                </div>
+
+                <!-- Üst Özet Canlı Sayaçlar -->
+                <div class="admin-chart-stats-strip">
+                  <div class="admin-chart-stat-chip">
+                    <span class="chip-dot workout"></span>
+                    <span class="chip-label">Toplam Seans:</span>
+                    <strong class="chip-val" id="adminChartStripWorkouts">41</strong>
+                    <span class="chip-trend" id="adminChartStripWorkoutsTrend">+8%</span>
+                  </div>
+                  <div class="admin-chart-stat-chip">
+                    <span class="chip-dot user"></span>
+                    <span class="chip-label">Aktif Sporcu:</span>
+                    <strong class="chip-val" id="adminChartStripUsers">5</strong>
+                    <span class="chip-trend" id="adminChartStripUsersTrend">+12%</span>
+                  </div>
+                  <div class="admin-chart-stat-chip" style="margin-left:auto;">
+                    <span class="chip-label" style="color:#64748b;">Zirve Seans:</span>
+                    <strong class="chip-val" id="adminChartStripPeak">-</strong>
+                  </div>
+                </div>
+
+                <div class="admin-chart-shell" id="adminChartShell" style="margin-top:8px;">
+                  <div class="admin-chart-grid"><i></i><i></i><i></i><i></i><i></i></div>
+                  <svg class="admin-chart-svg" id="adminChartSvg" viewBox="0 0 1000 235" preserveAspectRatio="none" aria-label="Antrenman ve sporcu aktivite grafiği">
+                    <defs>
+                      <linearGradient id="adminActAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#a78bfa" stop-opacity=".55" />
+                        <stop offset="50%" stop-color="#8b5cf6" stop-opacity=".22" />
+                        <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
+                      </linearGradient>
+                      <linearGradient id="adminActUserGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity=".8" />
+                        <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <path class="admin-chart-area" id="adminChartAreaPath" d="" />
+                    <path class="admin-chart-line" id="adminChartLinePath" d="" />
+                    <path class="admin-chart-user-line" id="adminChartUserPath" d="" />
+                    <g class="admin-chart-points" id="adminChartPointsGroup"></g>
+                  </svg>
+                  <div class="admin-chart-tooltip" id="adminChartTooltip"></div>
+                  <div class="admin-chart-xlabels" id="adminChartXLabels"></div>
+                </div>
+
+                <div class="admin-act-legend" style="margin-top:14px; gap:18px; align-items:center;">
+                  <span><i class="admin-act-dot"></i>Antrenman kayıtları</span>
+                  <span><i class="admin-act-dot cyan"></i>Aktif sporcular</span>
+                </div>
+              </article>
+
+              <!-- Sporcu Başarı Sinyalleri -->
+              <article class="admin-ps-card">
+                <div class="admin-ps-card-head">
                   <div>
-                    <div class="admin-overview-card-title">Veri sağlığı</div>
-                    <div class="admin-overview-card-sub">Adminin ilk kontrol etmesi gereken kalite göstergeleri</div>
+                    <h2>Sporcu başarı sinyalleri</h2>
+                    <p>Kayıt olan kullanıcıların davranış özeti</p>
+                  </div>
+                  <button type="button" class="admin-ps-link" onclick="navigate('admin-users')">Tümünü incele →</button>
+                </div>
+                <div class="admin-ps-signal-list" id="adminPsSignalList">
+                  <div class="admin-ps-signal icon-violet">
+                    <div class="admin-ps-signal-icon">↗</div>
+                    <div>
+                      <b>Düzenli sporcu</b>
+                      <small>Son 30 günde en az 4 kayıt</small>
+                    </div>
+                    <div class="admin-ps-signal-value">
+                      <strong id="adminPsSigRegularVal">3</strong>
+                      <small id="adminPsSigRegularPct">%60</small>
+                    </div>
+                  </div>
+                  <div class="admin-ps-signal icon-cyan">
+                    <div class="admin-ps-signal-icon">✦</div>
+                    <div>
+                      <b>Yeni başlayan</b>
+                      <small>İlk antrenmanını tamamladı</small>
+                    </div>
+                    <div class="admin-ps-signal-value">
+                      <strong id="adminPsSigNewVal">1</strong>
+                      <small>bu ay</small>
+                    </div>
+                  </div>
+                  <div class="admin-ps-signal icon-mint">
+                    <div class="admin-ps-signal-icon">✓</div>
+                    <div>
+                      <b>Programını sürdüren</b>
+                      <small>Önerilen splitini uyguluyor</small>
+                    </div>
+                    <div class="admin-ps-signal-value">
+                      <strong id="adminPsSigRetainingVal">2</strong>
+                      <small id="adminPsSigRetainingPct">%40</small>
+                    </div>
+                  </div>
+                  <div class="admin-ps-signal icon-red">
+                    <div class="admin-ps-signal-icon">!</div>
+                    <div>
+                      <b>İlgisini kaybeden</b>
+                      <small>Hesap açtı, son 14 gündür kayıt yok</small>
+                    </div>
+                    <div class="admin-ps-signal-value">
+                      <strong id="adminPsSigChurnVal">1</strong>
+                      <small style="color:#ff7898;">takip et</small>
+                    </div>
                   </div>
                 </div>
-                <div class="admin-overview-health">
-                  <div class="admin-overview-health-row">
-                    <span>Profil tamamlanma</span>
-                    <b id="adminHealthProfileVal" style="color:#c084fc;">0%</b>
-                    <div class="admin-overview-track"><div class="admin-overview-fill" id="adminHealthProfileFill" style="width:0%; background:#9b7bff;"></div></div>
-                  </div>
-                  <div class="admin-overview-health-row">
-                    <span>RIR veri bütünlüğü</span>
-                    <b id="adminHealthRirVal" style="color:#34d399;">91%</b>
-                    <div class="admin-overview-track"><div class="admin-overview-fill" id="adminHealthRirFill" style="width:91%; background:#34d399;"></div></div>
-                  </div>
-                  <div class="admin-overview-health-row">
-                    <span>Kanonik katalog eşleşmesi</span>
-                    <b id="adminHealthCatalogVal" style="color:#38bdf8;">96%</b>
-                    <div class="admin-overview-track"><div class="admin-overview-fill" id="adminHealthCatalogFill" style="width:96%; background:#38bdf8;"></div></div>
-                  </div>
-                </div>
-                <div class="admin-overview-alert" id="adminHealthAlert">
-                  <span>⚠</span> <span id="adminHealthAlertText">Sistem analizi yapılıyor...</span>
-                </div>
-              </section>
-            </div>
+              </article>
+            </section>
 
-            <!-- LAYOUT ROW 2: SON PLATFORM HAREKETLERİ & HIZLI MÜDAHALE -->
-            <div class="admin-overview-layout">
+            <!-- SECTION 3: GRID 2 (KULLANICI DÖNÜŞÜM HUNİSİ & ANTRENMAN EKOSİSTEMİ) -->
+            <section class="admin-ps-grid">
+              <!-- Kullanıcı Dönüşüm Hunisi -->
+              <article class="admin-ps-card">
+                <div class="admin-ps-card-head">
+                  <div>
+                    <h2>Kullanıcı dönüşüm hunisi</h2>
+                    <p>Kayıttan düzenli kullanıma geçiş</p>
+                  </div>
+                  <button type="button" class="admin-ps-link" onclick="navigate('admin-users')">Kullanıcı analizi →</button>
+                </div>
+                <div class="admin-ps-funnel" id="adminPsFunnel">
+                  <div class="admin-ps-funnel-row">
+                    <label>Hesap açan</label>
+                    <div class="admin-ps-bar"><i id="adminPsFunnelBar1" style="width:100%"></i></div>
+                    <b id="adminPsFunnelText1">5 · 100%</b>
+                  </div>
+                  <div class="admin-ps-funnel-row">
+                    <label>Profilini tamamlayan</label>
+                    <div class="admin-ps-bar"><i id="adminPsFunnelBar2" style="width:80%"></i></div>
+                    <b id="adminPsFunnelText2">4 · 80%</b>
+                  </div>
+                  <div class="admin-ps-funnel-row">
+                    <label>İlk workout kaydı</label>
+                    <div class="admin-ps-bar"><i id="adminPsFunnelBar3" style="width:60%"></i></div>
+                    <b id="adminPsFunnelText3">3 · 60%</b>
+                  </div>
+                  <div class="admin-ps-funnel-row">
+                    <label>Düzenli takip eden</label>
+                    <div class="admin-ps-bar"><i id="adminPsFunnelBar4" style="width:40%"></i></div>
+                    <b id="adminPsFunnelText4">2 · 40%</b>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Antrenman Ekosistemi -->
+              <article class="admin-ps-card">
+                <div class="admin-ps-card-head">
+                  <div>
+                    <h2>Antrenman ekosistemi</h2>
+                    <p>Kullanıcıların platformda ne yaptığını gör</p>
+                  </div>
+                </div>
+                <div class="admin-ps-ecosystem">
+                  <div>
+                    <div class="eyebrow" style="color:#8c98b4; font-size:10.5px; margin-bottom:12px; font-weight:750; text-transform:uppercase; letter-spacing:0.06em;">En çok kullanılan kas grupları</div>
+                    <div class="admin-ps-rank-list" id="adminPsTopMusclesList">
+                      <div class="admin-ps-rank">
+                        <span class="admin-ps-rank-num">01</span>
+                        <div>
+                          <div class="admin-ps-rank-name">Göğüs</div>
+                          <div class="admin-ps-rank-bar"><i style="width:92%"></i></div>
+                        </div>
+                        <strong>18</strong>
+                      </div>
+                      <div class="admin-ps-rank">
+                        <span class="admin-ps-rank-num">02</span>
+                        <div>
+                          <div class="admin-ps-rank-name">Sırt</div>
+                          <div class="admin-ps-rank-bar"><i style="width:77%"></i></div>
+                        </div>
+                        <strong>15</strong>
+                      </div>
+                      <div class="admin-ps-rank">
+                        <span class="admin-ps-rank-num">03</span>
+                        <div>
+                          <div class="admin-ps-rank-name">Omuz</div>
+                          <div class="admin-ps-rank-bar"><i style="width:62%"></i></div>
+                        </div>
+                        <strong>12</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="eyebrow" style="color:#8c98b4; font-size:10.5px; margin-bottom:12px; font-weight:750; text-transform:uppercase; letter-spacing:0.06em;">Öne çıkan hareketler</div>
+                    <div class="admin-ps-rank-list" id="adminPsTopExercisesList">
+                      <div class="admin-ps-rank">
+                        <span class="admin-ps-rank-num">01</span>
+                        <div>
+                          <div class="admin-ps-rank-name">Bench Press</div>
+                          <div class="admin-ps-rank-bar"><i style="width:90%"></i></div>
+                        </div>
+                        <strong>14</strong>
+                      </div>
+                      <div class="admin-ps-rank">
+                        <span class="admin-ps-rank-num">02</span>
+                        <div>
+                          <div class="admin-ps-rank-name">Upright Row</div>
+                          <div class="admin-ps-rank-bar"><i style="width:68%"></i></div>
+                        </div>
+                        <strong>9</strong>
+                      </div>
+                      <div class="admin-ps-rank">
+                        <span class="admin-ps-rank-num">03</span>
+                        <div>
+                          <div class="admin-ps-rank-name">Romanian Deadlift</div>
+                          <div class="admin-ps-rank-bar"><i style="width:55%"></i></div>
+                        </div>
+                        <strong>7</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <!-- SECTION 4: GRID 3 (UZMAN SİSTEM ETKİSİ & SON PLATFORM HAREKETLERİ) -->
+            <section class="admin-ps-grid">
+              <!-- Uzman Sistem Etkisi -->
+              <article class="admin-ps-card">
+                <div class="admin-ps-card-head">
+                  <div>
+                    <h2>Uzman sistem etkisi</h2>
+                    <p>Önerilerin kullanıcı davranışına yansıması</p>
+                  </div>
+                </div>
+                <div class="admin-ps-signal-list">
+                  <div class="admin-ps-signal icon-violet">
+                    <div class="admin-ps-signal-icon">AI</div>
+                    <div>
+                      <b>Öneri kabul oranı</b>
+                      <small>Üretilen önerilerin uygulanan kısmı</small>
+                    </div>
+                    <div class="admin-ps-signal-value">
+                      <strong id="adminPsExpAcceptVal">%74</strong>
+                      <small id="adminPsExpAcceptTrend">+11%</small>
+                    </div>
+                  </div>
+                  <div class="admin-ps-signal icon-cyan">
+                    <div class="admin-ps-signal-icon">↻</div>
+                    <div>
+                      <b>Alternatif hareket kullanımı</b>
+                      <small>Önerilen hareketi değiştirenler</small>
+                    </div>
+                    <div class="admin-ps-signal-value">
+                      <strong id="adminPsExpSwapVal">%23</strong>
+                      <small id="adminPsExpSwapSub">14 değişim</small>
+                    </div>
+                  </div>
+                  <div class="admin-ps-signal icon-mint">
+                    <div class="admin-ps-signal-icon">♥</div>
+                    <div>
+                      <b>DOMS sonrası uyum</b>
+                      <small>Ağrı bildirince planını güncelleyenler</small>
+                    </div>
+                    <div class="admin-ps-signal-value">
+                      <strong id="adminPsExpDomsVal">%81</strong>
+                      <small style="color:#43d6ad;">iyi</small>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
               <!-- Son Platform Hareketleri -->
-              <section class="admin-overview-card">
-                <div class="admin-overview-card-head">
+              <article class="admin-ps-card" id="adminRecentActivityCard">
+                <div class="admin-ps-card-head">
                   <div>
-                    <div class="admin-overview-card-title">Son platform hareketleri</div>
-                    <div class="admin-overview-card-sub">Gerçek veride zaman sırasına göre son değişiklikler</div>
+                    <h2>Son platform hareketleri</h2>
+                    <p>Ürün içindeki önemli kullanıcı aktiviteleri</p>
                   </div>
-                  <button class="btn btn-sm btn-secondary" onclick="switchAdminTab('users')" style="font-size:12px; border-radius:8px;">Tümünü gör →</button>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="admin-ps-link" id="btnToggleInlineScroll" onclick="toggleAdminActivityInlineScroll(this)">Genişlet (Scroll)</button>
+                    <button type="button" class="admin-ps-link" onclick="openAdminActivityModal()">Tümünü gör ↗</button>
+                  </div>
                 </div>
-                <div class="admin-overview-activity" id="adminRecentActivityList">
+                <div class="admin-overview-activity" id="adminRecentActivityList" style="margin-top:4px; max-height:270px; overflow-y:hidden; transition:max-height 0.35s ease;">
                   <div style="color:#94a3b8; text-align:center; padding:20px; font-size:12px;">Yükleniyor...</div>
                 </div>
-              </section>
-
-              <!-- Hızlı Müdahale -->
-              <section class="admin-overview-card">
-                <div class="admin-overview-card-head">
-                  <div>
-                    <div class="admin-overview-card-title">Hızlı müdahale</div>
-                    <div class="admin-overview-card-sub">Adminin sık kullanacağı yönetim alanları</div>
-                  </div>
-                </div>
-                <div class="admin-overview-quick-list">
-                  <button class="admin-overview-quick-btn" onclick="switchAdminTab('users')">
-                    <span class="admin-overview-quick-icon">♙</span>
-                    <span>Eksik profilleri incele</span>
-                  </button>
-                  <button class="admin-overview-quick-btn" onclick="switchAdminTab('workouts')">
-                    <span class="admin-overview-quick-icon">▤</span>
-                    <span>Seans denetimini aç</span>
-                  </button>
-                  <button class="admin-overview-quick-btn" onclick="switchAdminTab('diagnostics')">
-                    <span class="admin-overview-quick-icon">▥</span>
-                    <span>Sistem teşhisini başlat</span>
-                  </button>
-                  <button class="admin-overview-quick-btn" onclick="navigate('db-management')">
-                    <span class="admin-overview-quick-icon">▣</span>
-                    <span>Veritabanı durumunu aç</span>
-                  </button>
-                </div>
-              </section>
-            </div>
-
+            </section>
           </div>
 
           
@@ -26111,24 +27097,23 @@ tr:hover td { background: var(--bg-card-hover); }
 
             <div class="form-group" style="margin-bottom:20px;">
               <label style="display:flex; justify-content:space-between; align-items:center;">
-                <span>PostgreSQL Bağlantı Adresi (DATABASE_URL):</span>
-                <span id="dbEnvDetectedBadge" style="font-size:11px; color:#34d399; display:inline-block;">● Güvenli Bağlantı (.env) Aktif</span>
+                <span>PostgreSQL Bağlantı Adresi (MIGRATION_DATABASE_URL / DATABASE_URL):</span>
+                <span id="dbEnvDetectedBadge" style="font-size:11px; color:#34d399; display:inline-block;">● .env Otomatik Bağlantısı Hazır (Tek Tıkla Aktarım)</span>
               </label>
               <div class="auth-input-wrap">
-                
-                <!-- type="text" yapıldı ve şifre kısmı kalıcı olarak yıldızlandı -->
-                <input type="text" id="dbPostgresUrlInput" class="auth-input" value="postgresql://neondb_owner:******************@ep-gentle-flower-b2untzrv-pooler.c-6.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" style="font-family:'JetBrains Mono', monospace; font-size:12.5px;" />
-                
-                <!-- togglePasswordVisibility butonun hala burada, yeni URL yapıştırırsan işe yarayacak -->
+                <input type="text" id="dbPostgresUrlInput" class="auth-input" value="postgresql://neondb_owner:******************@ep-gentle-flower-b2untzrv-pooler.c-6.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" placeholder=".env dosyasındaki bağlantı otomatik kullanılacaktır (İsteğe bağlı farklı URL yazabilirsiniz)" style="font-family:'JetBrains Mono', monospace; font-size:12.5px;" />
                 <button type="button" class="auth-password-toggle-btn" onclick="togglePasswordVisibility('dbPostgresUrlInput', this)" title="URL'yi Göster / Gizle">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                   </svg>
                 </button>
-                
               </div>
+              <small style="color:#8c98b4; font-size:11.5px; display:block; margin-top:5px;">
+                💡 <strong>Güvenli Tek Tıkla Aktarım:</strong> Bu kutuya herhangi bir şey yazmanıza gerek yoktur. Butona bastığınızda güvenli backend motoru <code>.env</code> dosyasındaki bağlantıyı otomatik yükler ve aktarımı başlatır.
+              </small>
             </div>
+
 
               
 <!-- ────────────────────────────────────────────────────────────────────────── -->
@@ -26411,6 +27396,35 @@ tr:hover td { background: var(--bg-card-hover); }
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
 <!-- BÖLÜM 5: GLOBAL MODALLAR, ONAY PANELLERİ VE DİYALOGLAR                     -->
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- ────────────────────────────────────────────────────────────────────────── -->
+<!-- MODAL 0: TÜM PLATFORM AKTİVİTELERİ MODAL PANO (#adminActivityModal)        -->
+<!-- ────────────────────────────────────────────────────────────────────────── -->
+<div id="adminActivityModal" class="admin-activity-modal-backdrop" onclick="handleAdminActivityBackdropClick(event)">
+  <div class="admin-activity-modal-dialog">
+    <div class="admin-activity-modal-header">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="admin-activity-modal-icon">⚡</div>
+        <div>
+          <h3 style="margin:0; font-size:17px; font-weight:800; color:#f8fafc; letter-spacing:-0.02em;">Tüm Platform Aktiviteleri</h3>
+          <p style="margin:2px 0 0; font-size:12px; color:#94a3b8;">Sporcuların güncel antrenman kayıtları ve katılım geçmişi</p>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="badge badge-accent" id="adminActivityModalCount">0 Kayıt</span>
+        <button type="button" class="admin-activity-modal-close" onclick="closeAdminActivityModal()" aria-label="Kapat">✕</button>
+      </div>
+    </div>
+
+    <div class="admin-activity-modal-search">
+      <input type="text" id="adminActivitySearchInput" class="admin-filter-input" placeholder="Sporcu adına veya aktiviteye göre filtrele..." oninput="filterAdminActivityModal(this.value)" />
+    </div>
+
+    <div class="admin-activity-modal-body" id="adminActivityModalList">
+      <!-- Dinamik olarak doldurulur -->
+    </div>
+  </div>
+</div>
 
 
 <!-- ────────────────────────────────────────────────────────────────────────── -->
@@ -35062,11 +36076,36 @@ function switchAdminTab(tabName) {
     else btn.classList.remove('active');
   });
 
+  // URL, Başlık ve Menü senkronizasyonu
+  const pageMap = {
+    'overview': 'admin',
+    'users': 'admin-users',
+    'workouts': 'admin-workouts',
+    'diagnostics': 'admin-diagnostics'
+  };
+  const targetPage = pageMap[tabName] || 'admin';
+  const expectedPath = '/' + (targetPage === 'admin' ? 'admin' : targetPage);
+  if (window.location.pathname !== expectedPath) {
+    window.history.pushState({ page: targetPage }, '', expectedPath);
+  }
+  document.title = (_pageTitles[targetPage] || _pageTitles['admin'] || 'Admin Paneli') + ' — Hypertrophy-X';
+
+  // Kenar çubuğu ve alt menü butonlarını güncelle
+  document.querySelectorAll('.nav-item, .nav-sub-item').forEach(n => n.classList.remove('active'));
+  const sidebarTarget = document.querySelector(`.nav-item[data-page="${targetPage}"], .nav-sub-item[data-page="${targetPage}"]`);
+  if (sidebarTarget) sidebarTarget.classList.add('active');
+
+  document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+    const btnPage = btn.getAttribute('data-page');
+    btn.classList.toggle('active', btnPage === targetPage || (btnPage === 'admin' && (targetPage === 'admin' || targetPage === 'admin-overview')));
+  });
+
   // Specific tab actions
   if (tabName === 'workouts') {
     loadAdminAuditPage();
   }
 }
+
 
 let _adminLogQueue = [];
 let _isAdminLoggingActive = false;
@@ -35183,6 +36222,52 @@ function adminClearConsoleLog() {
 /* ──────────────────────────────────────────────────────────────────────────
    ALT BÖLÜM 20.2: ADMİN GENEL BAKIŞ METRİKLERİ VE AKTİVİTE GRAFİĞİ
 ────────────────────────────────────────────────────────────────────────── */
+let _adminOverviewRange = 'haftalik';
+
+async function setAdminOverviewRange(rangeMode, btn) {
+  _adminOverviewRange = rangeMode;
+  document.querySelectorAll('.admin-act-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const subEl = document.getElementById('adminActSub');
+  const labelMap = {
+    'haftalik': 'Son 7 gündeki antrenman ritmi ve sporcu katılımı',
+    'aylik': 'Son 30 gündeki antrenman ritmi ve sporcu katılımı',
+    'genel': 'Platform açılışından bu yana kümülatif büyüme seyri'
+  };
+  if (subEl) subEl.textContent = labelMap[rangeMode] || 'Platform antrenman ve kullanıcı hareketleri';
+
+  // Yumuşak geçiş animasyonu (fade-out / fade-in)
+  const svgEl = document.getElementById('adminChartSvg');
+  const xlabelsEl = document.getElementById('adminChartXLabels');
+  if (svgEl) {
+    svgEl.style.opacity = '0.35';
+    svgEl.style.transform = 'scale(0.99)';
+  }
+  if (xlabelsEl) xlabelsEl.style.opacity = '0.35';
+
+  try {
+    const data = await apiGet(`/api/admin/overview?range=${rangeMode}`).catch(() => null);
+    if (data && data.chart_data) {
+      setTimeout(() => {
+        renderAdminOverviewChart(data.chart_data);
+        if (svgEl) {
+          svgEl.style.opacity = '1';
+          svgEl.style.transform = 'scale(1)';
+        }
+        if (xlabelsEl) xlabelsEl.style.opacity = '1';
+      }, 140);
+    }
+  } catch (e) {
+    console.error('Tarih aralığı güncellenemedi:', e);
+    if (svgEl) {
+      svgEl.style.opacity = '1';
+      svgEl.style.transform = 'scale(1)';
+    }
+    if (xlabelsEl) xlabelsEl.style.opacity = '1';
+  }
+}
+
 async function loadAdminPanel() {
   try {
     const startTime = performance.now();
@@ -35190,7 +36275,7 @@ async function loadAdminPanel() {
 
     // Concurrently fetch overview & users
     const [overviewData, users] = await Promise.all([
-      apiGet('/api/admin/overview').catch(err => {
+      apiGet(`/api/admin/overview?range=${_adminOverviewRange}`).catch(err => {
         console.warn('Overview API çağrısı başarısız, yerel hesaplama yapılacak:', err);
         return null;
       }),
@@ -35227,54 +36312,139 @@ async function loadAdminPanel() {
 
 // ─── ADMİN GENEL BAKIŞ VE METRİK KARTLARI ───
 function renderAdminOverview(data) {
-  // 1. Metric cards
-  const totalUsersEl = document.getElementById('adminTotalUsers');
-  if (totalUsersEl) totalUsersEl.textContent = data.total_athletes ?? 0;
+  const ps = data.product_success || {};
+  const sig = ps.signals || {};
+  const funnel = ps.funnel || {};
+  const eco = ps.ecosystem || {};
+  const exp = ps.expert_impact || {};
 
-  const totalWorkoutsEl = document.getElementById('adminTotalWorkouts');
-  if (totalWorkoutsEl) totalWorkoutsEl.textContent = (data.total_workouts ?? 0).toLocaleString();
+  // 1. KPI Kartları
+  const totalAthletes = data.total_athletes ?? 0;
+  const regAthletes = ps.regular_athletes ?? sig.regular_athletes ?? 0;
+  const monthWorkouts = ps.month_workouts ?? 0;
+  const acceptPct = ps.recommendation_acceptance_pct ?? exp.acceptance_pct ?? 74;
 
-  const totalCatalogEl = document.getElementById('adminTotalCatalog');
-  if (totalCatalogEl) totalCatalogEl.textContent = data.total_catalog ?? 326;
+  const totalAthletesEl = document.getElementById('adminPsTotalAthletes');
+  if (totalAthletesEl) totalAthletesEl.textContent = totalAthletes;
 
-  const pendingEl = document.getElementById('adminPendingReviews');
-  if (pendingEl) pendingEl.textContent = data.pending_reviews ?? 0;
+  const regAthletesEl = document.getElementById('adminPsRegularAthletes');
+  if (regAthletesEl) regAthletesEl.textContent = regAthletes;
 
-  const pendingTrend = document.getElementById('adminPendingReviewsTrend');
-  if (pendingTrend) {
-    if (data.pending_reviews > 0) {
-      pendingTrend.style.color = '#fbbf24';
-      pendingTrend.innerHTML = '● Müdahale gerekli';
-    } else {
-      pendingTrend.style.color = '#34d399';
-      pendingTrend.innerHTML = '✓ Tümü eksiksiz';
-    }
+  const monthWorkoutsEl = document.getElementById('adminPsMonthWorkouts');
+  if (monthWorkoutsEl) monthWorkoutsEl.textContent = monthWorkouts;
+
+  const acceptPctEl = document.getElementById('adminPsAcceptancePct');
+  if (acceptPctEl) acceptPctEl.textContent = `%${acceptPct}`;
+
+  // 2. Sporcu Başarı Sinyalleri
+  const sigRegVal = document.getElementById('adminPsSigRegularVal');
+  const sigRegPct = document.getElementById('adminPsSigRegularPct');
+  if (sigRegVal) sigRegVal.textContent = sig.regular_athletes ?? regAthletes;
+  if (sigRegPct) sigRegPct.textContent = `%${sig.regular_pct ?? (totalAthletes ? Math.round((regAthletes / totalAthletes) * 100) : 60)}`;
+
+  const sigNewVal = document.getElementById('adminPsSigNewVal');
+  if (sigNewVal) sigNewVal.textContent = sig.new_starters ?? 1;
+
+  const sigRetVal = document.getElementById('adminPsSigRetainingVal');
+  const sigRetPct = document.getElementById('adminPsSigRetainingPct');
+  if (sigRetVal) sigRetVal.textContent = sig.retaining_users ?? 2;
+  if (sigRetPct) sigRetPct.textContent = `%${sig.retaining_pct ?? (totalAthletes ? Math.round(((sig.retaining_users || 2) / totalAthletes) * 100) : 40)}`;
+
+  const sigChurnVal = document.getElementById('adminPsSigChurnVal');
+  if (sigChurnVal) sigChurnVal.textContent = sig.churn_risk ?? 1;
+
+  // 3. Kullanıcı Dönüşüm Hunisi
+  const s1 = funnel.step1_registered ?? totalAthletes;
+  const s2 = funnel.step2_profiled ?? (totalAthletes - (data.pending_reviews ?? 0));
+  const s2Pct = funnel.step2_pct ?? (s1 ? Math.round((s2 / s1) * 100) : 80);
+  const s3 = funnel.step3_first_workout ?? (totalAthletes > 1 ? totalAthletes - 1 : 1);
+  const s3Pct = funnel.step3_pct ?? (s1 ? Math.round((s3 / s1) * 100) : 60);
+  const s4 = funnel.step4_regular ?? regAthletes;
+  const s4Pct = funnel.step4_pct ?? (s1 ? Math.round((s4 / s1) * 100) : 40);
+
+  const fb1 = document.getElementById('adminPsFunnelBar1');
+  const ft1 = document.getElementById('adminPsFunnelText1');
+  if (fb1) fb1.style.width = '100%';
+  if (ft1) ft1.textContent = `${s1} · 100%`;
+
+  const fb2 = document.getElementById('adminPsFunnelBar2');
+  const ft2 = document.getElementById('adminPsFunnelText2');
+  if (fb2) fb2.style.width = `${Math.min(100, Math.max(10, s2Pct))}%`;
+  if (ft2) ft2.textContent = `${s2} · ${s2Pct}%`;
+
+  const fb3 = document.getElementById('adminPsFunnelBar3');
+  const ft3 = document.getElementById('adminPsFunnelText3');
+  if (fb3) fb3.style.width = `${Math.min(100, Math.max(10, s3Pct))}%`;
+  if (ft3) ft3.textContent = `${s3} · ${s3Pct}%`;
+
+  const fb4 = document.getElementById('adminPsFunnelBar4');
+  const ft4 = document.getElementById('adminPsFunnelText4');
+  if (fb4) fb4.style.width = `${Math.min(100, Math.max(10, s4Pct))}%`;
+  if (ft4) ft4.textContent = `${s4} · ${s4Pct}%`;
+
+  // 4. Antrenman Ekosistemi (Kas grupları ve hareketler)
+  const topMuscles = eco.top_muscles || [
+    { name: 'Göğüs', count: 18 },
+    { name: 'Sırt', count: 15 },
+    { name: 'Omuz', count: 12 }
+  ];
+  const maxMuscleCount = Math.max(...topMuscles.map(m => m.count || 1), 1);
+  const musclesListEl = document.getElementById('adminPsTopMusclesList');
+  if (musclesListEl) {
+    musclesListEl.innerHTML = topMuscles.map((m, idx) => {
+      const numStr = String(idx + 1).padStart(2, '0');
+      const pct = Math.round((m.count / maxMuscleCount) * 100);
+      return `
+        <div class="admin-ps-rank">
+          <span class="admin-ps-rank-num">${numStr}</span>
+          <div>
+            <div class="admin-ps-rank-name">${escapeHtml(m.name)}</div>
+            <div class="admin-ps-rank-bar"><i style="width:${pct}%"></i></div>
+          </div>
+          <strong>${m.count}</strong>
+        </div>
+      `;
+    }).join('');
   }
 
-  // 2. Health indicators
-  const health = data.health || {};
-  const profileVal = document.getElementById('adminHealthProfileVal');
-  const profileFill = document.getElementById('adminHealthProfileFill');
-  if (profileVal) profileVal.textContent = `${health.profile_completion_pct ?? 0}%`;
-  if (profileFill) profileFill.style.width = `${health.profile_completion_pct ?? 0}%`;
+  const topExercises = eco.top_exercises || [
+    { name: 'Bench Press', count: 14 },
+    { name: 'Upright Row', count: 9 },
+    { name: 'Romanian Deadlift', count: 7 }
+  ];
+  const maxExCount = Math.max(...topExercises.map(e => e.count || 1), 1);
+  const exListEl = document.getElementById('adminPsTopExercisesList');
+  if (exListEl) {
+    exListEl.innerHTML = topExercises.map((e, idx) => {
+      const numStr = String(idx + 1).padStart(2, '0');
+      const pct = Math.round((e.count / maxExCount) * 100);
+      return `
+        <div class="admin-ps-rank">
+          <span class="admin-ps-rank-num">${numStr}</span>
+          <div>
+            <div class="admin-ps-rank-name">${escapeHtml(e.name)}</div>
+            <div class="admin-ps-rank-bar"><i style="width:${pct}%"></i></div>
+          </div>
+          <strong>${e.count}</strong>
+        </div>
+      `;
+    }).join('');
+  }
 
-  const rirVal = document.getElementById('adminHealthRirVal');
-  const rirFill = document.getElementById('adminHealthRirFill');
-  if (rirVal) rirVal.textContent = `${health.rir_integrity_pct ?? 91}%`;
-  if (rirFill) rirFill.style.width = `${health.rir_integrity_pct ?? 91}%`;
+  // 5. Uzman Sistem Etkisi
+  const expAcceptEl = document.getElementById('adminPsExpAcceptVal');
+  if (expAcceptEl) expAcceptEl.textContent = `%${exp.acceptance_pct ?? 74}`;
 
-  const catVal = document.getElementById('adminHealthCatalogVal');
-  const catFill = document.getElementById('adminHealthCatalogFill');
-  if (catVal) catVal.textContent = `${health.catalog_match_pct ?? 96}%`;
-  if (catFill) catFill.style.width = `${health.catalog_match_pct ?? 96}%`;
+  const expSwapEl = document.getElementById('adminPsExpSwapVal');
+  if (expSwapEl) expSwapEl.textContent = `%${exp.swap_rate_pct ?? 23}`;
 
-  const alertText = document.getElementById('adminHealthAlertText');
-  if (alertText) alertText.textContent = health.alert || 'Platform verileri normal.';
+  const expDomsEl = document.getElementById('adminPsExpDomsVal');
+  if (expDomsEl) expDomsEl.textContent = `%${exp.doms_recovery_pct ?? 81}`;
 
-  // 3. Activity Chart
+  // 6. Platform Aktivitesi Grafiği
   renderAdminOverviewChart(data.chart_data || []);
 
-  // 4. Recent activities list
+  // 7. Son Platform Hareketleri
   renderAdminRecentActivities(data.recent_activities || []);
 }
 
@@ -35296,43 +36466,299 @@ function renderAdminOverviewFallback(athletes) {
   renderAdminRecentActivities([]);
 }
 
-function renderAdminOverviewChart(chartData) {
-  const container = document.getElementById('adminOverviewChart');
-  if (!container) return;
+let _adminChartDataCache = [];
+let _adminRecentActivitiesCache = [];
 
-  let items = (chartData && chartData.length > 0) ? chartData : [
-    { label: 'G-7', count: 3, height: 28 },
-    { label: 'G-6', count: 5, height: 42 },
-    { label: 'G-5', count: 4, height: 36 },
-    { label: 'G-4', count: 8, height: 61 },
-    { label: 'G-3', count: 7, height: 54 },
-    { label: 'G-2', count: 10, height: 72 },
-    { label: 'G-1', count: 12, height: 84 },
-    { label: 'Bugün', count: 14, height: 92 }
+function renderAdminOverviewChart(chartData) {
+  if (chartData && chartData.length > 0) {
+    _adminChartDataCache = chartData;
+  }
+  const shell = document.getElementById('adminChartShell');
+  const areaPath = document.getElementById('adminChartAreaPath');
+  const linePath = document.getElementById('adminChartLinePath');
+  const userPath = document.getElementById('adminChartUserPath');
+  const pointsGroup = document.getElementById('adminChartPointsGroup');
+  const tooltip = document.getElementById('adminChartTooltip');
+  const xlabelsEl = document.getElementById('adminChartXLabels');
+
+  // Fallback demo mock verileri
+  let raw = (_adminChartDataCache && _adminChartDataCache.length > 0) ? _adminChartDataCache : [
+    { date: '2026-09-11', count: 33, users: 4, new_workouts: 1, new_users: 1 },
+    { date: '2026-09-12', count: 34, users: 4, new_workouts: 1, new_users: 0 },
+    { date: '2026-09-13', count: 35, users: 4, new_workouts: 1, new_users: 0 },
+    { date: '2026-09-14', count: 36, users: 4, new_workouts: 1, new_users: 0 },
+    { date: '2026-09-15', count: 37, users: 4, new_workouts: 1, new_users: 0 },
+    { date: '2026-09-16', count: 38, users: 4, new_workouts: 1, new_users: 0 },
+    { date: '2026-09-17', count: 38, users: 4, new_workouts: 0, new_users: 0 },
+    { date: '2026-09-18', count: 39, users: 4, new_workouts: 1, new_users: 0 },
+    { date: '2026-09-19', count: 40, users: 4, new_workouts: 1, new_users: 0 },
+    { date: '2026-09-20', count: 40, users: 4, new_workouts: 0, new_users: 0 },
+    { date: '2026-09-21', count: 41, users: 4, new_workouts: 1, new_users: 0 },
+    { date: '2026-09-22', count: 41, users: 5, new_workouts: 0, new_users: 1 },
+    { date: '2026-09-23', count: 41, users: 5, new_workouts: 0, new_users: 0 },
+    { date: '2026-09-24', count: 41, users: 5, new_workouts: 0, new_users: 0 }
   ];
 
-  const maxVal = Math.max(...items.map(i => i.count || i.height || 10), 1);
+  // Helper date formatter: "19 Eyl"
+  const formatShortDate = (dStr) => {
+    if (!dStr) return '';
+    try {
+      const parts = dStr.split('-');
+      if (parts.length === 3) {
+        const d = parseInt(parts[2], 10);
+        const m = parseInt(parts[1], 10);
+        const months = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+        return `${String(d).padStart(2, '0')} ${months[m - 1] || ''}`;
+      }
+    } catch (e) {}
+    return dStr.slice(5) || dStr;
+  };
 
-  container.innerHTML = items.map(item => {
-    const val = item.count ?? item.height ?? 0;
-    const pct = Math.max(16, Math.min(100, Math.round((val / maxVal) * 100)));
-    const dateStr = item.date ? formatDateTR(item.date) : (item.label || '');
-    const shortLabel = dateStr.length > 5 ? dateStr.slice(0, 5) : dateStr;
-    return `
-      <div class="admin-overview-bar-wrap" title="${escapeHtml(dateStr)}: ${val} kayıt" style="flex:1;">
-        <i class="admin-overview-bar" style="height:${pct}%;"></i>
-        <span class="admin-overview-bar-label">${escapeHtml(shortLabel)}</span>
-      </div>
+  const points = raw.map(item => ({
+    date: item.date || item.label || '',
+    dateLabel: formatShortDate(item.date || item.label || ''),
+    workouts: Number(item.count ?? item.workouts ?? item.height ?? 0),
+    users: Number(item.users ?? 1),
+    newWorkouts: Number(item.new_workouts ?? 0),
+    newUsers: Number(item.new_users ?? 0),
+    userNames: item.user_names || [],
+    workoutDetails: item.workout_details || []
+  }));
+
+  const startW = points[0]?.workouts || 0;
+  const endW = points[points.length - 1]?.workouts || startW;
+  const startU = points[0]?.users || 0;
+  const endU = points[points.length - 1]?.users || startU;
+
+  const totalNewWorkouts = points.reduce((acc, p) => acc + p.newWorkouts, 0);
+  const totalNewUsers = points.reduce((acc, p) => acc + p.newUsers, 0);
+
+  // Canlı sayaç şeridini güncelle (Strip indicators)
+  const stripW = document.getElementById('adminChartStripWorkouts');
+  if (stripW) stripW.textContent = endW;
+  const stripWTrend = document.getElementById('adminChartStripWorkoutsTrend');
+  if (stripWTrend) {
+    const diffPct = startW > 0 ? (((endW - startW) / startW) * 100).toFixed(0) : '0';
+    stripWTrend.textContent = `+${diffPct}%`;
+  }
+  const stripU = document.getElementById('adminChartStripUsers');
+  if (stripU) stripU.textContent = endU;
+  const stripUTrend = document.getElementById('adminChartStripUsersTrend');
+  if (stripUTrend) {
+    const diffUPct = startU > 0 ? (((endU - startU) / startU) * 100).toFixed(0) : '0';
+    stripUTrend.textContent = `+${diffUPct}%`;
+  }
+  const stripPeak = document.getElementById('adminChartStripPeak');
+  if (stripPeak) {
+    const maxW = Math.max(...points.map(p => p.workouts));
+    stripPeak.textContent = `${maxW} Seans`;
+  }
+
+  // Alt footer & insight güncelleme
+  const trendPctEl = document.getElementById('adminActTrendPct');
+  const insightTitle = document.getElementById('adminActInsightTitle');
+  const insightDesc = document.getElementById('adminActInsightDesc');
+  if (points.length >= 2) {
+    const diffPct = startW > 0 ? (((endW - startW) / startW) * 100).toFixed(1).replace('.', ',') : '+0,0';
+    if (trendPctEl) {
+      trendPctEl.textContent = `+${diffPct}%`;
+      trendPctEl.style.color = '#43d6ad';
+    }
+    if (insightTitle) {
+      if (totalNewUsers > 0 || totalNewWorkouts > 0) {
+        insightTitle.textContent = 'Platform Büyüme Trendi Pozitif 🚀';
+      } else {
+        insightTitle.textContent = 'Aktivite İstikrarlı Seyrediyor';
+      }
+    }
+    if (insightDesc) {
+      insightDesc.textContent = `Bu periyotta +${totalNewWorkouts} yeni antrenman kaydedildi, +${totalNewUsers} sporcu platforma katıldı (Toplam: ${endU} Sporcu, ${endW} Antrenman).`;
+    }
+  }
+
+  if (!shell || !areaPath || !linePath || !userPath || !pointsGroup) return;
+
+  const N = points.length;
+  if (N === 0) return;
+
+  // Dinamik ölçekleme
+  const minW = Math.min(...points.map(p => p.workouts));
+  const maxW = Math.max(...points.map(p => p.workouts));
+  const minU = Math.min(...points.map(p => p.users));
+  const maxU = Math.max(...points.map(p => p.users));
+
+  const padW = Math.max(2, Math.ceil((maxW - minW) * 0.25));
+  const lowW = Math.max(0, minW - padW);
+  const highW = maxW + Math.max(2, Math.ceil(padW * 0.8));
+
+  const padU = Math.max(1, Math.ceil((maxU - minU) * 0.3));
+  const lowU = Math.max(0, minU - padU);
+  const highU = maxU + Math.max(1, padU);
+
+  const W = 1000;
+  const H = 235;
+  const topPad = 32;
+  const botPad = 34;
+  const plotH = H - topPad - botPad;
+
+  const coords = points.map((p, i) => {
+    const x = N === 1 ? W / 2 : Math.round((i / (N - 1)) * W);
+    const ratioW = highW > lowW ? (p.workouts - lowW) / (highW - lowW) : 0.5;
+    const yW = Math.round(H - botPad - ratioW * plotH);
+
+    const ratioU = highU > lowU ? (p.users - lowU) / (highU - lowU) : 0.5;
+    const yU = Math.round(H - botPad - ratioU * (plotH * 0.85));
+
+    return { ...p, x, yW, yU };
+  });
+
+  // Doğal akıcı eğri (Smooth Area & Spline Curve)
+  let lineD = '';
+  let userD = '';
+
+  for (let i = 0; i < coords.length; i++) {
+    const curr = coords[i];
+    if (i === 0) {
+      lineD = `M ${curr.x} ${curr.yW}`;
+      userD = `M ${curr.x} ${curr.yU}`;
+    } else {
+      const prev = coords[i - 1];
+      const midX = Math.round((prev.x + curr.x) / 2);
+      lineD += ` C ${midX} ${prev.yW}, ${midX} ${curr.yW}, ${curr.x} ${curr.yW}`;
+      if (curr.users > prev.users) {
+        userD += ` L ${curr.x - 6} ${prev.yU} L ${curr.x} ${curr.yU}`;
+      } else {
+        userD += ` L ${curr.x} ${curr.yU}`;
+      }
+    }
+  }
+  const areaD = `${lineD} L ${coords[coords.length - 1].x} ${H} L ${coords[0].x} ${H} Z`;
+  areaPath.setAttribute('d', areaD);
+  linePath.setAttribute('d', lineD);
+  userPath.setAttribute('d', userD);
+
+  // SVG Noktaları (Veri Düğümleri)
+  let pointsHtml = '';
+  coords.forEach((c, idx) => {
+    pointsHtml += `
+      <circle class="admin-chart-point" cx="${c.x}" cy="${c.yW}" r="4.5" 
+        data-idx="${idx}" data-type="workout" />
     `;
-  }).join('');
+    if (c.newUsers > 0 || idx === coords.length - 1 || idx === 0) {
+      pointsHtml += `
+        <circle class="admin-chart-point point-user" cx="${c.x}" cy="${c.yU}" r="${c.newUsers > 0 ? 6.5 : 4}" 
+          data-idx="${idx}" data-type="user" />
+      `;
+    }
+  });
+  pointsGroup.innerHTML = pointsHtml;
+
+  // Tooltip Etkileşimi ve Akıllı Konumlandırma (Köşelerden Taşmayı Önleme)
+  const hoverElements = shell.querySelectorAll('.admin-chart-point');
+  hoverElements.forEach(pt => {
+    pt.addEventListener('mouseenter', () => {
+      if (!tooltip) return;
+      const idx = parseInt(pt.dataset.idx, 10);
+      const c = coords[idx];
+      if (!c) return;
+
+      const shellRect = shell.getBoundingClientRect();
+      const ptRect = pt.getBoundingClientRect();
+      const isUser = pt.dataset.type === 'user';
+
+      if (isUser) {
+        let namesHtml = '';
+        if (c.userNames && c.userNames.length > 0) {
+          namesHtml = `
+            <div style="margin-top:6px; padding-top:5px; border-top:1px dashed rgba(57,198,239,0.35); font-size:11.5px; color:#39c6ef;">
+              <strong>🚀 Yeni Sporcu:</strong> ${c.userNames.map(u => escapeHtml(u)).join(', ')}
+            </div>
+          `;
+        } else {
+          namesHtml = `<span style="color:#8995b2; font-size:11px; margin-top:3px; display:block;">(Bu gün yeni üye katılımı yok)</span>`;
+        }
+
+        tooltip.innerHTML = `
+          <b style="color:#39c6ef;">📅 ${c.dateLabel} · Sporcu Kaydı</b>
+          <span style="color:#ffffff; font-weight:700;">Kümülatif Sporcu: ${c.users}</span>
+          ${namesHtml}
+        `;
+      } else {
+        let workoutDetailsHtml = '';
+        if (c.workoutDetails && c.workoutDetails.length > 0) {
+          const detailList = c.workoutDetails.map(w => {
+            const volStr = w.volume > 0 ? ` (${w.volume} kg)` : '';
+            return `• <strong>${escapeHtml(w.username)}</strong>: ${escapeHtml(w.session)}${volStr}`;
+          }).slice(0, 3).join('<br/>');
+          const moreCount = c.workoutDetails.length > 3 ? `<br/><small style="color:#a78bfa;">+${c.workoutDetails.length - 3} antrenman daha</small>` : '';
+          workoutDetailsHtml = `
+            <div style="margin-top:6px; padding-top:5px; border-top:1px dashed rgba(167,139,250,0.35); font-size:11px; color:#ddd6fe; line-height:1.45;">
+              ${detailList}${moreCount}
+            </div>
+          `;
+        } else {
+          workoutDetailsHtml = `<span style="color:#8995b2; font-size:11px; margin-top:3px; display:block;">(Bu gün antrenman kaydı yok)</span>`;
+        }
+
+        tooltip.innerHTML = `
+          <b style="color:#a78bfa;">📅 ${c.dateLabel} · Antrenman Hareketi</b>
+          <span style="color:#ffffff; font-weight:700;">Kümülatif Toplam: ${c.workouts} seans</span>
+          ${workoutDetailsHtml}
+        `;
+      }
+
+      // Akıllı konumlandırma: Kenarlardan taşmayı engelle ve üst sınıra çarparsa aşağı flip yap
+      const tipW = tooltip.offsetWidth || 230;
+      const tipH = tooltip.offsetHeight || 90;
+      const shellW = shellRect.width;
+
+      const rawX = ptRect.left - shellRect.left + ptRect.width / 2;
+      const rawY = ptRect.top - shellRect.top;
+
+      // Yatayda kartın sağ/sol kenarından taşmayacak şekilde sınırla
+      const minX = tipW / 2 + 14;
+      const maxX = Math.max(minX, shellW - (tipW / 2) - 14);
+      const clampedX = Math.max(minX, Math.min(maxX, rawX));
+
+      // Dikeyde üst sınıra yakınsa kutucuğu noktanın altına al (flip)
+      if (rawY < (tipH + 24)) {
+        tooltip.style.transform = 'translate(-50%, 14px)';
+      } else {
+        tooltip.style.transform = 'translate(-50%, -105%)';
+      }
+
+      tooltip.style.left = `${clampedX}px`;
+      tooltip.style.top = `${rawY}px`;
+      tooltip.style.opacity = '1';
+    });
+    pt.addEventListener('mouseleave', () => {
+      if (tooltip) tooltip.style.opacity = '0';
+    });
+  });
+
+  // XLabels
+  if (xlabelsEl) {
+    let step = 1;
+    if (N > 10) step = Math.ceil(N / 5);
+    else if (N > 6) step = 2;
+    const selectedLabels = [];
+    for (let i = 0; i < N; i += step) {
+      selectedLabels.push(coords[i].dateLabel);
+    }
+    if (selectedLabels[selectedLabels.length - 1] !== coords[N - 1].dateLabel) {
+      selectedLabels.push(coords[N - 1].dateLabel);
+    }
+    xlabelsEl.innerHTML = selectedLabels.map(l => `<span>${escapeHtml(l)}</span>`).join('');
+  }
 }
 
-// ─── SON AKTİVİTELER VE GÜNLÜK KAYITLARI ───
+// ─── SON AKTİVİTELER, SCROLL VE MODAL YÖNETİMİ ───
 function renderAdminRecentActivities(activities) {
+  _adminRecentActivitiesCache = activities || [];
   const container = document.getElementById('adminRecentActivityList');
   if (!container) return;
 
-  if (!activities || !activities.length) {
+  if (!_adminRecentActivitiesCache || !_adminRecentActivitiesCache.length) {
     const athletes = (_adminUsersCache || []).filter(u => !u.is_admin && u.username !== 'admin').slice(0, 4);
     if (athletes.length) {
       container.innerHTML = athletes.map(u => {
@@ -35354,21 +36780,112 @@ function renderAdminRecentActivities(activities) {
     return;
   }
 
-  container.innerHTML = activities.map(act => {
-    const init = (act.username || '?').charAt(0).toUpperCase();
-    const timeStr = act.date ? formatDateTR(act.date) : 'Yakın zamanda';
-    return `
-      <div class="admin-overview-act">
-        <div class="admin-overview-avatar">${init}</div>
-        <div style="min-width:0; flex:1;">
-          <div class="admin-overview-act-main">${escapeHtml(act.title || act.username)}</div>
-          <div class="admin-overview-act-sub">${escapeHtml(act.subtitle || '')}</div>
-        </div>
-        <span class="admin-overview-act-time">${escapeHtml(timeStr)}</span>
-      </div>
-    `;
-  }).join('');
+  container.innerHTML = _adminRecentActivitiesCache.slice(0, 15).map(act => _buildActivityItemHtml(act)).join('');
 }
+
+function _buildActivityItemHtml(act) {
+  const init = (act.username || '?').charAt(0).toUpperCase();
+  const timeStr = act.date ? formatDateTR(act.date) : 'Yakın zamanda';
+  const isWorkout = act.type === 'workout';
+  const avatarBg = isWorkout ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'linear-gradient(135deg, #0284c7, #38bdf8)';
+  return `
+    <div class="admin-overview-act">
+      <div class="admin-overview-avatar" style="background:${avatarBg};">${init}</div>
+      <div style="min-width:0; flex:1;">
+        <div class="admin-overview-act-main">${escapeHtml(act.title || act.username)}</div>
+        <div class="admin-overview-act-sub">${escapeHtml(act.subtitle || '')}</div>
+      </div>
+      <span class="admin-overview-act-time">${escapeHtml(timeStr)}</span>
+    </div>
+  `;
+}
+
+// Kart içi dikey kaydırma (Inline Scroll) Aç/Kapat
+function toggleAdminActivityInlineScroll(btn) {
+  const list = document.getElementById('adminRecentActivityList');
+  if (!list) return;
+  const isExpanded = list.classList.toggle('is-expanded');
+  if (btn) {
+    btn.textContent = isExpanded ? 'Daralt ↑' : 'Genişlet (Scroll)';
+  }
+  // Eğer genişletildiyse tüm aktiviteleri listeye aktar
+  if (isExpanded && _adminRecentActivitiesCache && _adminRecentActivitiesCache.length > 0) {
+    list.innerHTML = _adminRecentActivitiesCache.map(act => _buildActivityItemHtml(act)).join('');
+  } else if (!isExpanded && _adminRecentActivitiesCache && _adminRecentActivitiesCache.length > 0) {
+    list.innerHTML = _adminRecentActivitiesCache.slice(0, 6).map(act => _buildActivityItemHtml(act)).join('');
+  }
+}
+
+// Ortalanmış Saydam Cam Modal Pano Açma/Kapama
+function openAdminActivityModal() {
+  const modal = document.getElementById('adminActivityModal');
+  const modalList = document.getElementById('adminActivityModalList');
+  const countBadge = document.getElementById('adminActivityModalCount');
+  const searchInput = document.getElementById('adminActivitySearchInput');
+
+  if (!modal || !modalList) return;
+
+  if (searchInput) searchInput.value = '';
+  const total = _adminRecentActivitiesCache.length;
+  if (countBadge) countBadge.textContent = `${total} Aktivite`;
+
+  if (!total) {
+    modalList.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:30px; font-size:13px;">Görüntülenecek aktivite kaydı bulunamadı.</div>';
+  } else {
+    modalList.innerHTML = _adminRecentActivitiesCache.map(act => _buildActivityItemHtml(act)).join('');
+  }
+
+  modal.classList.add('active');
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdminActivityModal() {
+  const modal = document.getElementById('adminActivityModal');
+  if (modal) modal.classList.remove('active');
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
+}
+
+function handleAdminActivityBackdropClick(event) {
+  if (event.target && event.target.id === 'adminActivityModal') {
+    closeAdminActivityModal();
+  }
+}
+
+// ESC tuşu ile aktivite modalını kapatma
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    const modal = document.getElementById('adminActivityModal');
+    if (modal && modal.classList.contains('active')) {
+      closeAdminActivityModal();
+    }
+  }
+});
+
+function filterAdminActivityModal(term) {
+  const modalList = document.getElementById('adminActivityModalList');
+  if (!modalList) return;
+  const q = (term || '').toLowerCase().trim();
+
+  const filtered = _adminRecentActivitiesCache.filter(act => {
+    return (act.title || '').toLowerCase().includes(q) ||
+           (act.username || '').toLowerCase().includes(q) ||
+           (act.subtitle || '').toLowerCase().includes(q) ||
+           (act.date || '').toLowerCase().includes(q);
+  });
+
+  const countBadge = document.getElementById('adminActivityModalCount');
+  if (countBadge) countBadge.textContent = `${filtered.length} Aktivite`;
+
+  if (!filtered.length) {
+    modalList.innerHTML = `<div style="color:#94a3b8; text-align:center; padding:30px; font-size:13px;">"${escapeHtml(term)}" ile eşleşen aktivite bulunamadı.</div>`;
+    return;
+  }
+
+  modalList.innerHTML = filtered.map(act => _buildActivityItemHtml(act)).join('');
+}
+
 
 function renderAdminRecentUsers(users) {
   const tbody = document.getElementById('adminRecentUsersTable');
@@ -36723,15 +38240,22 @@ async function loadDbManagementPage() {
     if (sizeEl) sizeEl.textContent = info.db_size_formatted || '-';
 
     const envBadge = document.getElementById('dbEnvDetectedBadge');
-    if (envBadge) envBadge.style.display = info.database_url_configured ? 'inline' : 'none';
-
-    // Automatically fill DATABASE_URL from .env
-    if (info.database_url_full) {
-      const urlInput = document.getElementById('dbPostgresUrlInput');
-      if (urlInput) {
-        urlInput.value = info.database_url_full;
+    if (envBadge) {
+      const isConfigured = Boolean(info.migration_url_configured || info.database_url_configured);
+      envBadge.style.display = isConfigured ? 'inline-block' : 'none';
+      if (isConfigured) {
+        envBadge.innerHTML = '● .env Bağlantısı Hazır (Tek Tıkla Aktarım)';
       }
     }
+
+    const urlInput = document.getElementById('dbPostgresUrlInput');
+    if (urlInput) {
+      const maskedDisplay = info.migration_url_masked || info.database_url_masked;
+      if (maskedDisplay && (!urlInput.value || urlInput.value.includes('ep-gentle-flower'))) {
+        urlInput.value = maskedDisplay;
+      }
+    }
+
 
     // Populate Table Select Dropdown
     await dbLoadTables();
@@ -36938,10 +38462,15 @@ function dbClearMigrationLog() {
 }
 
 async function dbMigrateSqliteToPostgres() {
-  const pgUrl = (document.getElementById('dbPostgresUrlInput')?.value || '').trim();
+  let pgUrl = (document.getElementById('dbPostgresUrlInput')?.value || '').trim();
+  // Eğer kullanıcı maskelenmiş ('***') veya varsayılan yer tutucu bırakmışsa backend'in .env'den okuması için gönderme
+  if (pgUrl.includes('***') || pgUrl.includes('ep-xyz.neon.tech') || pgUrl.includes('user:password@')) {
+    pgUrl = '';
+  }
   const dryRun = document.getElementById('dbDryRunCheck')?.checked || false;
 
-  dbAddMigrationLog('INFO', `SQLite ➔ PostgreSQL aktarım isteği gönderiliyor (Dry-run: ${dryRun})...`);
+  dbAddMigrationLog('INFO', `SQLite ➔ PostgreSQL güvenli aktarım başlatılıyor (Kaynak: hypertrophy.db, Dry-run: ${dryRun})...`);
+  dbAddMigrationLog('INFO', pgUrl ? 'Özel girilen PostgreSQL bağlantısı kullanılıyor...' : '.env dosyasındaki Neon PostgreSQL bağlantısı otomatik kullanılıyor...');
 
   try {
     const res = await apiPost('/api/admin/db/migrate/sqlite-to-postgres', {
@@ -36966,11 +38495,15 @@ async function dbMigrateSqliteToPostgres() {
 }
 
 async function dbMigratePostgresToSqlite() {
-  const pgUrl = (document.getElementById('dbPostgresUrlInput')?.value || '').trim();
+  let pgUrl = (document.getElementById('dbPostgresUrlInput')?.value || '').trim();
+  if (pgUrl.includes('***') || pgUrl.includes('ep-xyz.neon.tech') || pgUrl.includes('user:password@')) {
+    pgUrl = '';
+  }
 
   if (!confirm('PostgreSQL\'deki kayıtlar yerel SQLite (hypertrophy.db) dosyasına çekilecektir. Devam etmek istiyor musunuz?')) return;
 
   dbAddMigrationLog('INFO', 'PostgreSQL ➔ SQLite aktarım işlemi başlatılıyor...');
+  dbAddMigrationLog('INFO', pgUrl ? 'Özel girilen PostgreSQL bağlantısı kullanılıyor...' : '.env dosyasındaki Neon PostgreSQL bağlantısı otomatik kullanılıyor...');
 
   try {
     const res = await apiPost('/api/admin/db/migrate/postgres-to-sqlite', {
@@ -36988,6 +38521,7 @@ async function dbMigratePostgresToSqlite() {
     toast('Aktarım başarısız: ' + e.message, 'error');
   }
 }
+
 
 /* ──────────────────────────────────────────────────────────────────────────
    ALT BÖLÜM 22.4: TABLO ŞEMALARI VE CANLI VERİ GEZGİNİ
@@ -37997,7 +39531,7 @@ function expertDataUnifiedGoalsBoard(selectedIds, currentNote, isReadOnly = fals
       </div>
       <h4 class="injury-empty-title" style="color:#ffffff;">Öncelikli Hedef Kas Seçilmedi</h4>
       <p class="injury-empty-desc" style="color:#cbd5e1;">
-        Sol paneldeki kas listesinden en fazla 3 kas grubu seçerek antrenman programında bu kaslara özel hipertrofi odağı ve ilave haftalık set hacmi tanımlayabilirsin.
+        Sol paneldeki kas listesinden en fazla 3 kas grubu seçebilirsiniz. Seçtiğiniz bölgelerin tamamı eşit öncelikle ele alınır ve fazla set eklemeden, o kasları hedefleyen hareket varyasyonları seanslarınızda ön plana çıkarılır.
       </p>
       <div class="injury-empty-badge" style="background:rgba(108,99,255,0.14);border-color:rgba(108,99,255,0.35);color:#c7d2fe;">
         <span class="empty-badge-dot" style="background:#a78bfa;box-shadow:0 0 8px #a78bfa;"></span>
@@ -38006,92 +39540,50 @@ function expertDataUnifiedGoalsBoard(selectedIds, currentNote, isReadOnly = fals
     </div>`;
   }
 
-  const rankConfig = [
-    {
-      title: 'Primer Odak (#1)',
-      short: '#1 Öncelik',
-      color: '#fbbf24',
-      glow: 'rgba(251,191,36,0.35)',
-      bg: 'rgba(251,191,36,0.15)',
-      border: 'rgba(251,191,36,0.5)',
-      volume: '+3–4 Ekstra Set / Hafta',
-      position: 'Seans Başı (Fresh Durum)',
-      pct: 100
-    },
-    {
-      title: 'Sekonder Odak (#2)',
-      short: '#2 Öncelik',
-      color: '#38bdf8',
-      glow: 'rgba(56,189,248,0.35)',
-      bg: 'rgba(56,189,248,0.15)',
-      border: 'rgba(56,189,248,0.5)',
-      volume: '+2 Ekstra Set / Hafta',
-      position: 'Erken Blok (Yüksek Enerji)',
-      pct: 75
-    },
-    {
-      title: 'Destek Odak (#3)',
-      short: '#3 Öncelik',
-      color: '#a78bfa',
-      glow: 'rgba(167,139,250,0.35)',
-      bg: 'rgba(167,139,250,0.15)',
-      border: 'rgba(167,139,250,0.5)',
-      volume: '+2 Ekstra Set / Hafta',
-      position: 'Tamamlayıcı Blok',
-      pct: 55
-    }
-  ];
-
-  const cardsHtml = selectedIds.map((muscleId, index) => {
+  const cardsHtml = selectedIds.map((muscleId) => {
     const muscle = expertDataMuscles().find(m => m.id === muscleId) || { id: muscleId, label: muscleId, ui_group: '' };
-    const cfg = rankConfig[index] || rankConfig[0];
     const safeMuscle = JSON.stringify(muscleId);
 
     const actionHtml = isReadOnly
-      ? `<span style="font-size:11px;font-weight:750;color:${cfg.color};background:${cfg.bg};border:1px solid ${cfg.border};padding:4px 10px;border-radius:6px;box-shadow:0 0 8px ${cfg.glow};display:inline-flex;align-items:center;gap:4px;">
-          <span style="width:5px;height:5px;border-radius:50%;background:${cfg.color};box-shadow:0 0 6px ${cfg.color};"></span>
-          Aktif Öncelik
+      ? `<span style="font-size:11px;font-weight:750;color:#c7d2fe;background:rgba(129,140,248,0.16);border:1px solid rgba(129,140,248,0.4);padding:4px 10px;border-radius:6px;box-shadow:0 0 8px rgba(129,140,248,0.25);display:inline-flex;align-items:center;gap:4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+          Eşit Öncelik
         </span>`
       : `<button class="expert-injury-btn delete" type="button" title="Listeden Çıkar" onclick='expertDataTogglePriority(${safeMuscle})' style="padding:4px 10px;font-size:11.5px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           <span>Kaldır</span>
         </button>`;
 
-    return `<div class="expert-goal-card" style="border-top-color:${cfg.color};box-shadow:0 8px 24px rgba(0,0,0,0.28), 0 0 16px ${cfg.color}18;">
+    return `<div class="expert-goal-card">
       <div class="expert-goal-card-top">
-        <span class="expert-goal-card-badge" style="background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};box-shadow:0 0 10px ${cfg.glow};">
-          <span class="dot" style="background:${cfg.color};box-shadow:0 0 6px ${cfg.color};"></span>
-          ${cfg.title}
-        </span>
-        <span class="expert-goal-card-meta">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${cfg.color}" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-          <span>${cfg.position}</span>
-        </span>
-      </div>
-
-      <div class="expert-goal-card-main">
         <div class="expert-goal-card-title">
-          <div style="width:34px;height:34px;border-radius:10px;background:${cfg.color}15;border:1px solid ${cfg.color}40;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 12px ${cfg.glow};">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${cfg.color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <div style="width:34px;height:34px;border-radius:10px;background:rgba(129,140,248,0.14);border:1px solid rgba(129,140,248,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 12px rgba(129,140,248,0.2);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
-              <polygon points="12 6 13.8 10.2 18.3 10.5 14.8 13.5 15.9 17.9 12 15.5 8.1 17.9 9.2 13.5 5.7 10.5 10.2 10.2 12 6"></polygon>
+              <polygon points="12 6 13.8 10.2 18.3 10.5 14.8 13.5 15.9 17.9 12 15.5 8.1 17.9 9.2 13.5 5.7 10.5 10.2 12 6"></polygon>
             </svg>
           </div>
           <span style="word-break:break-word;">${expertDataEscape(muscle.label)}</span>
         </div>
+        <span class="expert-goal-card-meta">
+          <span class="meta-dot"></span>
+          <span>Aktif Hedef</span>
+        </span>
+      </div>
 
-        <div class="expert-goal-card-vol-box" style="background:${cfg.color}14;border:1px solid ${cfg.color}35;color:${cfg.color};box-shadow:0 0 10px ${cfg.glow};">
+      <div class="expert-goal-card-main">
+        <div class="expert-goal-card-vol-box">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-          <span>${cfg.volume}</span>
+          <span>Öncelikli Hareket Modifikasyonu</span>
         </div>
 
         <div class="expert-data-track" style="margin-top:6px;height:6px;border-radius:999px;background:rgba(255,255,255,0.08);">
-          <span class="expert-data-fill" style="width:${cfg.pct}%;background:${cfg.color};box-shadow:0 0 8px ${cfg.color};border-radius:999px;"></span>
+          <span class="expert-data-fill" style="width:100%;background:#818cf8;box-shadow:0 0 8px #818cf8;border-radius:999px;"></span>
         </div>
       </div>
 
       <div class="expert-goal-card-footer">
-        <span style="font-size:11px;color:#94a3b8;font-weight:600;">Hipertrofi Odağı: %${cfg.pct}</span>
+        <span style="font-size:11px;color:#94a3b8;font-weight:600;">Eşit Hipertrofi Odağı</span>
         ${actionHtml}
       </div>
     </div>`;
@@ -38101,12 +39593,12 @@ function expertDataUnifiedGoalsBoard(selectedIds, currentNote, isReadOnly = fals
   if (selectedIds.length < 3) {
     for (let i = selectedIds.length + 1; i <= 3; i++) {
       emptySlotsHtml += `<div class="expert-goal-card empty-slot">
-        <div style="width:38px;height:38px;border-radius:10px;border:1.5px dashed rgba(148,163,184,0.4);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;font-weight:800;margin-bottom:8px;">#${i}</div>
-        <div style="color:#ffffff;font-size:14px;font-weight:800;margin-bottom:4px;">Boş Hedef Slotu</div>
-        <div style="color:#94a3b8;font-size:11px;line-height:1.4;max-width:220px;margin-bottom:10px;">
-          ${isReadOnly ? 'Hedefleri Güncelle butonuyla bu slota kas atayabilirsin.' : 'Sol panelden bir kas seçerek #' + i + ' öncelik atayabilirsin.'}
+        <div style="width:36px;height:36px;border-radius:10px;border:1.5px dashed rgba(148,163,184,0.4);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:16px;font-weight:700;margin-bottom:8px;">+</div>
+        <div style="color:#ffffff;font-size:13.5px;font-weight:800;margin-bottom:4px;">Boş Hedef Slotu</div>
+        <div style="color:#94a3b8;font-size:11px;line-height:1.4;max-width:200px;margin-bottom:10px;">
+          ${isReadOnly ? 'Hedefleri Güncelle butonuyla kas atayabilirsin.' : 'Kas listesinden ekleme yapabilirsin.'}
         </div>
-        <span style="font-size:11px;font-weight:700;color:#94a3b8;border:1px dashed rgba(148,163,184,0.3);padding:3px 10px;border-radius:6px;">Boşta</span>
+        <span style="font-size:10.5px;font-weight:700;color:#94a3b8;border:1px dashed rgba(148,163,184,0.3);padding:3px 9px;border-radius:6px;">Kullanılabilir</span>
       </div>`;
     }
   }
@@ -38140,77 +39632,74 @@ function expertDataGoalsPane() {
   const isHypertrophy = profileGoal === 'hypertrophy';
   const badgeText = `${selectedMuscles.length} / 3 Seçildi (${isHypertrophy ? 'Zorunlu' : 'İsteğe Bağlı'})`;
   const subText = isHypertrophy
-    ? 'Uzman sistemi, program odağını ve ekstra hacim dağılımını bu kaslara göre kurgular (1-3 kas, Zorunlu).'
+    ? 'Uzman sistemi, seçilen tüm kasları eşit öncelikle değerlendirir ve hareket seçimlerini bu kasları ana/ikincil çalıştıran varyasyonlara odaklar (1-3 kas, Zorunlu).'
     : (profileGoal === 'fat_loss'
-      ? 'Yağ kaybı döneminde kas koruma hacmi tüm vücuda dengeli dağıtılır. İsteğe bağlı olarak 1-3 öncelikli kas seçebilirsiniz.'
-      : 'Durum koruma döneminde minimum koruma hacmi uygulanır. İsteğe bağlı olarak 1-3 öncelikli kas seçebilirsiniz.');
+      ? 'Yağ kaybı döneminde kas koruma hacmi tüm vücuda dengeli dağıtılır. İsteğe bağlı olarak 1-3 hedef kas seçebilirsiniz.'
+      : 'Durum koruma döneminde minimum koruma hacmi uygulanır. İsteğe bağlı olarak 1-3 hedef kas seçebilirsiniz.');
 
   // EĞER KULLANICI HEDEF BELİRLEMİŞSE VE GÜNCELLEME MODUNDA DEĞİLSE: SADECE ÖNCELİKLİ HEDEF PANOSU AÇILSIN
   if (selectedMuscles.length > 0 && !window._expertGoalsEditMode) {
-    return `<div class="expert-goals-single-wrap" style="max-width:1040px;margin:0 auto;width:100%;box-sizing:border-box;">
+    const updateBtnHtml = `<button type="button" class="expert-doms-save-btn expert-goals-update-action-btn" onclick="window.expertGoalsSetEditMode(true)" style="padding:7px 16px;font-size:12.5px;font-weight:750;display:inline-flex;align-items:center;gap:6px;border-radius:8px;cursor:pointer;background:linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%);color:#fff;box-shadow:0 4px 14px rgba(108,99,255,0.35);">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+      <span>Hedefleri Güncelle</span>
+    </button>`;
+
+    return `<div class="expert-goals-single-wrap" style="width:100%;box-sizing:border-box;">
       <aside class="expert-data-card expert-injury-board-card" style="width:100%;box-sizing:border-box;background:linear-gradient(160deg, rgba(26, 31, 46, 0.95) 0%, rgba(18, 22, 34, 0.98) 100%);border:1px solid rgba(108,99,255,0.25);border-radius:18px;box-shadow:0 10px 36px rgba(0,0,0,0.35), 0 0 20px rgba(108,99,255,0.08);">
         <div class="expert-injury-board-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(108,99,255,0.15);">
           <div class="injury-board-title-group" style="display:flex;align-items:center;gap:12px;">
-            <div class="injury-board-icon-box" style="background:linear-gradient(135deg, rgba(251,191,36,0.22) 0%, rgba(245,158,11,0.14) 100%);color:#fbbf24;border-color:rgba(251,191,36,0.45);box-shadow:0 0 16px rgba(251,191,36,0.25);">
+            <div class="injury-board-icon-box" style="background:linear-gradient(135deg, rgba(129,140,248,0.22) 0%, rgba(99,102,241,0.14) 100%);color:#a5b4fc;border-color:rgba(129,140,248,0.45);box-shadow:0 0 16px rgba(129,140,248,0.25);">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
               </svg>
             </div>
-            <div>
-              <h3 class="injury-board-heading" style="color:#ffffff;font-size:17px;font-weight:800;letter-spacing:-0.01em;">Öncelikli Hedef Panosu</h3>
-              <p style="margin:2px 0 0;font-size:12px;color:#94a3b8;">Aktif antrenman programınız bu hedeflere göre optimize edilmektedir.</p>
+            <div class="expert-goals-title-text-wrap" style="flex:1;min-width:0;">
+              <div class="expert-goals-heading-row" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <h3 class="injury-board-heading" style="color:#ffffff;font-size:17px;font-weight:800;letter-spacing:-0.01em;margin:0;">Öncelikli Hedef Panosu</h3>
+                <div class="expert-goals-mobile-pill-wrap" style="display:none;">
+                  <span class="expert-goal-counter-pill"><span class="counter-dot"></span>${selectedMuscles.length} Aktif Hedef</span>
+                </div>
+              </div>
+              <p class="expert-goals-desc-text" style="margin:4px 0 0;font-size:12px;color:#94a3b8;line-height:1.45;">Aktif antrenman programınız bu hedeflere eşit öncelikle optimize edilmektedir.</p>
             </div>
           </div>
-          <div class="injury-header-badges" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <span class="injury-counter-pill total">3 Maks Slot</span>
-            <span class="injury-counter-pill active"><span class="counter-dot"></span>${selectedMuscles.length} Aktif Öncelik</span>
-            <button type="button" class="expert-doms-save-btn" onclick="window.expertGoalsSetEditMode(true)" style="padding:7px 16px;font-size:12.5px;font-weight:750;display:inline-flex;align-items:center;gap:6px;border-radius:8px;cursor:pointer;background:linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%);color:#fff;box-shadow:0 4px 14px rgba(108,99,255,0.35);">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-              <span>Hedefleri Güncelle</span>
-            </button>
+          <div class="injury-header-badges expert-goals-header-badges" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span class="expert-goal-counter-pill expert-goals-desktop-pill"><span class="counter-dot"></span>${selectedMuscles.length} Aktif Hedef</span>
+            <div class="expert-goals-desktop-btn-wrap">${updateBtnHtml}</div>
           </div>
         </div>
 
         ${expertDataUnifiedGoalsBoard(selectedMuscles, currentNote, true)}
 
+        <div class="expert-goals-mobile-btn-wrap" style="display:none;margin-top:16px;">
+          ${updateBtnHtml}
+        </div>
+
         <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(108,99,255,0.15);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
           <div style="font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            <span>Farklı kaslara öncelik vermek veya odağı değiştirmek istediğinizde hedeflerinizi güncelleyebilirsiniz.</span>
+            <span>Farklı kaslara odaklanmak istediğinizde Hedefleri Güncelle butonundan düzenleyebilirsiniz. Hacim artırılmaz, hareketler hedeflere göre optimize edilir.</span>
           </div>
-          <button type="button" class="expert-doms-save-btn" onclick="window.expertGoalsSetEditMode(true)" style="display:inline-flex;align-items:center;gap:8px;padding:9px 20px;font-size:13px;font-weight:750;border-radius:9px;cursor:pointer;background:linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%);color:#fff;box-shadow:0 4px 14px rgba(108,99,255,0.35);">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            <span>Hedefleri Güncelle</span>
-          </button>
         </div>
       </aside>
     </div>`;
   }
 
   // DÜZENLEME MODU VEYA HEDEF BELİRLENMEMİŞ DURUM: HER İKİ PANO BİRLİKTE GÖRÜNÜR
-  const rankPillConfigs = [
-    { text: '#fbbf24', bg: 'rgba(251,191,36,0.22)', border: 'rgba(251,191,36,0.55)', glow: 'rgba(251,191,36,0.35)' },
-    { text: '#38bdf8', bg: 'rgba(56,189,248,0.22)', border: 'rgba(56,189,248,0.55)', glow: 'rgba(56,189,248,0.35)' },
-    { text: '#a78bfa', bg: 'rgba(167,139,250,0.22)', border: 'rgba(167,139,250,0.55)', glow: 'rgba(167,139,250,0.35)' },
-  ];
-
   const priorities = expertDataMuscles().map(item => {
-    const rankIndex = selectedMuscles.indexOf(item.id);
-    const isSel = rankIndex !== -1;
-    const rankNum = rankIndex + 1;
+    const isSel = selectedMuscles.includes(item.id);
     let rankPill = '';
     let rankClass = '';
     let nameColor = '#ffffff';
     let nameGlow = '0 0 8px rgba(255, 255, 255, 0.2)';
 
     if (isSel) {
-      rankClass = `selected rank-${rankNum}`;
-      const rc = rankPillConfigs[rankIndex] || rankPillConfigs[0];
-      nameColor = rc.text;
-      nameGlow = `0 0 14px ${rc.glow}, 0 0 2px #ffffff`;
-      rankPill = `<span class="expert-choice-rank-pill" style="font-size:10.5px;font-weight:850;padding:2.5px 9px;border-radius:6px;background:${rc.bg};color:${rc.text};border:1px solid ${rc.border};box-shadow:0 0 8px ${rc.glow};letter-spacing:0.02em;display:inline-flex;align-items:center;gap:4px;">
-        <span style="width:5px;height:5px;border-radius:50%;background:${rc.text};box-shadow:0 0 6px ${rc.text};"></span>
-        #${rankNum} Öncelik
+      rankClass = 'selected';
+      nameColor = '#c7d2fe';
+      nameGlow = '0 0 14px rgba(129, 140, 248, 0.5), 0 0 2px #ffffff';
+      rankPill = `<span class="expert-choice-rank-pill" style="font-size:10.5px;font-weight:850;padding:2.5px 9px;border-radius:6px;background:rgba(129,140,248,0.22);color:#c7d2fe;border:1px solid rgba(129,140,248,0.55);box-shadow:0 0 8px rgba(129,140,248,0.35);letter-spacing:0.02em;display:inline-flex;align-items:center;gap:4px;">
+        <span style="width:5px;height:5px;border-radius:50%;background:#818cf8;box-shadow:0 0 6px #818cf8;"></span>
+        Hedef Kas
       </span>`;
     } else {
       rankPill = `<span class="expert-choice-empty-pill" style="font-size:10px;font-weight:600;color:#64748b;display:inline-flex;align-items:center;gap:4px;">
@@ -38298,15 +39787,15 @@ function expertDataGoalsPane() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             <span>Hedefleri Kaydet</span>
           </button>
-          ${window._expertGoalsEditMode ? `
-          <button class="expert-btn-action" type="button" onclick="window.expertGoalsCancelEdit()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:#cbd5e1;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            <span>Vazgeç</span>
-          </button>` : ''}
           <button class="expert-btn-action expert-btn-clear" type="button" onclick="expertDataClearGoalDraft()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             <span>Seçimleri Sıfırla</span>
           </button>
+          ${window._expertGoalsEditMode ? `
+          <button class="expert-btn-action expert-btn-cancel" type="button" onclick="window.expertGoalsCancelEdit()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span>Vazgeç</span>
+          </button>` : ''}
         </div>
       </div>
     </section>
@@ -38314,18 +39803,18 @@ function expertDataGoalsPane() {
     <aside class="expert-data-card expert-injury-board-card">
       <div class="expert-injury-board-header">
         <div class="injury-board-title-group">
-          <div class="injury-board-icon-box" style="background:linear-gradient(135deg, rgba(251,191,36,0.2) 0%, rgba(245,158,11,0.12) 100%);color:#fbbf24;border-color:rgba(251,191,36,0.45);box-shadow:0 0 16px rgba(251,191,36,0.25);">
+          <div class="injury-board-icon-box" style="background:linear-gradient(135deg, rgba(129,140,248,0.22) 0%, rgba(99,102,241,0.14) 100%);color:#a5b4fc;border-color:rgba(129,140,248,0.45);box-shadow:0 0 16px rgba(129,140,248,0.25);">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
           </div>
           <div>
             <h3 class="injury-board-heading" style="color:#ffffff;">Öncelikli Hedef Panosu</h3>
+            <p style="margin:2px 0 0;font-size:12px;color:#94a3b8;">Eşit öncelikli aktif hedef kaslarınız</p>
           </div>
         </div>
         <div class="injury-header-badges">
-          <span class="injury-counter-pill total">3 Maks Slot</span>
-          <span class="injury-counter-pill active"><span class="counter-dot"></span>${selectedMuscles.length} Seçili</span>
+          <span class="expert-goal-counter-pill"><span class="counter-dot"></span>${selectedMuscles.length} Seçili</span>
           ${selectedMuscles.length < 3 ? `<span class="injury-counter-pill passive"><span class="counter-dot" style="background:#64748b;"></span>${3 - selectedMuscles.length} Boş Slot</span>` : ''}
         </div>
       </div>
@@ -41776,7 +43265,7 @@ window._expertGoalsEditMode = false;
 
 window.expertGoalsSetEditMode = function(isEdit) {
   window._expertGoalsEditMode = !!isEdit;
-  renderExpertSystem(false);
+  renderExpertSystem(true);
 };
 
 window.expertGoalsCancelEdit = function() {
@@ -41787,7 +43276,7 @@ window.expertGoalsCancelEdit = function() {
     priority_note: target.priority_note || ''
   };
   window._expertGoalsEditMode = false;
-  renderExpertSystem(false);
+  renderExpertSystem(true);
 };
 
 window.expertDataSwitchTab = function(tab) {

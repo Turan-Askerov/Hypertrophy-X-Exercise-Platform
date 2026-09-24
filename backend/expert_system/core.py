@@ -1147,14 +1147,19 @@ def build_session_content(
     max_exercises: int = 6,
     exercise_preferences: dict[str, Any] | None = None,
     used_families: dict[str, int] | None = None,
+    priority_muscles: Iterable[object] | None = None,
 ) -> dict[str, Any]:
     """Split seansını hareket havuzu, ekipman, DOMS ve kısıtlara göre kurar.
 
     Kural: şiddetli DOMS ve aktif ağrı/kısıt, ilgili kası ana hedefleyen hareketi
     çıkarır. Örneğin hamstring DOMS'unda hip-hinge/deadlift varyasyonları
     elenirken quadriceps odaklı squat/leg extension adayları korunur.
+    Kullanıcının seçtiği öncelikli hedef bölgeler için set sayısı artırılmaz;
+    bunun yerine hedef kasları ana ve ikincil olarak çalıştıran hareketler
+    seans sıralamasında öne çıkarılır.
     """
     target_muscles = _expand_muscle_set(muscle_groups)
+    user_priorities = _expand_muscle_set(priority_muscles or [])
     raw_doms = list(doms_state.values()) if isinstance(doms_state, dict) else list(doms_state or [])
     doms = _case_muscles(raw_doms)
     active_constraints = _constraint_muscles(constraints or [])
@@ -1230,6 +1235,17 @@ def build_session_content(
         
         # Önce doğrudan hedef, sonra compound; yüksek DOMS'ta düşük yorgunluk avantajı.
         score = relevance * 10 + (4 if category == "compound" else 2)
+
+        # Öncelikli hedef bölgeler: Set sayısını artırmak yerine hedef bölgeyi ana ve ikincil
+        # kas grupları ile çalıştıran hareket önerilerini ön plana çıkarıyoruz (eşit öncelik).
+        if user_priorities:
+            pri_hits = len(user_priorities.intersection(primary))
+            sec_hits = len(user_priorities.intersection(secondary))
+            if pri_hits > 0:
+                score += 15 * pri_hits
+            if sec_hits > 0:
+                score += 8 * sec_hits
+
         if fatigue == "low":
             score += 2
         if any(doms.get(muscle, 0) >= 5 for muscle in primary):
@@ -1517,7 +1533,7 @@ def generate_dynamic_program(
             session_copy["content"] = build_session_content(
                 session_copy.get("muscles", []), available_equipment, active_doms, constraints,
                 exercise_pool=exercise_pool, goal=goal, exercise_preferences=exercise_preferences,
-                used_families=used_exercise_families
+                used_families=used_exercise_families, priority_muscles=priorities
             )
             for muscle in session_copy.get("muscles", []):
                 readiness.append(calculate_muscle_readiness(muscle, active_doms or [], (last_workout_dates or {}).get(muscle)))

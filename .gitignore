@@ -107,3 +107,8 @@ desktop.ini
 .vscode/*
 !.vscode/settings.json
 !.vscode/launch.json
+
+# ------------------------------------------------------------------------------
+# 8. Yerel Bilgi Grafiği & Araç Verileri (Codebase Memory)
+# ------------------------------------------------------------------------------
+.codebase-memory/
