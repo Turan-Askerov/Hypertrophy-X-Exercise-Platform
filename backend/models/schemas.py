@@ -29,6 +29,20 @@ class ChangePasswordRequest(BaseModel):
     new_password: str
 
 
+class ChangePasswordConfirmRequest(BaseModel):
+    token: str
+    code: str
+
+
+class EmailUpdateRequest(BaseModel):
+    new_email: str
+
+
+class EmailConfirmRequest(BaseModel):
+    token: str
+    code: str
+
+
 # ── Kullanıcı & Profil Modelleri ──
 class UserProfile(BaseModel):
     username: str
@@ -42,6 +56,12 @@ class UserProfile(BaseModel):
     days_per_week: Optional[int] = None
     session_time_mins: Optional[int] = None
     new_password: Optional[str] = None
+
+
+class DeleteAccountRequest(BaseModel):
+    password: str
+    confirmation: str
+
 
 
 class AdminEditUser(BaseModel):

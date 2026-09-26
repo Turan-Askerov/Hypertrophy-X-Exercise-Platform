@@ -255,6 +255,17 @@ EXERCISE_POOL = [
               equipment=["pull_up_bar", "bodyweight", "dip_belt"], load_mode="bodyweight_plus_external",
               minimum_level="intermediate", fatigue_cost="medium"),
 
+    _exercise("scapular-push-ups-bw", "Scapular Push Ups", "Back", "isolation", True,
+              family="scapular_protraction", variation="bodyweight", primary_muscles=["serratus_anterior"],
+              secondary_muscles=["chest"], movement_pattern="scapular_protraction",
+              equipment=["bodyweight", "floor"], load_mode="bodyweight", fatigue_cost="low"),
+
+    _exercise("scapular-push-ups-weighted", "Scapular Push Ups", "Back", "isolation", False,
+              family="scapular_protraction", variation="weighted", primary_muscles=["serratus_anterior"],
+              secondary_muscles=["chest"], movement_pattern="scapular_protraction",
+              equipment=["bodyweight", "weight_plate"], load_mode="bodyweight_plus_external",
+              fatigue_cost="low"),
+
     # ── OMUZ EGZERSİZLERİ ──────────────────────────────────────────
     # --- Bileşik (Compound) Egzersizler ---
     _exercise("arnold-press", "Arnold Press", "Shoulders", "compound", False,
@@ -500,6 +511,21 @@ EXERCISE_POOL = [
               family="shoulder_rotation", variation="cable_internal_rotation", primary_muscles=["subscapularis"],
               secondary_muscles=[], movement_pattern="shoulder_internal_rotation",
               equipment=["cable_machine", "single_handle"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
+
+    _exercise("band-shoulder-external-rotation", "Band Shoulder External Rotation", "Rotator Cuff", "isolation", False,
+              family="shoulder_rotation", variation="band_external_rotation", primary_muscles=["infraspinatus", "teres_minor"],
+              secondary_muscles=["posterior_deltoids"], movement_pattern="shoulder_external_rotation",
+              equipment=["resistance_band"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
+
+    _exercise("band-shoulder-internal-rotation", "Band Shoulder Internal Rotation", "Rotator Cuff", "isolation", False,
+              family="shoulder_rotation", variation="band_internal_rotation", primary_muscles=["subscapularis"],
+              secondary_muscles=[], movement_pattern="shoulder_internal_rotation",
+              equipment=["resistance_band"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
+
+    _exercise("band-90-90-external-rotation", "Band 90/90 External Rotation", "Rotator Cuff", "isolation", False,
+              family="shoulder_rotation", variation="band_90_90_external", primary_muscles=["teres_minor"],
+              secondary_muscles=["infraspinatus"], movement_pattern="shoulder_external_rotation",
+              equipment=["resistance_band"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
 
     # ── TRICEPS EGZERSİZLERİ ──────────────────────────────────────────
     # --- Bileşik (Compound) Egzersizler ---

@@ -107,7 +107,18 @@ def _normalize_workout_exercises(exercises):
             entry["exercise_id"] = meta["id"]
             entry["canonical_exercise_id"] = meta["id"]
             entry["exercise_name"] = meta["name"]
-            entry["muscle_group"] = meta["muscle_group"]
+            
+            # Chin-up özel durumu: Biceps altından eklenmişse Biceps kas grubu korunur
+            is_chin_up = meta.get("id", "").startswith("chin-up") or (meta.get("analysis") or {}).get("family") == "chin_up"
+            raw_group = str(raw.get("muscle_group") or raw.get("muscle") or "").strip().lower()
+            if is_chin_up and raw_group in {"biceps", "pazu"}:
+                entry["muscle_group"] = "Biceps"
+                entry["primary_muscles"] = ["biceps", "lats"]
+                if "analysis" in entry and isinstance(entry["analysis"], dict):
+                    entry["analysis"]["primary_muscles"] = ["biceps", "lats"]
+            else:
+                entry["muscle_group"] = meta["muscle_group"]
+                
             entry["is_bodyweight"] = bool(meta["is_bodyweight"])
             entry["exercise_meta_version"] = EXERCISE_META_VERSION
         else:

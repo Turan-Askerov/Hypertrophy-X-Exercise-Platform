@@ -226,7 +226,10 @@ def get_personal_records(workouts):
                 )
             )
             if meta:
-                muscle = _display_muscle_groups(meta, meta.get("analysis", {}))[0]
+                if (meta.get("id", "").startswith("chin-up") or (meta.get("analysis") or {}).get("family") == "chin_up") and str(entry.get("muscle_group", "")).strip().lower() in {"biceps", "pazu"}:
+                    muscle = "Biceps"
+                else:
+                    muscle = _display_muscle_groups(meta, meta.get("analysis", {}))[0]
             else:
                 m = entry.get("muscle_group", "Diğer")
                 trans = {"Back": "Sırt", "Chest": "Göğüs", "Shoulders": "Omuz", "Legs": "Bacak"}
@@ -311,7 +314,10 @@ def get_top_progress(workouts, limit: Optional[int] = None) -> list:
                 )
             )
             if meta:
-                muscle = _display_muscle_groups(meta, meta.get("analysis", {}))[0]
+                if (meta.get("id", "").startswith("chin-up") or (meta.get("analysis") or {}).get("family") == "chin_up") and str(entry.get("muscle_group", "")).strip().lower() in {"biceps", "pazu"}:
+                    muscle = "Biceps"
+                else:
+                    muscle = _display_muscle_groups(meta, meta.get("analysis", {}))[0]
             else:
                 m = entry.get("muscle_group", "Diğer")
                 trans = {"Back": "Sırt", "Chest": "Göğüs", "Shoulders": "Omuz", "Legs": "Bacak"}

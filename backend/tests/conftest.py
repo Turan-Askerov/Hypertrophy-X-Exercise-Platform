@@ -21,6 +21,9 @@ os.environ["DB_PATH"] = TEST_DB_PATH
 os.environ["ADMIN_USERNAME"] = "admin"
 os.environ["ADMIN_PASSWORD"] = "testadminpass123"
 os.environ["JWT_SECRET"] = "super-secret-jwt-key-for-testing-hypertrophy-x-32chars"
+os.environ["SMTP_USER"] = ""
+os.environ["SMTP_PASS"] = ""
+
 
 import main
 

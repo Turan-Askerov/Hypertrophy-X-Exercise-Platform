@@ -168,7 +168,18 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
 
 
 class AuthRateLimitMiddleware(BaseHTTPMiddleware):
-    protected_paths = {"/api/auth/login", "/api/auth/register"}
+    protected_paths = {
+        "/api/auth/login",
+        "/api/auth/register",
+        "/api/auth/verify-reset-code",
+        "/api/auth/forgot-password",
+        "/api/auth/change-password/request",
+        "/api/auth/change-password/confirm",
+        "/api/user/email/request-update",
+        "/api/user/email/confirm-update",
+        "/api/user/delete-account",
+        "/api/user/me",
+    }
     _attempts = defaultdict(deque)
     _lock = Lock()
 
@@ -181,7 +192,7 @@ class AuthRateLimitMiddleware(BaseHTTPMiddleware):
         return request.client.host if request.client else "unknown"
 
     async def dispatch(self, request: Request, call_next):
-        if request.method == "POST" and request.url.path in self.protected_paths:
+        if request.method in {"POST", "DELETE"} and request.url.path in self.protected_paths:
             identifier = self._client_identifier(request)
             key = f"{request.url.path}:{identifier}"
             now = time.monotonic()

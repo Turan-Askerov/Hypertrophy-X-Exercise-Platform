@@ -11,7 +11,7 @@ from core.config import (
     SMTP_USER,
 )
 from core.database import get_db
-from core.email import mask_email, send_password_reset_email
+from core.email import mask_email, send_password_reset_email, send_security_code_email
 from core.security import (
     ADMIN_PASSWORD_HASH,
     _create_access_token,
@@ -24,6 +24,7 @@ from core.security import (
 )
 from models.schemas import (
     AuthRequest,
+    ChangePasswordConfirmRequest,
     ChangePasswordRequest,
     ForgotPasswordRequest,
     ResetPasswordRequest,
@@ -81,16 +82,16 @@ def login(data: AuthRequest = Body(...)):
     return {**user, "token": token}
 
 
-@router.post("/change-password")
-def change_password(
+@router.post("/change-password/request")
+def request_change_password(
+    data: ChangePasswordRequest = Body(...),
     user: dict = Depends(_resolve_current_user),
-    data: dict = Body(...),
 ):
-    """Şifre değiştirme — JWT gerektirir"""
-    old_password = data.get("old_password", "")
-    new_password = data.get("new_password", "")
+    """1. Adım: Şifre değişikliği için kayıtlı e-postaya 6 haneli OTP kodu gönderir."""
+    old_password = str(data.old_password or "").strip()
+    new_password = str(data.new_password or "").strip()
 
-    if user.get("username") == ADMIN_USERNAME:
+    if user.get("username", "").casefold() == ADMIN_USERNAME.casefold() or user.get("is_admin"):
         raise HTTPException(status_code=403, detail="Admin şifresi değiştirilemez")
 
     if len(new_password) < 6:
@@ -98,41 +99,196 @@ def change_password(
 
     conn = get_db()
     row = conn.execute(
-        "SELECT password_hash, password_salt FROM users WHERE username = ?",
-        (user["username"],),
+        "SELECT password_hash, password_salt, email FROM users WHERE id = ?",
+        (user["id"],),
     ).fetchone()
     if not row:
         conn.close()
         raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+
     if not _verify_password(old_password, row["password_hash"], row["password_salt"]):
         conn.close()
         raise HTTPException(status_code=401, detail="Mevcut şifre hatalı")
 
+    user_email = str(row["email"] or user.get("email") or "").strip()
+    if not user_email or "@" not in user_email:
+        conn.close()
+        raise HTTPException(
+            status_code=400,
+            detail="Hesap güvenliğiniz için şifre değiştirmeden önce profilinizde geçerli bir e-posta adresi tanımlayıp doğrulamanız gerekmektedir.",
+        )
+
+    temp_hash = _hash_password(new_password)
+    code = f"{secrets.randbelow(1000000):06d}"
+    token = secrets.token_hex(20)
+    expires_at = (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat()
+
     conn.execute(
-        "UPDATE users SET password_hash = ?, password_salt = '', updated_at = CURRENT_TIMESTAMP "
-        "WHERE username = ?",
-        (_hash_password(new_password), user["username"]),
+        "INSERT INTO security_verifications (user_id, action, payload, code, token, expires_at, used, failed_attempts) "
+        "VALUES (?, 'password_change', ?, ?, ?, ?, 0, 0)",
+        (user["id"], temp_hash, code, token, expires_at),
     )
     conn.commit()
     conn.close()
-    return {"message": "Şifre güncellendi"}
+
+    sent = send_security_code_email(
+        user_email, user["username"], code, action_type="password_change"
+    )
+    if not sent:
+        logger.warning(f"Şifre değişikliği OTP e-posta uyarısı: {user_email}")
+
+    return {
+        "success": True,
+        "token": token,
+        "masked_email": mask_email(user_email),
+        "message": f"Hesap güvenliğiniz için {mask_email(user_email)} adresine 6 haneli onay kodu gönderildi.",
+    }
+
+
+@router.post("/change-password/confirm")
+def confirm_change_password(
+    data: ChangePasswordConfirmRequest = Body(...),
+    user: dict = Depends(_resolve_current_user),
+):
+    """2. Adım: E-postaya gönderilen 6 haneli OTP kodu ile yeni şifreyi onaylar ve günceller."""
+    token = str(data.token or "").strip()
+    code = str(data.code or "").strip()
+
+    if not token or not code:
+        raise HTTPException(status_code=400, detail="Onay kodu ve işlem bileti gereklidir.")
+    if len(code) != 6 or not code.isdigit():
+        raise HTTPException(status_code=400, detail="Onay kodu 6 haneli bir sayı olmalıdır.")
+
+    conn = get_db()
+    row = conn.execute(
+        "SELECT * FROM security_verifications WHERE token = ? AND action = 'password_change' AND used = 0 ORDER BY id DESC LIMIT 1",
+        (token,),
+    ).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(
+            status_code=400,
+            detail="Geçersiz, süresi dolmuş veya daha önce kullanılmış onay talebi.",
+        )
+
+    record = dict(row)
+    if record["user_id"] != user["id"]:
+        conn.close()
+        raise HTTPException(status_code=403, detail="Bu işlem size ait değil.")
+
+    failed_attempts = int(record.get("failed_attempts") or 0)
+    if failed_attempts >= 5:
+        conn.execute("UPDATE security_verifications SET used = 2 WHERE id = ?", (record["id"],))
+        conn.commit()
+        conn.close()
+        raise HTTPException(
+            status_code=400,
+            detail="Çok fazla hatalı kod girildi. Bu şifre değişikliği talebi iptal edildi.",
+        )
+
+    try:
+        exp_str = record["expires_at"]
+        exp_time = datetime.fromisoformat(exp_str) if isinstance(exp_str, str) else exp_str
+        now = datetime.now(exp_time.tzinfo) if getattr(exp_time, "tzinfo", None) else datetime.now(timezone.utc)
+        if now > exp_time:
+            conn.close()
+            raise HTTPException(
+                status_code=400,
+                detail="Onay kodunun süresi dolmuş. Lütfen yeni bir şifre değişikliği talebi oluşturun.",
+            )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.warning(f"Süre ayrıştırma: {exc}")
+
+    stored_code = str(record["code"]).strip()
+    if not secrets.compare_digest(stored_code, code):
+        new_failed = failed_attempts + 1
+        used_status = 2 if new_failed >= 5 else 0
+        conn.execute(
+            "UPDATE security_verifications SET failed_attempts = ?, used = ? WHERE id = ?",
+            (new_failed, used_status, record["id"]),
+        )
+        conn.commit()
+        conn.close()
+        remaining = max(0, 5 - new_failed)
+        if remaining == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Çok fazla hatalı kod girildi. Güvenlik nedeniyle işlem iptal edildi.",
+            )
+        raise HTTPException(
+            status_code=400,
+            detail=f"Girdiğiniz onay kodu hatalı. Kalan deneme hakkı: {remaining}",
+        )
+
+    new_hash = record["payload"]
+    conn.execute(
+        "UPDATE users SET password_hash = ?, password_salt = '', updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (new_hash, user["id"]),
+    )
+    conn.execute("UPDATE security_verifications SET used = 1 WHERE id = ?", (record["id"],))
+    conn.commit()
+    conn.close()
+
+    return {"success": True, "message": "Şifreniz başarıyla güncellendi!"}
+
+
+@router.post("/change-password")
+def change_password(
+    user: dict = Depends(_resolve_current_user),
+    data: dict = Body(...),
+):
+    """Geriye dönük uyumluluk: Doğrudan veya OTP başlatma köprüsü."""
+    if user.get("username", "").casefold() == ADMIN_USERNAME.casefold() or user.get("is_admin"):
+        raise HTTPException(status_code=403, detail="Admin şifresi değiştirilemez")
+
+    # Eğer token ve code verilmişse confirm akışını çalıştır
+    if "token" in data and "code" in data:
+        return confirm_change_password(ChangePasswordConfirmRequest(token=data["token"], code=data["code"]), user)
+
+    # Aksi takdirde request başlatıp token döndür (e-posta doğrulaması şart)
+    req = ChangePasswordRequest(
+        old_password=data.get("old_password", ""),
+        new_password=data.get("new_password", "")
+    )
+    return request_change_password(req, user)
 
 
 @router.post("/forgot-password")
 def forgot_password(data: ForgotPasswordRequest = Body(...)):
-    """1. Adım: Kullanıcı adı veya e-posta ile 4 haneli doğrulama kodu üretir ve e-posta gönderir."""
+    """1. Adım: Kullanıcı adı veya e-posta ile 6 haneli doğrulama kodu üretir ve e-posta gönderir."""
     target = str(data.email_or_username or "").strip()
     if not target:
         raise HTTPException(
             status_code=400, detail="Lütfen kullanıcı adı veya e-posta adresinizi girin."
         )
 
+    # ── GÜVENLİK 1: Admin hesabı şifre sıfırlamadan tamamen muaftır (.env üzerinden yönetilir) ──
+    if target.casefold() == ADMIN_USERNAME.casefold():
+        dummy_token = secrets.token_hex(20)
+        return {
+            "success": True,
+            "reset_token": dummy_token,
+            "masked_email": "a***@***.***",
+            "expires_in_minutes": 15,
+            "message": "Eğer bu hesap sistemde kayıtlıysa, 6 haneli doğrulama kodu gönderildi.",
+        }
+
     user = get_user_by_email_or_username(target)
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="Bu kullanıcı adı veya e-posta ile kayıtlı bir hesap bulunamadı.",
-        )
+
+    # ── GÜVENLİK 2: User Enumeration Koruması ──
+    # Kullanıcı sistemde yoksa veya admin ise saldırgana bilgi sızdırmamak adına jenerik yanıt dönülür
+    if not user or user.get("username", "").casefold() == ADMIN_USERNAME.casefold() or user.get("is_admin"):
+        dummy_token = secrets.token_hex(20)
+        masked_dummy = mask_email(target) if "@" in target else "k***@***.***"
+        return {
+            "success": True,
+            "reset_token": dummy_token,
+            "masked_email": masked_dummy,
+            "expires_in_minutes": 15,
+            "message": "Eğer bu hesap sistemde kayıtlıysa, 6 haneli doğrulama kodu gönderildi.",
+        }
 
     user_email = str(user.get("email") or "").strip()
     if not user_email and "@" in target:
@@ -147,18 +303,23 @@ def forgot_password(data: ForgotPasswordRequest = Body(...)):
         conn.close()
 
     if not user_email:
-        raise HTTPException(
-            status_code=400,
-            detail="Bu hesaba henüz bir e-posta adresi tanımlanmamış. Lütfen sistem yöneticisi ile iletişime geçin.",
-        )
+        dummy_token = secrets.token_hex(20)
+        return {
+            "success": True,
+            "reset_token": dummy_token,
+            "masked_email": "k***@***.***",
+            "expires_in_minutes": 15,
+            "message": "Eğer bu hesap sistemde kayıtlıysa, 6 haneli doğrulama kodu gönderildi.",
+        }
 
-    code = f"{secrets.randbelow(10000):04d}"
+    # ── GÜVENLİK 3: 6 Haneli Kriptografik OTP (1.000.000 kombinasyon) ──
+    code = f"{secrets.randbelow(1000000):06d}"
     reset_token = secrets.token_hex(20)
     expires_at = (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat()
 
     conn = get_db()
     conn.execute(
-        "INSERT INTO password_resets (user_id, email, code, reset_token, expires_at, used) VALUES (?, ?, ?, ?, ?, 0)",
+        "INSERT INTO password_resets (user_id, email, code, reset_token, expires_at, used, failed_attempts) VALUES (?, ?, ?, ?, ?, 0, 0)",
         (user["id"], user_email, code, reset_token, expires_at),
     )
     conn.commit()
@@ -176,13 +337,13 @@ def forgot_password(data: ForgotPasswordRequest = Body(...)):
         "reset_token": reset_token,
         "masked_email": mask_email(user_email),
         "expires_in_minutes": 15,
-        "message": f"{mask_email(user_email)} adresine 4 haneli doğrulama kodu gönderildi.",
+        "message": f"{mask_email(user_email)} adresine 6 haneli doğrulama kodu gönderildi.",
     }
 
 
 @router.post("/verify-reset-code")
 def verify_reset_code(data: VerifyResetCodeRequest = Body(...)):
-    """2. Adım: 4 haneli doğrulama kodunu kontrol eder; doğruysa şifre sıfırlama biletini onaylar."""
+    """2. Adım: 6 haneli doğrulama kodunu kontrol eder; doğruysa şifre sıfırlama biletini onaylar."""
     token = str(data.reset_token or "").strip()
     code = str(data.code or "").strip()
 
@@ -190,9 +351,9 @@ def verify_reset_code(data: VerifyResetCodeRequest = Body(...)):
         raise HTTPException(
             status_code=400, detail="Doğrulama kodu ve sıfırlama bileti gereklidir."
         )
-    if len(code) != 4 or not code.isdigit():
+    if len(code) != 6 or not code.isdigit():
         raise HTTPException(
-            status_code=400, detail="Doğrulama kodu 4 haneli bir sayı olmalıdır."
+            status_code=400, detail="Doğrulama kodu 6 haneli bir sayı olmalıdır."
         )
 
     conn = get_db()
@@ -203,10 +364,22 @@ def verify_reset_code(data: VerifyResetCodeRequest = Body(...)):
     if not row:
         conn.close()
         raise HTTPException(
-            status_code=400, detail="Geçersiz veya süresi dolmuş sıfırlama talebi."
+            status_code=400, detail="Geçersiz, kilitlenmiş veya süresi dolmuş sıfırlama talebi."
         )
 
     record = dict(row)
+
+    # ── GÜVENLİK 4: Maksimum 5 Hatalı Deneme (Brute-Force Lockout) ──
+    failed_attempts = int(record.get("failed_attempts") or 0)
+    if failed_attempts >= 5:
+        conn.execute("UPDATE password_resets SET used = 2 WHERE id = ?", (record["id"],))
+        conn.commit()
+        conn.close()
+        raise HTTPException(
+            status_code=400,
+            detail="Çok fazla hatalı kod girildi. Bu sıfırlama talebi güvenlik nedeniyle iptal edildi. Lütfen yeni bir kod isteyin.",
+        )
+
     try:
         exp_str = record["expires_at"]
         if isinstance(exp_str, str):
@@ -229,10 +402,26 @@ def verify_reset_code(data: VerifyResetCodeRequest = Body(...)):
     except Exception as exc:
         logger.warning(f"Süre ayrıştırma uyarısı: {exc}")
 
-    if str(record["code"]).strip() != code:
+    # ── GÜVENLİK 5: Sabit Zamanlı Karşılaştırma (Timing Attack Koruması) ──
+    stored_code = str(record["code"]).strip()
+    if not secrets.compare_digest(stored_code, code):
+        new_failed = failed_attempts + 1
+        used_status = 2 if new_failed >= 5 else 0
+        conn.execute(
+            "UPDATE password_resets SET failed_attempts = ?, used = ? WHERE id = ?",
+            (new_failed, used_status, record["id"]),
+        )
+        conn.commit()
         conn.close()
+        remaining = max(0, 5 - new_failed)
+        if remaining == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Çok fazla hatalı kod girildi. Bu sıfırlama talebi iptal edildi. Lütfen yeni bir kod isteyin.",
+            )
         raise HTTPException(
-            status_code=400, detail="Girdiğiniz 4 haneli doğrulama kodu hatalı."
+            status_code=400,
+            detail=f"Girdiğiniz 6 haneli doğrulama kodu hatalı. Kalan deneme hakkı: {remaining}",
         )
 
     verified_token = secrets.token_hex(20)
@@ -278,6 +467,24 @@ def reset_password(data: ResetPasswordRequest = Body(...)):
 
     record = dict(row)
     user_id = record["user_id"]
+
+    # ── GÜVENLİK 6: Admin Kullanıcısı Şifre Sıfırlamadan Kesinlikle Muaf ──
+    user_check = conn.execute(
+        "SELECT username, is_admin, role FROM users WHERE id = ?", (user_id,)
+    ).fetchone()
+    if user_check:
+        u_dict = dict(user_check)
+        if (
+            u_dict.get("username", "").casefold() == ADMIN_USERNAME.casefold()
+            or u_dict.get("is_admin")
+            or u_dict.get("role") == "admin"
+        ):
+            conn.close()
+            raise HTTPException(
+                status_code=403,
+                detail="Yönetici (admin) parolasını bu uç noktadan sıfırlayamazsınız. Yönetici parolası yalnızca .env dosyası üzerinden yönetilir.",
+            )
+
     new_hash = _hash_password(new_password)
 
     conn.execute(

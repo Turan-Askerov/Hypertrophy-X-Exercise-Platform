@@ -4855,7 +4855,24 @@ tr:hover td { background: var(--bg-card-hover); }
 }
 .prog-gain-card-anim {
   opacity: 0;
-  animation: progGainCardEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: progGainCardEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* En İyi İlerlemeler: Kart Çıkış/Kapanış Animasyonu (Yumuşak ve Yüksek FPS) */
+@keyframes progGainCardExit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+.prog-gain-card-collapsing {
+  pointer-events: none !important;
+  will-change: opacity, transform;
+  animation: progGainCardExit 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
 }
 
 /* En İyi İlerlemeler: Alt Sağ Buton Satırı */
@@ -6175,28 +6192,26 @@ tr:hover td { background: var(--bg-card-hover); }
 /* PROFILE SECTIONS & FORM CARDS */
 .profile-sections-grid {
   display: grid;
-  grid-template-columns: 1.35fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
-  align-items: stretch;
+  align-items: start;
 }
 .profile-main-card {
-  height: 100%;
   display: flex;
   flex-direction: column;
 }
 .profile-main-card .profile-form-inner {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  gap: 14px;
 }
 .profile-main-card .profile-action-footer {
-  margin-top: auto;
+  margin-top: 14px;
 }
 .profile-side-column {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  height: 100%;
+  gap: 20px;
 }
 .profile-side-column > .profile-glass-card {
   display: flex;
@@ -6205,39 +6220,47 @@ tr:hover td { background: var(--bg-card-hover); }
 .profile-side-column .profile-form-inner {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  gap: 12px;
-}
-.profile-side-column .profile-danger-card .profile-form-inner {
-  justify-content: flex-end;
+  gap: 14px;
 }
 .profile-glass-card {
-  border-radius: var(--radius, 14px);
-  background: linear-gradient(160deg, rgba(30, 34, 49, 0.72) 0%, rgba(20, 24, 35, 0.88) 100%);
-  border: 1px solid rgba(108, 99, 255, 0.22);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
-  padding: 22px;
+  border-radius: var(--radius, 16px);
+  background: linear-gradient(165deg, rgba(26, 31, 46, 0.78) 0%, rgba(16, 20, 31, 0.92) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  padding: 24px;
   position: relative;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .profile-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid rgba(108, 99, 255, 0.14);
-  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+  margin-bottom: 20px;
 }
 .profile-card-header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 13px;
   min-width: 0;
+  flex: 1;
+}
+.profile-card-header-left > div:last-child {
+  min-width: 0;
+  flex: 1;
+}
+.profile-card-header .profile-metric-pill,
+.profile-card-header .profile-badge-neon-purple {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .profile-header-icon-box {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6262,18 +6285,19 @@ tr:hover td { background: var(--bg-card-hover); }
   box-shadow: 0 0 14px rgba(248,113,113,0.2);
 }
 .profile-card-title {
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 800;
   color: #ffffff;
   margin: 0;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
 }
 .profile-card-subtitle {
   font-size: 11.5px;
-  color: #cbd5e1;
+  color: #94a3b8;
   margin: 3px 0 0;
   font-weight: 500;
-  line-height: 1.4;
+  line-height: 1.45;
+  overflow-wrap: break-word;
 }
 .profile-form-section-title {
   display: flex;
@@ -6283,8 +6307,10 @@ tr:hover td { background: var(--bg-card-hover); }
   font-weight: 800;
   color: #c084fc;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(168, 85, 247, 0.12);
 }
 .profile-form-grid {
   display: grid;
@@ -6300,17 +6326,19 @@ tr:hover td { background: var(--bg-card-hover); }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #cbd5e1;
   margin: 0;
+  letter-spacing: 0.01em;
 }
 .profile-unit-tag {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 750;
-  color: #94a3b8;
-  background: rgba(255, 255, 255, 0.06);
-  padding: 1.5px 6px;
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.12);
+  border: 1px solid rgba(167, 139, 250, 0.22);
+  padding: 1.5px 6.5px;
   border-radius: 4px;
 }
 .profile-input-wrap {
@@ -6323,9 +6351,9 @@ tr:hover td { background: var(--bg-card-hover); }
   width: 100%;
   height: 42px;
   padding: 0 38px 0 13px;
-  background: rgba(15, 23, 42, 0.65);
-  border: 1.5px solid rgba(108, 99, 255, 0.22);
-  border-radius: 10px;
+  background: rgba(13, 18, 30, 0.72);
+  border: 1.5px solid rgba(139, 92, 246, 0.25);
+  border-radius: 11px;
   color: #ffffff;
   font-size: 13px;
   font-weight: 650;
@@ -6335,14 +6363,14 @@ tr:hover td { background: var(--bg-card-hover); }
 }
 .profile-input-wrap input:hover,
 .profile-input-wrap select:hover {
-  border-color: rgba(168, 85, 247, 0.45);
-  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(168, 85, 247, 0.55);
+  background: rgba(15, 23, 42, 0.9);
 }
 .profile-input-wrap input:focus,
 .profile-input-wrap select:focus {
   border-color: #a855f7;
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2), 0 0 14px rgba(168, 85, 247, 0.15);
-  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.22), 0 0 16px rgba(168, 85, 247, 0.18);
+  background: rgba(15, 23, 42, 0.98);
 }
 .profile-input-wrap select {
   cursor: pointer;
@@ -6389,9 +6417,17 @@ tr:hover td { background: var(--bg-card-hover); }
   text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
 }
 .profile-action-footer {
-  margin-top: 22px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(108, 99, 255, 0.14);
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(139, 92, 246, 0.16);
+  display: flex;
+  justify-content: flex-end;
+}
+.profile-biometrics-save-row {
+  margin-top: 16px;
+  margin-bottom: 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(139, 92, 246, 0.14);
   display: flex;
   justify-content: flex-end;
 }
@@ -6516,10 +6552,9 @@ tr:hover td { background: var(--bg-card-hover); }
   transform: translateY(-1px);
 }
 .profile-email-action-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 6px;
+  display: flex;
+  width: 100%;
+  margin-top: 4px;
 }
 .profile-email-save-btn {
   display: inline-flex;
@@ -6639,6 +6674,100 @@ tr:hover td { background: var(--bg-card-hover); }
   border-color: #ef4444;
   color: #ffffff;
   box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35), 0 0 14px rgba(239, 68, 68, 0.3);
+}
+
+.profile-danger-actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+.profile-danger-action-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  transition: all 0.22s ease;
+}
+.profile-danger-action-item:hover {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(20, 26, 46, 0.85);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+.profile-danger-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+.profile-danger-item-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.profile-danger-item-desc {
+  font-size: 11.5px;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin: 0;
+}
+.profile-danger-item-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 750;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.profile-danger-item-btn.amber {
+  color: #fde68a;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.12);
+}
+.profile-danger-item-btn.amber:hover {
+  background: rgba(245, 158, 11, 0.28);
+  border-color: #fbbf24;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+  transform: translateY(-1.5px);
+}
+.profile-danger-item-btn.red {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.15);
+}
+.profile-danger-item-btn.red:hover {
+  background: rgba(239, 68, 68, 0.32);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.45);
+  transform: translateY(-1.5px);
+}
+@media (max-width: 640px) {
+  .profile-danger-action-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .profile-danger-item-btn {
+    width: 100%;
+  }
 }
 
 
@@ -18118,6 +18247,9 @@ tr:hover td { background: var(--bg-card-hover); }
     border: 1px solid rgba(52, 211, 153, 0.4) !important;
     line-height: 1.2 !important;
   }
+  .prog-gain-delta-badge .gain-diff {
+    display: none !important;
+  }
   .gain-pct {
     font-size: 9.5px !important;
     font-weight: 850 !important;
@@ -19036,12 +19168,12 @@ tr:hover td { background: var(--bg-card-hover); }
     gap: 6px !important;
   }
   .profile-form-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 10px 8px !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
   }
   .profile-form-grid.profile-training-grid {
     grid-template-columns: 1fr !important;
-    gap: 10px !important;
+    gap: 12px !important;
   }
   .profile-field-label {
     font-size: 11px !important;
@@ -19107,10 +19239,25 @@ tr:hover td { background: var(--bg-card-hover); }
     border-radius: 8px !important;
     padding: 0 12px !important;
   }
+  .profile-danger-action-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 14px 12px !important;
+  }
+  .profile-danger-action-item .profile-danger-item-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 40px !important;
+  }
   .expert-reset-modal-box,
   .expert-doms-delete-box {
     padding: 20px 14px;
     border-radius: 16px;
+    max-width: calc(100vw - 20px) !important;
+    width: 100% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
   }
   .expert-reset-icon-wrap,
   .expert-doms-delete-icon-wrap {
@@ -24024,18 +24171,18 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
     </div>
 
-    <!-- PANEL 2: 4 HANELİ KOD DOĞRULAMA -->
+    <!-- PANEL 2: 6 HANELİ KOD DOĞRULAMA -->
     <div id="fpStepCode" class="hidden">
-      <div class="subtitle"><span id="fpMaskedEmailText" style="color:#38bdf8; font-weight:700;"></span> adresine gönderilen 4 haneli güvenlik kodunu girin.</div>
+      <div class="subtitle"><span id="fpMaskedEmailText" style="color:#38bdf8; font-weight:700;"></span> adresine gönderilen 6 haneli güvenlik kodunu girin.</div>
       <div class="auth-error" id="fpCodeError"></div>
 
       <div class="auth-field-group">
         <label class="auth-label" for="fpCodeInput" style="justify-content:center; margin-bottom:12px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <span style="letter-spacing:0.5px;">4 HANELİ DOĞRULAMA KODU</span>
+          <span style="letter-spacing:0.5px;">6 HANELİ DOĞRULAMA KODU</span>
         </label>
         <div style="display:flex; justify-content:center;">
-          <input type="text" id="fpCodeInput" maxlength="4" inputmode="numeric" autocomplete="one-time-code" placeholder="••••" style="text-align:center; letter-spacing:14px; font-size:32px; font-weight:900; color:#38bdf8; background:rgba(15,23,42,0.65); border:1.5px solid rgba(99,102,241,0.4); border-radius:14px; padding:12px; width:220px; box-sizing:border-box; outline:none; transition:all 0.2s;" onfocus="this.style.borderColor='#818cf8';this.style.boxShadow='0 0 16px rgba(99,102,241,0.35)';" onblur="this.style.borderColor='rgba(99,102,241,0.4)';this.style.boxShadow='none';" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length === 4) fpSubmitCode();" onkeydown="if(event.key==='Enter') fpSubmitCode();" />
+          <input type="text" id="fpCodeInput" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="••••••" style="text-align:center; letter-spacing:10px; font-size:28px; font-weight:900; color:#38bdf8; background:rgba(15,23,42,0.65); border:1.5px solid rgba(99,102,241,0.4); border-radius:14px; padding:12px; width:260px; box-sizing:border-box; outline:none; transition:all 0.2s;" onfocus="this.style.borderColor='#818cf8';this.style.boxShadow='0 0 16px rgba(99,102,241,0.35)';" onblur="this.style.borderColor='rgba(99,102,241,0.4)';this.style.boxShadow='none';" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length === 6) fpSubmitCode();" onkeydown="if(event.key==='Enter') fpSubmitCode();" />
         </div>
         <div style="font-size:11.5px; color:#94a3b8; text-align:center; margin-top:8px;">⏱️ Kodun geçerlilik süresi 15 dakikadır.</div>
       </div>
@@ -24102,6 +24249,41 @@ tr:hover td { background: var(--bg-card-hover); }
       <div class="auth-footer">
         <a onclick="cancelOrReturnFromFp()" class="fp-cancel-btn-text" style="cursor:pointer;">İptal ve Giriş Ekranına Dön</a>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- GENEL GÜVENLİK OTP DOĞRULAMA MODALI (E-POSTA & ŞİFRE) -->
+<div id="securityOtpModal" class="hidden" style="position:fixed; inset:0; z-index:99999; background:rgba(2,6,23,0.85); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; padding:16px;">
+  <div style="background:#111827; border:1px solid rgba(99,102,241,0.35); border-radius:20px; width:100%; max-width:440px; padding:28px 24px; box-shadow:0 25px 60px rgba(0,0,0,0.7); position:relative;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div id="secOtpIconBox" style="width:42px; height:42px; border-radius:12px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); display:flex; align-items:center; justify-content:center; color:#818cf8;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <div>
+          <h3 id="secOtpTitle" style="font-size:17px; font-weight:800; color:#f8fafc; margin:0;">Güvenlik Doğrulaması</h3>
+          <div id="secOtpSubtitle" style="font-size:12px; color:#38bdf8; font-weight:600; margin-top:2px;">6 Haneli Onay Kodu</div>
+        </div>
+      </div>
+      <button type="button" onclick="closeSecurityOtpModal()" style="background:none; border:none; color:#64748b; font-size:24px; cursor:pointer; line-height:1; padding:4px;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#64748b'">&times;</button>
+    </div>
+
+    <p id="secOtpDescription" style="font-size:13.5px; color:#cbd5e1; line-height:1.55; margin:0 0 18px;"></p>
+    <div id="secOtpError" class="auth-error" style="margin-bottom:14px; font-size:12.5px; color:#f87171; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:10px; display:none;"></div>
+
+    <div style="text-align:center; margin-bottom:18px;">
+      <input type="text" id="secOtpInput" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="••••••" style="text-align:center; letter-spacing:10px; font-size:30px; font-weight:900; color:#38bdf8; background:rgba(15,23,42,0.7); border:1.5px solid rgba(99,102,241,0.4); border-radius:14px; padding:12px; width:260px; box-sizing:border-box; outline:none; transition:all 0.2s;" onfocus="this.style.borderColor='#818cf8';this.style.boxShadow='0 0 16px rgba(99,102,241,0.35)';" onblur="this.style.borderColor='rgba(99,102,241,0.4)';this.style.boxShadow='none';" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length === 6) submitSecurityOtp();" onkeydown="if(event.key==='Enter') submitSecurityOtp();" />
+      <div style="font-size:11.5px; color:#94a3b8; margin-top:8px;">⏱️ Bu kod <strong>15 dakika</strong> boyunca geçerlidir.</div>
+    </div>
+
+    <button type="button" id="secOtpBtn" onclick="submitSecurityOtp()" class="auth-btn" style="width:100%; justify-content:center; margin-bottom:12px; font-size:14px; font-weight:700;">
+      <span>Kodu Doğrula ve Onayla</span>
+    </button>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-top:8px;">
+      <a id="secOtpResendBtn" onclick="resendSecurityOtp()" style="color:#818cf8; font-weight:600; cursor:pointer;">Tekrar Kod Gönder</a>
+      <a onclick="closeSecurityOtpModal()" style="color:#94a3b8; cursor:pointer;">Vazgeç</a>
     </div>
   </div>
 </div>
@@ -25492,13 +25674,6 @@ tr:hover td { background: var(--bg-card-hover); }
               <div class="profile-hero-name-row">
                 <h2 class="profile-hero-username" id="profHeroUsername">SPORCU PROFİLİ</h2>
                 <span id="profHeroLevelBadge" class="badge badge-accent" style="font-size:11px; padding:3px 10px; font-weight:800; letter-spacing:0.3px;">LVL 1 · ÇAYLAK</span>
-                <div class="profile-hero-email-badge" id="profHeroEmailBadge" onclick="focusProfileEmail()" title="Kayıtlı E-posta (Tıklayarak düzenleyin)">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                    <polyline points="22,6 12,13 2,6"></polyline>
-                  </svg>
-                  <span id="profHeroEmailText">E-posta Tanımlanmamış</span>
-                </div>
               </div>
               <p class="profile-hero-desc">Biyometrik parametrelerin; hipertrofi hacim hesaplamaları, kalori gereksinimi ve uzman öneri motoruna doğrudan rehberlik eder.</p>
             </div>
@@ -25516,7 +25691,7 @@ tr:hover td { background: var(--bg-card-hover); }
 
             <div class="prof-inline-divider"></div>
 
-            <div class="prof-inline-stat-group" style="flex: 1 1 240px; max-width: 420px;">
+            <div class="prof-inline-stat-group" style="flex: 1 1 240px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                 <span class="prof-inline-label" id="profInlineXpLabel">SEVİYE İLERLEMESİ</span>
                 <strong id="profInlineXpText" style="font-size:11.5px; color:#c084fc; font-weight:800;">0 / 500 XP (%0)</strong>
@@ -25786,14 +25961,14 @@ tr:hover td { background: var(--bg-card-hover); }
                 </div>
               </div>
 
-              <div class="profile-action-footer">
+              <div class="profile-biometrics-save-row">
                 <button class="profile-primary-save-btn" onclick="saveProfile()" type="button">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                     <polyline points="17 21 17 13 7 13 7 21"></polyline>
                     <polyline points="7 3 7 8 15 8"></polyline>
                   </svg>
-                  <span>Biyometrik Profili Kaydet & Senkronla</span>
+                  <span>Profili Kaydet</span>
                 </button>
               </div>
             </div>
@@ -25806,28 +25981,34 @@ tr:hover td { background: var(--bg-card-hover); }
 
 
           <div class="profile-side-column">
-            <!-- PROFİL: HESAP & E-POSTA (GMAIL) BİLGİSİ VE ŞİFRE KURTARMA KARTI -->
+            <!-- PROFİL: HESAP & GÜVENLİK (E-POSTA VE ŞİFRE YÖNETİMİ) KARTI -->
             <div class="profile-glass-card">
               <div class="profile-card-header">
                 <div class="profile-card-header-left">
                   <div class="profile-header-icon-box purple">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                      <polyline points="22,6 12,13 2,6"></polyline>
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
                   </div>
                   <div>
-                    <h3 class="profile-card-title">Hesap & E-posta (Gmail)</h3>
-                    <p class="profile-card-subtitle">Güvenlik bildirimleri ve şifre kurtarma merkezi</p>
+                    <h3 class="profile-card-title">Hesap & Güvenlik</h3>
+                    <p class="profile-card-subtitle">E-posta doğrulaması ve giriş şifresi yönetimi</p>
                   </div>
                 </div>
-                <span class="profile-metric-pill purple" id="profEmailStatusBadge" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.35);">E-posta</span>
+                <span class="profile-metric-pill red" id="profEmailStatusBadge" style="background:rgba(239, 68, 68, 0.16); color:#f87171; border:1px solid rgba(239, 68, 68, 0.45); box-shadow: 0 0 12px rgba(239, 68, 68, 0.22);">E-posta Tanımlanmamış (Eksik)</span>
               </div>
 
               <div class="profile-form-inner">
+                <!-- E-POSTA BÖLÜMÜ -->
+                <div class="profile-form-section-title">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                  <span>Kayıtlı E-posta (Gmail)</span>
+                </div>
+
                 <div class="profile-field-group">
                   <label class="profile-field-label" for="profEmail">
-                    <span>Kayıtlı E-posta (Gmail)</span>
+                    <span>E-posta Adresi</span>
                     <span class="profile-unit-tag">Güvenlik</span>
                   </label>
                   <div class="profile-input-wrap">
@@ -25843,47 +26024,29 @@ tr:hover td { background: var(--bg-card-hover); }
 
                 <div style="font-size:11.5px; color:#94a3b8; line-height:1.45; display:flex; align-items:center; gap:6px;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                  <span>Şifre kurtarma 4 haneli onay kodu bu adrese iletilir.</span>
+                  <span>E-posta değişikliği ve güvenlik onay kodları bu adrese iletilir.</span>
                 </div>
 
                 <div class="profile-email-action-row">
-                  <button class="profile-email-save-btn" id="profSaveEmailBtn" onclick="saveProfileEmailOnly()" type="button">
+                  <button class="profile-email-save-btn" id="profSaveEmailBtn" onclick="saveProfileEmailOnly()" type="button" style="width:100%; justify-content:center; padding:10px 16px; font-weight:700;">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                       <polyline points="17 21 17 13 7 13 7 21"></polyline>
                       <polyline points="7 3 7 8 15 8"></polyline>
                     </svg>
-                    <span>E-postayı Güncelle</span>
-                  </button>
-                  <button type="button" class="profile-email-forgot-btn" onclick="showForgotPassword(true)" title="E-postanıza 4 haneli onay kodu alarak anında şifrenizi yenileyin">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    <span>Şifremi Sıfırla (Kod İste)</span>
+                    <span>E-postayı Güncelle (Doğrulama Kodu İste)</span>
                   </button>
                 </div>
-              </div>
-            </div>
 
-            <!-- PROFİL: HESAP GÜVENLİĞİ VE ŞİFRE DEĞİŞTİRME KARTI -->
-            <div class="profile-glass-card">
-              <div class="profile-card-header">
-                <div class="profile-card-header-left">
-                  <div class="profile-header-icon-box purple">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="profile-card-title">Şifre & Güvenlik</h3>
-                    <p class="profile-card-subtitle">Hesap oturum şifrenizi güncelleyin</p>
-                  </div>
+                <!-- ŞİFRE DEĞİŞTİRME BÖLÜMÜ -->
+                <div class="profile-form-section-title" style="margin-top:10px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  <span>Giriş Şifresi Değiştir</span>
                 </div>
-              </div>
 
-              <div class="profile-form-inner">
                 <div class="profile-field-group">
                   <label class="profile-field-label" for="oldPassword">Mevcut Şifre</label>
                   <div class="profile-input-wrap">
@@ -25925,17 +26088,19 @@ tr:hover td { background: var(--bg-card-hover); }
                   </div>
                 </div>
 
-                <button class="profile-secondary-action-btn" onclick="changePassword()" type="button" style="margin-top:6px;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                  </svg>
-                  <span>Şifreyi Güncelle</span>
-                </button>
+                <div style="margin-top:4px;">
+                  <button class="profile-secondary-action-btn" onclick="changePassword()" type="button">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    <span>Şifreyi Güncelle</span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            <!-- PROFİL: VERİ YÖNETİMİ VE SİSTEM SIFIRLAMA KARTI -->
-            <div class="profile-glass-card profile-danger-card">
+            <!-- PROFİL: VERİ YÖNETİMİ VE KRİTİK İŞLEMLER KARTI (BİRLEŞTİRİLMİŞ ÇATI) -->
+            <div class="profile-glass-card profile-danger-card" id="profileDangerZoneCard">
               <div class="profile-card-header">
                 <div class="profile-card-header-left">
                   <div class="profile-header-icon-box red">
@@ -25946,21 +26111,51 @@ tr:hover td { background: var(--bg-card-hover); }
                     </svg>
                   </div>
                   <div>
-                    <h3 class="profile-card-title" style="color:#f87171;">Uzman Sistemi Verileri</h3>
-                    <p class="profile-card-subtitle">Yalnızca bu hesaba ait split taslak ve öneri verilerini sıfırlar</p>
+                    <h3 class="profile-card-title" style="color:#f87171;">Kritik Veri & Hesap İşlemleri</h3>
+                    <p class="profile-card-subtitle">Uzman algoritması verilerini sıfırlayın veya hesabınızı kalıcı olarak silin</p>
                   </div>
                 </div>
-                <span class="profile-metric-pill red">Hassas İşlem</span>
+                <span class="profile-metric-pill red">Kritik Alan</span>
               </div>
 
               <div class="profile-form-inner">
-                <button type="button" class="profile-danger-reset-btn" onclick="expertDataResetLegacy()">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                  </svg>
-                  <span>Uzman Sistemini Sıfırla</span>
-                </button>
+                <div class="profile-danger-actions-list">
+                  <!-- EYLEM 1: UZMAN SİSTEMİ SIFIRLAMA -->
+                  <div class="profile-danger-action-item">
+                    <div class="profile-danger-item-info">
+                      <div class="profile-danger-item-title">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="23 4 23 10 17 10"></polyline>
+                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                        </svg>
+                        <span>Uzman Sistemi Verilerini Sıfırla</span>
+                      </div>
+                      <p class="profile-danger-item-desc">Yalnızca bu hesaba ait split taslak, salon ve kas yorgunluğu (DOMS) önerilerini sıfırlar. Antrenman geçmişiniz korunur.</p>
+                    </div>
+                    <button type="button" class="profile-danger-item-btn amber" onclick="expertDataResetLegacy()">
+                      <span>Verileri Sıfırla</span>
+                    </button>
+                  </div>
+
+                  <!-- EYLEM 2: HESABI KALICI OLARAK SİL -->
+                  <div class="profile-danger-action-item" style="border-color: rgba(239, 68, 68, 0.35); background: rgba(38, 18, 24, 0.55);">
+                    <div class="profile-danger-item-info">
+                      <div class="profile-danger-item-title" style="color: #fca5a5;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        <span>Hesabı Kalıcı Olarak Sil</span>
+                      </div>
+                      <p class="profile-danger-item-desc" style="color: #fca5a5; opacity: 0.85;">Tüm antrenman geçmişi, 1RM rekorları, DOMS analizleri ve biyometrik profil veritabanından kalıcı olarak silinir. Bu işlem geri alınamaz.</p>
+                    </div>
+                    <button type="button" class="profile-danger-item-btn red" onclick="openDeleteAccountModal()">
+                      <span>Hesabı Sil</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -27725,7 +27920,7 @@ let _muscleGroups = [];
 ────────────────────────────────────────────────────────────────────────── */
 const DEFAULT_UI_MUSCLE_GROUPS = Object.freeze([
   'Göğüs', 'Sırt', 'Omuz', 'Biceps', 'Triceps',
-  'Quadriceps', 'Hamstring', 'Gluteus', 'Calf', 'Adductors', 'Rotatorlar', 'Core'
+  'Quadriceps', 'Hamstring', 'Gluteus', 'Calf', 'Adductors', 'Rotatorlar', 'Skapula', 'Core'
 ]);
 // Alt vücut filtreleri egzersizin primary_muscles meta verisinden okunur.
 const LEG_DETAIL_FILTERS = Object.freeze({
@@ -28110,7 +28305,7 @@ async function fpSubmitEmail() {
     const maskedEl = document.getElementById('fpMaskedEmailText');
     if (maskedEl) maskedEl.textContent = data.masked_email || identifier;
 
-    toast('4 haneli doğrulama kodu e-postanıza gönderildi!', 'success');
+    toast('6 haneli doğrulama kodu e-postanıza gönderildi!', 'success');
     showFpStep(2);
     startFpResendCountdown(60);
   } catch (e) {
@@ -28171,8 +28366,8 @@ async function fpSubmitCode() {
   errEl.textContent = '';
   errEl.classList.remove('show');
 
-  if (!code || code.length !== 4) {
-    errEl.textContent = 'Lütfen 4 haneli doğrulama kodunu eksiksiz girin.';
+  if (!code || code.length !== 6) {
+    errEl.textContent = 'Lütfen 6 haneli doğrulama kodunu eksiksiz girin.';
     errEl.classList.add('show');
     input.focus();
     return;
@@ -28796,8 +28991,12 @@ async function apiPost(url, data) {
   if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.detail || `HTTP ${res.status}`); }
   return await res.json();
 }
-async function apiDelete(url) {
-  const res = await fetch(`${API}${url}`, { method:'DELETE', headers: hxAuthHeaders() });
+async function apiDelete(url, data) {
+  const options = { method: 'DELETE', headers: hxAuthHeaders() };
+  if (data !== undefined) {
+    options.body = JSON.stringify(data);
+  }
+  const res = await fetch(`${API}${url}`, options);
   if (res.status === 401) { doLogout(); throw new Error('Oturum süresi doldu, lütfen tekrar giriş yapın.'); }
   if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.detail || `HTTP ${res.status}`); }
   return await res.json();
@@ -31415,11 +31614,11 @@ async function loadWorkoutPage() {
 // Legs/Lower seçiminde bacak genel etiketi değil, doğrudan alt kaslar sunulur.
 const SESSION_MUSCLE_MAP = Object.freeze({
   push: ["Göğüs", "Omuz", "Triceps"],
-  pull: ["Sırt", "Biceps"],
+  pull: ["Sırt", "Biceps", "Skapula"],
   legs: ["Quadriceps", "Hamstring", "Gluteus", "Calf", "Adductors"],
   lower: ["Quadriceps", "Hamstring", "Gluteus", "Calf", "Adductors"],
-  upper: ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps", "Rotatorlar"],
-  "full body": ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps", "Quadriceps", "Hamstring", "Gluteus", "Calf", "Adductors", "Rotatorlar", "Core"],
+  upper: ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps", "Rotatorlar", "Skapula"],
+  "full body": ["Göğüs", "Sırt", "Omuz", "Biceps", "Triceps", "Quadriceps", "Hamstring", "Gluteus", "Calf", "Adductors", "Rotatorlar", "Skapula", "Core"],
   arms: ["Biceps", "Triceps"],
   core: ["Core"],
   rotatorlar: ["Adductors", "Rotatorlar"]
@@ -31491,13 +31690,18 @@ function replayWorkoutFilterAnimation(...elements) {
 let _currentWorkoutMuscleFilter = 'all';
 
 function applySessionFilter() {
+  const selectedType = getSelectedSessionType();
   const allowedMuscles = getAllowedMusclesForSession();
   const filterList = document.getElementById('muscleFilterList');
   _currentWorkoutMuscleFilter = 'all';
 
   if (filterList) {
+    const isRotatorSession = selectedType === 'rotatorlar';
     filterList.innerHTML = '<div class="muscle-filter active" data-muscle="all" onclick="filterExercises(\'all\',this)"><span>Tümü</span><span style="font-size:10px;opacity:0.6;">●</span></div>' +
-      allowedMuscles.map(m => `<div class="muscle-filter" data-muscle="${m}" onclick="filterExercises('${m}',this)"><span>${m}</span></div>`).join('');
+      allowedMuscles.map(m => {
+        const label = (isRotatorSession && m === 'Rotatorlar') ? 'Omuz Rotatorları' : m;
+        return `<div class="muscle-filter" data-muscle="${m}" onclick="filterExercises('${m}',this)"><span>${label}</span></div>`;
+      }).join('');
   }
 
   const searchInput = document.getElementById('workoutExerciseSearch');
@@ -31614,13 +31818,18 @@ function addExercise(exId) {
   syncWorkoutInputsToData();
 
   const loadMode = ex.analysis?.load_mode || (ex.bw ? 'bodyweight' : 'external_load');
+  const isChinUp = (ex.analysis?.family === 'chin_up') || (ex.id && ex.id.startsWith('chin-up'));
+  const isBicepsFilter = _currentWorkoutMuscleFilter === 'Biceps';
+  const assignedMuscleGroup = (isChinUp && isBicepsFilter) ? 'Biceps' : (ex.muscle_group || ex.muscle);
+  const assignedDisplayMuscle = (isChinUp && isBicepsFilter) ? 'Biceps' : (ex.muscle || ex.muscle_group);
+
   _selectedExercises.push({
     // Kullanıcı sadece ismi seçer. Kimlik, yükleme türü ve meta veri arka planda taşınır.
     exercise_id: ex.id,
     canonical_exercise_id: ex.id,
     exercise_name: ex.name,
-    muscle_group: ex.muscle_group || ex.muscle,
-    display_muscle: ex.muscle,
+    muscle_group: assignedMuscleGroup,
+    display_muscle: assignedDisplayMuscle,
     is_bodyweight: Boolean(ex.bw),
     load_mode: loadMode,
     sets_data: [{ reps: 0, weight_kg: 0, rir: null }]
@@ -33310,8 +33519,36 @@ window.switchProgressTab = switchProgressTab;
 // ── EN İYİ İLERLEMELER (TOP PROGRESS GAINS) ÇİZİCİ VE YÖNETİCİSİ ──
 let _progTopGainsList = [];
 let _progTopGainsExpanded = false;
+let _progTopGainsAnimating = false;
 
 function toggleTopProgressGains() {
+  if (_progTopGainsAnimating) return;
+  const container = document.getElementById('progTopGainsGrid');
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const defaultLimit = isMobile ? 6 : 8;
+
+  // Eğer pano açıksa ve "Daha Az"a basılarak kapatılıyorsa: fazla kartları yumuşakça soldur ve küçült
+  if (_progTopGainsExpanded && container) {
+    const cards = Array.from(container.children);
+    if (cards.length > defaultLimit) {
+      _progTopGainsAnimating = true;
+      const cardsToCollapse = cards.slice(defaultLimit);
+      
+      cardsToCollapse.forEach((card, i) => {
+        card.classList.add('prog-gain-card-collapsing');
+        card.style.animationDelay = `${i * 0.03}s`;
+      });
+
+      // Animasyon süresi bitince listeyi default sayıya indir ve yeniden çiz
+      setTimeout(() => {
+        _progTopGainsExpanded = false;
+        _progTopGainsAnimating = false;
+        renderTopProgressGainsGrid();
+      }, 230);
+      return;
+    }
+  }
+
   _progTopGainsExpanded = !_progTopGainsExpanded;
   renderTopProgressGainsGrid();
 }
@@ -33385,7 +33622,7 @@ function renderTopProgressGainsGrid() {
     const animDelay = Math.min(idx * 0.055, 0.7);
 
     cardsHTML += `
-      <div class="prog-gain-card prog-gain-card-anim" style="animation-delay: ${animDelay}s;" onclick="selectProgressExercise('${safeId}', '${safeExercise}'); document.getElementById('exerciseProgressChart')?.scrollIntoView({behavior:'smooth', block:'center'});" title="Grafiği incelemek için tıkla">
+      <div class="prog-gain-card prog-gain-card-anim" style="animation-delay: ${animDelay}s;" onclick="selectProgressExercise('${safeId}', '${safeExercise}', true);" title="Grafiği incelemek için tıkla">
         <div class="prog-gain-card-header">
           <div class="prog-gain-title" title="${safeExercise}">${r.exercise}</div>
           <span class="prog-gain-muscle-tag" style="${badgeStyle}">${r.muscle}</span>
@@ -33398,7 +33635,8 @@ function renderTopProgressGainsGrid() {
             <span class="gain-to">${peakValStr} ${unit}</span>
           </div>
           <div class="prog-gain-delta-badge">
-            <span class="gain-pct">+${r.percentage}%</span>
+            <span class="gain-diff">+${diffValStr} ${unit}</span>
+            <span class="gain-pct">(+${r.percentage}%)</span>
           </div>
         </div>
 
@@ -33546,6 +33784,25 @@ async function loadProgress(username) {
           return list.map(m => map[m] || m);
         };
 
+        const ROTATOR_MUSCLES = new Set([
+          "Rotator Cuff", "Rotator", "Rotatorlar", "Hip Rotators",
+          "hip_external_rotators", "hip_internal_rotators",
+          "infraspinatus", "supraspinatus", "subscapularis", "teres_minor"
+        ]);
+
+        const isRotatorRecord = (r) => {
+          const muscle = r.muscle || "";
+          if (["Rotator Cuff", "Rotator", "Rotatorlar", "Hip Rotators"].includes(muscle)) return true;
+          const exName = (r.exercise || "").toLowerCase();
+          if (exName.includes("rotat") || exName.includes("90/90")) return true;
+          if (r.primary_muscles && Array.isArray(r.primary_muscles)) {
+            if (r.primary_muscles.some(m => ROTATOR_MUSCLES.has(m) || String(m).toLowerCase().includes("rotat"))) {
+              return true;
+            }
+          }
+          return false;
+        };
+
         prs.forEach(r => {
           const exName = (r.exercise || "").toLowerCase();
           const isCompound = COMPOUND_KEYWORDS.some(k => exName.includes(k)) && !exName.includes('incline');
@@ -33554,6 +33811,12 @@ async function loadProgress(username) {
 
           if (isCompound) {
             compoundPRs.push(r);
+          } else if (isRotatorRecord(r)) {
+            const mainGroup = "Omuz ve Kalça Rotatorları";
+            if (!muscleGroupPRs[mainGroup]) {
+              muscleGroupPRs[mainGroup] = [];
+            }
+            muscleGroupPRs[mainGroup].push(r);
           } else {
             const muscle = r.muscle || "Diğer";
             let mainGroup = "Diğer";
@@ -33597,14 +33860,14 @@ async function loadProgress(username) {
             badge: "background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);"
           },
           "Bacak": {
-            bg: "linear-gradient(90deg, rgba(244, 63, 94, 0.22) 0%, rgba(239, 68, 68, 0.05) 100%)",
-            border: "#f43f5e", text: "#fb7185",
-            badge: "background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);"
+            bg: "linear-gradient(90deg, rgba(244, 63, 94, 0.22) 0%, rgba(251, 113, 133, 0.05) 100%)",
+            border: "#f43f5e", text: "#fda4af",
+            badge: "background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);"
           },
           "Quadriceps": {
-            bg: "linear-gradient(90deg, rgba(244, 63, 94, 0.22) 0%, rgba(239, 68, 68, 0.05) 100%)",
-            border: "#f43f5e", text: "#fb7185",
-            badge: "background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);"
+            bg: "linear-gradient(90deg, rgba(244, 63, 94, 0.22) 0%, rgba(251, 113, 133, 0.05) 100%)",
+            border: "#f43f5e", text: "#fda4af",
+            badge: "background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);"
           },
           "Hamstring": {
             bg: "linear-gradient(90deg, rgba(244, 63, 94, 0.22) 0%, rgba(251, 113, 133, 0.05) 100%)",
@@ -33612,19 +33875,34 @@ async function loadProgress(username) {
             badge: "background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);"
           },
           "Gluteus": {
-            bg: "linear-gradient(90deg, rgba(249, 115, 22, 0.22) 0%, rgba(251, 146, 60, 0.05) 100%)",
-            border: "#f97316", text: "#fdba74",
-            badge: "background: rgba(249, 115, 22, 0.15); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(249, 115, 22, 0.25);"
+            bg: "linear-gradient(90deg, rgba(244, 63, 94, 0.22) 0%, rgba(251, 113, 133, 0.05) 100%)",
+            border: "#f43f5e", text: "#fda4af",
+            badge: "background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);"
           },
           "Calf": {
+            bg: "linear-gradient(90deg, rgba(244, 63, 94, 0.22) 0%, rgba(251, 113, 133, 0.05) 100%)",
+            border: "#f43f5e", text: "#fda4af",
+            badge: "background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);"
+          },
+          "Adductors": {
+            bg: "linear-gradient(90deg, rgba(244, 63, 94, 0.22) 0%, rgba(251, 113, 133, 0.05) 100%)",
+            border: "#f43f5e", text: "#fda4af",
+            badge: "background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);"
+          },
+          "Omuz ve Kalça Rotatorları": {
             bg: "linear-gradient(90deg, rgba(236, 72, 153, 0.22) 0%, rgba(244, 114, 182, 0.05) 100%)",
             border: "#ec4899", text: "#f9a8d4",
             badge: "background: rgba(236, 72, 153, 0.15); color: #f9a8d4; border: 1px solid rgba(236, 72, 153, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(236, 72, 153, 0.25);"
           },
-          "Adductors": {
-            bg: "linear-gradient(90deg, rgba(217, 70, 239, 0.22) 0%, rgba(232, 121, 249, 0.05) 100%)",
-            border: "#d946ef", text: "#f0abfc",
-            badge: "background: rgba(217, 70, 239, 0.15); color: #f0abfc; border: 1px solid rgba(217, 70, 239, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(217, 70, 239, 0.25);"
+          "Rotatorlar": {
+            bg: "linear-gradient(90deg, rgba(236, 72, 153, 0.22) 0%, rgba(244, 114, 182, 0.05) 100%)",
+            border: "#ec4899", text: "#f9a8d4",
+            badge: "background: rgba(236, 72, 153, 0.15); color: #f9a8d4; border: 1px solid rgba(236, 72, 153, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(236, 72, 153, 0.25);"
+          },
+          "Rotator Cuff": {
+            bg: "linear-gradient(90deg, rgba(236, 72, 153, 0.22) 0%, rgba(244, 114, 182, 0.05) 100%)",
+            border: "#ec4899", text: "#f9a8d4",
+            badge: "background: rgba(236, 72, 153, 0.15); color: #f9a8d4; border: 1px solid rgba(236, 72, 153, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(236, 72, 153, 0.25);"
           },
           "Core": {
             bg: "linear-gradient(90deg, rgba(20, 184, 166, 0.22) 0%, rgba(6, 182, 212, 0.05) 100%)",
@@ -33640,7 +33918,8 @@ async function loadProgress(username) {
 
         const getThemeForMuscle = (muscleName) => {
             if (["Biceps", "Triceps"].includes(muscleName)) return MUSCLE_THEMES["Kol"];
-            if (["Bacak", "Legs", "Leg", "Alt Vücut"].includes(muscleName)) return MUSCLE_THEMES["Bacak"];
+            if (["Bacak", "Legs", "Leg", "Alt Vücut", "Quadriceps", "Hamstring", "Gluteus", "Glute", "Calf", "Adductors"].includes(muscleName)) return MUSCLE_THEMES["Bacak"];
+            if (["Rotatorlar", "Rotator Cuff", "Rotator", "Hip Rotators", "Omuz ve Kalça Rotatorları"].includes(muscleName)) return MUSCLE_THEMES["Omuz ve Kalça Rotatorları"];
             if (["Sırt", "Kanat", "Lats", "Upper Back", "Üst Sırt", "Trapez", "Traps", "Bel"].includes(muscleName)) return MUSCLE_THEMES["Sırt"];
             return MUSCLE_THEMES[muscleName] || MUSCLE_THEMES["DEFAULT"];
         };
@@ -33667,7 +33946,7 @@ async function loadProgress(username) {
             const fullMuscleText = primaryList.join(', ') || r.muscle || 'Diğer';
             const singleMuscleText = r.muscle || primaryList[0] || 'Diğer';
             tableHTML += `
-              <tr class="prog-pr-row" onclick="window.scrollTo({top:0, behavior:'smooth'}); selectProgressExercise('${r.exercise_id}', '${r.exercise}')">
+              <tr class="prog-pr-row" onclick="selectProgressExercise('${r.exercise_id}', '${r.exercise}', true)">
                 <td class="prog-td-exercise" style="padding: 13px 16px; font-weight: 700; color: #ffffff; font-size: 13.5px;">${r.exercise}</td>
                 <td class="prog-td-muscle"><span class="prog-muscle-badge" style="${compBadge}"><span class="desktop-txt">${fullMuscleText}</span><span class="mobile-txt">${singleMuscleText}</span></span></td>
                 <td class="prog-td-weight"><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span class="prog-bw-text">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
@@ -33679,7 +33958,7 @@ async function loadProgress(username) {
         }
 
         // 2. BÖLGESEL HAREKETLER
-        const groupOrder = ["Göğüs", "Sırt", "Omuz", "Kol", "Bacak", "Core", "Diğer"];
+        const groupOrder = ["Göğüs", "Sırt", "Omuz", "Kol", "Bacak", "Core", "Omuz ve Kalça Rotatorları", "Diğer"];
         const existingGroups = Object.keys(muscleGroupPRs).sort((a, b) => {
           let idxA = groupOrder.indexOf(a);
           let idxB = groupOrder.indexOf(b);
@@ -33692,12 +33971,16 @@ async function loadProgress(username) {
           const groupPRs = muscleGroupPRs[mainGroup];
           const theme = MUSCLE_THEMES[mainGroup] || MUSCLE_THEMES["DEFAULT"];
 
-          groupPRs.sort((a, b) => a.muscle.localeCompare(b.muscle, 'tr-TR'));
+          groupPRs.sort((a, b) => (a.muscle || '').localeCompare(b.muscle || '', 'tr-TR'));
+
+          const headerTitle = (mainGroup === "Omuz ve Kalça Rotatorları" || mainGroup.endsWith("HAREKETLERİ"))
+            ? (mainGroup.toUpperCase().includes("HAREKETLERİ") ? mainGroup.toUpperCase() : `${mainGroup.toUpperCase()} HAREKETLERİ`)
+            : `${mainGroup} HAREKETLERİ`;
 
           tableHTML += `
             <tr class="prog-pr-section-header" style="background: ${theme.bg}; border-left: 4px solid ${theme.border};">
               <td colspan="5" class="prog-td-section" style="padding: 11px 16px; font-weight: 850; font-size: 12px; color: ${theme.text}; letter-spacing: 0.6px; text-transform: uppercase;">
-                ${mainGroup} HAREKETLERİ
+                ${headerTitle}
               </td>
             </tr>
           `;
@@ -33707,7 +33990,7 @@ async function loadProgress(username) {
             const fullMuscleText = primaryList.join(', ') || r.muscle || 'Diğer';
             const singleMuscleText = r.muscle || primaryList[0] || 'Diğer';
             tableHTML += `
-              <tr class="prog-pr-row" onclick="document.getElementById('progExerciseChartCard')?.scrollIntoView({behavior:'smooth', block:'start'}); selectProgressExercise('${r.exercise_id}', '${r.exercise}')">
+              <tr class="prog-pr-row" onclick="selectProgressExercise('${r.exercise_id}', '${r.exercise}', true)">
                 <td class="prog-td-exercise" style="padding: 13px 16px 13px 22px; font-weight: 650; color: #f1f5f9; font-size: 13.5px;">${r.exercise}</td>
                 <td class="prog-td-muscle"><span class="prog-muscle-badge" style="${getThemeForMuscle(r.muscle).badge}"><span class="desktop-txt">${fullMuscleText}</span><span class="mobile-txt">${singleMuscleText}</span></span></td>
                 <td class="prog-td-weight"><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span class="prog-bw-text">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
@@ -33744,7 +34027,12 @@ async function loadProgress(username) {
 ────────────────────────────────────────────────────────────────────────── */
 
 // 1. Egzersiz Seçim Fonksiyonu (Hem normal hem de window kapsamına tanımlıyoruz)
-async function selectProgressExercise(exerciseRef, displayName = '') {
+async function selectProgressExercise(exerciseRef, displayName = '', shouldScroll = false) {
+  // Eğer Kişisel Rekorlar (PR) gibi farklı bir alt sekmedeysek otomatik Grafik & Analiz sekmesine geçir
+  if (typeof switchProgressTab === 'function') {
+    switchProgressTab('analysis');
+  }
+
   const cleanRef = String(exerciseRef || '').replace(/\s*\((?:vücut ağırlığı|vucut agirligi|ağırlıklı|agirlikli|bodyweight|weighted)\)/gi, '').trim();
   const selected = (_exercisePool || []).find(item => 
     item.id === exerciseRef || 
@@ -33768,6 +34056,16 @@ async function selectProgressExercise(exerciseRef, displayName = '') {
   if (inputEl) inputEl.value = exerciseName;
   const dropdownEl = document.getElementById('exerciseDropdownList');
   if (dropdownEl) dropdownEl.style.display = 'none';
+
+  // Sadece kullanıcı bir karta veya tablo satırına tıkladığında grafiğe doğru kaydır
+  if (shouldScroll) {
+    setTimeout(() => {
+      const chartCard = document.getElementById('progExerciseChartCard');
+      if (chartCard) {
+        chartCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 60);
+  }
 
   try {
     const response = await apiGet('/api/progress/chart?exercise_id=' + encodeURIComponent(exerciseId));
@@ -35907,26 +36205,28 @@ function updateProfileEmailDisplays(email) {
   if (cleanEmail) {
     if (heroText) heroText.textContent = cleanEmail;
     if (heroBadge) {
-      heroBadge.style.display = 'inline-flex';
-      heroBadge.title = `Kayıtlı E-posta: ${cleanEmail} (Tıklayarak düzenleyin)`;
+      heroBadge.style.display = 'none';
+      heroBadge.title = '';
     }
     if (statusBadge) {
       statusBadge.textContent = 'Doğrulanmış / Aktif';
-      statusBadge.style.background = 'rgba(168, 85, 247, 0.15)';
-      statusBadge.style.color = '#c084fc';
-      statusBadge.style.borderColor = 'rgba(168, 85, 247, 0.35)';
+      statusBadge.style.background = 'rgba(16, 185, 129, 0.16)';
+      statusBadge.style.color = '#34d399';
+      statusBadge.style.borderColor = 'rgba(52, 211, 153, 0.45)';
+      statusBadge.style.boxShadow = '0 0 12px rgba(16, 185, 129, 0.25)';
     }
   } else {
-    if (heroText) heroText.textContent = 'E-posta Tanımlanmamış';
+    if (heroText) heroText.textContent = '';
     if (heroBadge) {
-      heroBadge.style.display = 'inline-flex';
-      heroBadge.title = 'Kurtarma e-postası tanımlamak için tıklayın';
+      heroBadge.style.display = 'none';
+      heroBadge.title = '';
     }
     if (statusBadge) {
-      statusBadge.textContent = 'Tanımlanmamış';
-      statusBadge.style.background = 'rgba(239, 68, 68, 0.12)';
+      statusBadge.textContent = 'E-posta Tanımlanmamış (Eksik)';
+      statusBadge.style.background = 'rgba(239, 68, 68, 0.16)';
       statusBadge.style.color = '#f87171';
-      statusBadge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+      statusBadge.style.borderColor = 'rgba(239, 68, 68, 0.45)';
+      statusBadge.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.22)';
     }
   }
 }
@@ -35943,6 +36243,128 @@ function focusProfileEmail() {
 }
 window.focusProfileEmail = focusProfileEmail;
 
+/* ── GENEL GÜVENLİK OTP MODAL KONTROLCÜSÜ (E-POSTA VE ŞİFRE DOĞRULAMA) ── */
+let _secOtpState = null;
+let _secOtpCooldown = 0;
+let _secOtpTimer = null;
+
+function openSecurityOtpModal({ title, subtitle, description, onConfirm, onResend }) {
+  _secOtpState = { onConfirm, onResend };
+  const modal = document.getElementById('securityOtpModal');
+  const titleEl = document.getElementById('secOtpTitle');
+  const subEl = document.getElementById('secOtpSubtitle');
+  const descEl = document.getElementById('secOtpDescription');
+  const errEl = document.getElementById('secOtpError');
+  const input = document.getElementById('secOtpInput');
+
+  if (titleEl) titleEl.textContent = title || 'Güvenlik Doğrulaması';
+  if (subEl) subEl.textContent = subtitle || '6 Haneli Onay Kodu';
+  if (descEl) descEl.innerHTML = description || '';
+  if (errEl) { errEl.textContent = ''; errEl.style.display = 'none'; }
+  if (input) { input.value = ''; }
+
+  if (modal) modal.classList.remove('hidden');
+  startSecOtpCountdown(60);
+  setTimeout(() => input?.focus(), 150);
+}
+
+function closeSecurityOtpModal() {
+  const modal = document.getElementById('securityOtpModal');
+  if (modal) modal.classList.add('hidden');
+  _secOtpState = null;
+  if (_secOtpTimer) clearInterval(_secOtpTimer);
+  _secOtpCooldown = 0;
+}
+
+function startSecOtpCountdown(sec) {
+  _secOtpCooldown = sec;
+  const resendBtn = document.getElementById('secOtpResendBtn');
+  if (_secOtpTimer) clearInterval(_secOtpTimer);
+
+  const update = () => {
+    if (_secOtpCooldown > 0) {
+      if (resendBtn) {
+        resendBtn.style.opacity = '0.5';
+        resendBtn.style.pointerEvents = 'none';
+        resendBtn.textContent = `Tekrar Gönder (${_secOtpCooldown}s)`;
+      }
+      _secOtpCooldown--;
+    } else {
+      if (resendBtn) {
+        resendBtn.style.opacity = '1';
+        resendBtn.style.pointerEvents = 'auto';
+        resendBtn.textContent = 'Tekrar Kod Gönder';
+      }
+      clearInterval(_secOtpTimer);
+    }
+  };
+  update();
+  _secOtpTimer = setInterval(update, 1000);
+}
+
+async function resendSecurityOtp() {
+  if (_secOtpCooldown > 0 || !_secOtpState?.onResend) return;
+  const errEl = document.getElementById('secOtpError');
+  if (errEl) { errEl.textContent = ''; errEl.style.display = 'none'; }
+  try {
+    await _secOtpState.onResend();
+    toast('Yeni doğrulama kodu gönderildi!', 'success');
+    startSecOtpCountdown(60);
+  } catch(e) {
+    if (errEl) {
+      errEl.textContent = 'Kod tekrar gönderilemedi: ' + (e.message || e);
+      errEl.style.display = 'block';
+    }
+  }
+}
+
+async function submitSecurityOtp() {
+  const input = document.getElementById('secOtpInput');
+  const errEl = document.getElementById('secOtpError');
+  const btn = document.getElementById('secOtpBtn');
+  if (!input || !errEl) return;
+
+  const code = (input.value || '').trim();
+  errEl.textContent = '';
+  errEl.style.display = 'none';
+
+  if (!code || code.length !== 6) {
+    errEl.textContent = 'Lütfen 6 haneli doğrulama kodunu eksiksiz girin.';
+    errEl.style.display = 'block';
+    input.focus();
+    return;
+  }
+
+  if (!_secOtpState?.onConfirm) {
+    closeSecurityOtpModal();
+    return;
+  }
+
+  const origBtnText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Doğrulanıyor...</span>';
+  }
+
+  try {
+    await _secOtpState.onConfirm(code);
+    closeSecurityOtpModal();
+  } catch(e) {
+    errEl.textContent = e.message || 'Doğrulama başarısız oldu.';
+    errEl.style.display = 'block';
+    input.focus();
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origBtnText;
+    }
+  }
+}
+window.openSecurityOtpModal = openSecurityOtpModal;
+window.closeSecurityOtpModal = closeSecurityOtpModal;
+window.resendSecurityOtp = resendSecurityOtp;
+window.submitSecurityOtp = submitSecurityOtp;
+
 async function saveProfileEmailOnly() {
   const uname = _currentUser?.username || window._currentUsername || localStorage.getItem('hx_user');
   if (!uname) {
@@ -35950,11 +36372,17 @@ async function saveProfileEmailOnly() {
     return;
   }
   const emailInput = document.getElementById('profEmail');
-  const emailVal = (emailInput?.value || '').trim();
+  const emailVal = (emailInput?.value || '').trim().toLowerCase();
 
-  if (emailVal && !emailVal.includes('@')) {
+  if (!emailVal || !emailVal.includes('@') || !emailVal.split('@')[1]?.includes('.')) {
     toast('Lütfen geçerli bir e-posta adresi girin (örn: isim@gmail.com)', 'error');
     emailInput?.focus();
+    return;
+  }
+
+  const currentEmail = (_currentUser?.email || '').trim().toLowerCase();
+  if (currentEmail && currentEmail === emailVal) {
+    toast('Girdiğiniz e-posta adresi zaten mevcut kayıtlı e-postanızdır.', 'info');
     return;
   }
 
@@ -35962,25 +36390,36 @@ async function saveProfileEmailOnly() {
   const origHtml = btn ? btn.innerHTML : '';
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = '<span>Güncelleniyor...</span>';
+    btn.innerHTML = '<span>Doğrulama Kodu Gönderiliyor...</span>';
   }
 
   try {
-    const updated = await apiPost('/api/user', {
-      username: uname,
-      email: emailVal
-    });
-    if (updated) {
-      _currentUser = Object.assign({}, _currentUser || {}, updated);
-      if (typeof cachedUserData !== 'undefined' && cachedUserData) {
-        if (!cachedUserData.user) cachedUserData.user = {};
-        Object.assign(cachedUserData.user, updated);
+    const res = await apiPost('/api/user/email/request-update', { new_email: emailVal });
+    openSecurityOtpModal({
+      title: 'Yeni E-posta Doğrulaması',
+      subtitle: '6 Haneli Onay Kodu',
+      description: `<strong>${res.masked_email || emailVal}</strong> yeni e-posta adresinize 6 haneli doğrulama kodu gönderildi. Lütfen kodu girin:`,
+      onConfirm: async (code) => {
+        const confirmRes = await apiPost('/api/user/email/confirm-update', {
+          token: res.token,
+          code: code
+        });
+        if (confirmRes?.email) {
+          _currentUser = Object.assign({}, _currentUser || {}, { email: confirmRes.email });
+          if (typeof cachedUserData !== 'undefined' && cachedUserData?.user) {
+            cachedUserData.user.email = confirmRes.email;
+          }
+        }
+        updateProfileEmailDisplays(confirmRes?.email || emailVal);
+        toast('E-posta adresiniz başarıyla doğrulandı ve güncellendi!', 'success');
+      },
+      onResend: async () => {
+        const reRes = await apiPost('/api/user/email/request-update', { new_email: emailVal });
+        res.token = reRes.token;
       }
-    }
-    updateProfileEmailDisplays(emailVal);
-    toast('E-posta adresi başarıyla güncellendi!', 'success');
+    });
   } catch(e) {
-    toast('E-posta güncellenirken hata: ' + e.message, 'error');
+    toast('Hata: ' + e.message, 'error');
   } finally {
     if (btn) {
       btn.disabled = false;
@@ -36028,20 +36467,49 @@ async function changePassword() {
 
   if (!oldP || !newP) { toast('Tüm alanları doldurun', 'error'); return; }
   if (newP !== confirmP) { toast('Şifreler eşleşmiyor', 'error'); return; }
-  if (newP.length < 6) { toast('Şifre en az 6 karakter olmalı', 'error'); return; }
+  if (newP.length < 6) { toast('Yeni şifre en az 6 karakter olmalı', 'error'); return; }
+
+  const btn = document.querySelector('.profile-secondary-action-btn');
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Onay Kodu Gönderiliyor...</span>';
+  }
 
   try {
-    await apiPost('/api/auth/change-password', {
-      username: _currentUser.username,
+    const res = await apiPost('/api/auth/change-password/request', {
       old_password: oldP,
       new_password: newP
     });
-    toast('Şifre güncellendi!', 'success');
-    document.getElementById('oldPassword').value = '';
-    document.getElementById('newPassword').value = '';
-    document.getElementById('newPasswordConfirm').value = '';
+    openSecurityOtpModal({
+      title: 'Şifre Değişikliği Güvenlik Onayı',
+      subtitle: '6 Haneli Onay Kodu',
+      description: `Hesap güvenliğiniz için <strong>${res.masked_email}</strong> kayıtlı e-postanıza 6 haneli onay kodu gönderildi. Lütfen kodu girin:`,
+      onConfirm: async (code) => {
+        await apiPost('/api/auth/change-password/confirm', {
+          token: res.token,
+          code: code
+        });
+        toast('Şifreniz başarıyla güncellendi!', 'success');
+        document.getElementById('oldPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('newPasswordConfirm').value = '';
+      },
+      onResend: async () => {
+        const reRes = await apiPost('/api/auth/change-password/request', {
+          old_password: oldP,
+          new_password: newP
+        });
+        res.token = reRes.token;
+      }
+    });
   } catch(e) {
     toast('Hata: ' + e.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
   }
 }
 
@@ -45291,6 +45759,181 @@ window.expertDataResetLegacy = function() {
 
   const cancelBtn = document.getElementById('expertResetCancelBtn');
   const confirmBtn = document.getElementById('expertResetConfirmBtn');
+  if (cancelBtn) cancelBtn.onclick = closeModal;
+  if (confirmBtn) confirmBtn.onclick = doSubmit;
+
+  overlay.onclick = (e) => {
+    if (e.target === overlay) closeModal();
+  };
+
+  document.addEventListener('keydown', handleKey);
+};
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ALT BÖLÜM 24.21: HESAP SİLME GÜVENLİK VE KALICI İMHA MODALI
+────────────────────────────────────────────────────────────────────────── */
+window.openDeleteAccountModal = function() {
+  const existing = document.getElementById('deleteAccountModalOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'deleteAccountModalOverlay';
+  overlay.className = 'expert-reset-modal-overlay';
+  overlay.innerHTML = `
+    <div class="expert-reset-modal-box" role="dialog" aria-modal="true" style="border-color: rgba(239, 68, 68, 0.65); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(239, 68, 68, 0.35); max-width: 460px;">
+      <div class="expert-reset-icon-wrap" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(185, 28, 28, 0.2) 100%);">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <h3 class="expert-reset-title" style="color:#f87171;">Hesabınızı Kalıcı Olarak Silin</h3>
+      <p class="expert-reset-desc">
+        Bu işlem <strong>kesinlikle geri alınamaz</strong>. Hypertrophy-X hesabınız, tüm geçmiş antrenman kayıtlarınız, 1RM rekorlarınız, DOMS yorgunluk analizleriniz ve biyometrik profiliniz kalıcı olarak imha edilecektir.
+      </p>
+      
+      <div class="expert-reset-safe-box" style="background: rgba(239, 68, 68, 0.09); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span>Yetkisiz silinmeleri engellemek için mevcut şifrenizi ve onay kodunu eksiksiz girmelisiniz.</span>
+      </div>
+
+      <div style="width: 100%; text-align: left; margin-bottom: 12px;">
+        <label for="deleteAccountPasswordInput" style="display:block; font-size: 11.5px; font-weight: 750; color: #cbd5e1; margin-bottom: 5px;">
+          Mevcut Şifreniz <span style="color:#ef4444;">*</span>
+        </label>
+        <div style="position: relative; width: 100%;">
+          <input type="password" class="expert-reset-input" id="deleteAccountPasswordInput" placeholder="Mevcut hesabınızın şifresi" autocomplete="current-password" style="padding-right: 38px;" />
+          <button type="button" id="deleteAccountTogglePass" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px;" title="Şifreyi Göster / Gizle">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+      </div>
+
+      <div style="width: 100%; text-align: left; margin-bottom: 16px;">
+        <label for="deleteAccountInput" style="display:block; font-size: 11.5px; font-weight: 750; color: #cbd5e1; margin-bottom: 5px;">
+          Onay Kodu: Kutucuğa <span class="expert-reset-target-code" style="color:#ef4444; border-color:rgba(239,68,68,0.5);">HESABIMI KALICI OLARAK SİL</span> yazın <span style="color:#ef4444;">*</span>
+        </label>
+        <input type="text" class="expert-reset-input" id="deleteAccountInput" placeholder="HESABIMI KALICI OLARAK SİL" autocomplete="off" spellcheck="false" />
+      </div>
+
+      <div class="expert-reset-actions">
+        <button type="button" class="expert-reset-btn cancel" id="deleteAccountCancelBtn">
+          Vazgeç
+        </button>
+        <button type="button" class="expert-reset-btn confirm" id="deleteAccountConfirmBtn" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span>Hesabı Kalıcı Olarak Sil</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => {
+    overlay.classList.add('is-visible');
+    const passInp = document.getElementById('deleteAccountPasswordInput');
+    if (passInp) passInp.focus();
+  });
+
+  const toggleBtn = document.getElementById('deleteAccountTogglePass');
+  if (toggleBtn) {
+    toggleBtn.onclick = () => {
+      const passInp = document.getElementById('deleteAccountPasswordInput');
+      if (passInp) {
+        const isPass = passInp.type === 'password';
+        passInp.type = isPass ? 'text' : 'password';
+        toggleBtn.style.color = isPass ? '#38bdf8' : '#94a3b8';
+      }
+    };
+  }
+
+  const closeModal = () => {
+    overlay.classList.remove('is-visible');
+    setTimeout(() => {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 280);
+    document.removeEventListener('keydown', handleKey);
+  };
+
+  const handleKey = (e) => {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Enter') doSubmit();
+  };
+
+  const doSubmit = async () => {
+    const passEl = document.getElementById('deleteAccountPasswordInput');
+    const inputEl = document.getElementById('deleteAccountInput');
+    const confirmBtn = document.getElementById('deleteAccountConfirmBtn');
+    const passVal = (passEl?.value || '').trim();
+    const textVal = (inputEl?.value || '').trim();
+
+    if (!passVal) {
+      toast('Güvenliğiniz için lütfen mevcut şifrenizi girin.', 'error');
+      if (passEl) {
+        passEl.classList.add('reset-input-shake');
+        setTimeout(() => passEl.classList.remove('reset-input-shake'), 400);
+        passEl.focus();
+      }
+      return;
+    }
+
+    if (!textVal) {
+      toast('Lütfen onay metnini girin.', 'error');
+      if (inputEl) {
+        inputEl.classList.add('reset-input-shake');
+        setTimeout(() => inputEl.classList.remove('reset-input-shake'), 400);
+        inputEl.focus();
+      }
+      return;
+    }
+
+    if (textVal !== 'HESABIMI KALICI OLARAK SİL') {
+      toast('Onay metni eşleşmiyor! Lütfen "HESABIMI KALICI OLARAK SİL" yazın.', 'error');
+      if (inputEl) {
+        inputEl.classList.add('reset-input-shake');
+        setTimeout(() => inputEl.classList.remove('reset-input-shake'), 400);
+        inputEl.focus();
+      }
+      return;
+    }
+
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spinner" style="animation:spin 1s linear infinite;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
+        <span>Hesap Siliniyor...</span>
+      `;
+    }
+
+    try {
+      await apiPost('/api/user/delete-account', { password: passVal, confirmation: textVal });
+      closeModal();
+      toast('Hesabınız ve tüm verileriniz başarıyla silindi.', 'success');
+      setTimeout(() => {
+        doLogout();
+        window.location.href = '/';
+      }, 900);
+    } catch (error) {
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = `<span>Hesabı Kalıcı Olarak Sil</span>`;
+      }
+      const errMsg = error.message || 'Hesap silme işlemi başarısız oldu.';
+      toast(errMsg, 'error');
+      if (errMsg.toLowerCase().includes('şifre') && passEl) {
+        passEl.classList.add('reset-input-shake');
+        setTimeout(() => passEl.classList.remove('reset-input-shake'), 400);
+        passEl.focus();
+      }
+    }
+  };
+
+  const cancelBtn = document.getElementById('deleteAccountCancelBtn');
+  const confirmBtn = document.getElementById('deleteAccountConfirmBtn');
   if (cancelBtn) cancelBtn.onclick = closeModal;
   if (confirmBtn) confirmBtn.onclick = doSubmit;
 

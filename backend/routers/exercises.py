@@ -42,13 +42,30 @@ WORKOUT_UI_MUSCLE_GROUPS = (
     "Calf",
     "Adductors",
     "Rotatorlar",
+    "Skapula",
     "Core",
 )
 
 
 def _display_muscle_groups(exercise: dict, analysis: dict) -> list[str]:
     group = exercise.get("muscle_group", "")
+    ex_id = exercise.get("id", "")
+    family = analysis.get("family", "")
     primary_muscles = set(analysis.get("primary_muscles", []))
+
+    # Skapula hareketleri (kullanıcı isteği: scapular pull ups, scapular push ups)
+    if ex_id in {
+        "scapular-pull-ups-bw",
+        "scapular-pull-ups-weighted",
+        "scapular-push-ups-bw",
+        "scapular-push-ups-weighted",
+    } or family in {"scapular_depression", "scapular_protraction"}:
+        return ["Skapula"]
+
+    # Chin Ups: Hem Biceps hem Sırt listesinde görünür
+    if family == "chin_up" or ex_id.startswith("chin-up"):
+        return ["Sırt", "Biceps"]
+
     if group == "Rotator Cuff" or any(
         m in primary_muscles
         for m in (

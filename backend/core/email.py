@@ -21,9 +21,33 @@ def mask_email(email: str) -> str:
     return f"{masked_name}@{domain}"
 
 
-def send_password_reset_email(to_email: str, username: str, code: str) -> bool:
-    """4 haneli şifre sıfırlama kodunu e-posta ile gönderir."""
-    subject = f"Hypertrophy-X Şifre Sıfırlama Kodu: {code}"
+def send_security_code_email(
+    to_email: str, username: str, code: str, action_type: str = "password_reset"
+) -> bool:
+    """6 haneli tek kullanımlık güvenlik kodunu (OTP) e-posta ile gönderir."""
+    action_configs = {
+        "email_update": {
+            "subject": f"Hypertrophy-X E-posta Değişikliği Doğrulama Kodu: {code}",
+            "header": "E-POSTA DEĞİŞİKLİĞİ DOĞRULAMA",
+            "message": "Hesabınızın e-posta adresini güncellemek için bir talepte bulundunuz. Aşağıdaki 6 haneli tek kullanımlık güvenlik kodunu kullanarak işlemi tamamlayabilirsiniz:",
+        },
+        "password_change": {
+            "subject": f"Hypertrophy-X Şifre Değişikliği Onay Kodu: {code}",
+            "header": "ŞİFRE DEĞİŞİKLİĞİ ONAYI",
+            "message": "Hesabınızın şifresini değiştirmek için bir talepte bulundunuz. Güvenliğiniz için bu işlemi onaylamak üzere aşağıdaki 6 haneli güvenlik kodunu girin:",
+        },
+        "password_reset": {
+            "subject": f"Hypertrophy-X Şifre Sıfırlama Kodu: {code}",
+            "header": "ŞİFRE SIFIRLAMA",
+            "message": "Hesabınız için şifre sıfırlama talebinde bulundunuz. Aşağıdaki 6 haneli tek kullanımlık doğrulama kodunu kullanarak yeni şifrenizi belirleyebilirsiniz:",
+        },
+    }
+
+    cfg = action_configs.get(action_type, action_configs["password_reset"])
+    subject = cfg["subject"]
+    header_text = cfg["header"]
+    body_message = cfg["message"]
+
     html_content = f"""<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
@@ -32,19 +56,19 @@ def send_password_reset_email(to_email: str, username: str, code: str) -> bool:
     <div style="text-align:center;margin-bottom:24px;">
       <div style="display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:900;font-size:18px;padding:8px 14px;border-radius:10px;margin-bottom:12px;">HX</div>
       <h2 style="margin:0;font-size:20px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Hypertrophy-X</h2>
-      <div style="font-size:12px;color:#38bdf8;font-weight:600;margin-top:2px;">GÜVENLİK VE ŞİFRE SIFIRLAMA</div>
+      <div style="font-size:12px;color:#38bdf8;font-weight:600;margin-top:2px;">{header_text}</div>
     </div>
     <p style="font-size:14px;line-height:1.6;color:#cbd5e1;margin:0 0 16px;">
       Merhaba <strong>{username}</strong>,<br>
-      Hesabınız için şifre sıfırlama talebinde bulundunuz. Aşağıdaki 4 haneli tek kullanımlık doğrulama kodunu kullanarak yeni şifrenizi belirleyebilirsiniz:
+      {body_message}
     </p>
     <div style="background:rgba(99,102,241,0.12);border:2px dashed rgba(99,102,241,0.5);border-radius:12px;text-align:center;padding:18px;margin:24px 0;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;">Doğrulama Kodunuz</div>
-      <div style="font-size:36px;font-weight:900;letter-spacing:14px;color:#38bdf8;font-family:monospace;">{code}</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;">Güvenlik Kodunuz</div>
+      <div style="font-size:36px;font-weight:900;letter-spacing:10px;color:#38bdf8;font-family:monospace;">{code}</div>
       <div style="font-size:11.5px;color:#94a3b8;margin-top:6px;">⏱️ Bu kod <strong>15 dakika</strong> boyunca geçerlidir.</div>
     </div>
     <p style="font-size:12px;line-height:1.5;color:#94a3b8;margin:0 0 20px;">
-      Eğer bu işlemi siz başlatmadıysanız lütfen bu e-postayı dikkate almayınız. Şifreniz siz yeni bir şifre belirleyene kadar değişmeyecektir.
+      Eğer bu işlemi siz başlatmadıysanız lütfen bu e-postayı dikkate almayınız. Bilgileriniz siz bu kodu girmedikçe değişmeyecektir.
     </p>
     <div style="border-top:1px solid rgba(148,163,184,0.15);padding-top:16px;text-align:center;font-size:11px;color:#64748b;">
       Hypertrophy-X Akıllı Egzersiz Platformu
@@ -53,12 +77,12 @@ def send_password_reset_email(to_email: str, username: str, code: str) -> bool:
 </body>
 </html>"""
     plain_content = (
-        f"Merhaba {username},\n\nŞifre sıfırlama doğrulama kodunuz: {code}\n"
+        f"Merhaba {username},\n\n{body_message}\n\nDoğrulama kodunuz: {code}\n"
         "Bu kod 15 dakika boyunca geçerlidir.\n\nHypertrophy-X Ekibi"
     )
 
     logger.info(
-        f"🔑 [ŞİFRE SIFIRLAMA KODU] Kullanıcı: {username} | E-posta: {to_email} | 4 HANELİ KOD: {code}"
+        f"🔑 [GÜVENLİK KODU - {action_type.upper()}] Kullanıcı: {username} | E-posta: {to_email} | KOD: {code}"
     )
 
     if not SMTP_USER or not SMTP_PASS:
@@ -78,8 +102,13 @@ def send_password_reset_email(to_email: str, username: str, code: str) -> bool:
             server.starttls()
             server.login(SMTP_USER, SMTP_PASS)
             server.sendmail(SMTP_FROM, [to_email], msg.as_string())
-        logger.info(f"Şifre sıfırlama e-postası başarıyla gönderildi: {to_email}")
+        logger.info(f"Güvenlik onay e-postası başarıyla gönderildi: {to_email}")
         return True
     except Exception as exc:
         logger.error(f"E-posta gönderiminde hata: {exc}")
         return False
+
+
+def send_password_reset_email(to_email: str, username: str, code: str) -> bool:
+    """Geriye dönük uyumluluk: Şifre sıfırlama e-postası gönderir."""
+    return send_security_code_email(to_email, username, code, action_type="password_reset")

@@ -189,6 +189,11 @@ def dashboard(user: dict = Depends(_resolve_current_user)):
     def _dashboard_entry_target(entry):
         meta = _canonical_exercise_from_entry(entry)
         primary = []
+        is_chin_up = (meta and (meta.get("id", "").startswith("chin-up") or (meta.get("analysis") or {}).get("family") == "chin_up")) or str(entry.get("canonical_exercise_id") or "").startswith("chin-up")
+        raw_group = str(entry.get("muscle_group") or entry.get("muscle") or "").strip().lower()
+        if is_chin_up and raw_group in {"biceps", "pazu"}:
+            return ("Biceps", None)
+
         if meta:
             primary = (meta.get("analysis") or {}).get("primary_muscles") or []
         if not primary:

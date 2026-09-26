@@ -193,6 +193,21 @@ def init_db():
                 verified_token TEXT DEFAULT NULL,
                 expires_at TEXT NOT NULL,
                 used INTEGER NOT NULL DEFAULT 0,
+                failed_attempts INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+
+            CREATE TABLE IF NOT EXISTS security_verifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                action TEXT NOT NULL,
+                payload TEXT NOT NULL,
+                code TEXT NOT NULL,
+                token TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                used INTEGER NOT NULL DEFAULT 0,
+                failed_attempts INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
@@ -211,6 +226,7 @@ def init_db():
             "ALTER TABLE workouts ADD COLUMN gym_id TEXT DEFAULT NULL",
             "ALTER TABLE workouts ADD COLUMN gym_name TEXT DEFAULT ''",
             "ALTER TABLE expert_profiles ADD COLUMN rpe_checkins_json TEXT NOT NULL DEFAULT '[]'",
+            "ALTER TABLE password_resets ADD COLUMN failed_attempts INTEGER NOT NULL DEFAULT 0",
         ):
             try:
                 cur.execute(statement)
