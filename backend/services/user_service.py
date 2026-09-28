@@ -92,13 +92,6 @@ def get_user_by_email_or_username(identifier: str):
     return dict(row) if row else None
 
 
-def get_all_users():
-    conn = get_db()
-    rows = conn.execute("SELECT * FROM users ORDER BY id").fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
-
-
 def create_user(username: str, password: str, email: str = ""):
     h = _hash_password(password)
     conn = get_db()

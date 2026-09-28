@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import date
 from typing import Any, Callable
 
 from expert_system.recommendation import format_tr_date

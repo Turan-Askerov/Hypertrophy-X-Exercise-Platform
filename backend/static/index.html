@@ -112,7 +112,7 @@ input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):focus, sele
 
 /* Canvas ve kapsayıcılarının taşmasını kesin olarak engeller */
 .chart-container,
-div:has(> canvas):not(#progChartInner) {
+div:has(> canvas):not(#progChartInner):not(#nutriChartCanvasContainer) {
   position: relative !important;
   width: 100% !important;
   min-width: 0 !important;
@@ -4683,19 +4683,67 @@ tr:hover td { background: var(--bg-card-hover); }
   box-shadow: 0 0 8px #a855f7;
   flex-shrink: 0;
 }
-@keyframes progTabFadeIn {
-  from {
+@keyframes progPaneSmoothFadeIn {
+  0% {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
+    filter: blur(3px);
   }
-  to {
+  60% {
+    opacity: 0.88;
+    filter: blur(0.5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes progTableGentleReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.992) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes progRowGentleFade {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 .prog-tab-pane {
   width: 100%;
-  animation: progTabFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.prog-tab-pane.prog-tab-active {
+  animation: progPaneSmoothFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+#progTabPane_records.prog-tab-active #progPersonalRecordsCard {
+  animation: progTableGentleReveal 0.48s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+#progTabPane_records.prog-tab-active .prog-table-wrap {
+  animation: progTableGentleReveal 0.52s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+#progTabPane_records.prog-tab-active .prog-pr-row {
+  animation: progRowGentleFade 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+#progTabPane_records.prog-tab-active .prog-pr-section-header {
+  animation: progRowGentleFade 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* TOP PROGRESS GAINS (EN İYİ İLERLEMELER) STYLING */
@@ -18424,6 +18472,36 @@ tr:hover td { background: var(--bg-card-hover); }
     height: 330px !important;
     position: relative !important;
   }
+  .nutri-chart-scroll-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-x !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #8b5cf6 rgba(15, 23, 42, 0.9) !important;
+    padding-bottom: 8px !important;
+  }
+  .nutri-chart-scroll-wrapper::-webkit-scrollbar {
+    height: 6px !important;
+    display: block !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+    border-radius: 6px !important;
+  }
+  .nutri-chart-scroll-wrapper::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-radius: 6px !important;
+  }
+  .nutri-chart-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #8b5cf6, #3b82f6) !important;
+    border-radius: 6px !important;
+  }
+  .nutri-chart-canvas-container {
+    height: 250px !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
   .prog-chart-legend {
     display: flex !important;
   }
@@ -25086,7 +25164,7 @@ tr:hover td { background: var(--bg-card-hover); }
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- SEKME 1: GRAFİK VE İLERLEME KARTLARI (ALT ALTA SIRALI)                     -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <div class="prog-tab-pane" id="progTabPane_analysis">
+        <div class="prog-tab-pane prog-tab-active" id="progTabPane_analysis">
           <!-- PANO 1: EN İYİ İLERLEMELER -->
           <div class="prog-glass-card" id="progTopGainsCard">
             <div class="prog-card-header" style="margin-bottom: 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
@@ -31976,6 +32054,23 @@ function _initWorkoutDatePicker() {
   _updateWorkoutDateDisplay();
 }
 
+function _positionDatePickerModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  const card = modal.querySelector('.nutri-calendar-card');
+  if (!card) return;
+  const viewportH = window.innerHeight;
+  const cardH = card.offsetHeight || 420;
+  const topOffset = Math.max(16, (viewportH - cardH) / 2);
+  const rect = modal.getBoundingClientRect();
+  const currentCardTop = card.getBoundingClientRect().top;
+  const diff = topOffset - currentCardTop;
+  const currentMargin = parseFloat(card.style.marginTop) || 0;
+  card.style.marginTop = `${currentMargin + diff}px`;
+}
+
+let _workoutModalScrollHandler = null;
+
 function _openWorkoutDatePicker() {
   const dateInput = document.getElementById('workoutDate');
   const currentVal = (dateInput?.value || '').trim() || new Date().toISOString().split('T')[0];
@@ -31988,8 +32083,27 @@ function _openWorkoutDatePicker() {
 
   const modal = document.getElementById('workoutDatePickerModal');
   if (modal) {
+    const card = modal.querySelector('.nutri-calendar-card');
+    if (card) card.style.marginTop = '0px';
     modal.style.display = 'flex';
     document.addEventListener('keydown', _handleWorkoutCalKeydown);
+
+    // Sayfa dikey kaydırması nerede olursa olsun ekranın tam ortasına hizala
+    requestAnimationFrame(() => {
+      _positionDatePickerModal('workoutDatePickerModal');
+    });
+
+    if (_workoutModalScrollHandler) {
+      window.removeEventListener('scroll', _workoutModalScrollHandler);
+      window.removeEventListener('resize', _workoutModalScrollHandler);
+    }
+    _workoutModalScrollHandler = () => {
+      if (modal.style.display === 'flex') {
+        _positionDatePickerModal('workoutDatePickerModal');
+      }
+    };
+    window.addEventListener('scroll', _workoutModalScrollHandler, { passive: true });
+    window.addEventListener('resize', _workoutModalScrollHandler, { passive: true });
   }
 }
 
@@ -31998,6 +32112,11 @@ function _closeWorkoutDatePicker() {
   if (modal) {
     modal.style.display = 'none';
     document.removeEventListener('keydown', _handleWorkoutCalKeydown);
+    if (_workoutModalScrollHandler) {
+      window.removeEventListener('scroll', _workoutModalScrollHandler);
+      window.removeEventListener('resize', _workoutModalScrollHandler);
+      _workoutModalScrollHandler = null;
+    }
   }
 }
 
@@ -33497,14 +33616,22 @@ function switchProgressTab(tabId) {
   tabs.forEach(t => {
     const btn = document.getElementById('progTabBtn_' + t);
     const pane = document.getElementById('progTabPane_' + t);
+    const isActive = t === tabId;
     if (btn) {
-      const isActive = t === tabId;
       btn.classList.toggle('active', isActive);
       const dot = btn.querySelector('.prog-tab-dot');
       if (dot) dot.style.display = isActive ? 'inline-block' : 'none';
     }
     if (pane) {
-      pane.style.display = t === tabId ? 'block' : 'none';
+      if (isActive) {
+        pane.style.display = 'block';
+        pane.classList.remove('prog-tab-active');
+        void pane.offsetWidth; // DOM reflow tetikleyerek animasyonu pürüzsüzce yeniden başlatır
+        pane.classList.add('prog-tab-active');
+      } else {
+        pane.style.display = 'none';
+        pane.classList.remove('prog-tab-active');
+      }
     }
   });
 
@@ -33590,6 +33717,9 @@ function renderTopProgressGainsGrid() {
     return dateStr;
   };
 
+  const isLegMuscle = (m) => ["Bacak", "Legs", "Leg", "Alt Vücut", "Quadriceps", "Hamstring", "Gluteus", "Glute", "Calf", "Adductors"].includes(m);
+  const LEG_THEME_COLOR = { bg: 'rgba(244, 63, 94, 0.15)', border: 'rgba(244, 63, 94, 0.4)', text: '#fda4af' };
+
   const muscleColorMap = {
     'Göğüs': { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.4)', text: '#22d3ee' },
     'Sırt': { bg: 'rgba(99, 102, 241, 0.16)', border: 'rgba(99, 102, 241, 0.45)', text: '#818cf8' },
@@ -33597,20 +33727,29 @@ function renderTopProgressGainsGrid() {
     'Kol': { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)', text: '#fbbf24' },
     'Biceps': { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)', text: '#fbbf24' },
     'Triceps': { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)', text: '#fbbf24' },
-    'Bacak': { bg: 'rgba(244, 63, 94, 0.15)', border: 'rgba(244, 63, 94, 0.4)', text: '#fb7185' },
-    'Quadriceps': { bg: 'rgba(244, 63, 94, 0.15)', border: 'rgba(244, 63, 94, 0.4)', text: '#fb7185' },
-    'Hamstring': { bg: 'rgba(244, 63, 94, 0.15)', border: 'rgba(244, 63, 94, 0.4)', text: '#fda4af' },
-    'Gluteus': { bg: 'rgba(249, 115, 22, 0.15)', border: 'rgba(249, 115, 22, 0.4)', text: '#fdba74' },
-    'Calf': { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.4)', text: '#f9a8d4' },
-    'Core': { bg: 'rgba(20, 184, 166, 0.15)', border: 'rgba(20, 184, 166, 0.4)', text: '#2dd4bf' }
+    'Bacak': LEG_THEME_COLOR,
+    'Quadriceps': LEG_THEME_COLOR,
+    'Hamstring': LEG_THEME_COLOR,
+    'Gluteus': LEG_THEME_COLOR,
+    'Glute': LEG_THEME_COLOR,
+    'Calf': LEG_THEME_COLOR,
+    'Adductors': LEG_THEME_COLOR,
+    'Alt Vücut': LEG_THEME_COLOR,
+    'Legs': LEG_THEME_COLOR,
+    'Core': { bg: 'rgba(20, 184, 166, 0.15)', border: 'rgba(20, 184, 166, 0.4)', text: '#2dd4bf' },
+    'Rotatorlar': { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.4)', text: '#f9a8d4' },
+    'Rotator Cuff': { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.4)', text: '#f9a8d4' },
+    'Omuz ve Kalça Rotatorları': { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.4)', text: '#f9a8d4' },
+    'Omuz / Kalça Rotatorlar ve Scapula': { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.4)', text: '#f9a8d4' },
+    'Skapula': { bg: 'rgba(244, 63, 94, 0.16)', border: 'rgba(244, 63, 94, 0.45)', text: '#fda4af' }
   };
 
   let cardsHTML = '';
   displayList.forEach((r, idx) => {
     const isReps = r.metric_type === 'reps';
     const unit = isReps ? 'tkr' : 'kg';
-    const mStyle = muscleColorMap[r.muscle] || { bg: 'rgba(255, 255, 255, 0.1)', border: 'rgba(255, 255, 255, 0.2)', text: '#ffffff' };
-    const badgeStyle = `background:${mStyle.bg}; border:1px solid ${mStyle.border}; color:${mStyle.text};`;
+    const mStyle = isLegMuscle(r.muscle) ? LEG_THEME_COLOR : (muscleColorMap[r.muscle] || { bg: 'rgba(255, 255, 255, 0.1)', border: 'rgba(255, 255, 255, 0.2)', text: '#ffffff' });
+    const badgeStyle = `background:${mStyle.bg}; border:1px solid ${mStyle.border}; color:${mStyle.text}; box-shadow: 0 0 8px ${mStyle.border};`;
 
     const startValStr = Number.isInteger(r.first_value) ? r.first_value : Number(r.first_value).toFixed(1);
     const peakValStr = Number.isInteger(r.current_pr_value) ? r.current_pr_value : Number(r.current_pr_value).toFixed(1);
@@ -33790,10 +33929,32 @@ async function loadProgress(username) {
           "infraspinatus", "supraspinatus", "subscapularis", "teres_minor"
         ]);
 
+        const isScapulaRecord = (r) => {
+          const muscle = (r.muscle || "").toLowerCase();
+          const exName = (r.exercise || "").toLowerCase();
+          const exId = (r.exercise_id || "").toLowerCase();
+
+          // NOT: subscapularis kası rotator kastır, scapula hareketleri ile karıştırılmamalıdır!
+          if (exName.includes("subscapular") || exId.includes("subscapularis")) return false;
+          if (r.primary_muscles && Array.isArray(r.primary_muscles) && r.primary_muscles.includes("subscapularis")) return false;
+
+          if (muscle === "skapula" || muscle === "scapula") return true;
+          if (exName.includes("scapula") || exName.includes("skapula") || exId.includes("scapula") || exId.includes("skapula")) return true;
+          if (exId === "cable-serratus-punch" || exName.includes("serratus punch")) return true;
+          if (r.primary_muscles && Array.isArray(r.primary_muscles)) {
+            if (r.primary_muscles.some(m => ["serratus_anterior", "levator_scapulae", "rhomboids"].includes(m))) {
+              if (exName.includes("scapula") || exName.includes("skapula") || exName.includes("punch")) return true;
+            }
+          }
+          return false;
+        };
+
         const isRotatorRecord = (r) => {
           const muscle = r.muscle || "";
           if (["Rotator Cuff", "Rotator", "Rotatorlar", "Hip Rotators"].includes(muscle)) return true;
           const exName = (r.exercise || "").toLowerCase();
+          const exId = (r.exercise_id || "").toLowerCase();
+          if (exName.includes("subscapular") || exId.includes("subscapularis")) return true;
           if (exName.includes("rotat") || exName.includes("90/90")) return true;
           if (r.primary_muscles && Array.isArray(r.primary_muscles)) {
             if (r.primary_muscles.some(m => ROTATOR_MUSCLES.has(m) || String(m).toLowerCase().includes("rotat"))) {
@@ -33805,14 +33966,16 @@ async function loadProgress(username) {
 
         prs.forEach(r => {
           const exName = (r.exercise || "").toLowerCase();
-          const isCompound = COMPOUND_KEYWORDS.some(k => exName.includes(k)) && !exName.includes('incline');
+          const isScap = isScapulaRecord(r);
+          // Scapula hareketleri (ör. Scapular Pull Ups) bileşik pull up ile karışmasın
+          const isCompound = COMPOUND_KEYWORDS.some(k => exName.includes(k)) && !exName.includes('incline') && !isScap;
 
           r.formattedDate = formatDateTr(r.date);
 
           if (isCompound) {
             compoundPRs.push(r);
-          } else if (isRotatorRecord(r)) {
-            const mainGroup = "Omuz ve Kalça Rotatorları";
+          } else if (isRotatorRecord(r) || isScap) {
+            const mainGroup = "Omuz / Kalça Rotatorlar ve Scapula";
             if (!muscleGroupPRs[mainGroup]) {
               muscleGroupPRs[mainGroup] = [];
             }
@@ -33889,10 +34052,20 @@ async function loadProgress(username) {
             border: "#f43f5e", text: "#fda4af",
             badge: "background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);"
           },
-          "Omuz ve Kalça Rotatorları": {
-            bg: "linear-gradient(90deg, rgba(236, 72, 153, 0.22) 0%, rgba(244, 114, 182, 0.05) 100%)",
+          "Omuz / Kalça Rotatorlar ve Scapula": {
+            bg: "linear-gradient(90deg, rgba(236, 72, 153, 0.22) 0%, rgba(244, 63, 94, 0.16) 100%)",
             border: "#ec4899", text: "#f9a8d4",
             badge: "background: rgba(236, 72, 153, 0.15); color: #f9a8d4; border: 1px solid rgba(236, 72, 153, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(236, 72, 153, 0.25);"
+          },
+          "Omuz ve Kalça Rotatorları": {
+            bg: "linear-gradient(90deg, rgba(236, 72, 153, 0.22) 0%, rgba(244, 63, 94, 0.16) 100%)",
+            border: "#ec4899", text: "#f9a8d4",
+            badge: "background: rgba(236, 72, 153, 0.15); color: #f9a8d4; border: 1px solid rgba(236, 72, 153, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(236, 72, 153, 0.25);"
+          },
+          "Skapula": {
+            bg: "linear-gradient(90deg, rgba(244, 63, 94, 0.22) 0%, rgba(251, 113, 133, 0.05) 100%)",
+            border: "#f43f5e", text: "#fda4af",
+            badge: "background: rgba(244, 63, 94, 0.16); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.45); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 750; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);"
           },
           "Rotatorlar": {
             bg: "linear-gradient(90deg, rgba(236, 72, 153, 0.22) 0%, rgba(244, 114, 182, 0.05) 100%)",
@@ -33919,7 +34092,8 @@ async function loadProgress(username) {
         const getThemeForMuscle = (muscleName) => {
             if (["Biceps", "Triceps"].includes(muscleName)) return MUSCLE_THEMES["Kol"];
             if (["Bacak", "Legs", "Leg", "Alt Vücut", "Quadriceps", "Hamstring", "Gluteus", "Glute", "Calf", "Adductors"].includes(muscleName)) return MUSCLE_THEMES["Bacak"];
-            if (["Rotatorlar", "Rotator Cuff", "Rotator", "Hip Rotators", "Omuz ve Kalça Rotatorları"].includes(muscleName)) return MUSCLE_THEMES["Omuz ve Kalça Rotatorları"];
+            if (["Skapula", "Scapula"].includes(muscleName)) return MUSCLE_THEMES["Skapula"];
+            if (["Rotatorlar", "Rotator Cuff", "Rotator", "Hip Rotators", "Omuz ve Kalça Rotatorları", "Omuz / Kalça Rotatorlar ve Scapula"].includes(muscleName)) return MUSCLE_THEMES["Omuz / Kalça Rotatorlar ve Scapula"];
             if (["Sırt", "Kanat", "Lats", "Upper Back", "Üst Sırt", "Trapez", "Traps", "Bel"].includes(muscleName)) return MUSCLE_THEMES["Sırt"];
             return MUSCLE_THEMES[muscleName] || MUSCLE_THEMES["DEFAULT"];
         };
@@ -33958,7 +34132,7 @@ async function loadProgress(username) {
         }
 
         // 2. BÖLGESEL HAREKETLER
-        const groupOrder = ["Göğüs", "Sırt", "Omuz", "Kol", "Bacak", "Core", "Omuz ve Kalça Rotatorları", "Diğer"];
+        const groupOrder = ["Göğüs", "Sırt", "Omuz", "Kol", "Bacak", "Core", "Omuz / Kalça Rotatorlar ve Scapula", "Diğer"];
         const existingGroups = Object.keys(muscleGroupPRs).sort((a, b) => {
           let idxA = groupOrder.indexOf(a);
           let idxB = groupOrder.indexOf(b);
@@ -33971,11 +34145,21 @@ async function loadProgress(username) {
           const groupPRs = muscleGroupPRs[mainGroup];
           const theme = MUSCLE_THEMES[mainGroup] || MUSCLE_THEMES["DEFAULT"];
 
-          groupPRs.sort((a, b) => (a.muscle || '').localeCompare(b.muscle || '', 'tr-TR'));
+          if (mainGroup === "Omuz / Kalça Rotatorlar ve Scapula") {
+            // Rotator hareketleri ve Scapula hareketlerini düzenli gruplayıp sırala (önce Rotator, sonra Scapula)
+            groupPRs.sort((a, b) => {
+              const aIsScap = isScapulaRecord(a) ? 1 : 0;
+              const bIsScap = isScapulaRecord(b) ? 1 : 0;
+              if (aIsScap !== bIsScap) return aIsScap - bIsScap;
+              return (a.exercise || '').localeCompare(b.exercise || '', 'tr-TR');
+            });
+          } else {
+            groupPRs.sort((a, b) => (a.muscle || '').localeCompare(b.muscle || '', 'tr-TR'));
+          }
 
-          const headerTitle = (mainGroup === "Omuz ve Kalça Rotatorları" || mainGroup.endsWith("HAREKETLERİ"))
-            ? (mainGroup.toUpperCase().includes("HAREKETLERİ") ? mainGroup.toUpperCase() : `${mainGroup.toUpperCase()} HAREKETLERİ`)
-            : `${mainGroup} HAREKETLERİ`;
+          const headerTitle = (mainGroup === "Omuz / Kalça Rotatorlar ve Scapula" || mainGroup === "Omuz ve Kalça Rotatorları")
+            ? "OMUZ / KALÇA ROTATORLAR VE SCAPULA HAREKETLERİ"
+            : (mainGroup.endsWith("HAREKETLERİ") ? mainGroup.toUpperCase() : `${mainGroup} HAREKETLERİ`);
 
           tableHTML += `
             <tr class="prog-pr-section-header" style="background: ${theme.bg}; border-left: 4px solid ${theme.border};">
@@ -33987,12 +34171,28 @@ async function loadProgress(username) {
 
           groupPRs.forEach(r => {
             const primaryList = muscleTrPR(r.primary_muscles);
-            const fullMuscleText = primaryList.join(', ') || r.muscle || 'Diğer';
-            const singleMuscleText = r.muscle || primaryList[0] || 'Diğer';
+            const isScap = isScapulaRecord(r);
+
+            let muscleBadgeStyle = getThemeForMuscle(r.muscle).badge;
+
+            if (mainGroup === "Omuz / Kalça Rotatorlar ve Scapula") {
+              if (isScap) {
+                // Scapula hareketleri: Bacak ve omuz rotator paletine yakın Gül/Mercan (Rose) rozet
+                muscleBadgeStyle = "background: rgba(244, 63, 94, 0.16); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.45); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 750; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);";
+              } else {
+                // Rotator hareketleri: Canlı Neon Pembe (Pink Neon) rozet
+                muscleBadgeStyle = "background: rgba(236, 72, 153, 0.16); color: #f9a8d4; border: 1px solid rgba(236, 72, 153, 0.45); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 750; letter-spacing: 0.5px; display: inline-block; box-shadow: 0 0 8px rgba(236, 72, 153, 0.25);";
+              }
+            }
+
+            const defaultMuscle = isScap ? 'Skapula' : (mainGroup === "Omuz / Kalça Rotatorlar ve Scapula" ? 'Rotator' : 'Diğer');
+            const fullMuscleText = (primaryList.length ? primaryList.join(', ') : '') || r.muscle || defaultMuscle;
+            const singleMuscleText = r.muscle || primaryList[0] || defaultMuscle;
+
             tableHTML += `
               <tr class="prog-pr-row" onclick="selectProgressExercise('${r.exercise_id}', '${r.exercise}', true)">
                 <td class="prog-td-exercise" style="padding: 13px 16px 13px 22px; font-weight: 650; color: #f1f5f9; font-size: 13.5px;">${r.exercise}</td>
-                <td class="prog-td-muscle"><span class="prog-muscle-badge" style="${getThemeForMuscle(r.muscle).badge}"><span class="desktop-txt">${fullMuscleText}</span><span class="mobile-txt">${singleMuscleText}</span></span></td>
+                <td class="prog-td-muscle"><span class="prog-muscle-badge" style="${muscleBadgeStyle}"><span class="desktop-txt">${fullMuscleText}</span><span class="mobile-txt">${singleMuscleText}</span></span></td>
                 <td class="prog-td-weight"><span class="prog-pr-weight-badge">${r.metric_type === 'reps' ? '<span class="prog-bw-text">Vücut Ağırlığı</span>' : r.max_weight + ' kg'}</span></td>
                 <td class="prog-td-reps"><span class="prog-pr-reps-badge">${r.max_reps}<span class="desktop-txt">&nbsp;Tekrar</span><span class="mobile-txt">&nbsp;Tkr</span></span></td>
                 <td class="prog-td-date"><span class="prog-pr-date">${r.formattedDate}</span></td>
@@ -34785,6 +34985,8 @@ function _initNutriDatePicker() {
   _updateNutriDateBadge(dateInput.value || today);
 }
 
+let _nutriModalScrollHandler = null;
+
 function _openNutriDatePicker() {
   const dateInput = document.getElementById('inputNutriDate');
   const currentVal = (dateInput?.value || '').trim() || new Date().toISOString().split('T')[0];
@@ -34796,8 +34998,26 @@ function _openNutriDatePicker() {
 
   const modal = document.getElementById('nutriDatePickerModal');
   if (modal) {
+    const card = modal.querySelector('.nutri-calendar-card');
+    if (card) card.style.marginTop = '0px';
     modal.style.display = 'flex';
     document.addEventListener('keydown', _handleNutriCalKeydown);
+
+    requestAnimationFrame(() => {
+      _positionDatePickerModal('nutriDatePickerModal');
+    });
+
+    if (_nutriModalScrollHandler) {
+      window.removeEventListener('scroll', _nutriModalScrollHandler);
+      window.removeEventListener('resize', _nutriModalScrollHandler);
+    }
+    _nutriModalScrollHandler = () => {
+      if (modal.style.display === 'flex') {
+        _positionDatePickerModal('nutriDatePickerModal');
+      }
+    };
+    window.addEventListener('scroll', _nutriModalScrollHandler, { passive: true });
+    window.addEventListener('resize', _nutriModalScrollHandler, { passive: true });
   }
 }
 
@@ -34806,6 +35026,11 @@ function _closeNutriDatePicker() {
   if (modal) {
     modal.style.display = 'none';
     document.removeEventListener('keydown', _handleNutriCalKeydown);
+    if (_nutriModalScrollHandler) {
+      window.removeEventListener('scroll', _nutriModalScrollHandler);
+      window.removeEventListener('resize', _nutriModalScrollHandler);
+      _nutriModalScrollHandler = null;
+    }
   }
 }
 
@@ -35484,14 +35709,21 @@ function _renderNutritionStatsChart(timeline, metric) {
 
   if (chartContainer) {
     if (timeline && timeline.length > 0) {
+      const numDates = timeline.length;
       const wrapperWidth = (scrollWrapper && scrollWrapper.clientWidth) ? scrollWrapper.clientWidth : (isMobile ? window.innerWidth - 32 : 800);
-      const minSpacing = isMobile ? 80 : 85;
-      const calculatedWidth = timeline.length * minSpacing;
+      const minSpacing = isMobile ? 105 : 75;
+      const calculatedWidth = numDates * minSpacing;
+      // Mobilde 3 günden fazla ise veya masaüstünde hesaplanan genişlik alanı aşıyorsa kaydırma aktifleşsin
+      const isScrollable = (isMobile && numDates > 3) || (!isMobile && calculatedWidth > wrapperWidth);
 
-      // Hem mobilde hem bilgisayarda grafik büyüdükçe scroll ona uygun genişler
-      const targetWidth = Math.max(wrapperWidth + (isMobile ? 220 : 160), calculatedWidth);
-      chartContainer.style.width = targetWidth + 'px';
-      chartContainer.style.minWidth = targetWidth + 'px';
+      if (isScrollable) {
+        const targetWidth = Math.max(wrapperWidth, calculatedWidth);
+        chartContainer.style.width = targetWidth + 'px';
+        chartContainer.style.minWidth = targetWidth + 'px';
+      } else {
+        chartContainer.style.width = '100%';
+        chartContainer.style.minWidth = '100%';
+      }
     } else {
       chartContainer.style.width = '100%';
       chartContainer.style.minWidth = '100%';
@@ -35543,66 +35775,91 @@ function _renderNutritionStatsChart(timeline, metric) {
     return;
   }
   const config = {
-    calories: { label: 'Kalori (kcal)', color: '#6c63ff', bg: 'rgba(108,99,255,0.15)', key: 'calories', unit: 'kcal' },
-    protein: { label: 'Protein (g)', color: '#22c55e', bg: 'rgba(34,197,94,0.15)', key: 'protein', unit: 'g' },
-    carbs: { label: 'Karbonhidrat (g)', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)', key: 'carbs', unit: 'g' },
-    fat: { label: 'Yağ (g)', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)', key: 'fat', unit: 'g' }
+    calories: { label: 'Kalori (kcal)', color: '#6c63ff', bg: 'rgba(108,99,255,0.45)', key: 'calories', unit: 'kcal' },
+    protein: { label: 'Protein (g)', color: '#22c55e', bg: 'rgba(34,197,94,0.35)', key: 'protein', unit: 'g' },
+    carbs: { label: 'Karbonhidrat (g)', color: '#f59e0b', bg: 'rgba(245,158,11,0.35)', key: 'carbs', unit: 'g' },
+    fat: { label: 'Yağ (g)', color: '#3b82f6', bg: 'rgba(59,130,246,0.35)', key: 'fat', unit: 'g' }
   };
   const c = config[metric];
   const values = timeline.map(d => d[c.key] || 0);
+
+  const numDates = timeline.length;
+  const wrapperWidth = (scrollWrapper && scrollWrapper.clientWidth) ? scrollWrapper.clientWidth : (isMobile ? window.innerWidth - 32 : 800);
+  const minSpacing = isMobile ? 105 : 75;
+  const calculatedWidth = numDates * minSpacing;
+  const isScrollable = (isMobile && numDates > 3) || (!isMobile && calculatedWidth > wrapperWidth);
+
+  const tickFontSize = isMobile ? 10 : 12;
+  const titleFontSize = isMobile ? 11 : 13;
+  const pRadius = isMobile ? 4.5 : 6;
+  const pBorder = isMobile ? 1.5 : 2;
+
+  const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 320);
+  gradient.addColorStop(0, c.bg);
+  gradient.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
+
   _nutritionStatsChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: timeline.map(d => {
-        const dt = new Date(d.date);
-        return formatDateTR(d.date);
-      }),
+      labels: timeline.map(d => formatDateTR(d.date)),
       datasets: [{
         label: c.label,
         data: values,
         borderColor: c.color,
-        backgroundColor: c.bg,
+        borderWidth: 3,
+        backgroundColor: gradient,
         fill: true,
-        tension: 0.4,
-        pointRadius: isMobile ? 4.5 : 5,
+        tension: 0.3,
         pointBackgroundColor: c.color,
-        pointBorderColor: c.color,
-        pointHoverRadius: 7,
-        borderWidth: 2.5
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: pBorder,
+        pointRadius: pRadius,
+        pointHoverRadius: 9
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       animation: _hxChartAnimation(),
+      interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: isLight ? '#fff' : '#1e2231',
-          titleColor: isLight ? '#1a1d27' : '#e8eaf0',
-          bodyColor: isLight ? '#6b7280' : '#9ca3b4',
-          borderColor: isLight ? '#e2e5ec' : '#2a2f3e',
+          backgroundColor: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(20, 22, 32, 0.95)',
+          borderColor: isLight ? '#e2e5ec' : 'rgba(108, 99, 255, 0.5)',
           borderWidth: 1,
-          cornerRadius: 8,
-          padding: 10,
-          callbacks: { label: function(ctx) { return ` ${ctx.parsed.y} ${c.unit}`; } }
+          titleColor: isLight ? '#1a1d27' : '#e8eaf0',
+          bodyColor: isLight ? '#4b5563' : '#d1d5e0',
+          padding: 12,
+          callbacks: {
+            title: context => context[0]?.label || '',
+            label: context => `  ${c.label}: ${context.parsed.y} ${c.unit}`
+          }
         }
       },
       scales: {
         x: {
-          grid: { color: gridColor },
+          grid: { display: false },
           ticks: {
-            color: textColor,
-            font: { size: isMobile ? 10.5 : 11 },
-            maxRotation: 45,
-            autoSkip: timeline.length > 70
-          }
+            color: '#9ca3b4',
+            maxRotation: 0,
+            minRotation: 0,
+            autoSkip: !isScrollable,
+            maxTicksLimit: isScrollable ? undefined : 12,
+            font: { size: tickFontSize },
+            padding: 8
+          },
+          title: { display: true, text: 'Tarih', color: '#9ca3b4', font: { size: titleFontSize, weight: '700' } }
         },
         y: {
-          grid: { color: gridColor },
-          ticks: { color: textColor, font: { size: 11 } },
-          title: { display: true, text: c.unit, color: textColor },
-          beginAtZero: true
+          beginAtZero: true,
+          grid: { color: isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.05)' },
+          ticks: {
+            color: '#9ca3b4',
+            callback: value => `${value} ${c.unit}`,
+            font: { size: tickFontSize }
+          },
+          title: { display: true, text: c.label, color: c.color, font: { size: titleFontSize, weight: '700' } }
         }
       }
     }
@@ -35611,19 +35868,18 @@ function _renderNutritionStatsChart(timeline, metric) {
   _playHxBeamReveal(_nutritionStatsChart, c.color);
 
   if (scrollWrapper && chartContainer) {
-    const isScrollable = chartContainer.scrollWidth > (scrollWrapper.clientWidth + 5);
     const badge = document.querySelector('.nutri-scroll-badge');
     if (badge) {
       badge.style.display = isScrollable ? 'inline-flex' : 'none';
     }
     const hintEl = document.getElementById('nutriChartScrollHint');
     if (hintEl) {
-      hintEl.style.display = (timeline && timeline.length > 0) ? 'flex' : 'none';
+      hintEl.style.display = isScrollable ? 'flex' : 'none';
     }
     if (isScrollable) {
       setTimeout(() => {
         scrollWrapper.scrollLeft = scrollWrapper.scrollWidth;
-      }, 70);
+      }, 60);
     }
   }
 }

@@ -498,13 +498,13 @@ EXERCISE_POOL = [
               equipment=["dumbbell"], load_mode="external_load", unilateral=True, minimum_level="intermediate", fatigue_cost="low"),
 
     _exercise("cable-shoulder-external-rotation", "Cable Shoulder External Rotation", "Rotator Cuff", "isolation", False,
-              family="shoulder_rotation", variation="cable_external_rotation", primary_muscles=["infraspinatus", "romboids"],
-              secondary_muscles=["posterior_deltoids", "middle_trapezius"], movement_pattern="shoulder_external_rotation",
+              family="shoulder_rotation", variation="cable_external_rotation", primary_muscles=["infraspinatus"],
+              secondary_muscles=["romboids"], movement_pattern="shoulder_external_rotation",
               equipment=["cable_machine", "single_handle"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
 
     _exercise("dumbbell-shoulder-external-rotation", "Dumbbell Shoulder External Rotation", "Rotator Cuff", "isolation", False,
-              family="shoulder_rotation", variation="dumbbell_external_rotation", primary_muscles=["infraspinatus", "romboids"],
-              secondary_muscles=["posterior_deltoids", "middle_trapezius"], movement_pattern="shoulder_external_rotation",
+              family="shoulder_rotation", variation="dumbbell_external_rotation", primary_muscles=["infraspinatus"],
+              secondary_muscles=["romboids"], movement_pattern="shoulder_external_rotation",
               equipment=["dumbbell"], load_mode="external_load", unilateral=True, minimum_level="intermediate", fatigue_cost="low"),
 
     _exercise("cable-shoulder-internal-rotation", "Cable Shoulder Internal Rotation", "Rotator Cuff", "isolation", False,
@@ -513,8 +513,8 @@ EXERCISE_POOL = [
               equipment=["cable_machine", "single_handle"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
 
     _exercise("band-shoulder-external-rotation", "Band Shoulder External Rotation", "Rotator Cuff", "isolation", False,
-              family="shoulder_rotation", variation="band_external_rotation", primary_muscles=["infraspinatus", "teres_minor"],
-              secondary_muscles=["posterior_deltoids"], movement_pattern="shoulder_external_rotation",
+              family="shoulder_rotation", variation="band_external_rotation", primary_muscles=["infraspinatus"],
+              secondary_muscles=["romboids"], movement_pattern="shoulder_external_rotation",
               equipment=["resistance_band"], load_mode="external_load", unilateral=True, fatigue_cost="low"),
 
     _exercise("band-shoulder-internal-rotation", "Band Shoulder Internal Rotation", "Rotator Cuff", "isolation", False,
@@ -535,7 +535,7 @@ EXERCISE_POOL = [
               equipment=["barbell", "flat_bench"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("dips-bw", "Dips", "Triceps", "compound", True,
-              family="dip", variation="bodyweight", primary_muscles=["triceps", "chest"],
+              family="dip", variation="bodyweight", primary_muscles=["triceps"],
               secondary_muscles=["front_delts"], movement_pattern="vertical_press", equipment=["dip_bars", "bodyweight"],
               load_mode="bodyweight", fatigue_cost="medium"),
 

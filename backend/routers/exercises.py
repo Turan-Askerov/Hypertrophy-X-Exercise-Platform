@@ -53,19 +53,6 @@ def _display_muscle_groups(exercise: dict, analysis: dict) -> list[str]:
     family = analysis.get("family", "")
     primary_muscles = set(analysis.get("primary_muscles", []))
 
-    # Skapula hareketleri (kullanıcı isteği: scapular pull ups, scapular push ups)
-    if ex_id in {
-        "scapular-pull-ups-bw",
-        "scapular-pull-ups-weighted",
-        "scapular-push-ups-bw",
-        "scapular-push-ups-weighted",
-    } or family in {"scapular_depression", "scapular_protraction"}:
-        return ["Skapula"]
-
-    # Chin Ups: Hem Biceps hem Sırt listesinde görünür
-    if family == "chin_up" or ex_id.startswith("chin-up"):
-        return ["Sırt", "Biceps"]
-
     if group == "Rotator Cuff" or any(
         m in primary_muscles
         for m in (
@@ -77,6 +64,23 @@ def _display_muscle_groups(exercise: dict, analysis: dict) -> list[str]:
         )
     ):
         return ["Rotatorlar"]
+
+    # Skapula hareketleri (scapular push up, pull up, retraction, punch vs. - subscapularis rotator olduğu için hariç)
+    if ex_id in {
+        "scapular-pull-ups-bw",
+        "scapular-pull-ups-weighted",
+        "scapular-push-ups-bw",
+        "scapular-push-ups-weighted",
+        "cable-scapular-retraction",
+        "chest-supported-dumbbell-scapular-retraction",
+        "machine-scapular-retraction",
+        "cable-serratus-punch",
+    } or family in {"scapular_depression", "scapular_protraction", "scapular_retraction", "serratus_punch"} or ("scapula" in ex_id and "subscapularis" not in ex_id):
+        return ["Skapula"]
+
+    # Chin Ups: Hem Biceps hem Sırt listesinde görünür
+    if family == "chin_up" or ex_id.startswith("chin-up"):
+        return ["Sırt", "Biceps"]
     if group in {"Hip Rotators", "Adductors"} or any(
         m in primary_muscles
         for m in ("adductors", "hip_external_rotators", "hip_internal_rotators")

@@ -53,7 +53,6 @@ from services.user_service import (
     get_user_by_id,
     create_user,
     update_user_profile,
-    get_all_users,
 )
 from services.stats_service import (
     calculate_stats,

@@ -1,5 +1,5 @@
 """Hypertrophy-X merkezi Pydantic istek ve veri modelleri."""
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Any
 from pydantic import BaseModel, Field
 
 
