@@ -25530,14 +25530,6 @@ tr:hover td { background: var(--bg-card-hover); }
             <div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <h3 class="nutri-card-title" style="margin-bottom:0;">Beslenme İstatistikleri & Analiz</h3>
-                <span class="nutri-scroll-badge">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="17 8 21 12 17 16"></polyline>
-                    <polyline points="7 16 3 12 7 8"></polyline>
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                  </svg>
-                  <span>Kaydırılabilir</span>
-                </span>
               </div>
               <p class="nutri-card-subtitle" style="margin-top:2px;">Karta tıklayarak ilgili besinin geçmiş trendini inceleyin</p>
             </div>
@@ -25585,12 +25577,6 @@ tr:hover td { background: var(--bg-card-hover); }
             <canvas id="nutritionStatsChart"></canvas>
           </div>
         </div>
-        <div class="nutri-chart-scroll-hint" id="nutriChartScrollHint">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          <span>Grafiği yatay kaydırarak tüm günleri detaylı inceleyebilirsiniz</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </div>
-
       </div>
 
         
@@ -35868,14 +35854,6 @@ function _renderNutritionStatsChart(timeline, metric) {
   _playHxBeamReveal(_nutritionStatsChart, c.color);
 
   if (scrollWrapper && chartContainer) {
-    const badge = document.querySelector('.nutri-scroll-badge');
-    if (badge) {
-      badge.style.display = isScrollable ? 'inline-flex' : 'none';
-    }
-    const hintEl = document.getElementById('nutriChartScrollHint');
-    if (hintEl) {
-      hintEl.style.display = isScrollable ? 'flex' : 'none';
-    }
     if (isScrollable) {
       setTimeout(() => {
         scrollWrapper.scrollLeft = scrollWrapper.scrollWidth;

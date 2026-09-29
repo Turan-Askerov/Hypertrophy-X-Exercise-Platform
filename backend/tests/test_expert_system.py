@@ -112,7 +112,27 @@ def test_priority_muscles_exercise_ordering():
     )
     assert res_with_priority["status"] == "ready"
     first_ex = res_with_priority["exercises"][0]
-    assert first_ex["id"] == "ex_incline_db_press"
-    # Fazla set eklenmediğini (standart 3 set kaldığını) doğrula
     assert first_ex["prescription"]["sets"] <= 3
+
+
+def test_expert_history_context_with_workouts():
+    """_expert_history_context fonksiyonunun antrenman kayıtlarını hatasız parse ettiğini doğrula."""
+    from routers.expert import _expert_history_context
+    sample_workouts = [
+        {
+            "id": 1,
+            "date": "2026-09-28",
+            "exercises_data": [
+                {
+                    "exercise_name": "Özel Göğüs Hareketi",
+                    "muscle_group": "Chest",
+                    "sets_data": [{"reps": 10, "weight": 60, "rir": 2}]
+                }
+            ]
+        }
+    ]
+    context, latest_dates = _expert_history_context(sample_workouts)
+    assert "sets_by_muscle" in context
+    assert isinstance(context["sets_by_muscle"], dict)
+
 

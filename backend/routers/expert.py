@@ -30,6 +30,7 @@ from expert_system import (
     handle_missed_session,
     is_expert_catalog_excluded,
     normalize_detailed_muscle,
+    normalize_muscle_group,
     normalize_gym_equipment,
     validate_detailed_preferences,
     validate_preferences as validate_expert_preferences,
