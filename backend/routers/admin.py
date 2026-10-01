@@ -244,7 +244,21 @@ def admin_get_overview(days: int = 7, range_param: Optional[str] = Query(None, a
             start_dt = end_dt - timedelta(days=limit_days - 1)
         elif range_mode in ("all", "genel"):
             # En eski kayıt tarihini bul
-            earliest_dt = end_dt - timedelta(days=60)
+            earliest_dt = end_dt
+            try:
+                min_u_row = conn.execute("SELECT MIN(substr(created_at, 1, 10)) as min_d FROM users WHERE role = 'athlete' AND is_admin = 0").fetchone()
+                if min_u_row and min_u_row["min_d"]:
+                    earliest_dt = min(earliest_dt, datetime.strptime(str(min_u_row["min_d"])[:10], "%Y-%m-%d"))
+            except Exception:
+                pass
+
+            try:
+                min_w_row = conn.execute("SELECT MIN(substr(date, 1, 10)) as min_d FROM workouts").fetchone()
+                if min_w_row and min_w_row["min_d"]:
+                    earliest_dt = min(earliest_dt, datetime.strptime(str(min_w_row["min_d"])[:10], "%Y-%m-%d"))
+            except Exception:
+                pass
+
             for a in athletes:
                 cd = str(a.get("created_at") or "")[:10]
                 if cd:
@@ -254,15 +268,8 @@ def admin_get_overview(days: int = 7, range_param: Optional[str] = Query(None, a
                             earliest_dt = pdt
                     except Exception:
                         pass
-            min_w_row = conn.execute("SELECT MIN(date) as min_d FROM workouts").fetchone()
-            if min_w_row and min_w_row["min_d"]:
-                try:
-                    pdt = datetime.strptime(str(min_w_row["min_d"])[:10], "%Y-%m-%d")
-                    if pdt < earliest_dt:
-                        earliest_dt = pdt
-                except Exception:
-                    pass
-            limit_days = max(7, min((end_dt - earliest_dt).days + 1, 365))
+
+            limit_days = max(7, min((end_dt - earliest_dt).days + 1, 730))
             start_dt = end_dt - timedelta(days=limit_days - 1)
         else:
             limit_days = max(1, min(days, 365))

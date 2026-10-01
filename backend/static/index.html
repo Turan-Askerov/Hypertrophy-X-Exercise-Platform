@@ -7202,9 +7202,39 @@ tr:hover td { background: var(--bg-card-hover); }
   color: #43d6ad;
   letter-spacing: -.02em;
 }
+.admin-chart-scroll-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: block;
+  box-sizing: border-box;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(167, 139, 250, 0.45) rgba(15, 23, 42, 0.6);
+}
+.admin-chart-scroll-wrap::-webkit-scrollbar {
+  height: 7px;
+}
+.admin-chart-scroll-wrap::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 10px;
+}
+.admin-chart-scroll-wrap::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.65), rgba(56, 189, 248, 0.65));
+  border-radius: 10px;
+}
+.admin-chart-scroll-wrap::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.9), rgba(56, 189, 248, 0.9));
+}
 .admin-chart-shell {
   position: relative;
   height: 250px;
+  min-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
   padding: 16px 8px 0;
   border-radius: 16px;
   background: linear-gradient(180deg, rgba(4, 9, 21, .25), rgba(4, 9, 21, .55));
@@ -7714,6 +7744,7 @@ tr:hover td { background: var(--bg-card-hover); }
   grid-template-columns: 1.55fr 1fr;
   gap: 16px;
   margin-bottom: 16px;
+  min-width: 0;
 }
 .admin-ps-card {
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -7723,6 +7754,10 @@ tr:hover td { background: var(--bg-card-hover); }
   padding: 22px;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
   transition: border-color 0.25s ease;
 }
 .admin-ps-card:hover {
@@ -15705,10 +15740,12 @@ tr:hover td { background: var(--bg-card-hover); }
 .sidebar-mobile-profile {
   display: none;
 }
-.dash-hybrid-switcher {
+.dash-hybrid-switcher,
+.admin-ps-hybrid-switcher {
   display: none !important;
 }
-.dash-carousel-dots {
+.dash-carousel-dots,
+.admin-ps-carousel-dots {
   display: none !important;
 }
 .nutri-hybrid-track {
@@ -19600,7 +19637,7 @@ tr:hover td { background: var(--bg-card-hover); }
     border-radius: 8px !important;
     flex-shrink: 0 !important;
   }
-  /* Ürün Başarısı Mobil Responsive */
+  /* Ürün Başarısı Mobil Responsive & Hibrit Karusel */
   .admin-ps-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 10px !important;
@@ -19619,6 +19656,50 @@ tr:hover td { background: var(--bg-card-hover); }
   .admin-ps-card {
     padding: 16px 15px !important;
     border-radius: 14px !important;
+  }
+  .admin-ps-card.dash-hybrid-card {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    box-sizing: border-box !important;
+  }
+  /* Platform Aktivitesi Mobil Görünümü */
+  .admin-ps-card-head {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+  .admin-ps-card-head > div:last-child {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+  .admin-act-controls {
+    display: inline-flex !important;
+    flex: 1 !important;
+    max-width: 200px !important;
+  }
+  .admin-act-controls .admin-act-btn {
+    flex: 1 !important;
+    text-align: center !important;
+    padding: 6px 8px !important;
+  }
+  .admin-chart-stats-strip {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding: 8px 10px !important;
+  }
+  .admin-chart-stat-chip {
+    font-size: 11px !important;
+    gap: 4px !important;
+  }
+  .admin-chart-stat-chip .chip-val {
+    font-size: 12px !important;
+  }
+  .admin-chart-scroll-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   .admin-ps-ecosystem {
     grid-template-columns: 1fr !important;
@@ -26298,303 +26379,360 @@ tr:hover td { background: var(--bg-card-hover); }
             </section>
 
             <!-- SECTION 2: GRID 1 (PLATFORM AKTİVİTESİ & SPORCU BAŞARI SİNYALLERİ) -->
-            <section class="admin-ps-grid">
-              <!-- Platform Aktivitesi -->
-              <article class="admin-ps-card">
-                <div class="admin-ps-card-head" style="flex-wrap:wrap; gap:12px;">
-                  <div>
-                    <h2>Platform aktivitesi</h2>
-                    <p id="adminActSub">Antrenman ritmi ve aktif sporcu katılımı</p>
-                  </div>
-                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <!-- Tarih Aralığı Filtresi -->
-                    <div class="admin-act-controls" aria-label="Tarih aralığı">
-                      <button type="button" class="admin-act-btn" onclick="setAdminOverviewRange('haftalik', this)">Haftalık</button>
-                      <button type="button" class="admin-act-btn active" onclick="setAdminOverviewRange('aylik', this)">Aylık</button>
-                      <button type="button" class="admin-act-btn" onclick="setAdminOverviewRange('genel', this)">Genel</button>
-                    </div>
+            <div class="dash-hybrid-section">
+              <!-- Mobil Sekmeli Switcher -->
+              <div class="dash-hybrid-switcher" id="adminPsSwitcher1">
+                <button type="button" class="dash-switcher-pill active" onclick="switchHybridSlide('adminPsTrack1', 0, this)">
+                  <span>Platform Aktivitesi</span>
+                </button>
+                <button type="button" class="dash-switcher-pill" onclick="switchHybridSlide('adminPsTrack1', 1, this)">
+                  <span>Başarı Sinyalleri</span>
+                </button>
+              </div>
 
-                    <button type="button" class="admin-ps-link" onclick="navigate('admin-workouts')">Detaylı rapor →</button>
-                  </div>
-                </div>
-
-                <!-- Üst Özet Canlı Sayaçlar -->
-                <div class="admin-chart-stats-strip">
-                  <div class="admin-chart-stat-chip">
-                    <span class="chip-dot workout"></span>
-                    <span class="chip-label">Toplam Seans:</span>
-                    <strong class="chip-val" id="adminChartStripWorkouts">41</strong>
-                    <span class="chip-trend" id="adminChartStripWorkoutsTrend">+8%</span>
-                  </div>
-                  <div class="admin-chart-stat-chip">
-                    <span class="chip-dot user"></span>
-                    <span class="chip-label">Aktif Sporcu:</span>
-                    <strong class="chip-val" id="adminChartStripUsers">5</strong>
-                    <span class="chip-trend" id="adminChartStripUsersTrend">+12%</span>
-                  </div>
-                  <div class="admin-chart-stat-chip" style="margin-left:auto;">
-                    <span class="chip-label" style="color:#64748b;">Zirve Seans:</span>
-                    <strong class="chip-val" id="adminChartStripPeak">-</strong>
-                  </div>
-                </div>
-
-                <div class="admin-chart-shell" id="adminChartShell" style="margin-top:8px;">
-                  <div class="admin-chart-grid"><i></i><i></i><i></i><i></i><i></i></div>
-                  <svg class="admin-chart-svg" id="adminChartSvg" viewBox="0 0 1000 235" preserveAspectRatio="none" aria-label="Antrenman ve sporcu aktivite grafiği">
-                    <defs>
-                      <linearGradient id="adminActAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#a78bfa" stop-opacity=".55" />
-                        <stop offset="50%" stop-color="#8b5cf6" stop-opacity=".22" />
-                        <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
-                      </linearGradient>
-                      <linearGradient id="adminActUserGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#38bdf8" stop-opacity=".8" />
-                        <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
-                      </linearGradient>
-                    </defs>
-                    <path class="admin-chart-area" id="adminChartAreaPath" d="" />
-                    <path class="admin-chart-line" id="adminChartLinePath" d="" />
-                    <path class="admin-chart-user-line" id="adminChartUserPath" d="" />
-                    <g class="admin-chart-points" id="adminChartPointsGroup"></g>
-                  </svg>
-                  <div class="admin-chart-tooltip" id="adminChartTooltip"></div>
-                  <div class="admin-chart-xlabels" id="adminChartXLabels"></div>
-                </div>
-
-                <div class="admin-act-legend" style="margin-top:14px; gap:18px; align-items:center;">
-                  <span><i class="admin-act-dot"></i>Antrenman kayıtları</span>
-                  <span><i class="admin-act-dot cyan"></i>Aktif sporcular</span>
-                </div>
-              </article>
-
-              <!-- Sporcu Başarı Sinyalleri -->
-              <article class="admin-ps-card">
-                <div class="admin-ps-card-head">
-                  <div>
-                    <h2>Sporcu başarı sinyalleri</h2>
-                    <p>Kayıt olan kullanıcıların davranış özeti</p>
-                  </div>
-                  <button type="button" class="admin-ps-link" onclick="navigate('admin-users')">Tümünü incele →</button>
-                </div>
-                <div class="admin-ps-signal-list" id="adminPsSignalList">
-                  <div class="admin-ps-signal icon-violet">
-                    <div class="admin-ps-signal-icon">↗</div>
+              <section class="admin-ps-grid dash-hybrid-track" id="adminPsTrack1" onscroll="handleHybridScroll('adminPsTrack1', 'adminPsSwitcher1', 'adminPsDots1')">
+                <!-- Platform Aktivitesi -->
+                <article class="admin-ps-card dash-hybrid-card">
+                  <div class="admin-ps-card-head" style="flex-wrap:wrap; gap:12px;">
                     <div>
-                      <b>Düzenli sporcu</b>
-                      <small>Son 30 günde en az 4 kayıt</small>
+                      <h2>Platform aktivitesi</h2>
+                      <p id="adminActSub">Antrenman ritmi ve aktif sporcu katılımı</p>
                     </div>
-                    <div class="admin-ps-signal-value">
-                      <strong id="adminPsSigRegularVal">3</strong>
-                      <small id="adminPsSigRegularPct">%60</small>
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                      <!-- Tarih Aralığı Filtresi -->
+                      <div class="admin-act-controls" aria-label="Tarih aralığı">
+                        <button type="button" class="admin-act-btn" onclick="setAdminOverviewRange('haftalik', this)">Haftalık</button>
+                        <button type="button" class="admin-act-btn active" onclick="setAdminOverviewRange('aylik', this)">Aylık</button>
+                        <button type="button" class="admin-act-btn" onclick="setAdminOverviewRange('genel', this)">Genel</button>
+                      </div>
+
+                      <button type="button" class="admin-ps-link" onclick="navigate('admin-workouts')">Detaylı rapor →</button>
                     </div>
                   </div>
-                  <div class="admin-ps-signal icon-cyan">
-                    <div class="admin-ps-signal-icon">✦</div>
+
+                  <!-- Üst Özet Canlı Sayaçlar -->
+                  <div class="admin-chart-stats-strip">
+                    <div class="admin-chart-stat-chip">
+                      <span class="chip-dot workout"></span>
+                      <span class="chip-label">Toplam Seans:</span>
+                      <strong class="chip-val" id="adminChartStripWorkouts">41</strong>
+                      <span class="chip-trend" id="adminChartStripWorkoutsTrend">+8%</span>
+                    </div>
+                    <div class="admin-chart-stat-chip">
+                      <span class="chip-dot user"></span>
+                      <span class="chip-label">Aktif Sporcu:</span>
+                      <strong class="chip-val" id="adminChartStripUsers">5</strong>
+                      <span class="chip-trend" id="adminChartStripUsersTrend">+12%</span>
+                    </div>
+                    <div class="admin-chart-stat-chip" style="margin-left:auto;">
+                      <span class="chip-label" style="color:#64748b;">Zirve Seans:</span>
+                      <strong class="chip-val" id="adminChartStripPeak">-</strong>
+                    </div>
+                  </div>
+
+                  <div class="admin-chart-scroll-wrap" id="adminChartScrollWrap" style="margin-top:8px;">
+                    <div class="admin-chart-shell" id="adminChartShell">
+                      <div class="admin-chart-grid"><i></i><i></i><i></i><i></i><i></i></div>
+                      <svg class="admin-chart-svg" id="adminChartSvg" viewBox="0 0 1000 235" preserveAspectRatio="none" aria-label="Antrenman ve sporcu aktivite grafiği">
+                        <defs>
+                          <linearGradient id="adminActAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#a78bfa" stop-opacity=".55" />
+                            <stop offset="50%" stop-color="#8b5cf6" stop-opacity=".22" />
+                            <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
+                          </linearGradient>
+                          <linearGradient id="adminActUserGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#38bdf8" stop-opacity=".8" />
+                            <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+                          </linearGradient>
+                        </defs>
+                        <path class="admin-chart-area" id="adminChartAreaPath" d="" />
+                        <path class="admin-chart-line" id="adminChartLinePath" d="" />
+                        <path class="admin-chart-user-line" id="adminChartUserPath" d="" />
+                        <g class="admin-chart-points" id="adminChartPointsGroup"></g>
+                      </svg>
+                      <div class="admin-chart-tooltip" id="adminChartTooltip"></div>
+                      <div class="admin-chart-xlabels" id="adminChartXLabels"></div>
+                    </div>
+                  </div>
+
+                  <div class="admin-act-legend" style="margin-top:14px; gap:18px; align-items:center;">
+                    <span><i class="admin-act-dot"></i>Antrenman kayıtları</span>
+                    <span><i class="admin-act-dot cyan"></i>Aktif sporcular</span>
+                  </div>
+                </article>
+
+                <!-- Sporcu Başarı Sinyalleri -->
+                <article class="admin-ps-card dash-hybrid-card">
+                  <div class="admin-ps-card-head">
                     <div>
-                      <b>Yeni başlayan</b>
-                      <small>İlk antrenmanını tamamladı</small>
+                      <h2>Sporcu başarı sinyalleri</h2>
+                      <p>Kayıt olan kullanıcıların davranış özeti</p>
                     </div>
-                    <div class="admin-ps-signal-value">
-                      <strong id="adminPsSigNewVal">1</strong>
-                      <small>bu ay</small>
+                    <button type="button" class="admin-ps-link" onclick="navigate('admin-users')">Tümünü incele →</button>
+                  </div>
+                  <div class="admin-ps-signal-list" id="adminPsSignalList">
+                    <div class="admin-ps-signal icon-violet">
+                      <div class="admin-ps-signal-icon">↗</div>
+                      <div>
+                        <b>Düzenli sporcu</b>
+                        <small>Son 30 günde en az 4 kayıt</small>
+                      </div>
+                      <div class="admin-ps-signal-value">
+                        <strong id="adminPsSigRegularVal">3</strong>
+                        <small id="adminPsSigRegularPct">%60</small>
+                      </div>
+                    </div>
+                    <div class="admin-ps-signal icon-cyan">
+                      <div class="admin-ps-signal-icon">✦</div>
+                      <div>
+                        <b>Yeni başlayan</b>
+                        <small>İlk antrenmanını tamamladı</small>
+                      </div>
+                      <div class="admin-ps-signal-value">
+                        <strong id="adminPsSigNewVal">1</strong>
+                        <small>bu ay</small>
+                      </div>
+                    </div>
+                    <div class="admin-ps-signal icon-mint">
+                      <div class="admin-ps-signal-icon">✓</div>
+                      <div>
+                        <b>Programını sürdüren</b>
+                        <small>Önerilen splitini uyguluyor</small>
+                      </div>
+                      <div class="admin-ps-signal-value">
+                        <strong id="adminPsSigRetainingVal">2</strong>
+                        <small id="adminPsSigRetainingPct">%40</small>
+                      </div>
+                    </div>
+                    <div class="admin-ps-signal icon-red">
+                      <div class="admin-ps-signal-icon">!</div>
+                      <div>
+                        <b>İlgisini kaybeden</b>
+                        <small>Hesap açtı, son 14 gündür kayıt yok</small>
+                      </div>
+                      <div class="admin-ps-signal-value">
+                        <strong id="adminPsSigChurnVal">1</strong>
+                        <small style="color:#ff7898;">takip et</small>
+                      </div>
                     </div>
                   </div>
-                  <div class="admin-ps-signal icon-mint">
-                    <div class="admin-ps-signal-icon">✓</div>
-                    <div>
-                      <b>Programını sürdüren</b>
-                      <small>Önerilen splitini uyguluyor</small>
-                    </div>
-                    <div class="admin-ps-signal-value">
-                      <strong id="adminPsSigRetainingVal">2</strong>
-                      <small id="adminPsSigRetainingPct">%40</small>
-                    </div>
-                  </div>
-                  <div class="admin-ps-signal icon-red">
-                    <div class="admin-ps-signal-icon">!</div>
-                    <div>
-                      <b>İlgisini kaybeden</b>
-                      <small>Hesap açtı, son 14 gündür kayıt yok</small>
-                    </div>
-                    <div class="admin-ps-signal-value">
-                      <strong id="adminPsSigChurnVal">1</strong>
-                      <small style="color:#ff7898;">takip et</small>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            </section>
+                </article>
+              </section>
+
+              <!-- Mobil Karusel Noktaları -->
+              <div class="dash-carousel-dots" id="adminPsDots1">
+                <span class="dash-dot active" onclick="switchHybridSlide('adminPsTrack1', 0)"></span>
+                <span class="dash-dot" onclick="switchHybridSlide('adminPsTrack1', 1)"></span>
+              </div>
+            </div>
 
             <!-- SECTION 3: GRID 2 (KULLANICI DÖNÜŞÜM HUNİSİ & ANTRENMAN EKOSİSTEMİ) -->
-            <section class="admin-ps-grid">
-              <!-- Kullanıcı Dönüşüm Hunisi -->
-              <article class="admin-ps-card">
-                <div class="admin-ps-card-head">
-                  <div>
-                    <h2>Kullanıcı dönüşüm hunisi</h2>
-                    <p>Kayıttan düzenli kullanıma geçiş</p>
-                  </div>
-                  <button type="button" class="admin-ps-link" onclick="navigate('admin-users')">Kullanıcı analizi →</button>
-                </div>
-                <div class="admin-ps-funnel" id="adminPsFunnel">
-                  <div class="admin-ps-funnel-row">
-                    <label>Hesap açan</label>
-                    <div class="admin-ps-bar"><i id="adminPsFunnelBar1" style="width:100%"></i></div>
-                    <b id="adminPsFunnelText1">5 · 100%</b>
-                  </div>
-                  <div class="admin-ps-funnel-row">
-                    <label>Profilini tamamlayan</label>
-                    <div class="admin-ps-bar"><i id="adminPsFunnelBar2" style="width:80%"></i></div>
-                    <b id="adminPsFunnelText2">4 · 80%</b>
-                  </div>
-                  <div class="admin-ps-funnel-row">
-                    <label>İlk workout kaydı</label>
-                    <div class="admin-ps-bar"><i id="adminPsFunnelBar3" style="width:60%"></i></div>
-                    <b id="adminPsFunnelText3">3 · 60%</b>
-                  </div>
-                  <div class="admin-ps-funnel-row">
-                    <label>Düzenli takip eden</label>
-                    <div class="admin-ps-bar"><i id="adminPsFunnelBar4" style="width:40%"></i></div>
-                    <b id="adminPsFunnelText4">2 · 40%</b>
-                  </div>
-                </div>
-              </article>
+            <div class="dash-hybrid-section">
+              <!-- Mobil Sekmeli Switcher -->
+              <div class="dash-hybrid-switcher" id="adminPsSwitcher2">
+                <button type="button" class="dash-switcher-pill active" onclick="switchHybridSlide('adminPsTrack2', 0, this)">
+                  <span>Dönüşüm Hunisi</span>
+                </button>
+                <button type="button" class="dash-switcher-pill" onclick="switchHybridSlide('adminPsTrack2', 1, this)">
+                  <span>Antrenman Ekosistemi</span>
+                </button>
+              </div>
 
-              <!-- Antrenman Ekosistemi -->
-              <article class="admin-ps-card">
-                <div class="admin-ps-card-head">
-                  <div>
-                    <h2>Antrenman ekosistemi</h2>
-                    <p>Kullanıcıların platformda ne yaptığını gör</p>
+              <section class="admin-ps-grid dash-hybrid-track" id="adminPsTrack2" onscroll="handleHybridScroll('adminPsTrack2', 'adminPsSwitcher2', 'adminPsDots2')">
+                <!-- Kullanıcı Dönüşüm Hunisi -->
+                <article class="admin-ps-card dash-hybrid-card">
+                  <div class="admin-ps-card-head">
+                    <div>
+                      <h2>Kullanıcı dönüşüm hunisi</h2>
+                      <p>Kayıttan düzenli kullanıma geçiş</p>
+                    </div>
+                    <button type="button" class="admin-ps-link" onclick="navigate('admin-users')">Kullanıcı analizi →</button>
                   </div>
-                </div>
-                <div class="admin-ps-ecosystem">
-                  <div>
-                    <div class="eyebrow" style="color:#8c98b4; font-size:10.5px; margin-bottom:12px; font-weight:750; text-transform:uppercase; letter-spacing:0.06em;">En çok kullanılan kas grupları</div>
-                    <div class="admin-ps-rank-list" id="adminPsTopMusclesList">
-                      <div class="admin-ps-rank">
-                        <span class="admin-ps-rank-num">01</span>
-                        <div>
-                          <div class="admin-ps-rank-name">Göğüs</div>
-                          <div class="admin-ps-rank-bar"><i style="width:92%"></i></div>
+                  <div class="admin-ps-funnel" id="adminPsFunnel">
+                    <div class="admin-ps-funnel-row">
+                      <label>Hesap açan</label>
+                      <div class="admin-ps-bar"><i id="adminPsFunnelBar1" style="width:100%"></i></div>
+                      <b id="adminPsFunnelText1">5 · 100%</b>
+                    </div>
+                    <div class="admin-ps-funnel-row">
+                      <label>Profilini tamamlayan</label>
+                      <div class="admin-ps-bar"><i id="adminPsFunnelBar2" style="width:80%"></i></div>
+                      <b id="adminPsFunnelText2">4 · 80%</b>
+                    </div>
+                    <div class="admin-ps-funnel-row">
+                      <label>İlk workout kaydı</label>
+                      <div class="admin-ps-bar"><i id="adminPsFunnelBar3" style="width:60%"></i></div>
+                      <b id="adminPsFunnelText3">3 · 60%</b>
+                    </div>
+                    <div class="admin-ps-funnel-row">
+                      <label>Düzenli takip eden</label>
+                      <div class="admin-ps-bar"><i id="adminPsFunnelBar4" style="width:40%"></i></div>
+                      <b id="adminPsFunnelText4">2 · 40%</b>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- Antrenman Ekosistemi -->
+                <article class="admin-ps-card dash-hybrid-card">
+                  <div class="admin-ps-card-head">
+                    <div>
+                      <h2>Antrenman ekosistemi</h2>
+                      <p>Kullanıcıların platformda ne yaptığını gör</p>
+                    </div>
+                  </div>
+                  <div class="admin-ps-ecosystem">
+                    <div>
+                      <div class="eyebrow" style="color:#8c98b4; font-size:10.5px; margin-bottom:12px; font-weight:750; text-transform:uppercase; letter-spacing:0.06em;">En çok kullanılan kas grupları</div>
+                      <div class="admin-ps-rank-list" id="adminPsTopMusclesList">
+                        <div class="admin-ps-rank">
+                          <span class="admin-ps-rank-num">01</span>
+                          <div>
+                            <div class="admin-ps-rank-name">Göğüs</div>
+                            <div class="admin-ps-rank-bar"><i style="width:92%"></i></div>
+                          </div>
+                          <strong>18</strong>
                         </div>
-                        <strong>18</strong>
+                        <div class="admin-ps-rank">
+                          <span class="admin-ps-rank-num">02</span>
+                          <div>
+                            <div class="admin-ps-rank-name">Sırt</div>
+                            <div class="admin-ps-rank-bar"><i style="width:77%"></i></div>
+                          </div>
+                          <strong>15</strong>
+                        </div>
+                        <div class="admin-ps-rank">
+                          <span class="admin-ps-rank-num">03</span>
+                          <div>
+                            <div class="admin-ps-rank-name">Omuz</div>
+                            <div class="admin-ps-rank-bar"><i style="width:62%"></i></div>
+                          </div>
+                          <strong>12</strong>
+                        </div>
                       </div>
-                      <div class="admin-ps-rank">
-                        <span class="admin-ps-rank-num">02</span>
-                        <div>
-                          <div class="admin-ps-rank-name">Sırt</div>
-                          <div class="admin-ps-rank-bar"><i style="width:77%"></i></div>
+                    </div>
+
+                    <div>
+                      <div class="eyebrow" style="color:#8c98b4; font-size:10.5px; margin-bottom:12px; font-weight:750; text-transform:uppercase; letter-spacing:0.06em;">Öne çıkan hareketler</div>
+                      <div class="admin-ps-rank-list" id="adminPsTopExercisesList">
+                        <div class="admin-ps-rank">
+                          <span class="admin-ps-rank-num">01</span>
+                          <div>
+                            <div class="admin-ps-rank-name">Bench Press</div>
+                            <div class="admin-ps-rank-bar"><i style="width:90%"></i></div>
+                          </div>
+                          <strong>14</strong>
                         </div>
-                        <strong>15</strong>
-                      </div>
-                      <div class="admin-ps-rank">
-                        <span class="admin-ps-rank-num">03</span>
-                        <div>
-                          <div class="admin-ps-rank-name">Omuz</div>
-                          <div class="admin-ps-rank-bar"><i style="width:62%"></i></div>
+                        <div class="admin-ps-rank">
+                          <span class="admin-ps-rank-num">02</span>
+                          <div>
+                            <div class="admin-ps-rank-name">Upright Row</div>
+                            <div class="admin-ps-rank-bar"><i style="width:68%"></i></div>
+                          </div>
+                          <strong>9</strong>
                         </div>
-                        <strong>12</strong>
+                        <div class="admin-ps-rank">
+                          <span class="admin-ps-rank-num">03</span>
+                          <div>
+                            <div class="admin-ps-rank-name">Romanian Deadlift</div>
+                            <div class="admin-ps-rank-bar"><i style="width:55%"></i></div>
+                          </div>
+                          <strong>7</strong>
+                        </div>
                       </div>
                     </div>
                   </div>
+                </article>
+              </section>
 
-                  <div>
-                    <div class="eyebrow" style="color:#8c98b4; font-size:10.5px; margin-bottom:12px; font-weight:750; text-transform:uppercase; letter-spacing:0.06em;">Öne çıkan hareketler</div>
-                    <div class="admin-ps-rank-list" id="adminPsTopExercisesList">
-                      <div class="admin-ps-rank">
-                        <span class="admin-ps-rank-num">01</span>
-                        <div>
-                          <div class="admin-ps-rank-name">Bench Press</div>
-                          <div class="admin-ps-rank-bar"><i style="width:90%"></i></div>
-                        </div>
-                        <strong>14</strong>
-                      </div>
-                      <div class="admin-ps-rank">
-                        <span class="admin-ps-rank-num">02</span>
-                        <div>
-                          <div class="admin-ps-rank-name">Upright Row</div>
-                          <div class="admin-ps-rank-bar"><i style="width:68%"></i></div>
-                        </div>
-                        <strong>9</strong>
-                      </div>
-                      <div class="admin-ps-rank">
-                        <span class="admin-ps-rank-num">03</span>
-                        <div>
-                          <div class="admin-ps-rank-name">Romanian Deadlift</div>
-                          <div class="admin-ps-rank-bar"><i style="width:55%"></i></div>
-                        </div>
-                        <strong>7</strong>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            </section>
+              <!-- Mobil Karusel Noktaları -->
+              <div class="dash-carousel-dots" id="adminPsDots2">
+                <span class="dash-dot active" onclick="switchHybridSlide('adminPsTrack2', 0)"></span>
+                <span class="dash-dot" onclick="switchHybridSlide('adminPsTrack2', 1)"></span>
+              </div>
+            </div>
 
             <!-- SECTION 4: GRID 3 (UZMAN SİSTEM ETKİSİ & SON PLATFORM HAREKETLERİ) -->
-            <section class="admin-ps-grid">
-              <!-- Uzman Sistem Etkisi -->
-              <article class="admin-ps-card">
-                <div class="admin-ps-card-head">
-                  <div>
-                    <h2>Uzman sistem etkisi</h2>
-                    <p>Önerilerin kullanıcı davranışına yansıması</p>
-                  </div>
-                </div>
-                <div class="admin-ps-signal-list">
-                  <div class="admin-ps-signal icon-violet">
-                    <div class="admin-ps-signal-icon">AI</div>
-                    <div>
-                      <b>Öneri kabul oranı</b>
-                      <small>Üretilen önerilerin uygulanan kısmı</small>
-                    </div>
-                    <div class="admin-ps-signal-value">
-                      <strong id="adminPsExpAcceptVal">%74</strong>
-                      <small id="adminPsExpAcceptTrend">+11%</small>
-                    </div>
-                  </div>
-                  <div class="admin-ps-signal icon-cyan">
-                    <div class="admin-ps-signal-icon">↻</div>
-                    <div>
-                      <b>Alternatif hareket kullanımı</b>
-                      <small>Önerilen hareketi değiştirenler</small>
-                    </div>
-                    <div class="admin-ps-signal-value">
-                      <strong id="adminPsExpSwapVal">%23</strong>
-                      <small id="adminPsExpSwapSub">14 değişim</small>
-                    </div>
-                  </div>
-                  <div class="admin-ps-signal icon-mint">
-                    <div class="admin-ps-signal-icon">♥</div>
-                    <div>
-                      <b>DOMS sonrası uyum</b>
-                      <small>Ağrı bildirince planını güncelleyenler</small>
-                    </div>
-                    <div class="admin-ps-signal-value">
-                      <strong id="adminPsExpDomsVal">%81</strong>
-                      <small style="color:#43d6ad;">iyi</small>
-                    </div>
-                  </div>
-                </div>
-              </article>
+            <div class="dash-hybrid-section">
+              <!-- Mobil Sekmeli Switcher -->
+              <div class="dash-hybrid-switcher" id="adminPsSwitcher3">
+                <button type="button" class="dash-switcher-pill active" onclick="switchHybridSlide('adminPsTrack3', 0, this)">
+                  <span>Uzman Sistem</span>
+                </button>
+                <button type="button" class="dash-switcher-pill" onclick="switchHybridSlide('adminPsTrack3', 1, this)">
+                  <span>Son Hareketler</span>
+                </button>
+              </div>
 
-              <!-- Son Platform Hareketleri -->
-              <article class="admin-ps-card" id="adminRecentActivityCard">
-                <div class="admin-ps-card-head">
-                  <div>
-                    <h2>Son platform hareketleri</h2>
-                    <p>Ürün içindeki önemli kullanıcı aktiviteleri</p>
+              <section class="admin-ps-grid dash-hybrid-track" id="adminPsTrack3" onscroll="handleHybridScroll('adminPsTrack3', 'adminPsSwitcher3', 'adminPsDots3')">
+                <!-- Uzman Sistem Etkisi -->
+                <article class="admin-ps-card dash-hybrid-card">
+                  <div class="admin-ps-card-head">
+                    <div>
+                      <h2>Uzman sistem etkisi</h2>
+                      <p>Önerilerin kullanıcı davranışına yansıması</p>
+                    </div>
                   </div>
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <button type="button" class="admin-ps-link" id="btnToggleInlineScroll" onclick="toggleAdminActivityInlineScroll(this)">Genişlet (Scroll)</button>
-                    <button type="button" class="admin-ps-link" onclick="openAdminActivityModal()">Tümünü gör ↗</button>
+                  <div class="admin-ps-signal-list">
+                    <div class="admin-ps-signal icon-violet">
+                      <div class="admin-ps-signal-icon">AI</div>
+                      <div>
+                        <b>Öneri kabul oranı</b>
+                        <small>Üretilen önerilerin uygulanan kısmı</small>
+                      </div>
+                      <div class="admin-ps-signal-value">
+                        <strong id="adminPsExpAcceptVal">%74</strong>
+                        <small id="adminPsExpAcceptTrend">+11%</small>
+                      </div>
+                    </div>
+                    <div class="admin-ps-signal icon-cyan">
+                      <div class="admin-ps-signal-icon">↻</div>
+                      <div>
+                        <b>Alternatif hareket kullanımı</b>
+                        <small>Önerilen hareketi değiştirenler</small>
+                      </div>
+                      <div class="admin-ps-signal-value">
+                        <strong id="adminPsExpSwapVal">%23</strong>
+                        <small id="adminPsExpSwapSub">14 değişim</small>
+                      </div>
+                    </div>
+                    <div class="admin-ps-signal icon-mint">
+                      <div class="admin-ps-signal-icon">♥</div>
+                      <div>
+                        <b>DOMS sonrası uyum</b>
+                        <small>Ağrı bildirince planını güncelleyenler</small>
+                      </div>
+                      <div class="admin-ps-signal-value">
+                        <strong id="adminPsExpDomsVal">%81</strong>
+                        <small style="color:#43d6ad;">iyi</small>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div class="admin-overview-activity" id="adminRecentActivityList" style="margin-top:4px; max-height:270px; overflow-y:hidden; transition:max-height 0.35s ease;">
-                  <div style="color:#94a3b8; text-align:center; padding:20px; font-size:12px;">Yükleniyor...</div>
-                </div>
-            </section>
+                </article>
+
+                <!-- Son Platform Hareketleri -->
+                <article class="admin-ps-card dash-hybrid-card" id="adminRecentActivityCard">
+                  <div class="admin-ps-card-head">
+                    <div>
+                      <h2>Son platform hareketleri</h2>
+                      <p>Ürün içindeki önemli kullanıcı aktiviteleri</p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <button type="button" class="admin-ps-link" id="btnToggleInlineScroll" onclick="toggleAdminActivityInlineScroll(this)">Genişlet (Scroll)</button>
+                      <button type="button" class="admin-ps-link" onclick="openAdminActivityModal()">Tümünü gör ↗</button>
+                    </div>
+                  </div>
+                  <div class="admin-overview-activity" id="adminRecentActivityList" style="margin-top:4px; max-height:270px; overflow-y:hidden; transition:max-height 0.35s ease;">
+                    <div style="color:#94a3b8; text-align:center; padding:20px; font-size:12px;">Yükleniyor...</div>
+                  </div>
+                </article>
+              </section>
+
+              <!-- Mobil Karusel Noktaları -->
+              <div class="dash-carousel-dots" id="adminPsDots3">
+                <span class="dash-dot active" onclick="switchHybridSlide('adminPsTrack3', 0)"></span>
+                <span class="dash-dot" onclick="switchHybridSlide('adminPsTrack3', 1)"></span>
+              </div>
+            </div>
           </div>
 
           
@@ -31454,12 +31592,44 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
     splitDaysEl.innerHTML = bgHTML + fgHTML;
 
     if (reorderContext && typeof Sortable !== 'undefined') {
+      // ── Manuel auto-scroll: SortableJS fallback klon elemanının DOM pozisyonunu okur ──
+      // Event listener'a bağımlı DEĞİL — SortableJS event'leri yutsa bile çalışır.
+      let _dragScrollInterval = null;
+
+      function _startDragAutoScroll() {
+        _dragScrollInterval = setInterval(function() {
+          var clone = document.querySelector('.sortable-fallback');
+          if (!clone) return;
+          var rect = clone.getBoundingClientRect();
+          var y = rect.top + rect.height / 2; // Klon elemanının merkez Y pozisyonu
+          var vh = window.innerHeight;
+          var edge = 100;     // kenardan px tetikleme mesafesi
+          var maxSpeed = 20;  // px/frame max scroll hızı
+          if (y > vh - edge) {
+            var ratio = Math.min((y - (vh - edge)) / edge, 1);
+            window.scrollBy({ top: Math.round(maxSpeed * ratio) || 3, behavior: 'instant' });
+          } else if (y < edge) {
+            var ratio = Math.min((edge - y) / edge, 1);
+            window.scrollBy({ top: -(Math.round(maxSpeed * ratio) || 3), behavior: 'instant' });
+          }
+        }, 16);
+      }
+
+      function _stopDragAutoScroll() {
+        if (_dragScrollInterval) { clearInterval(_dragScrollInterval); _dragScrollInterval = null; }
+      }
+
       new Sortable(document.getElementById('fgSortableList'), {
         handle: '.drag-handle:not(.is-locked)',
         filter: '.sort-disabled, .is-locked',
         preventOnFilter: true,
         animation: 250,
         ghostClass: 'sortable-ghost',
+        forceFallback: true,
+        fallbackTolerance: 3,
+        onStart: function() {
+          _startDragAutoScroll();
+        },
         onMove: function(evt) {
           if (evt.related && evt.related.classList.contains('sort-disabled')) {
             return false;
@@ -31467,6 +31637,8 @@ function drawSplitDaysHTML(daysList, shouldAnimate = true, reorderContext = null
           return true;
         },
         onEnd: function(evt) {
+          _stopDragAutoScroll();
+
           const oldIdx = evt.oldIndex;
           const newIdx = evt.newIndex;
           if (oldIdx === newIdx) return;
@@ -36924,13 +37096,18 @@ function adminClearConsoleLog() {
 /* ──────────────────────────────────────────────────────────────────────────
    ALT BÖLÜM 20.2: ADMİN GENEL BAKIŞ METRİKLERİ VE AKTİVİTE GRAFİĞİ
 ────────────────────────────────────────────────────────────────────────── */
-let _adminOverviewRange = 'haftalik';
+let _adminOverviewRange = 'aylik';
 
 async function setAdminOverviewRange(rangeMode, btn) {
   _adminOverviewRange = rangeMode;
-  document.querySelectorAll('.admin-act-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
 
+  // Tüm buton durumlarını senkronize et
+  document.querySelectorAll('.admin-act-btn').forEach(b => {
+    const isTarget = b === btn || (b.getAttribute('onclick') || '').includes(`'${rangeMode}'`);
+    b.classList.toggle('active', isTarget);
+  });
+
+  // Üst kart başlığı ve banner tarih etiketini güncelle
   const subEl = document.getElementById('adminActSub');
   const labelMap = {
     'haftalik': 'Son 7 gündeki antrenman ritmi ve sporcu katılımı',
@@ -36938,6 +37115,16 @@ async function setAdminOverviewRange(rangeMode, btn) {
     'genel': 'Platform açılışından bu yana kümülatif büyüme seyri'
   };
   if (subEl) subEl.textContent = labelMap[rangeMode] || 'Platform antrenman ve kullanıcı hareketleri';
+
+  const dateRangeTextEl = document.getElementById('adminDateRangeText');
+  if (dateRangeTextEl) {
+    const bannerMap = {
+      'haftalik': 'Son 7 gün',
+      'aylik': 'Son 30 gün',
+      'genel': 'Tüm Zamanlar'
+    };
+    dateRangeTextEl.textContent = bannerMap[rangeMode] || 'Son 30 gün';
+  }
 
   // Yumuşak geçiş animasyonu (fade-out / fade-in)
   const svgEl = document.getElementById('adminChartSvg');
@@ -36974,6 +37161,12 @@ async function loadAdminPanel() {
   try {
     const startTime = performance.now();
     adminAddLog('INFO', 'Platform genel bakış ve operasyon verileri çekiliyor...');
+
+    // Aktif buton görsel durumunu _adminOverviewRange ile senkronize et
+    document.querySelectorAll('.admin-act-btn').forEach(b => {
+      const isTarget = (b.getAttribute('onclick') || '').includes(`'${_adminOverviewRange}'`);
+      b.classList.toggle('active', isTarget);
+    });
 
     // Concurrently fetch overview & users
     const [overviewData, users] = await Promise.all([
@@ -37175,7 +37368,9 @@ function renderAdminOverviewChart(chartData) {
   if (chartData && chartData.length > 0) {
     _adminChartDataCache = chartData;
   }
+  const scrollWrap = document.getElementById('adminChartScrollWrap');
   const shell = document.getElementById('adminChartShell');
+  const svgEl = document.getElementById('adminChartSvg');
   const areaPath = document.getElementById('adminChartAreaPath');
   const linePath = document.getElementById('adminChartLinePath');
   const userPath = document.getElementById('adminChartUserPath');
@@ -37283,7 +37478,29 @@ function renderAdminOverviewChart(chartData) {
   const N = points.length;
   if (N === 0) return;
 
-  // Dinamik ölçekleme
+  // Dinamik ölçekleme ve Yatay Scroll Genişliği ("Genel" görünümü ve mobilde çoklu noktalar için)
+  const isMobile = window.innerWidth <= 768;
+  const isScrollMode = _adminOverviewRange === 'genel' || N > 35 || (isMobile && (_adminOverviewRange === 'aylik' || N >= 14));
+  const chartWidth = isScrollMode ? Math.max(isMobile ? 860 : 1100, N * (isMobile ? 28 : 24)) : 1000;
+
+  if (isScrollMode) {
+    shell.style.minWidth = `${chartWidth}px`;
+    shell.style.width = `${chartWidth}px`;
+  } else {
+    shell.style.minWidth = '100%';
+    shell.style.width = '100%';
+  }
+
+  const W = chartWidth;
+  const H = 235;
+  const topPad = 32;
+  const botPad = 34;
+  const plotH = H - topPad - botPad;
+
+  if (svgEl) {
+    svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  }
+
   const minW = Math.min(...points.map(p => p.workouts));
   const maxW = Math.max(...points.map(p => p.workouts));
   const minU = Math.min(...points.map(p => p.users));
@@ -37296,12 +37513,6 @@ function renderAdminOverviewChart(chartData) {
   const padU = Math.max(1, Math.ceil((maxU - minU) * 0.3));
   const lowU = Math.max(0, minU - padU);
   const highU = maxU + Math.max(1, padU);
-
-  const W = 1000;
-  const H = 235;
-  const topPad = 32;
-  const botPad = 34;
-  const plotH = H - topPad - botPad;
 
   const coords = points.map((p, i) => {
     const x = N === 1 ? W / 2 : Math.round((i / (N - 1)) * W);
@@ -37355,7 +37566,7 @@ function renderAdminOverviewChart(chartData) {
   });
   pointsGroup.innerHTML = pointsHtml;
 
-  // Tooltip Etkileşimi ve Akıllı Konumlandırma (Köşelerden Taşmayı Önleme)
+  // Tooltip Etkileşimi ve Akıllı Konumlandırma (Kaydırılabilir alanla uyumlu)
   const hoverElements = shell.querySelectorAll('.admin-chart-point');
   hoverElements.forEach(pt => {
     pt.addEventListener('mouseenter', () => {
@@ -37409,20 +37620,18 @@ function renderAdminOverviewChart(chartData) {
         `;
       }
 
-      // Akıllı konumlandırma: Kenarlardan taşmayı engelle ve üst sınıra çarparsa aşağı flip yap
+      // Konumlandırma: Tooltip shell koordinatlarına göre hesaplanır
       const tipW = tooltip.offsetWidth || 230;
       const tipH = tooltip.offsetHeight || 90;
-      const shellW = shellRect.width;
+      const shellW = shell.offsetWidth;
 
-      const rawX = ptRect.left - shellRect.left + ptRect.width / 2;
-      const rawY = ptRect.top - shellRect.top;
+      const rawX = (ptRect.left - shellRect.left) + ptRect.width / 2;
+      const rawY = (ptRect.top - shellRect.top);
 
-      // Yatayda kartın sağ/sol kenarından taşmayacak şekilde sınırla
       const minX = tipW / 2 + 14;
       const maxX = Math.max(minX, shellW - (tipW / 2) - 14);
       const clampedX = Math.max(minX, Math.min(maxX, rawX));
 
-      // Dikeyde üst sınıra yakınsa kutucuğu noktanın altına al (flip)
       if (rawY < (tipH + 24)) {
         tooltip.style.transform = 'translate(-50%, 14px)';
       } else {
@@ -37441,16 +37650,40 @@ function renderAdminOverviewChart(chartData) {
   // XLabels
   if (xlabelsEl) {
     let step = 1;
-    if (N > 10) step = Math.ceil(N / 5);
+    if (N > 40) step = Math.ceil(N / 12);
+    else if (N > 10) step = Math.ceil(N / 6);
     else if (N > 6) step = 2;
-    const selectedLabels = [];
+
+    const labelItems = [];
     for (let i = 0; i < N; i += step) {
-      selectedLabels.push(coords[i].dateLabel);
+      labelItems.push({ label: coords[i].dateLabel, x: coords[i].x });
     }
-    if (selectedLabels[selectedLabels.length - 1] !== coords[N - 1].dateLabel) {
-      selectedLabels.push(coords[N - 1].dateLabel);
+    if (labelItems.length === 0 || labelItems[labelItems.length - 1].label !== coords[N - 1].dateLabel) {
+      labelItems.push({ label: coords[N - 1].dateLabel, x: coords[N - 1].x });
     }
-    xlabelsEl.innerHTML = selectedLabels.map(l => `<span>${escapeHtml(l)}</span>`).join('');
+
+    if (isScrollMode) {
+      xlabelsEl.style.position = 'relative';
+      xlabelsEl.style.width = `${W}px`;
+      xlabelsEl.style.height = '24px';
+      xlabelsEl.innerHTML = labelItems.map(item => `
+        <span style="position:absolute; left:${item.x}px; transform:translateX(-50%); white-space:nowrap;">
+          ${escapeHtml(item.label)}
+        </span>
+      `).join('');
+    } else {
+      xlabelsEl.style.position = 'absolute';
+      xlabelsEl.style.width = 'auto';
+      xlabelsEl.style.height = 'auto';
+      xlabelsEl.innerHTML = labelItems.map(item => `<span>${escapeHtml(item.label)}</span>`).join('');
+    }
+  }
+
+  // Genel görünümünde en güncel tarihe otomatik kaydır
+  if (isScrollMode && scrollWrap) {
+    setTimeout(() => {
+      scrollWrap.scrollTo({ left: scrollWrap.scrollWidth, behavior: 'smooth' });
+    }, 50);
   }
 }
 
