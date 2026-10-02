@@ -10,11 +10,8 @@
 [![Frontend](https://img.shields.io/badge/frontend-Vanilla%20JS-F7DF1E)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Database](https://img.shields.io/badge/database-SQLite%20%7C%20PostgreSQL-336791)](https://www.postgresql.org/)
 [![License](https://img.shields.io/badge/license-private-lightgrey)](#lisans)
-
-</div>
----
 [![Deploy linki'i :](https://hypertrophy-x-exercise-platform-gr30.onrender.com/)]
----
+</div>
 
 ---
 
