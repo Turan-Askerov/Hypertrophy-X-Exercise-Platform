@@ -13,7 +13,7 @@
 
 </div>
 <div align="center">
-    [![Deploy linki'i :](https://hypertrophy-x-exercise-platform-gr30.onrender.com/)]
+    - Deploy linki'i (https://hypertrophy-x-exercise-platform-gr30.onrender.com/)]
 </div>
 ---
 
