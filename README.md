@@ -12,6 +12,9 @@
 [![License](https://img.shields.io/badge/license-private-lightgrey)](#lisans)
 
 </div>
+---
+[![Deploy linki'i :](https://hypertrophy-x-exercise-platform-gr30.onrender.com/)]
+---
 
 ---
 
