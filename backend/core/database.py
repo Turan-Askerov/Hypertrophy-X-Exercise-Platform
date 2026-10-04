@@ -57,6 +57,17 @@ class PostgreSQLCursor:
     def rowcount(self):
         return self._cursor.rowcount
 
+    @property
+    def lastrowid(self):
+        """PostgreSQL için son eklenen SERIAL / IDENTITY id değerini döndürür."""
+        try:
+            res = self._cursor.connection.execute("SELECT lastval()").fetchone()
+            if res:
+                return res[0] if isinstance(res, (tuple, list)) else res.get("lastval")
+        except Exception:
+            pass
+        return getattr(self._cursor, "lastrowid", None)
+
 
 class PostgreSQLConnection:
     """Uygulamadaki mevcut get_db() sözleşmesini PostgreSQL için korur."""

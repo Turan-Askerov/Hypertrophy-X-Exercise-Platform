@@ -128,6 +128,10 @@ def create_user(username: str, password: str, email: str = ""):
             (clean_username, h, clean_email)
         )
         new_id = getattr(cur, "lastrowid", None)
+        if not new_id:
+            u_row = conn.execute("SELECT id FROM users WHERE username = ?", (clean_username,)).fetchone()
+            if u_row:
+                new_id = u_row["id"] if isinstance(u_row, dict) else u_row[0]
         if new_id:
             cur.execute(
                 "INSERT OR IGNORE INTO athlete_profiles (user_id, age, gender, height, weight, fitness_level, goal, days_per_week, session_time_mins, email) VALUES (?, 0, 'male', 170.0, 70.0, 'Beginner', 'bulk', 4, 60, ?)",

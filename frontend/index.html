@@ -26757,11 +26757,10 @@ tr:hover td { background: var(--bg-card-hover); }
                       <p>Ürün içindeki önemli kullanıcı aktiviteleri</p>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px;">
-                      <button type="button" class="admin-ps-link" id="btnToggleInlineScroll" onclick="toggleAdminActivityInlineScroll(this)">Genişlet (Scroll)</button>
                       <button type="button" class="admin-ps-link" onclick="openAdminActivityModal()">Tümünü gör ↗</button>
                     </div>
                   </div>
-                  <div class="admin-overview-activity" id="adminRecentActivityList" style="margin-top:4px; max-height:270px; overflow-y:hidden; transition:max-height 0.35s ease;">
+                  <div class="admin-overview-activity" id="adminRecentActivityList" style="margin-top:4px; max-height:360px; overflow-y:auto;">
                     <div style="color:#94a3b8; text-align:center; padding:20px; font-size:12px;">Yükleniyor...</div>
                   </div>
                 </article>
@@ -31199,7 +31198,7 @@ async function togglePREditMode() {
     btnText.innerText = 'Düzenle';
     icon.innerHTML = '<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>';
     renderPRList(_currentUser.username);
-    toast('PR hedefleri hesabınıza kaydedildi.', 'success');
+    toast('PR hedefleri kaydedildi.', 'success');
   } catch (error) {
     btnText.innerText = 'Kaydet';
     toast(error.message || 'PR hedefleri kaydedilemedi.', 'error');
@@ -37348,20 +37347,18 @@ async function setAdminOverviewRange(rangeMode, btn) {
     if (data && data.chart_data) {
       setTimeout(() => {
         renderAdminOverviewChart(data.chart_data);
-        if (svgEl) {
-          svgEl.style.opacity = '1';
-          svgEl.style.transform = 'scale(1)';
-        }
-        if (xlabelsEl) xlabelsEl.style.opacity = '1';
-      }, 140);
+      }, 100);
     }
   } catch (e) {
     console.error('Tarih aralığı güncellenemedi:', e);
-    if (svgEl) {
-      svgEl.style.opacity = '1';
-      svgEl.style.transform = 'scale(1)';
-    }
-    if (xlabelsEl) xlabelsEl.style.opacity = '1';
+  } finally {
+    setTimeout(() => {
+      if (svgEl) {
+        svgEl.style.opacity = '1';
+        svgEl.style.transform = 'scale(1)';
+      }
+      if (xlabelsEl) xlabelsEl.style.opacity = '1';
+    }, 150);
   }
 }
 

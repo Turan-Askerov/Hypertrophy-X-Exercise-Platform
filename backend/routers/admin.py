@@ -63,7 +63,7 @@ def admin_list_users(admin_user: dict = Depends(_resolve_current_user)):
                    COUNT(w.id) as workout_count,
                    MAX(w.date) as last_workout_date
             FROM users u
-            INNER JOIN athlete_profiles ap ON u.id = ap.user_id
+            LEFT JOIN athlete_profiles ap ON u.id = ap.user_id
             LEFT JOIN workouts w ON u.id = w.user_id
             WHERE u.role = 'athlete' AND u.is_admin = 0 AND u.username != ?
             GROUP BY u.id, u.username, u.role, u.is_active, u.created_at,
@@ -122,7 +122,7 @@ def admin_get_overview(days: int = 7, range_param: Optional[str] = Query(None, a
             SELECT u.id, u.username, u.created_at,
                    ap.age, ap.weight, ap.height, ap.fitness_level, ap.goal
             FROM users u
-            INNER JOIN athlete_profiles ap ON u.id = ap.user_id
+            LEFT JOIN athlete_profiles ap ON u.id = ap.user_id
             WHERE u.role = 'athlete' AND u.is_admin = 0 AND u.username != ?
             ORDER BY u.id ASC
         """, (ADMIN_USERNAME,)).fetchall()
@@ -193,14 +193,14 @@ def admin_get_overview(days: int = 7, range_param: Optional[str] = Query(None, a
             # En eski kayıt tarihini bul
             earliest_dt = end_dt
             try:
-                min_u_row = conn.execute("SELECT MIN(substr(created_at, 1, 10)) as min_d FROM users WHERE role = 'athlete' AND is_admin = 0").fetchone()
+                min_u_row = conn.execute("SELECT MIN(substr(CAST(created_at AS TEXT), 1, 10)) as min_d FROM users WHERE role = 'athlete' AND is_admin = 0").fetchone()
                 if min_u_row and min_u_row["min_d"]:
                     earliest_dt = min(earliest_dt, datetime.strptime(str(min_u_row["min_d"])[:10], "%Y-%m-%d"))
             except Exception:
                 pass
 
             try:
-                min_w_row = conn.execute("SELECT MIN(substr(date, 1, 10)) as min_d FROM workouts").fetchone()
+                min_w_row = conn.execute("SELECT MIN(substr(CAST(date AS TEXT), 1, 10)) as min_d FROM workouts").fetchone()
                 if min_w_row and min_w_row["min_d"]:
                     earliest_dt = min(earliest_dt, datetime.strptime(str(min_w_row["min_d"])[:10], "%Y-%m-%d"))
             except Exception:
@@ -227,7 +227,7 @@ def admin_get_overview(days: int = 7, range_param: Optional[str] = Query(None, a
 
         # Başlangıç tarihinden önceki taban birikimli toplamlar
         u_base_row = conn.execute(
-            "SELECT COUNT(*) as cnt FROM users WHERE role = 'athlete' AND is_admin = 0 AND substr(created_at, 1, 10) < ?",
+            "SELECT COUNT(*) as cnt FROM users WHERE role = 'athlete' AND is_admin = 0 AND substr(CAST(created_at AS TEXT), 1, 10) < ?",
             (start_str,)
         ).fetchone()
         user_base = u_base_row["cnt"] if u_base_row else 0
@@ -240,9 +240,9 @@ def admin_get_overview(days: int = 7, range_param: Optional[str] = Query(None, a
 
         # Seçilen penceredeki kullanıcı kayıtları (kullanıcı adlarıyla birlikte)
         u_window_rows = conn.execute(
-            """SELECT substr(created_at, 1, 10) as dt, username 
+            """SELECT substr(CAST(created_at AS TEXT), 1, 10) as dt, username 
                FROM users 
-               WHERE role = 'athlete' AND is_admin = 0 AND substr(created_at, 1, 10) BETWEEN ? AND ? 
+               WHERE role = 'athlete' AND is_admin = 0 AND substr(CAST(created_at AS TEXT), 1, 10) BETWEEN ? AND ? 
                ORDER BY id ASC""",
             (start_str, end_str)
         ).fetchall()
@@ -391,7 +391,8 @@ def admin_get_overview(days: int = 7, range_param: Optional[str] = Query(None, a
             top_exercises = [{"name": "Bench Press", "count": 14}, {"name": "Upright Row", "count": 9}, {"name": "Romanian Deadlift", "count": 7}]
 
         # 7. Uzman Sistem Etkisi Metrikleri
-        expert_profiles_count = conn.execute("SELECT count(*) FROM expert_profiles").fetchone()[0]
+        exp_row = conn.execute("SELECT count(*) as cnt FROM expert_profiles").fetchone()
+        expert_profiles_count = (exp_row["cnt"] if isinstance(exp_row, dict) else exp_row[0]) if exp_row else 0
         acceptance_pct = 74 if total_workouts > 0 else 80
         swap_rate_pct = 23
         doms_recovery_pct = 81
@@ -569,6 +570,10 @@ def admin_create_user(data: dict = Body(...),
             (username, _hash_password(password), age, height, weight, fitness_level, goal, days_per_week, session_time_mins)
         )
         new_id = getattr(cur, "lastrowid", None)
+        if not new_id:
+            u_row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+            if u_row:
+                new_id = u_row["id"] if isinstance(u_row, dict) else u_row[0]
         if new_id:
             cur.execute(
                 """INSERT OR IGNORE INTO athlete_profiles (user_id, age, height, weight, fitness_level, goal, days_per_week, session_time_mins)

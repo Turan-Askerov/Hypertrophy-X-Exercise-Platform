@@ -212,6 +212,10 @@ def confirm_registration(token: str, code: str) -> Dict[str, Any]:
             (username, password_hash, email),
         )
         new_id = getattr(cur, "lastrowid", None)
+        if not new_id:
+            u_row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+            if u_row:
+                new_id = u_row["id"] if isinstance(u_row, dict) else u_row[0]
         if new_id:
             cur.execute(
                 "INSERT OR IGNORE INTO athlete_profiles (user_id, age, gender, height, weight, fitness_level, goal, days_per_week, session_time_mins, email) VALUES (?, 0, 'male', 170.0, 70.0, 'Beginner', 'bulk', 4, 60, ?)",
