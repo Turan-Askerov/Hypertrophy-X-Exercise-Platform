@@ -26162,29 +26162,34 @@ tr:hover td { background: var(--bg-card-hover); }
           
 <!-- ────────────────────────────────────────────────────────────────────────── -->
 <!-- PROFİL: SAĞ KOLON (GÜVENLİK VE VERİ SIFIRLAMA KARTLARI)                    -->
-<!-- ────────────────────────────────────────────────────────────────────────── -->
-
-
           <div class="profile-side-column">
-            <!-- PROFİL: HESAP & GÜVENLİK (E-POSTA VE ŞİFRE YÖNETİMİ) KARTI -->
-            <div class="profile-glass-card">
-              <div class="profile-card-header">
-                <div class="profile-card-header-left">
-                  <div class="profile-header-icon-box purple">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
+            <!-- BİRLEŞTİRİLMİŞ HESAP VE GÜVENLİK KARTI -->
+            <div class="profile-glass-card" id="profileCombinedCard">
+              <div class="profile-card-header" style="flex-direction: column; align-items: stretch; gap: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 12px; flex-wrap: wrap;">
+                  <div class="profile-card-header-left">
+                    <div class="profile-header-icon-box purple" id="profileTabIcon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="profile-card-title" id="profileTabTitle">Hesap & Güvenlik</h3>
+                      <p class="profile-card-subtitle" id="profileTabSubtitle">E-posta ve şifre yönetimi</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 class="profile-card-title">Hesap & Güvenlik</h3>
-                    <p class="profile-card-subtitle">E-posta doğrulaması ve giriş şifresi yönetimi</p>
+                  
+                  <div class="timeframe-pills" style="margin-top: 2px;">
+                    <button class="tf-pill active" onclick="switchProfileTab('security', this)">Hesap & Güvenlik</button>
+                    <button class="tf-pill" onclick="switchProfileTab('danger', this)">Kritik İşlemler</button>
                   </div>
                 </div>
-                <span class="profile-metric-pill red" id="profEmailStatusBadge" style="background:rgba(239, 68, 68, 0.16); color:#f87171; border:1px solid rgba(239, 68, 68, 0.45); box-shadow: 0 0 12px rgba(239, 68, 68, 0.22);">E-posta Tanımlanmamış (Eksik)</span>
               </div>
 
-              <div class="profile-form-inner">
+              <!-- GÜVENLİK İÇERİĞİ -->
+              <div id="profileTabContent_security" class="profile-form-inner">
+
                 <!-- E-POSTA BÖLÜMÜ -->
                 <div class="profile-form-section-title">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
@@ -26281,29 +26286,12 @@ tr:hover td { background: var(--bg-card-hover); }
                     <span>Şifreyi Güncelle</span>
                   </button>
                 </div>
-              </div>
-            </div>
-
-            <!-- PROFİL: VERİ YÖNETİMİ VE KRİTİK İŞLEMLER KARTI (BİRLEŞTİRİLMİŞ ÇATI) -->
-            <div class="profile-glass-card profile-danger-card" id="profileDangerZoneCard">
-              <div class="profile-card-header">
-                <div class="profile-card-header-left">
-                  <div class="profile-header-icon-box red">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                      <line x1="12" y1="9" x2="12" y2="13"></line>
-                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="profile-card-title" style="color:#f87171;">Kritik Veri & Hesap İşlemleri</h3>
-                    <p class="profile-card-subtitle">Uzman algoritması verilerini sıfırlayın veya hesabınızı kalıcı olarak silin</p>
-                  </div>
-                </div>
-                <span class="profile-metric-pill red">Kritik Alan</span>
+              
               </div>
 
-              <div class="profile-form-inner">
+              <!-- KRİTİK İŞLEMLER İÇERİĞİ -->
+              <div id="profileTabContent_danger" class="profile-form-inner" style="display: none;">
+
                 <div class="profile-danger-actions-list">
                   <!-- EYLEM 1: UZMAN SİSTEMİ SIFIRLAMA -->
                   <div class="profile-danger-action-item">
@@ -26341,6 +26329,7 @@ tr:hover td { background: var(--bg-card-hover); }
                     </button>
                   </div>
                 </div>
+              
               </div>
             </div>
           </div>
@@ -26348,7 +26337,6 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
 
       
-<!-- ══════════════════════════════════════════════════════════════════════════ -->
 <!-- SAYFA 9: YÖNETİCİ PANELİ (PAGE: ADMIN COMMAND CENTER)                      -->
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
 
@@ -28346,6 +28334,48 @@ function hideAllAuth() {
 /* ──────────────────────────────────────────────────────────────────────────
    ALT BÖLÜM 4.2: ŞİFRE GÖRÜNÜRLÜK ANAHTARI (TOGGLE)
 ────────────────────────────────────────────────────────────────────────── */
+
+window.switchProfileTab = function(tab, btn) {
+  const securityContent = document.getElementById('profileTabContent_security');
+  const dangerContent = document.getElementById('profileTabContent_danger');
+  const card = document.getElementById('profileCombinedCard');
+  
+  if (!securityContent || !dangerContent || !card) return;
+
+  const pills = btn.parentElement.querySelectorAll('.tf-pill');
+  pills.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+
+  const title = document.getElementById('profileTabTitle');
+  const subtitle = document.getElementById('profileTabSubtitle');
+  const iconBox = document.getElementById('profileTabIcon');
+
+  if (tab === 'security') {
+    securityContent.style.display = 'block';
+    dangerContent.style.display = 'none';
+    card.classList.remove('profile-danger-card');
+    title.textContent = 'Hesap & Güvenlik';
+    subtitle.textContent = 'E-posta ve şifre yönetimi';
+    iconBox.className = 'profile-header-icon-box purple';
+    iconBox.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </svg>`;
+  } else {
+    securityContent.style.display = 'none';
+    dangerContent.style.display = 'block';
+    card.classList.add('profile-danger-card');
+    title.textContent = 'Kritik Veri & Hesap İşlemleri';
+    subtitle.textContent = 'Uzman algoritması verilerini sıfırlayın veya hesabınızı kalıcı olarak silin';
+    iconBox.className = 'profile-header-icon-box red';
+    iconBox.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+      <line x1="12" y1="9" x2="12" y2="13"></line>
+      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </svg>`;
+  }
+};
+
 function togglePasswordVisibility(inputId, btnEl) {
   const input = document.getElementById(inputId);
   if (!input) return;
