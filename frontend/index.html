@@ -6242,7 +6242,7 @@ tr:hover td { background: var(--bg-card-hover); }
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
 }
 .profile-main-card {
   display: flex;
@@ -26164,7 +26164,7 @@ tr:hover td { background: var(--bg-card-hover); }
 <!-- PROFİL: SAĞ KOLON (GÜVENLİK VE VERİ SIFIRLAMA KARTLARI)                    -->
           <div class="profile-side-column">
             <!-- BİRLEŞTİRİLMİŞ HESAP VE GÜVENLİK KARTI -->
-            <div class="profile-glass-card" id="profileCombinedCard">
+            <div class="profile-glass-card" id="profileCombinedCard" style="height: 100%;">
               <div class="profile-card-header" style="flex-direction: column; align-items: stretch; gap: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 12px; flex-wrap: wrap;">
                   <div class="profile-card-header-left">
@@ -26180,15 +26180,15 @@ tr:hover td { background: var(--bg-card-hover); }
                     </div>
                   </div>
                   
-                  <div class="timeframe-pills" style="margin-top: 2px;">
-                    <button class="tf-pill active" onclick="switchProfileTab('security', this)">Hesap & Güvenlik</button>
-                    <button class="tf-pill" onclick="switchProfileTab('danger', this)">Kritik İşlemler</button>
+                  <div class="profile-tabs-wrapper" style="display: flex; gap: 8px; margin-top: 4px;">
+                    <button class="profile-tab-btn active" onclick="switchProfileTab('security', this)">Hesap & Güvenlik</button>
+                    <button class="profile-tab-btn" onclick="switchProfileTab('danger', this)">Kritik İşlemler</button>
                   </div>
                 </div>
               </div>
 
               <!-- GÜVENLİK İÇERİĞİ -->
-              <div id="profileTabContent_security" class="profile-form-inner">
+              <div id="profileTabContent_security" class="profile-form-inner" style="flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; gap: 14px;">
 
                 <!-- E-POSTA BÖLÜMÜ -->
                 <div class="profile-form-section-title">
@@ -26290,7 +26290,7 @@ tr:hover td { background: var(--bg-card-hover); }
               </div>
 
               <!-- KRİTİK İŞLEMLER İÇERİĞİ -->
-              <div id="profileTabContent_danger" class="profile-form-inner" style="display: none;">
+              <div id="profileTabContent_danger" class="profile-form-inner" style="display: none; flex: 1; flex-direction: column; justify-content: space-evenly; gap: 14px;">
 
                 <div class="profile-danger-actions-list">
                   <!-- EYLEM 1: UZMAN SİSTEMİ SIFIRLAMA -->
@@ -28342,7 +28342,7 @@ window.switchProfileTab = function(tab, btn) {
   
   if (!securityContent || !dangerContent || !card) return;
 
-  const pills = btn.parentElement.querySelectorAll('.tf-pill');
+  const pills = btn.parentElement.querySelectorAll('.profile-tab-btn');
   pills.forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
 
@@ -28351,8 +28351,9 @@ window.switchProfileTab = function(tab, btn) {
   const iconBox = document.getElementById('profileTabIcon');
 
   if (tab === 'security') {
-    securityContent.style.display = 'block';
     dangerContent.style.display = 'none';
+    securityContent.style.display = 'flex';
+    securityContent.style.animation = 'expertItemFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards';
     card.classList.remove('profile-danger-card');
     title.textContent = 'Hesap & Güvenlik';
     subtitle.textContent = 'E-posta ve şifre yönetimi';
@@ -28363,7 +28364,8 @@ window.switchProfileTab = function(tab, btn) {
     </svg>`;
   } else {
     securityContent.style.display = 'none';
-    dangerContent.style.display = 'block';
+    dangerContent.style.display = 'flex';
+    dangerContent.style.animation = 'expertItemFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards';
     card.classList.add('profile-danger-card');
     title.textContent = 'Kritik Veri & Hesap İşlemleri';
     subtitle.textContent = 'Uzman algoritması verilerini sıfırlayın veya hesabınızı kalıcı olarak silin';
@@ -36023,6 +36025,36 @@ function selectNutriMetric(metric) {
   if (_nutriHistoryData) {
     _renderNutritionStatsChart(_nutriHistoryData.timeline, _nutriCurrentMetric);
   }
+}
+
+
+/* Profile Tabs */
+.profile-tab-btn {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.profile-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+}
+.profile-tab-btn.active {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c084fc;
+  border-color: rgba(139, 92, 246, 0.35);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.1);
+}
+.profile-danger-card .profile-tab-btn.active {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.1);
 }
 
 /* ---------- Zaman Dilimi Değişimi (Haftalık / Aylık / Genel) ---------- */
