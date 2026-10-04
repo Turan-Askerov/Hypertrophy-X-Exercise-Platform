@@ -98,7 +98,7 @@ def send_security_code_email(
     try:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
-        msg["From"] = SMTP_FROM
+        msg["From"] = f"Hypertrophy-X <{SMTP_FROM}>"
         msg["To"] = to_email
         msg.attach(MIMEText(plain_content, "plain", "utf-8"))
         msg.attach(MIMEText(html_content, "html", "utf-8"))

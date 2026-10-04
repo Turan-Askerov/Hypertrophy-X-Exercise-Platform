@@ -1,4 +1,4 @@
-# Hypertrophy-X v4.1 — Uyumlu ücretsiz Render Blueprint
+# Hypertrophy-X v4.0 — Uyumlu ücretsiz Render Blueprint
 # Tercih edilen manifest proje kökündeki ../render.yaml dosyasıdır.
 # Neon PostgreSQL bağlantısını Render'da DATABASE_URL secret olarak girin.
 services:
@@ -30,3 +30,13 @@ services:
         value: "900"
       - key: TRUST_PROXY_HEADERS
         value: "true"
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false

@@ -37345,22 +37345,22 @@ async function setAdminOverviewRange(rangeMode, btn) {
   try {
     const data = await apiGet(`/api/admin/overview?range=${rangeMode}`).catch(() => null);
     if (data && data.chart_data) {
-       setTimeout(() => {
+      setTimeout(() => {
         renderAdminOverviewChart(data.chart_data);
-       }, 100);
-     }
-   } catch (e) {
-     console.error('Tarih aralığı güncellenemedi:', e);
-   } finally {
-     setTimeout(() => {
-       if (svgEl) {
-         svgEl.style.opacity = '1';
-         svgEl.style.transform = 'scale(1)';
-       }
-       if (xlabelsEl) xlabelsEl.style.opacity = '1';
-     }, 150);
-   }
- }
+      }, 100);
+    }
+  } catch (e) {
+    console.error('Tarih aralığı güncellenemedi:', e);
+  } finally {
+    setTimeout(() => {
+      if (svgEl) {
+        svgEl.style.opacity = '1';
+        svgEl.style.transform = 'scale(1)';
+      }
+      if (xlabelsEl) xlabelsEl.style.opacity = '1';
+    }, 150);
+  }
+}
 
 async function loadAdminPanel() {
   try {
