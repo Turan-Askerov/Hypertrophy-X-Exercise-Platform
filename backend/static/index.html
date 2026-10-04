@@ -24743,7 +24743,7 @@ tr:hover td { background: var(--bg-card-hover); }
 
       <div class="page active page-animated" id="page-dashboard">
         <div class="page-header">
-          <div class="page-title">Kontrol Paneli</div>
+          <div class="page-title">Genel Bakış</div>
           <div class="page-subtitle" id="dashSubtitle"></div>
         </div>
 
@@ -26369,7 +26369,7 @@ tr:hover td { background: var(--bg-card-hover); }
               <div class="admin-title-wrap">
                 <div class="eyebrow" style="color:var(--text-muted, #8c98b4); font-size:11px; letter-spacing:.1em; text-transform:uppercase;">Admin Paneli · Ürün Başarısı</div>
                 <div class="admin-main-title" style="display:flex; align-items:center; gap:10px; margin:4px 0;">
-                  <span style="font-size:24px; font-weight:850; letter-spacing:-.03em; color:#ffffff;">Genel Bakış</span>
+                  <span style="font-size:24px; font-weight:850; letter-spacing:-.03em; color:#ffffff;">Kontrol Paneli</span>
                   <span class="admin-badge" style="font-size:10.5px; padding:3px 9px;">PRO v4.0</span>
                 </div>
                 <div class="admin-subtitle" style="color:#8c98b4; font-size:13px; margin:0;">Platformun kullanıcılar için gerçek değer üretip üretmediğini takip et.</div>
@@ -27790,11 +27790,11 @@ tr:hover td { background: var(--bg-card-hover); }
 
 
   <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobil Alt Menü">
-    <button class="mobile-nav-btn active" data-page="dashboard" onclick="navigate('dashboard', this)" aria-label="Kontrol Paneli" title="Kontrol Paneli">
+    <button class="mobile-nav-btn active" data-page="dashboard" onclick="navigate('dashboard', this)" aria-label="Genel Bakış" title="Genel Bakış">
       <div class="nav-icon-wrap">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
       </div>
-      <span>Kontrol</span>
+      <span>Genel Bakış</span>
     </button>
     <button class="mobile-nav-btn" data-page="workout" onclick="navigate('workout', this)" aria-label="Antrenman" title="Antrenman">
       <div class="nav-icon-wrap">
@@ -28189,7 +28189,7 @@ let _weeklyAvgChart = null;
 
 // ── Sayfa başlıkları ──
 const _pageTitles = {
-  'dashboard': 'Kontrol Paneli',
+  'dashboard': 'Genel Bakış',
   'workout': 'Antrenman Kaydı',
   'history': 'Geçmiş',
   'analyze': 'Uzman Sistemi',
@@ -28197,12 +28197,12 @@ const _pageTitles = {
   'nutrition': 'Beslenme',
   'profile': 'Profil',
   'admin': 'Admin Paneli',
-  'admin-overview': 'Admin Paneli — Genel Bakış',
+  'admin-overview': 'Admin Paneli — Kontrol Paneli',
   'admin-users': 'Kullanıcı Yönetimi',
   'admin-workouts': 'Seans & Antrenman Denetimi',
   'admin-diagnostics': 'Sistem & Teşhis',
   'db-management': 'Veritabanı Yönetimi',
-  'db-overview': 'Veritabanı — Genel Bakış',
+  'db-overview': 'Veritabanı — Kontrol Paneli',
   'db-terminal': 'İnteraktif SQL Terminali',
   'db-migration': 'SQLite ↔ PostgreSQL Aktarımı',
   'db-tables': 'Tablo & Şema Tarayıcısı',
@@ -29005,7 +29005,7 @@ function buildSidebar() {
       <div class="nav-section-title">Admin Paneli</div>
       <div class="nav-item active" data-page="admin" onclick="navigate('admin',this)">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-2.573 1.066c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-1.066 2.573c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066 2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 116 0z"/></svg>
-        <span>Genel Bakış & Bilgi</span>
+        <span>Kontrol Paneli</span>
       </div>
       <div class="nav-sub-item" data-page="admin-users" onclick="navigate('admin-users',this)">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
@@ -29048,7 +29048,7 @@ function buildSidebar() {
       <div class="nav-section-title">Menü</div>
       <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard',this)">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-        <span>Kontrol Paneli</span>
+        <span>Genel Bakış</span>
       </div>
       <div class="nav-item" data-page="workout" onclick="navigate('workout',this)">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
@@ -29101,11 +29101,11 @@ function buildMobileBottomNav() {
 
   if (_isAdmin) {
     nav.innerHTML = `
-      <button class="mobile-nav-btn active" data-page="admin" onclick="navigate('admin', this)" aria-label="Genel Bakış" title="Genel Bakış">
+      <button class="mobile-nav-btn active" data-page="admin" onclick="navigate('admin', this)" aria-label="Kontrol Paneli" title="Kontrol Paneli">
         <div class="nav-icon-wrap">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-2.573 1.066c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-1.066 2.573c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066 2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 116 0z"/></svg>
         </div>
-        <span>Genel Bakış</span>
+        <span>Kontrol</span>
       </button>
       <button class="mobile-nav-btn" data-page="admin-users" onclick="navigate('admin-users', this)" aria-label="Kullanıcılar" title="Kullanıcı Yönetimi">
         <div class="nav-icon-wrap">
@@ -29134,11 +29134,11 @@ function buildMobileBottomNav() {
     `;
   } else {
     nav.innerHTML = `
-      <button class="mobile-nav-btn active" data-page="dashboard" onclick="navigate('dashboard', this)" aria-label="Kontrol Paneli" title="Kontrol Paneli">
+      <button class="mobile-nav-btn active" data-page="dashboard" onclick="navigate('dashboard', this)" aria-label="Genel Bakış" title="Genel Bakış">
         <div class="nav-icon-wrap">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
         </div>
-        <span>Kontrol</span>
+        <span>Genel Bakış</span>
       </button>
       <button class="mobile-nav-btn" data-page="workout" onclick="navigate('workout', this)" aria-label="Antrenman" title="Antrenman">
         <div class="nav-icon-wrap">
