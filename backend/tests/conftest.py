@@ -57,12 +57,21 @@ def auth_headers(client):
     """Testler için kayıtlı bir kullanıcı ve yetkili Authorization header'ı sağlar."""
     username = "testathlete"
     password = "AthletePassword123!"
-    # Kayıt ol veya varsa giriş yap
-    client.post("/api/auth/register", json={
+    # Kayıt ol ve doğrula (2 adımlı kayıt)
+    reg_res = client.post("/api/auth/register", json={
         "username": username,
         "password": password,
         "email": "testathlete@example.com"
     })
+    if reg_res.status_code == 200:
+        reg_data = reg_res.json()
+        token_flow = reg_data.get("token")
+        test_code = reg_data.get("test_code")
+        if token_flow and test_code:
+            client.post("/api/auth/register/confirm", json={
+                "token": token_flow,
+                "code": test_code
+            })
     res = client.post("/api/auth/login", json={
         "username": username,
         "password": password

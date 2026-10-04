@@ -39,11 +39,14 @@ def test_password_reset_brute_force_lockout(client):
     """5 hatalı 6 haneli kod denemesi yapıldığında biletin kilitlendiğini ve saldırının engellendiğini doğrular."""
     username = "victim_athlete"
     email = "victim@example.com"
-    client.post("/api/auth/register", json={
+    reg_res = client.post("/api/auth/register", json={
         "username": username,
         "password": "InitialVictimPassword123!",
         "email": email
     })
+    if reg_res.status_code == 200:
+        d = reg_res.json()
+        client.post("/api/auth/register/confirm", json={"token": d["token"], "code": d["test_code"]})
 
     # Sıfırlama talebi başlat
     res = client.post("/api/auth/forgot-password", json={
@@ -104,11 +107,14 @@ def test_email_update_otp_flow(client):
     """E-posta güncelleme işleminin 6 haneli OTP kodu ile doğrulandığını ve brute-force korumasını test eder."""
     username = "email_otp_user"
     password = "EmailTestPassword123!"
-    client.post("/api/auth/register", json={
+    reg_res = client.post("/api/auth/register", json={
         "username": username,
         "password": password,
         "email": "initial_user_email@example.com"
     })
+    if reg_res.status_code == 200:
+        d = reg_res.json()
+        client.post("/api/auth/register/confirm", json={"token": d["token"], "code": d["test_code"]})
     login_res = client.post("/api/auth/login", json={"username": username, "password": password})
     token_jwt = login_res.json().get("token")
     headers = {"Authorization": f"Bearer {token_jwt}", "Content-Type": "application/json"}
@@ -186,11 +192,14 @@ def test_password_change_email_otp_flow(client):
     """Şifre değiştirmenin kayıtlı e-postaya gelen 6 haneli OTP kodu ile yapıldığını test eder."""
     username = "pwd_otp_user"
     old_password = "OldStrongPassword123!"
-    client.post("/api/auth/register", json={
+    reg_res = client.post("/api/auth/register", json={
         "username": username,
         "password": old_password,
         "email": "pwd_test@example.com"
     })
+    if reg_res.status_code == 200:
+        d = reg_res.json()
+        client.post("/api/auth/register/confirm", json={"token": d["token"], "code": d["test_code"]})
     login_res = client.post("/api/auth/login", json={"username": username, "password": old_password})
     token_jwt = login_res.json().get("token")
     headers = {"Authorization": f"Bearer {token_jwt}", "Content-Type": "application/json"}
@@ -255,11 +264,14 @@ def test_delete_account_security_flow(client, admin_headers):
     """Hesap silme işleminde parola doğrulaması, onay metni kontrolü ve admin korumasını test eder."""
     username = "victim_to_delete"
     password = "CorrectUserPass123!"
-    client.post("/api/auth/register", json={
+    reg_del = client.post("/api/auth/register", json={
         "username": username,
         "password": password,
         "email": "delete_me@example.com"
     })
+    if reg_del.status_code == 200:
+        d = reg_del.json()
+        client.post("/api/auth/register/confirm", json={"token": d["token"], "code": d["test_code"]})
     login_res = client.post("/api/auth/login", json={"username": username, "password": password})
     token = login_res.json().get("token")
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}

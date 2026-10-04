@@ -10,6 +10,11 @@ class AuthRequest(BaseModel):
     email: Optional[str] = ""
 
 
+class RegisterConfirmRequest(BaseModel):
+    token: str
+    code: str
+
+
 class ForgotPasswordRequest(BaseModel):
     email_or_username: str
 

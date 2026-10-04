@@ -9,17 +9,31 @@ def test_register_and_login(client):
         "email": "newrunner@example.com"
     }
     
-    # 1. Kayıt testi
+    # 1. Kayıt talebi testi (1. Adım)
     reg_res = client.post("/api/auth/register", json=user_data)
     assert reg_res.status_code == 200
     reg_json = reg_res.json()
-    assert "username" in reg_json or reg_json.get("success") is True or "message" in reg_json
+    assert reg_json.get("success") is True
+    assert "token" in reg_json
+    token_reg = reg_json["token"]
+    test_code = reg_json.get("test_code")
 
-    # 2. Aynı kullanıcı adıyla tekrar kayıt engellenmeli
+    # 2. Kayıt onayı (2. Adım - OTP Onayı)
+    confirm_res = client.post("/api/auth/register/confirm", json={
+        "token": token_reg,
+        "code": test_code
+    })
+    assert confirm_res.status_code == 200
+    confirm_data = confirm_res.json()
+    assert confirm_data.get("success") is True
+    assert "token" in confirm_data
+    assert confirm_data.get("username") == user_data["username"]
+
+    # 3. Aynı kullanıcı adıyla tekrar kayıt engellenmeli
     dup_res = client.post("/api/auth/register", json=user_data)
     assert dup_res.status_code in [400, 409]
 
-    # 3. Giriş testi
+    # 4. Giriş testi
     login_res = client.post("/api/auth/login", json={
         "username": user_data["username"],
         "password": user_data["password"]
@@ -32,11 +46,17 @@ def test_register_and_login(client):
 
 def test_login_invalid_password(client):
     """Hatalı şifre ile giriş reddedilmeli."""
-    client.post("/api/auth/register", json={
+    reg_res = client.post("/api/auth/register", json={
         "username": "athlete_wrong_pass",
         "password": "CorrectPassword123!",
         "email": "wrong@example.com"
     })
+    if reg_res.status_code == 200:
+        d = reg_res.json()
+        client.post("/api/auth/register/confirm", json={
+            "token": d["token"],
+            "code": d["test_code"]
+        })
     
     res = client.post("/api/auth/login", json={
         "username": "athlete_wrong_pass",

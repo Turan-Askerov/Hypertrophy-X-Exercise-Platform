@@ -16,6 +16,10 @@ from models.schemas import (
     UserProfile,
 )
 from services.user_service import update_user_profile
+from services.verification_service import (
+    create_security_verification,
+    verify_security_code,
+)
 
 logger = logging.getLogger("hypertrophy-x")
 
@@ -85,37 +89,20 @@ def request_email_update(
         "SELECT id FROM users WHERE LOWER(email) = ? AND id != ?",
         (new_email, current_user["id"]),
     ).fetchone()
+    conn.close()
     if existing:
-        conn.close()
         raise HTTPException(
             status_code=409,
             detail="Bu e-posta adresi başka bir kullanıcı tarafından kullanılmaktadır.",
         )
 
-    code = f"{secrets.randbelow(1000000):06d}"
-    token = secrets.token_hex(20)
-    expires_at = (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat()
-
-    conn.execute(
-        "INSERT INTO security_verifications (user_id, action, payload, code, token, expires_at, used, failed_attempts) "
-        "VALUES (?, 'email_update', ?, ?, ?, ?, 0, 0)",
-        (current_user["id"], new_email, code, token, expires_at),
+    return create_security_verification(
+        user_id=current_user["id"],
+        username=current_user["username"],
+        target_email=new_email,
+        action="email_update",
+        payload=new_email,
     )
-    conn.commit()
-    conn.close()
-
-    sent = send_security_code_email(
-        new_email, current_user["username"], code, action_type="email_update"
-    )
-    if not sent:
-        logger.warning(f"E-posta gönderim uyarısı: {new_email}")
-
-    return {
-        "success": True,
-        "token": token,
-        "masked_email": mask_email(new_email),
-        "message": f"{mask_email(new_email)} adresine 6 haneli doğrulama kodu gönderildi.",
-    }
 
 
 @router.post("/email/confirm-update")
@@ -124,92 +111,12 @@ def confirm_email_update(
     current_user: dict = Depends(_resolve_current_user),
 ):
     """2. Adım: Yeni e-postaya gönderilen 6 haneli OTP kodunu kontrol eder ve onaylar."""
-    token = str(data.token or "").strip()
-    code = str(data.code or "").strip()
-
-    if not token or not code:
-        raise HTTPException(
-            status_code=400, detail="Doğrulama kodu ve işlem bileti gereklidir."
-        )
-    if len(code) != 6 or not code.isdigit():
-        raise HTTPException(
-            status_code=400, detail="Doğrulama kodu 6 haneli bir sayı olmalıdır."
-        )
-
-    conn = get_db()
-    row = conn.execute(
-        "SELECT * FROM security_verifications WHERE token = ? AND action = 'email_update' AND used = 0 ORDER BY id DESC LIMIT 1",
-        (token,),
-    ).fetchone()
-    if not row:
-        conn.close()
-        raise HTTPException(
-            status_code=400,
-            detail="Geçersiz, süresi dolmuş veya daha önce kullanılmış doğrulama talebi.",
-        )
-
-    record = dict(row)
-    if record["user_id"] != current_user["id"]:
-        conn.close()
-        raise HTTPException(status_code=403, detail="Bu işlem size ait değil.")
-
-    failed_attempts = int(record.get("failed_attempts") or 0)
-    if failed_attempts >= 5:
-        conn.execute(
-            "UPDATE security_verifications SET used = 2 WHERE id = ?", (record["id"],)
-        )
-        conn.commit()
-        conn.close()
-        raise HTTPException(
-            status_code=400,
-            detail="Çok fazla hatalı kod girildi. Bu doğrulama işlemi iptal edildi. Lütfen yeni bir kod isteyin.",
-        )
-
-    # Süre kontrolü
-    try:
-        exp_str = record["expires_at"]
-        exp_time = (
-            datetime.fromisoformat(exp_str)
-            if isinstance(exp_str, str)
-            else exp_str
-        )
-        now = (
-            datetime.now(exp_time.tzinfo)
-            if getattr(exp_time, "tzinfo", None)
-            else datetime.now(timezone.utc)
-        )
-        if now > exp_time:
-            conn.close()
-            raise HTTPException(
-                status_code=400,
-                detail="Doğrulama kodunun süresi dolmuş. Lütfen yeni bir kod isteyin.",
-            )
-    except HTTPException:
-        raise
-    except Exception as exc:
-        logger.warning(f"Süre ayrıştırma: {exc}")
-
-    # Sabit zamanlı kod kontrolü
-    stored_code = str(record["code"]).strip()
-    if not secrets.compare_digest(stored_code, code):
-        new_failed = failed_attempts + 1
-        used_status = 2 if new_failed >= 5 else 0
-        conn.execute(
-            "UPDATE security_verifications SET failed_attempts = ?, used = ? WHERE id = ?",
-            (new_failed, used_status, record["id"]),
-        )
-        conn.commit()
-        conn.close()
-        remaining = max(0, 5 - new_failed)
-        if remaining == 0:
-            raise HTTPException(
-                status_code=400,
-                detail="Çok fazla hatalı kod girildi. Güvenlik nedeniyle işlem iptal edildi.",
-            )
-        raise HTTPException(
-            status_code=400,
-            detail=f"Girdiğiniz doğrulama kodu hatalı. Kalan deneme hakkı: {remaining}",
-        )
+    record, conn = verify_security_code(
+        token=data.token,
+        code=data.code,
+        action="email_update",
+        user_id=current_user["id"],
+    )
 
     new_email = record["payload"]
     conn.execute(

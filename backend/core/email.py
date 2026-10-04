@@ -24,8 +24,12 @@ def mask_email(email: str) -> str:
 def send_security_code_email(
     to_email: str, username: str, code: str, action_type: str = "password_reset"
 ) -> bool:
-    """6 haneli tek kullanımlık güvenlik kodunu (OTP) e-posta ile gönderir."""
     action_configs = {
+        "registration": {
+            "subject": f"Hypertrophy-X Hesap Doğrulama Kodu: {code}",
+            "header": "HESAP DOĞRULAMA",
+            "message": "Hypertrophy-X'e hoş geldiniz! Hesabınızı güvenle oluşturmak ve e-posta adresinizi doğrulamak için aşağıdaki 6 haneli güvenlik kodunu girin:",
+        },
         "email_update": {
             "subject": f"Hypertrophy-X E-posta Değişikliği Doğrulama Kodu: {code}",
             "header": "E-POSTA DEĞİŞİKLİĞİ DOĞRULAMA",

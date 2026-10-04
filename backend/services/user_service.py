@@ -93,14 +93,39 @@ def get_user_by_email_or_username(identifier: str):
 
 
 def create_user(username: str, password: str, email: str = ""):
-    h = _hash_password(password)
-    conn = get_db()
+    clean_username = str(username or "").strip()
     clean_email = str(email or "").strip().lower()
+
+    if len(clean_username) < 2:
+        raise HTTPException(status_code=400, detail="Kullanıcı adı en az 2 karakter olmalı")
+    if not clean_email or "@" not in clean_email or "." not in clean_email.split("@")[-1]:
+        raise HTTPException(status_code=400, detail="Geçerli bir e-posta adresi girilmesi zorunludur.")
+    if len(password) < 6:
+        raise HTTPException(status_code=400, detail="Şifre en az 6 karakter olmalı")
+
+    conn = get_db()
+    # E-posta veya kullanıcı adı çakışması kontrolü
+    existing = conn.execute(
+        """
+        SELECT u.id FROM users u
+        LEFT JOIN athlete_profiles ap ON u.id = ap.user_id
+        WHERE LOWER(u.username) = LOWER(?)
+           OR (u.email IS NOT NULL AND u.email != '' AND LOWER(u.email) = ?)
+           OR (ap.email IS NOT NULL AND ap.email != '' AND LOWER(ap.email) = ?)
+        LIMIT 1
+        """,
+        (clean_username, clean_email, clean_email),
+    ).fetchone()
+    if existing:
+        conn.close()
+        raise HTTPException(status_code=409, detail="Bu kullanıcı adı veya e-posta adresi zaten kullanılıyor")
+
+    h = _hash_password(password)
     try:
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO users (username, password_hash, password_salt, role, is_active, email) VALUES (?, ?, '', 'athlete', 1, ?)",
-            (username, h, clean_email)
+            (clean_username, h, clean_email)
         )
         new_id = getattr(cur, "lastrowid", None)
         if new_id:
@@ -109,10 +134,10 @@ def create_user(username: str, password: str, email: str = ""):
                 (new_id, clean_email)
             )
         conn.commit()
-        return {"message": "Hesap oluşturuldu", "username": username}
+        return {"message": "Hesap oluşturuldu", "username": clean_username, "email": clean_email}
     except (sqlite3.IntegrityError, PostgreSQLIntegrityError):
         conn.close()
-        raise HTTPException(status_code=409, detail="Bu kullanıcı adı zaten kullanılıyor")
+        raise HTTPException(status_code=409, detail="Bu kullanıcı adı veya e-posta zaten kullanılıyor")
     finally:
         conn.close()
 

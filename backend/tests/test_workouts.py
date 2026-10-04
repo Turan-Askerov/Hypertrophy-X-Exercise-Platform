@@ -69,11 +69,14 @@ def test_workout_isolation_between_users(client, auth_headers):
     workout_id = w_res.json()["id"]
 
     # 2. Kullanıcı B oluşturulur ve giriş yapar
-    client.post("/api/auth/register", json={
+    reg_b = client.post("/api/auth/register", json={
         "username": "intruder_user",
         "password": "Password123!",
         "email": "intruder@example.com"
     })
+    if reg_b.status_code == 200:
+        d = reg_b.json()
+        client.post("/api/auth/register/confirm", json={"token": d["token"], "code": d["test_code"]})
     token_b = client.post("/api/auth/login", json={
         "username": "intruder_user",
         "password": "Password123!"

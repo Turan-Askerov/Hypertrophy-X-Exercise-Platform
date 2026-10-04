@@ -28,6 +28,12 @@ EXERCISE_ALIASES = {
     'shoulder press machine': 'shoulder-press-machine',
     'bulgarian split squat': 'bulgarian-split-squad',
     'bulgarian split squats': 'bulgarian-split-squad',
+    'split squat': 'bulgarian-split-squad',
+    'split squats': 'bulgarian-split-squad',
+    'dumbbell split squat': 'bulgarian-split-squad',
+    'dumbbell split squats': 'bulgarian-split-squad',
+    'barbell split squat': 'bulgarian-split-squad',
+    'barbell split squats': 'bulgarian-split-squad',
     # Eski genel calf kayıtları, geriye uyumluluk için Dumbbell varyasyonuna
     # bağlanır. Yeni arayüzde genel "Calf Raises" adı gösterilmez.
     'calf raise': 'calf-raises',

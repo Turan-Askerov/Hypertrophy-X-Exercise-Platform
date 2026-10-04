@@ -24484,86 +24484,126 @@ tr:hover td { background: var(--bg-card-hover); }
       </div>
     </div>
 
-    <div class="subtitle" style="margin-bottom:16px;">
-      <strong style="color:#f8fafc;font-size:15px;display:block;margin-bottom:3px;">Yeni Sporcu Hesabı Oluştur</strong>
-      Kişiselleştirilmiş gelişim takibi için bilgilerinizi girin
-    </div>
+    <!-- 1. ADIM: KAYIT BİLGİLERİ FORMU -->
+    <div id="regStepForm">
+      <div class="subtitle" style="margin-bottom:16px;">
+        <strong style="color:#f8fafc;font-size:15px;display:block;margin-bottom:3px;">Yeni Sporcu Hesabı Oluştur</strong>
+        Kişiselleştirilmiş gelişim takibi ve güvenliğiniz için bilgilerinizi girin
+      </div>
 
-    <div class="auth-error" id="registerError"></div>
+      <div class="auth-error" id="registerError"></div>
 
-    <div class="auth-field-group">
-      <label class="auth-label" for="regUsername">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-        <span>Kullanıcı Adı</span>
-      </label>
-      <input type="text" class="auth-input" id="regUsername" placeholder="Örn. sporcu123" autocomplete="username" />
-    </div>
-
-    <div class="auth-field-group">
-      <label class="auth-label" for="regEmail">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-          <polyline points="22,6 12,13 2,6"></polyline>
-        </svg>
-        <span>E-posta Adresi (İsteğe Bağlı)</span>
-      </label>
-      <input type="email" class="auth-input" id="regEmail" placeholder="ornek@email.com (şifre kurtarma için)" autocomplete="email" />
-    </div>
-
-    <div class="auth-field-group">
-      <label class="auth-label" for="regPassword">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-        </svg>
-        <span>Şifre</span>
-      </label>
-      <div class="auth-input-wrap">
-        <input type="password" class="auth-input" id="regPassword" placeholder="En az 6 karakter" autocomplete="new-password" />
-        <button type="button" class="auth-password-toggle-btn" onclick="togglePasswordVisibility('regPassword', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
+      <div class="auth-field-group">
+        <label class="auth-label" for="regUsername">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
           </svg>
-        </button>
+          <span>Kullanıcı Adı <strong style="color:#ef4444;">*</strong></span>
+        </label>
+        <input type="text" class="auth-input" id="regUsername" placeholder="Örn. sporcu123" autocomplete="username" />
       </div>
-      <div class="auth-field-hint">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-        <span>Minimum 3 karakter gereklidir</span>
-      </div>
-    </div>
 
-    <div class="auth-field-group">
-      <label class="auth-label" for="regPasswordConfirm">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-        </svg>
-        <span>Şifre Onayı</span>
-      </label>
-      <div class="auth-input-wrap">
-        <input type="password" class="auth-input" id="regPasswordConfirm" placeholder="Şifrenizi tekrar yazın" autocomplete="new-password" />
-        <button type="button" class="auth-password-toggle-btn" onclick="togglePasswordVisibility('regPasswordConfirm', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
+      <div class="auth-field-group">
+        <label class="auth-label" for="regEmail">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
           </svg>
-        </button>
+          <span>E-posta Adresi <strong style="color:#ef4444;">*</strong></span>
+        </label>
+        <input type="email" class="auth-input" id="regEmail" placeholder="adiniz@ornek.com (onay kodu gönderilecek)" autocomplete="email" required />
+        <div class="auth-field-hint" style="color:#38bdf8;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span>E-posta girişi ve 6 haneli kod onayı zorunludur.</span>
+        </div>
+      </div>
+
+      <div class="auth-field-group">
+        <label class="auth-label" for="regPassword">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Şifre <strong style="color:#ef4444;">*</strong></span>
+        </label>
+        <div class="auth-input-wrap">
+          <input type="password" class="auth-input" id="regPassword" placeholder="En az 6 karakter" autocomplete="new-password" />
+          <button type="button" class="auth-password-toggle-btn" onclick="togglePasswordVisibility('regPassword', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+        <div class="auth-field-hint">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span>Minimum 6 karakter gereklidir</span>
+        </div>
+      </div>
+
+      <div class="auth-field-group">
+        <label class="auth-label" for="regPasswordConfirm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span>Şifre Onayı <strong style="color:#ef4444;">*</strong></span>
+        </label>
+        <div class="auth-input-wrap">
+          <input type="password" class="auth-input" id="regPasswordConfirm" placeholder="Şifrenizi tekrar yazın" autocomplete="new-password" />
+          <button type="button" class="auth-password-toggle-btn" onclick="togglePasswordVisibility('regPasswordConfirm', this)" title="Şifreyi Göster / Gizle" aria-label="Şifreyi Göster">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="auth-btn" type="button" id="regStartBtn" onclick="doRegister()">
+        <span>Devam Et & Doğrulama Kodu Al</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+
+      <div class="auth-footer">
+        Zaten bir hesabınız var mı? <a onclick="showLogin()">Giriş Yap</a>
       </div>
     </div>
 
-    <button class="auth-btn" type="button" onclick="doRegister()">
-      <span>Hesap Oluştur ve Başla</span>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-        <polyline points="12 5 19 12 12 19"></polyline>
-      </svg>
-    </button>
+    <!-- 2. ADIM: E-POSTA OTP KODU ONAYI -->
+    <div id="regStepOtp" class="hidden">
+      <div class="subtitle" style="margin-bottom:16px;">
+        <strong style="color:#f8fafc;font-size:15px;display:block;margin-bottom:3px;">E-posta Doğrulaması</strong>
+        <span id="regMaskedEmailText" style="color:#38bdf8; font-weight:700;"></span> adresinize 6 haneli güvenlik kodu gönderildi.
+      </div>
 
-    <div class="auth-footer">
-      Zaten bir hesabınız var mı? <a onclick="showLogin()">Giriş Yap</a>
+      <div class="auth-error" id="regOtpError"></div>
+
+      <div class="auth-field-group">
+        <label class="auth-label" for="regOtpCode" style="justify-content:center; margin-bottom:12px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span style="letter-spacing:0.5px;">6 HANELİ DOĞRULAMA KODU</span>
+        </label>
+        <div style="display:flex; justify-content:center;">
+          <input type="text" id="regOtpCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="••••••" style="text-align:center; letter-spacing:10px; font-size:28px; font-weight:900; color:#38bdf8; background:rgba(15,23,42,0.65); border:1.5px solid rgba(99,102,241,0.4); border-radius:14px; padding:12px; width:260px; box-sizing:border-box; outline:none; transition:all 0.2s;" onfocus="this.style.borderColor='#818cf8';this.style.boxShadow='0 0 16px rgba(99,102,241,0.35)';" onblur="this.style.borderColor='rgba(99,102,241,0.4)';this.style.boxShadow='none';" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length === 6) doConfirmRegister();" onkeydown="if(event.key==='Enter') doConfirmRegister();" />
+        </div>
+        <div style="font-size:11.5px; color:#94a3b8; text-align:center; margin-top:8px;">⏱️ Kodun geçerlilik süresi 15 dakikadır.</div>
+      </div>
+
+      <button class="auth-btn" type="button" id="regConfirmBtn" onclick="doConfirmRegister()">
+        <span>Kaydı Tamamla & Giriş Yap</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </button>
+
+      <div class="auth-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+        <a onclick="showRegisterStep(1)" style="cursor:pointer; font-size:12px; color:#94a3b8;">← Bilgileri Değiştir</a>
+        <a id="regResendBtn" onclick="doRegisterResend()" style="cursor:pointer; font-size:12px; color:#818cf8; font-weight:600;">Tekrar Gönder</a>
+      </div>
     </div>
   </div>
 </div>
@@ -28214,10 +28254,29 @@ function showLogin() {
   window.history.replaceState(null, '', '/');
   document.title = 'Hypertrophy-X — Giriş';
 }
+function showRegisterStep(step) {
+  const pForm = document.getElementById('regStepForm');
+  const pOtp = document.getElementById('regStepOtp');
+  if (pForm) pForm.classList.toggle('hidden', step !== 1);
+  if (pOtp) pOtp.classList.toggle('hidden', step !== 2);
+  const err1 = document.getElementById('registerError');
+  const err2 = document.getElementById('regOtpError');
+  if (err1) { err1.textContent = ''; err1.classList.remove('show'); }
+  if (err2) { err2.textContent = ''; err2.classList.remove('show'); }
+  if (step === 2) {
+    const codeInp = document.getElementById('regOtpCode');
+    if (codeInp) {
+      codeInp.value = '';
+      setTimeout(() => codeInp.focus(), 50);
+    }
+  }
+}
+
 function showRegister() {
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('registerPage').classList.remove('hidden');
   document.getElementById('forgotPasswordPage')?.classList.add('hidden');
+  showRegisterStep(1);
   document.title = 'Hypertrophy-X — Hesap Oluştur';
 }
 let _fpFromProfile = false;
@@ -28366,33 +28425,175 @@ async function doLogin() {
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   ALT BÖLÜM 4.4: KAYIT İŞLEMİ (DO REGISTER)
+   ALT BÖLÜM 4.4: 2 AŞAMALI KAYIT İŞLEMİ (E-POSTA OTP DOĞRULAMALI)
 ────────────────────────────────────────────────────────────────────────── */
+let _regToken = '';
+let _regMaskedEmail = '';
+let _regResendCooldown = 0;
+let _regResendTimer = null;
+
 async function doRegister() {
   const username = document.getElementById('regUsername').value.trim();
   const email = (document.getElementById('regEmail')?.value || '').trim();
   const password = document.getElementById('regPassword').value;
   const confirm = document.getElementById('regPasswordConfirm').value;
   const errEl = document.getElementById('registerError');
+  const btn = document.getElementById('regStartBtn');
   errEl.classList.remove('show');
 
-  if (!username || !password) { errEl.textContent = 'Tüm alanları doldurun'; errEl.classList.add('show'); return; }
-  if (password !== confirm) { errEl.textContent = 'Şifreler eşleşmiyor'; errEl.classList.add('show'); return; }
+  if (!username) { errEl.textContent = 'Lütfen kullanıcı adı girin'; errEl.classList.add('show'); return; }
+  if (username.length < 2) { errEl.textContent = 'Kullanıcı adı en az 2 karakter olmalıdır'; errEl.classList.add('show'); return; }
+  if (!email || !email.includes('@') || !email.includes('.')) { 
+    errEl.textContent = 'Hesap açmak için geçerli bir e-posta adresi girilmesi zorunludur.'; 
+    errEl.classList.add('show'); 
+    return; 
+  }
+  if (!password) { errEl.textContent = 'Lütfen şifre belirleyin'; errEl.classList.add('show'); return; }
   if (password.length < 6) { errEl.textContent = 'Şifre en az 6 karakter olmalı'; errEl.classList.add('show'); return; }
+  if (password !== confirm) { errEl.textContent = 'Şifreler eşleşmiyor'; errEl.classList.add('show'); return; }
+
+  const origBtnHtml = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span>Kod Gönderiliyor...</span>'; }
 
   try {
     const res = await fetch(`${API}/api/auth/register`, {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST', 
+      headers: {'Content-Type':'application/json'},
       body: JSON.stringify({username, password, email})
     });
+    const d = await res.json();
     if (!res.ok) {
-      const d = await res.json();
-      errEl.textContent = d.detail || 'Kayıt başarısız';
+      errEl.textContent = d.detail || 'Kayıt işlemi başlatılamadı';
       errEl.classList.add('show');
       return;
     }
-    toast('Hesap oluşturuldu! Giriş yapabilirsiniz.', 'success');
-    showLogin();
+
+    _regToken = d.token || '';
+    _regMaskedEmail = d.masked_email || email;
+    const maskedEl = document.getElementById('regMaskedEmailText');
+    if (maskedEl) maskedEl.textContent = _regMaskedEmail;
+
+    toast('Doğrulama kodu e-posta adresinize gönderildi!', 'info');
+    showRegisterStep(2);
+    startRegResendCountdown(60);
+  } catch(e) {
+    errEl.textContent = 'Bağlantı hatası: ' + e.message;
+    errEl.classList.add('show');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = origBtnHtml; }
+  }
+}
+
+async function doConfirmRegister() {
+  const codeInp = document.getElementById('regOtpCode');
+  const code = (codeInp?.value || '').trim();
+  const errEl = document.getElementById('regOtpError');
+  const btn = document.getElementById('regConfirmBtn');
+  errEl.classList.remove('show');
+
+  if (!_regToken) {
+    errEl.textContent = 'Doğrulama bileti geçersiz. Lütfen formu baştan doldurun.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
+    errEl.textContent = 'Lütfen 6 haneli doğrulama kodunu eksiksiz girin.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  const origBtnHtml = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span>Hesap Doğrulanıyor...</span>'; }
+
+  try {
+    const res = await fetch(`${API}/api/auth/register/confirm`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({token: _regToken, code})
+    });
+    const d = await res.json();
+    if (!res.ok) {
+      errEl.textContent = d.detail || 'Kod doğrulanamadı.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    toast('Hesabınız başarıyla oluşturuldu ve doğrulandı! Giriş yapılıyor...', 'success');
+
+    // Otomatik giriş ve uygulama başlatma
+    const token = d.token;
+    const userObj = d.user || { username: d.username, role: 'athlete' };
+    _currentUser = userObj;
+    _isAdmin = !!userObj.is_admin;
+
+    localStorage.setItem('hx_token', token);
+    localStorage.setItem('hx_user', userObj.username);
+    localStorage.setItem('hx_loggedIn', 'true');
+    localStorage.setItem('hx_isAdmin', _isAdmin ? '1' : '0');
+
+    // Formu temizle ve platforma geç
+    if (codeInp) codeInp.value = '';
+    const regPass = document.getElementById('regPassword');
+    const regPassConf = document.getElementById('regPasswordConfirm');
+    if (regPass) regPass.value = '';
+    if (regPassConf) regPassConf.value = '';
+
+    enterApp();
+  } catch(e) {
+    errEl.textContent = 'Bağlantı hatası: ' + e.message;
+    errEl.classList.add('show');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = origBtnHtml; }
+  }
+}
+
+function startRegResendCountdown(sec = 60) {
+  _regResendCooldown = sec;
+  const resendBtn = document.getElementById('regResendBtn');
+  if (_regResendTimer) clearInterval(_regResendTimer);
+
+  function update() {
+    if (!resendBtn) return;
+    if (_regResendCooldown > 0) {
+      resendBtn.style.pointerEvents = 'none';
+      resendBtn.style.opacity = '0.5';
+      resendBtn.textContent = `Tekrar Gönder (${_regResendCooldown}s)`;
+      _regResendCooldown--;
+    } else {
+      resendBtn.style.pointerEvents = 'auto';
+      resendBtn.style.opacity = '1';
+      resendBtn.textContent = 'Tekrar Gönder';
+      clearInterval(_regResendTimer);
+      _regResendTimer = null;
+    }
+  }
+  update();
+  _regResendTimer = setInterval(update, 1000);
+}
+
+async function doRegisterResend() {
+  if (_regResendCooldown > 0) return;
+  const username = document.getElementById('regUsername').value.trim();
+  const email = (document.getElementById('regEmail')?.value || '').trim();
+  const password = document.getElementById('regPassword').value;
+  const errEl = document.getElementById('regOtpError');
+  errEl.classList.remove('show');
+
+  try {
+    const res = await fetch(`${API}/api/auth/register`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username, password, email})
+    });
+    const d = await res.json();
+    if (!res.ok) {
+      errEl.textContent = d.detail || 'Yeni kod gönderilemedi';
+      errEl.classList.add('show');
+      return;
+    }
+    _regToken = d.token || '';
+    toast('Yeni doğrulama kodu gönderildi!', 'success');
+    startRegResendCountdown(60);
   } catch(e) {
     errEl.textContent = 'Bağlantı hatası: ' + e.message;
     errEl.classList.add('show');
@@ -30865,15 +31066,16 @@ async function loadDashboardPRTable(username) {
 
       exercises.forEach(ex => {
         const exName = (ex.exercise_name || "").toLowerCase();
+        const exId = String(ex.canonical_exercise_id || ex.exercise_id || "").toLowerCase();
 
         TARGET_COMPOUNDS.forEach(target => {
           let isMatch = false;
-          if (target.key === 'bench' && exName.includes('bench press')) isMatch = true;
-          if (target.key === 'squat' && exName.includes('squat') && !exName.includes('bulgarian')) isMatch = true;
-          if (target.key === 'deadlift' && exName.includes('deadlift')) isMatch = true;
-          if (target.key === 'overhead' && (exName.includes('overhead press') || exName.includes('ohp'))) isMatch = true;
-          if (target.key === 'row' && exName.includes('barbell row')) isMatch = true;
-          if (target.key === 'bulgarian' && exName.includes('bulgarian')) isMatch = true;
+          if (target.key === 'bench' && (exName.includes('bench press') || exId === 'bench-press')) isMatch = true;
+          if (target.key === 'squat' && ((exName.includes('squat') || exId === 'squat') && !exName.includes('bulgarian') && !exName.includes('split') && !exId.includes('bulgarian') && !exId.includes('split'))) isMatch = true;
+          if (target.key === 'deadlift' && (exName.includes('deadlift') || exId === 'deadlift')) isMatch = true;
+          if (target.key === 'overhead' && (exName.includes('overhead press') || exName.includes('ohp') || exId === 'overhead-press')) isMatch = true;
+          if (target.key === 'row' && (exName.includes('barbell row') || exId === 'barbell-row')) isMatch = true;
+          if (target.key === 'bulgarian' && (exName.includes('bulgarian') || exName.includes('split squat') || exId.includes('bulgarian') || exId.includes('split-squat') || exId === 'bulgarian-split-squad')) isMatch = true;
 
           if (isMatch) {
             const sets = ex.sets_data || [];
@@ -33232,6 +33434,9 @@ async function saveEdit(index, workoutId, event) {
     await apiPut(`/api/workouts/${workoutId}`, { exercises: exercises, notes: workout.notes || '' });
     toast('Antrenman seti başarıyla güncellendi!', 'success');
     loadHistory(username);
+    if (username) {
+      loadDashboardPRTable(username);
+    }
   } catch (err) {
     toast('Güncelleme hatası: ' + err.message, 'error');
   }
@@ -33276,6 +33481,9 @@ async function confirmHistoryDelete() {
       await apiDelete(`/api/workouts/${item.id}`);
       toast('Antrenman kaydı başarıyla silindi!', 'success');
       loadHistory(username);
+      if (username) {
+        loadDashboardPRTable(username);
+      }
     } catch(e) {
       toast('Hata: ' + e.message, 'error');
     }
