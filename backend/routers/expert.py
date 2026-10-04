@@ -556,7 +556,7 @@ def generate_expert_recommendation(user: dict = Depends(_resolve_current_user)):
 @router.put("/api/expert-data/recommendation/reorder")
 def reorder_expert_recommendation(data: dict = Body(...), user: dict = Depends(_resolve_current_user)):
     """Sabit Pazartesi–Pazar slotlarındaki içerikleri yer değiştirir ve GÜNCEL HAREKETLERİ kaydeder."""
-    preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
+    preferences = _parse_dashboard_preferences(dict(user).get("dashboard_preferences", "{}"))
     recommendation = preferences.get("expert_recommendation")
     requested_weeks = data.get("weeks") if isinstance(data, dict) else None
 
@@ -587,7 +587,7 @@ def reorder_expert_recommendation(data: dict = Body(...), user: dict = Depends(_
             updated_days.append({
                 "day_id": slot_id,
                 "slot_id": slot_id,
-                "day": _EXPERT_WEEKDAY_LABELS[day_index],
+                "day": ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"][day_index],
                 **content,
             })
         current_week["days"] = updated_days
@@ -945,7 +945,7 @@ def replace_expert_recommendation_exercise(data: dict = Body(...), user: dict = 
     if not slot_id or not source_exercise_id or not alternative_exercise_id or source_exercise_id == alternative_exercise_id:
         raise HTTPException(status_code=400, detail="Geçerli kaynak ve alternatif hareket seçin.")
 
-    preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
+    preferences = _parse_dashboard_preferences(dict(user).get("dashboard_preferences", "{}"))
     recommendation = preferences.get("expert_recommendation")
     if not isinstance(recommendation, dict):
         raise HTTPException(status_code=404, detail="Düzenlenecek uzman önerisi bulunamadı.")

@@ -531,7 +531,7 @@ def expert_data_analysis(user: dict) -> dict:
         profile = expert_data_profile(conn, user["id"])
     finally:
         conn.close()
-    analysis = evaluate_expert_rules(expert_rule_context(profile or {}, user["id"], user.get("dashboard_preferences", "{}")))
+    analysis = evaluate_expert_rules(expert_rule_context(profile or {}, user["id"], dict(user).get("dashboard_preferences", "{}")))
     analysis["generated_on_display"] = format_tr_date(analysis.get("generated_on"))
 
     user_workouts = get_workouts_by_user(user["id"])
@@ -612,7 +612,7 @@ def expert_data_analysis(user: dict) -> dict:
 
 def recommendation_days_per_week(user: dict) -> int:
     try:
-        days = int(user.get("days_per_week") or 3)
+        days = int(dict(user).get("days_per_week") or 3)
     except (TypeError, ValueError):
         days = 3
     return max(1, min(7, days))
@@ -625,13 +625,13 @@ def build_expert_recommendation(user: dict) -> dict:
     finally:
         conn.close()
     profile = profile or {}
-    context = expert_rule_context(profile, user["id"], user.get("dashboard_preferences", "{}"))
+    context = expert_rule_context(profile, user["id"], dict(user).get("dashboard_preferences", "{}"))
     days_per_week = recommendation_days_per_week(user)
     targets = context.get("targets") or {}
     planner_profile = dict(user)
     planner_profile["days_per_week"] = days_per_week
-    movement_preferences = exercise_preference_selection(user.get("dashboard_preferences", "{}"))
-    raw_goal = str(targets.get("primary_goal") or user.get("goal") or "hypertrophy").strip().lower()
+    movement_preferences = exercise_preference_selection(dict(user).get("dashboard_preferences", "{}"))
+    raw_goal = str(targets.get("primary_goal") or dict(user).get("goal") or "hypertrophy").strip().lower()
     goal_map = {
         "bulk": "hypertrophy",
         "cut": "fat_loss",
@@ -672,7 +672,7 @@ def build_expert_recommendation(user: dict) -> dict:
 
 
 def save_expert_recommendation(user: dict, recommendation: dict) -> dict:
-    preferences = _parse_dashboard_preferences(user.get("dashboard_preferences", "{}"))
+    preferences = _parse_dashboard_preferences(dict(user).get("dashboard_preferences", "{}"))
     preferences["schema_version"] = max(2, int(preferences.get("schema_version") or 1))
     preferences["expert_recommendation"] = recommendation
     pref_json = json.dumps(preferences, ensure_ascii=False)

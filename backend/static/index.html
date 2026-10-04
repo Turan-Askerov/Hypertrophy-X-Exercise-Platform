@@ -38072,7 +38072,7 @@ let _adminSelectedUserId = null;
 ────────────────────────────────────────────────────────────────────────── */
 function formatLastSeenTR(u) {
   if (!u) return '—';
-  if (u.is_online) return '<span style="color:#34d399; font-weight:700;">Yakın zamanda</span>';
+  if (u.is_online) return '<span style="color:#34d399; font-weight:700;">Şu an aktif</span>';
 
   let targetTs = null;
   if (u.last_active_ts && u.last_active_ts > 0) {
@@ -38087,14 +38087,32 @@ function formatLastSeenTR(u) {
 
   const diffMs = Date.now() - targetTs;
   const diffSec = Math.floor(diffMs / 1000);
+  const diffHours = Math.floor(diffSec / 3600);
   const diffDays = Math.floor(diffSec / 86400);
 
-  if (diffSec < 1800) return 'Yakın zamanda';
-  if (diffDays === 0) return 'Bugün';
-  if (diffDays === 1) return 'Dün';
-  if (diffDays <= 3) return 'Son 3 gün';
-  if (diffDays <= 7) return 'Son 1 hafta';
-  if (diffDays <= 30) return 'Son 1 ay';
+  if (diffHours < 24) {
+    if (diffSec < 3600) {
+      const mins = Math.floor(diffSec / 60);
+      return mins <= 1 ? 'Az önce' : `${mins} dakika önce`;
+    }
+    return `${diffHours} saat önce`;
+  }
+
+  if (diffDays < 7) {
+    return `${diffDays} gün önce`;
+  }
+
+  if (diffDays < 30) {
+    if (diffDays % 7 === 0) {
+      return `${Math.floor(diffDays / 7)} hafta önce`;
+    }
+    return `${diffDays} gün önce`;
+  }
+
+  if (diffDays % 30 === 0) {
+    return `${Math.floor(diffDays / 30)} ay önce`;
+  }
+  
   return `${diffDays} gün önce`;
 }
 
@@ -44675,7 +44693,7 @@ window.expertDataSaveDomsGrid = async function() {
     expertDataDomsShowAddForm = false;
     expertDataDomsEditDraft = null;
     toast('Bugünkü kas ağrısı kayıtları güncellendi.', 'success');
-    renderExpertSystem(false);
+    renderExpertSystem(true);
   } catch (error) {
     toast(error.message, 'error');
   }
@@ -44711,7 +44729,7 @@ window.expertDataSaveDomsEdit = async function() {
     expertDataDomsEditDraft = null;
     expertDataDomsShowAddForm = false;
     toast('Kas ağrısı kaydı güncellendi.', 'success');
-    renderExpertSystem(false);
+    renderExpertSystem(true);
   } catch (error) {
     toast(error.message, 'error');
   }
@@ -44859,7 +44877,7 @@ window.expertDataOpenDomsDeleteModal = function(reportDate, muscleGroup) {
       closeModal();
       toast('Kas ağrısı kaydı silindi.', 'success');
       if (typeof renderExpertSystem === 'function') {
-        renderExpertSystem(false);
+        renderExpertSystem(true);
       }
     } catch (error) {
       if (confirmBtn) {
@@ -44906,7 +44924,7 @@ window.expertDataSaveInjury = async function() {
     expertDataState = draft.id ? await apiPut(`/api/expert-data/injuries/${draft.id}`, payload) : await apiPost('/api/expert-data/injuries', payload);
     expertDataInjuryDraft = null;
     toast(draft.id ? 'Sakatlık kaydı güncellendi.' : 'Sakatlık kaydı eklendi (aktif).', 'success');
-    renderExpertSystem(false);
+    renderExpertSystem(true);
   } catch (error) {
     toast(error.message, 'error');
   }
@@ -44968,7 +44986,7 @@ window.expertDataToggleInjuryActive = async function(id, isActive) {
       expertDataInjuryDraft.is_active = Boolean(isActive);
     }
     toast(isActive ? 'Sakatlık kaydı aktifleştirildi.' : 'Sakatlık kaydı pasife alındı.', 'success');
-    renderExpertSystem(false);
+    renderExpertSystem(true);
   } catch (error) {
     toast(error.message, 'error');
   }
@@ -45146,7 +45164,7 @@ window.expertDataOpenInjuryDeleteModal = function(id) {
       closeModal();
       toast('Sakatlık kaydı silindi.', 'success');
       if (typeof renderExpertSystem === 'function') {
-        renderExpertSystem(false);
+        renderExpertSystem(true);
       }
     } catch (error) {
       if (confirmBtn) {
