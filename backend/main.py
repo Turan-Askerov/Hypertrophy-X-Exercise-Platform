@@ -107,7 +107,7 @@ def health_check():
         conn = get_db()
         conn.execute("SELECT 1")
         conn.close()
-        return {"status": "ok", "db": "ok", "version": "5.0"}
+        return {"status": "ok", "db": "ok", "version": "4.0"}
     except Exception as e:
         return {"status": "degraded", "db": "error", "detail": str(e)}
 
