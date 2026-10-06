@@ -171,15 +171,20 @@ EXERCISE_POOL = [
               secondary_muscles=["rhomboids", "lats", "biceps"], movement_pattern="horizontal_pull",
               equipment=["cable_machine", "bench", "single_handle"], load_mode="external_load", fatigue_cost="medium"),
 
-    _exercise("dumbbell-low-row", "Dumbbell Low Row", "Back", "compound", False,
+    _exercise("dumbbell-row", "Dumbbell Row", "Back", "compound", False,
               family="row", variation="dumbbell_low", primary_muscles=["lats"],
-              secondary_muscles=["upper_back", "biceps", "rear_delts"], movement_pattern="horizontal_pull",
-              equipment=["dumbbells"], load_mode="external_load", fatigue_cost="medium"),
+              secondary_muscles=["upper_back", "biceps"], movement_pattern="horizontal_pull",
+              equipment=["dumbbells"], load_mode="external_load", fatigue_cost="high"),
 
     _exercise("seated-row", "Seated Row", "Back", "compound", False,
               family="row", variation="seated_cable", primary_muscles=["upper_back", "lats"],
               secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
               equipment=["cable_row_machine"], load_mode="external_load", fatigue_cost="medium"),
+
+    _exercise("upper-back-cable-row", "Upper Back Cable Row", "Back", "compound", False,
+              family="row", variation="upper_back_cable", primary_muscles=["upper_back"],
+              secondary_muscles=["biceps"], movement_pattern="horizontal_pull",
+              equipment=["cable_machine"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("t-bar-row", "T-Bar Row", "Back", "compound", False,
               family="row", variation="t_bar", primary_muscles=["upper_back", "lats"],
@@ -263,8 +268,7 @@ EXERCISE_POOL = [
     _exercise("scapular-push-ups-weighted", "Scapular Push Ups", "Back", "isolation", False,
               family="scapular_protraction", variation="weighted", primary_muscles=["serratus_anterior"],
               secondary_muscles=["chest"], movement_pattern="scapular_protraction",
-              equipment=["bodyweight", "weight_plate"], load_mode="bodyweight_plus_external",
-              fatigue_cost="low"),
+              equipment=["bodyweight", "weight_plate"], load_mode="bodyweight_plus_external",fatigue_cost="low"),
 
     # ── OMUZ EGZERSİZLERİ ──────────────────────────────────────────
     # --- Bileşik (Compound) Egzersizler ---
