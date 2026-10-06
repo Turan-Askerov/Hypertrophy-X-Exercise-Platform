@@ -26221,15 +26221,17 @@ tr:hover td { background: var(--bg-card-hover); }
               <div id="profileTabContent_security" class="profile-form-inner" style="flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; gap: 14px;">
 
                 <!-- E-POSTA BÖLÜMÜ -->
-                <div class="profile-form-section-title">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                  <span>Kayıtlı E-posta (Gmail)</span>
+                <div class="profile-form-section-title" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <span>Kayıtlı E-posta (Gmail)</span>
+                  </div>
+                  <span id="profEmailStatusBadge" style="font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(52, 211, 153, 0.45); background: rgba(16, 185, 129, 0.16); color: #34d399; box-shadow: 0 0 10px rgba(16, 185, 129, 0.35); text-transform: uppercase; letter-spacing: 0.04em;">Doğrulanmış</span>
                 </div>
 
                 <div class="profile-field-group">
                   <label class="profile-field-label" for="profEmail">
                     <span>E-posta Adresi</span>
-                    <span class="profile-unit-tag">Güvenlik</span>
                   </label>
                   <div class="profile-input-wrap">
                     <input type="email" id="profEmail" placeholder="Örn: adiniz@gmail.com" autocomplete="email" />
@@ -26320,46 +26322,112 @@ tr:hover td { background: var(--bg-card-hover); }
               </div>
 
               <!-- KRİTİK İŞLEMLER İÇERİĞİ -->
-              <div id="profileTabContent_danger" class="profile-form-inner" style="display: none; flex: 1; flex-direction: column; justify-content: space-evenly; gap: 14px;">
+              <div id="profileTabContent_danger" class="profile-form-inner" style="display: none; flex: 1; flex-direction: column; justify-content: space-between; gap: 14px;">
 
-                <div class="profile-danger-actions-list">
-                  <!-- EYLEM 1: UZMAN SİSTEMİ SIFIRLAMA -->
-                  <div class="profile-danger-action-item">
-                    <div class="profile-danger-item-info">
-                      <div class="profile-danger-item-title">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <!-- UYARI BANNER / KRİTİK BÖLGE SİSTEM BİLGİSİ -->
+                <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 12px;">
+                  <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(239, 68, 68, 0.18); border: 1px solid rgba(239, 68, 68, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #ef4444;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                      <line x1="12" y1="9" x2="12" y2="13"></line>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                  </div>
+                  <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: 750; color: #fca5a5; display: flex; align-items: center; justify-content: space-between;">
+                      <span>Hassas Veri & Hesap Yönetimi</span>
+                      <span style="font-size: 10px; padding: 2px 7px; border-radius: 6px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); font-weight: 700;">Geri Alınamaz Alan</span>
+                    </div>
+                    <p style="font-size: 11.5px; color: #cbd5e1; margin-top: 4px; line-height: 1.45; opacity: 0.9;">
+                      Bu paneldeki işlemler doğrudan veritabanı kayıtlarınızı ve kişiselleştirilmiş yapay zeka algoritması verilerinizi etkiler.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- KART 1: UZMAN SİSTEMİ SIFIRLAMA -->
+                <div class="profile-danger-action-card" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(245, 158, 11, 0.14); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; color: #fbbf24; flex-shrink: 0;">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                           <polyline points="23 4 23 10 17 10"></polyline>
                           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
                         </svg>
-                        <span>Uzman Sistemi Verilerini Sıfırla</span>
                       </div>
-                      <p class="profile-danger-item-desc">Yalnızca bu hesaba ait split taslak, salon ve kas yorgunluğu (DOMS) önerilerini sıfırlar. Antrenman geçmişiniz korunur.</p>
+                      <div>
+                        <div style="font-size: 13.5px; font-weight: 750; color: #fef08a;">Uzman Algoritması & DOMS Verilerini Sıfırla</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 1px;">Akıllı split taslakları, salon tercihleri ve kas yorgunluk matrisi</div>
+                      </div>
                     </div>
-                    <button type="button" class="profile-danger-item-btn amber" onclick="expertDataResetLegacy()">
-                      <span>Verileri Sıfırla</span>
-                    </button>
+                    <span style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); white-space: nowrap;">Modül Sıfırlama</span>
                   </div>
 
-                  <!-- EYLEM 2: HESABI KALICI OLARAK SİL -->
-                  <div class="profile-danger-action-item" style="border-color: rgba(239, 68, 68, 0.35); background: rgba(38, 18, 24, 0.55);">
-                    <div class="profile-danger-item-info">
-                      <div class="profile-danger-item-title" style="color: #fca5a5;">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <!-- Detay Kontrol Listesi -->
+                  <div style="background: rgba(0, 0, 0, 0.25); border-radius: 8px; padding: 8px 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px;">
+                    <div style="display: flex; align-items: center; gap: 6px; color: #6ee7b7;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span>Antrenman Günlüğü Korunur</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; color: #fca5a5;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      <span>DOMS Skoru Temizlenir</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; color: #6ee7b7;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span>1RM Rekorları Saklanır</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; color: #fca5a5;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      <span>Salon Tercihleri Sıfırlanır</span>
+                    </div>
+                  </div>
+
+                  <button type="button" class="profile-danger-item-btn amber" onclick="expertDataResetLegacy()" style="width: 100%; justify-content: center; padding: 9px 14px; font-weight: 700; border-radius: 9px; margin-top: 2px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="23 4 23 10 17 10"></polyline>
+                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    <span>Uzman Sistemi Verilerini Sıfırla</span>
+                  </button>
+                </div>
+
+                <!-- KART 2: HESABI KALICI OLARAK SİL -->
+                <div class="profile-danger-action-card" style="background: rgba(38, 18, 24, 0.65); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(239, 68, 68, 0.16); border: 1px solid rgba(239, 68, 68, 0.35); display: flex; align-items: center; justify-content: center; color: #ef4444; flex-shrink: 0;">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                           <polyline points="3 6 5 6 21 6"></polyline>
                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                           <line x1="10" y1="11" x2="10" y2="17"></line>
                           <line x1="14" y1="11" x2="14" y2="17"></line>
                         </svg>
-                        <span>Hesabı Kalıcı Olarak Sil</span>
                       </div>
-                      <p class="profile-danger-item-desc" style="color: #fca5a5; opacity: 0.85;">Tüm antrenman geçmişi, 1RM rekorları, DOMS analizleri ve biyometrik profil veritabanından kalıcı olarak silinir. Bu işlem geri alınamaz.</p>
+                      <div>
+                        <div style="font-size: 13.5px; font-weight: 750; color: #fca5a5;">Hesabı ve Tüm Verileri Kalıcı Olarak Sil</div>
+                        <div style="font-size: 11px; color: #f87171; opacity: 0.85; margin-top: 1px;">Tüm profiliniz, antrenman geçmişiniz ve istatistikleriniz silinir</div>
+                      </div>
                     </div>
-                    <button type="button" class="profile-danger-item-btn red" onclick="openDeleteAccountModal()">
-                      <span>Hesabı Sil</span>
-                    </button>
+                    <span style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); white-space: nowrap;">Geri Alınamaz</span>
                   </div>
+
+                  <!-- Bilgilendirme Notu -->
+                  <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #fca5a5; line-height: 1.4; display: flex; align-items: flex-start; gap: 7px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span>Hesabınız silindiğinde antrenman geçmişiniz, 1RM rekorlarınız ve profil verileriniz veritabanından tamamen silinecektir.</span>
+                  </div>
+
+                  <button type="button" class="profile-danger-item-btn red" onclick="openDeleteAccountModal()" style="width: 100%; justify-content: center; padding: 9px 14px; font-weight: 700; border-radius: 9px; margin-top: 2px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    <span>Hesabımı Kalıcı Olarak Sil</span>
+                  </button>
                 </div>
-              
+
               </div>
             </div>
           </div>
@@ -36878,31 +36946,35 @@ function updateProfileEmailDisplays(email) {
     emailInput.value = cleanEmail;
   }
 
-  if (cleanEmail) {
+  const isVerified = (_currentUser && typeof _currentUser.email_verified !== 'undefined')
+    ? !!_currentUser.email_verified
+    : !!cleanEmail;
+
+  if (cleanEmail && isVerified) {
     if (heroText) heroText.textContent = cleanEmail;
     if (heroBadge) {
       heroBadge.style.display = 'none';
       heroBadge.title = '';
     }
     if (statusBadge) {
-      statusBadge.textContent = 'Doğrulanmış / Aktif';
+      statusBadge.textContent = 'Doğrulanmış';
       statusBadge.style.background = 'rgba(16, 185, 129, 0.16)';
       statusBadge.style.color = '#34d399';
       statusBadge.style.borderColor = 'rgba(52, 211, 153, 0.45)';
-      statusBadge.style.boxShadow = '0 0 12px rgba(16, 185, 129, 0.25)';
+      statusBadge.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.35)';
     }
   } else {
-    if (heroText) heroText.textContent = '';
+    if (heroText) heroText.textContent = cleanEmail || '';
     if (heroBadge) {
       heroBadge.style.display = 'none';
       heroBadge.title = '';
     }
     if (statusBadge) {
-      statusBadge.textContent = 'E-posta Tanımlanmamış (Eksik)';
+      statusBadge.textContent = 'Doğrulanmamış';
       statusBadge.style.background = 'rgba(239, 68, 68, 0.16)';
       statusBadge.style.color = '#f87171';
       statusBadge.style.borderColor = 'rgba(239, 68, 68, 0.45)';
-      statusBadge.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.22)';
+      statusBadge.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.35)';
     }
   }
 }
@@ -40481,36 +40553,36 @@ function expertDataDomsLevelInput(muscle, entry) {
   const safeId = String(muscle.id).replace(/[^a-zA-Z0-9_-]/g, '');
   const muscleId = JSON.stringify(muscle.id);
   const severityLevels = [
-    { label: '0 · Yok', short: 'Yok', color: '#a78bfa', glow: 'rgba(167, 139, 250, 0.4)' },
-    { label: '1 · Çok Hafif', short: 'Çok Hafif', color: '#22d3ee', glow: 'rgba(34, 211, 238, 0.4)' },
-    { label: '2 · Hafif', short: 'Hafif', color: '#34d399', glow: 'rgba(52, 211, 153, 0.4)' },
-    { label: '3 · Orta', short: 'Orta', color: '#fbbf24', glow: 'rgba(251, 191, 36, 0.4)' },
-    { label: '4 · Belirgin', short: 'Belirgin', color: '#fb923c', glow: 'rgba(251, 146, 60, 0.4)' },
-    { label: '5 · Şiddetli', short: 'Şiddetli', color: '#f43f5e', glow: 'rgba(244, 63, 94, 0.45)' }
+    { label: '0 · Yok', short: 'Yok', color: '#10b981', glow: 'rgba(16, 185, 129, 0.4)' },
+    { label: '1 · Çok Hafif', short: 'Çok Hafif', color: '#34d399', glow: 'rgba(52, 211, 153, 0.4)' },
+    { label: '2 · Hafif', short: 'Hafif', color: '#86efac', glow: 'rgba(134, 239, 172, 0.4)' },
+    { label: '3 · Orta', short: 'Orta', color: '#fca5a5', glow: 'rgba(252, 165, 165, 0.4)' },
+    { label: '4 · Belirgin', short: 'Belirgin', color: '#f87171', glow: 'rgba(248, 113, 113, 0.4)' },
+    { label: '5 · Şiddetli', short: 'Şiddetli', color: '#ef4444', glow: 'rgba(239, 68, 68, 0.45)' }
   ];
   const sevMeta = severityLevels[severity] || severityLevels[0];
   const pct = (severity / 5) * 100;
   const scoreColor = sevMeta.color;
-  const scoreBorder = sevMeta.color + '77';
-  const scoreGlow = '0 0 10px ' + sevMeta.color + '55';
+  const scoreBorder = sevMeta.color + '55';
+  const scoreGlow = 'none';
   const isActive = severity > 0;
 
   const ticksHtml = [0, 1, 2, 3, 4, 5].map(i => {
     const isCurrent = i === severity;
-    const tickColorStyle = isCurrent ? `color:${scoreColor};text-shadow:0 0 6px ${scoreColor};font-weight:850;` : '';
+    const tickColorStyle = isCurrent ? `color:${scoreColor};font-weight:850;` : '';
     return `<span class="doms-tick ${isCurrent ? 'is-active' : ''}" style="${tickColorStyle}" onclick="expertDataDomsSetTick(${muscleId}, ${i})" title="${severityLevels[i].label}">${i}</span>`;
   }).join('');
 
   return `<div id="expertDataDomsCard_${safeId}" class="expert-data-doms-input ${isActive ? 'is-active-doms' : ''}">
     <div class="expert-data-doms-input-head">
       <div style="display:flex;align-items:center;gap:6px;min-width:0;">
-        <span id="expertDataDomsDot_${safeId}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${isActive ? scoreColor : 'rgba(167,139,250,0.4)'};box-shadow:${isActive ? '0 0 8px ' + scoreColor : 'none'};flex-shrink:0;transition:all 0.2s ease;"></span>
+        <span id="expertDataDomsDot_${safeId}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${isActive ? scoreColor : 'rgba(16,185,129,0.4)'};box-shadow:none;flex-shrink:0;transition:all 0.2s ease;"></span>
         <span id="expertDataDomsName_${safeId}" class="expert-data-doms-input-name">${expertDataEscape(muscle.label)}</span>
       </div>
       <span id="expertDataDomsScore_${safeId}" class="expert-data-doms-input-score" style="color:${scoreColor};border-color:${scoreBorder};box-shadow:${scoreGlow};transition:all 0.25s ease;">${severity}/5 · ${sevMeta.short}</span>
     </div>
     <div class="expert-data-doms-bar-container">
-      <input class="expertDataDomsMuscleInput" data-muscle="${expertDataEscape(muscle.id)}" type="range" min="0" max="5" step="1" value="${severity}" style="background:linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataDomsGridRangeChange(${muscleId}, this.value, this)" onchange="expertDataDomsGridRangeChange(${muscleId}, this.value, this)">
+      <input class="expertDataDomsMuscleInput" data-muscle="${expertDataEscape(muscle.id)}" type="range" min="0" max="5" step="0.01" value="${severity}" style="background:linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataDomsGridRangeChange(${muscleId}, this.value, this)" onchange="expertDataDomsSnapRange(this, ${muscleId})">
       <div class="expert-data-doms-ticks">
         ${ticksHtml}
       </div>
@@ -40523,18 +40595,18 @@ function expertDataDomsEditForm(draft, hasDoms = true) {
   const safeId = String(draft.muscle_group).replace(/[^a-zA-Z0-9_-]/g, '');
   const severity = Math.max(0, Math.min(5, Number(draft.severity || 0)));
   const severityLevels = [
-    { label: '0 · Yok', short: 'Yok', color: '#a78bfa', glow: 'rgba(167, 139, 250, 0.4)' },
-    { label: '1 · Çok Hafif', short: 'Çok Hafif', color: '#22d3ee', glow: 'rgba(34, 211, 238, 0.4)' },
-    { label: '2 · Hafif', short: 'Hafif', color: '#34d399', glow: 'rgba(52, 211, 153, 0.4)' },
-    { label: '3 · Orta', short: 'Orta', color: '#fbbf24', glow: 'rgba(251, 191, 36, 0.4)' },
-    { label: '4 · Belirgin', short: 'Belirgin', color: '#fb923c', glow: 'rgba(251, 146, 60, 0.4)' },
-    { label: '5 · Şiddetli', short: 'Şiddetli', color: '#f43f5e', glow: 'rgba(244, 63, 94, 0.45)' }
+    { label: '0 · Yok', short: 'Yok', color: '#10b981', glow: 'rgba(16, 185, 129, 0.4)' },
+    { label: '1 · Çok Hafif', short: 'Çok Hafif', color: '#34d399', glow: 'rgba(52, 211, 153, 0.4)' },
+    { label: '2 · Hafif', short: 'Hafif', color: '#86efac', glow: 'rgba(134, 239, 172, 0.4)' },
+    { label: '3 · Orta', short: 'Orta', color: '#fca5a5', glow: 'rgba(252, 165, 165, 0.4)' },
+    { label: '4 · Belirgin', short: 'Belirgin', color: '#f87171', glow: 'rgba(248, 113, 113, 0.4)' },
+    { label: '5 · Şiddetli', short: 'Şiddetli', color: '#ef4444', glow: 'rgba(239, 68, 68, 0.45)' }
   ];
   const sevMeta = severityLevels[severity] || severityLevels[0];
   const pct = (severity / 5) * 100;
   const scoreColor = sevMeta.color;
-  const scoreBorder = sevMeta.color + '77';
-  const scoreGlow = '0 0 14px ' + sevMeta.color + '66';
+  const scoreBorder = sevMeta.color + '55';
+  const scoreGlow = 'none';
 
   return `<div class="expert-data-doms-edit">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
@@ -40556,14 +40628,14 @@ function expertDataDomsEditForm(draft, hasDoms = true) {
         </span>
         <span id="expertDataDomsEditScore" class="expert-data-range-score" style="color:${scoreColor};border-color:${scoreBorder};box-shadow:${scoreGlow};transition:all 0.25s ease;">${severity}/5 · ${sevMeta.short}</span>
       </div>
-      <input id="expertDataDomsEditSeverity" type="range" min="0" max="5" step="1" value="${severity}" style="background:linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataDomsEditRangeChange(this.value, this)">
+      <input id="expertDataDomsEditSeverity" type="range" min="0" max="5" step="0.01" value="${severity}" style="background:linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataDomsEditRangeChange(this.value, this)" onchange="expertDataDomsEditSnapRange(this)">
       <div class="expert-data-range-labels">
-        <span style="color:#a78bfa;font-weight:750;">0<span class="desktop-txt">&nbsp;· Yok</span></span>
-        <span style="color:#22d3ee;font-weight:750;">1<span class="desktop-txt">&nbsp;· Çok Hafif</span></span>
-        <span style="color:#34d399;font-weight:750;">2<span class="desktop-txt">&nbsp;· Hafif</span></span>
-        <span style="color:#fbbf24;font-weight:750;">3<span class="desktop-txt">&nbsp;· Orta</span></span>
-        <span style="color:#fb923c;font-weight:750;">4<span class="desktop-txt">&nbsp;· Belirgin</span></span>
-        <span style="color:#f43f5e;font-weight:750;">5<span class="desktop-txt">&nbsp;· Şiddetli</span></span>
+        <span style="color:#10b981;font-weight:750;">0<span class="desktop-txt">&nbsp;· Yok</span></span>
+        <span style="color:#34d399;font-weight:750;">1<span class="desktop-txt">&nbsp;· Çok Hafif</span></span>
+        <span style="color:#86efac;font-weight:750;">2<span class="desktop-txt">&nbsp;· Hafif</span></span>
+        <span style="color:#fca5a5;font-weight:750;">3<span class="desktop-txt">&nbsp;· Orta</span></span>
+        <span style="color:#f87171;font-weight:750;">4<span class="desktop-txt">&nbsp;· Belirgin</span></span>
+        <span style="color:#ef4444;font-weight:750;">5<span class="desktop-txt">&nbsp;· Şiddetli</span></span>
       </div>
     </div>
 
@@ -41288,20 +41360,20 @@ function expertDataInjuryPane() {
   const activeCount = items.filter(i => i.is_active !== false).length;
 
   const severityLevels = [
-    { label: '0 · Kısıt Yok', short: 'Kısıt Yok', color: '#a78bfa', glow: 'rgba(167, 139, 250, 0.4)' },
-    { label: '1 · Çok Hafif', short: 'Çok Hafif', color: '#22d3ee', glow: 'rgba(34, 211, 238, 0.4)' },
-    { label: '2 · Hafif', short: 'Hafif', color: '#34d399', glow: 'rgba(52, 211, 153, 0.4)' },
-    { label: '3 · Orta', short: 'Orta', color: '#fbbf24', glow: 'rgba(251, 191, 36, 0.4)' },
-    { label: '4 · Belirgin', short: 'Belirgin', color: '#fb923c', glow: 'rgba(251, 146, 60, 0.4)' },
-    { label: '5 · Şiddetli', short: 'Şiddetli', color: '#f43f5e', glow: 'rgba(244, 63, 94, 0.45)' }
+    { label: '0 · Kısıt Yok', short: 'Kısıt Yok', color: '#10b981', glow: 'rgba(16, 185, 129, 0.4)' },
+    { label: '1 · Çok Hafif', short: 'Çok Hafif', color: '#34d399', glow: 'rgba(52, 211, 153, 0.4)' },
+    { label: '2 · Hafif', short: 'Hafif', color: '#86efac', glow: 'rgba(134, 239, 172, 0.4)' },
+    { label: '3 · Orta', short: 'Orta', color: '#fca5a5', glow: 'rgba(252, 165, 165, 0.4)' },
+    { label: '4 · Belirgin', short: 'Belirgin', color: '#f87171', glow: 'rgba(248, 113, 113, 0.4)' },
+    { label: '5 · Şiddetli', short: 'Şiddetli', color: '#ef4444', glow: 'rgba(239, 68, 68, 0.45)' }
   ];
 
   const severity = Math.max(0, Math.min(5, Number(draft.severity || 0)));
   const sevMeta = severityLevels[severity] || severityLevels[0];
   const pct = (severity / 5) * 100;
   const scoreColor = sevMeta.color;
-  const scoreBorder = sevMeta.color + '77';
-  const scoreGlow = '0 0 14px ' + sevMeta.color + '66';
+  const scoreBorder = sevMeta.color + '55';
+  const scoreGlow = 'none';
 
   // Kayıt varsa ve ekleme/düzenleme modunda değilse -> Sadece Sakatlık Kayıt Panosu
   if (hasInjuries && !showForm) {
@@ -41484,14 +41556,14 @@ function expertDataInjuryPane() {
             </span>
             <span id="expertDataInjuryScore" class="expert-data-range-score" style="color:${scoreColor};border-color:${scoreBorder};box-shadow:${scoreGlow};transition:all 0.25s ease;">${severity}/5 · ${sevMeta.short}</span>
           </div>
-          <input id="expertDataInjurySeverity" type="range" min="0" max="5" step="1" value="${severity}" style="background:linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataRangeChange('injury', this.value, this)">
+          <input id="expertDataInjurySeverity" type="range" min="0" max="5" step="0.01" value="${severity}" style="background:linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataRangeChange('injury', this.value, this)" onchange="expertDataInjurySnapRange(this)">
           <div class="expert-data-range-labels">
-            <span style="color:#a78bfa;font-weight:750;">0<span class="desktop-txt">&nbsp;· Kısıt Yok</span></span>
-            <span style="color:#22d3ee;font-weight:750;">1<span class="desktop-txt">&nbsp;· Çok Hafif</span></span>
-            <span style="color:#34d399;font-weight:750;">2<span class="desktop-txt">&nbsp;· Hafif</span></span>
-            <span style="color:#fbbf24;font-weight:750;">3<span class="desktop-txt">&nbsp;· Orta</span></span>
-            <span style="color:#fb923c;font-weight:750;">4<span class="desktop-txt">&nbsp;· Belirgin</span></span>
-            <span style="color:#f43f5e;font-weight:750;">5<span class="desktop-txt">&nbsp;· Şiddetli</span></span>
+            <span style="color:#10b981;font-weight:750;">0<span class="desktop-txt">&nbsp;· Kısıt Yok</span></span>
+            <span style="color:#34d399;font-weight:750;">1<span class="desktop-txt">&nbsp;· Çok Hafif</span></span>
+            <span style="color:#86efac;font-weight:750;">2<span class="desktop-txt">&nbsp;· Hafif</span></span>
+            <span style="color:#fca5a5;font-weight:750;">3<span class="desktop-txt">&nbsp;· Orta</span></span>
+            <span style="color:#f87171;font-weight:750;">4<span class="desktop-txt">&nbsp;· Belirgin</span></span>
+            <span style="color:#ef4444;font-weight:750;">5<span class="desktop-txt">&nbsp;· Şiddetli</span></span>
           </div>
         </div>
 
@@ -44547,27 +44619,32 @@ window.expertDataSwitchPlanningTab = function(tab) {
 };
 
 window.expertDataRangeChange = function(kind, value, inputEl) {
-  const level = Math.max(0, Math.min(5, Number(value) || 0));
+  const floatVal = Math.max(0, Math.min(5, Number(value) || 0));
+  const level = Math.round(floatVal);
   const id = kind === 'doms' ? 'expertDataDomsScore' : 'expertDataInjuryScore';
   const label = document.getElementById(id);
   const input = inputEl || (kind === 'doms' ? document.getElementById('expertDataDomsSeverity') : document.getElementById('expertDataInjurySeverity'));
   const severityDesc = ['Kısıt Yok', 'Çok Hafif', 'Hafif', 'Orta', 'Belirgin', 'Şiddetli'];
-  const neonColors = ['#a78bfa', '#22d3ee', '#34d399', '#fbbf24', '#fb923c', '#f43f5e'];
-  const scoreColor = neonColors[level] || '#a78bfa';
-  const scoreGlow = `0 0 14px ${scoreColor}66`;
+  const neonColors = ['#10b981', '#34d399', '#86efac', '#fca5a5', '#f87171', '#ef4444'];
+  const scoreColor = neonColors[level] || '#10b981';
   if (label) {
     label.textContent = kind === 'doms' ? `${level}/5` : `${level}/5 · ${severityDesc[level]}`;
     label.style.color = scoreColor;
-    label.style.borderColor = `${scoreColor}77`;
-    label.style.boxShadow = scoreGlow;
-    label.classList.remove('expert-score-pop');
-    void label.offsetWidth;
-    label.classList.add('expert-score-pop');
+    label.style.borderColor = `${scoreColor}55`;
+    label.style.boxShadow = 'none';
   }
   if (input) {
-    const pct = (level / 5) * 100;
+    const pct = (floatVal / 5) * 100;
     input.style.background = `linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%)`;
+    input.style.setProperty('--thumb-color', scoreColor);
   }
+};
+
+window.expertDataInjurySnapRange = function(inputEl) {
+  if (!inputEl) return;
+  const snapped = Math.round(Math.max(0, Math.min(5, Number(inputEl.value) || 0)));
+  inputEl.value = snapped;
+  window.expertDataRangeChange('injury', snapped, inputEl);
 };
 
 window.expertDataTogglePriority = function(muscle) {
@@ -44624,26 +44701,23 @@ window.expertDataDomsSetTick = function(muscleId, val) {
 };
 
 window.expertDataDomsGridRangeChange = function(muscleId, value, input) {
-  const level = Math.max(0, Math.min(5, Number(value) || 0));
+  const floatVal = Math.max(0, Math.min(5, Number(value) || 0));
+  const level = Math.round(floatVal);
   const safeId = String(muscleId).replace(/[^a-zA-Z0-9_-]/g, '');
   const score = document.getElementById(`expertDataDomsScore_${safeId}`);
   const severityDesc = ['Yok', 'Çok Hafif', 'Hafif', 'Orta', 'Belirgin', 'Şiddetli'];
-  const neonColors = ['#a78bfa', '#22d3ee', '#34d399', '#fbbf24', '#fb923c', '#f43f5e'];
-  const scoreColor = neonColors[level] || '#a78bfa';
-  const scoreGlow = `0 0 10px ${scoreColor}55`;
+  const neonColors = ['#10b981', '#34d399', '#86efac', '#fca5a5', '#f87171', '#ef4444'];
+  const scoreColor = neonColors[level] || '#10b981';
   if (score) {
     score.textContent = `${level}/5 · ${severityDesc[level]}`;
     score.style.color = scoreColor;
-    score.style.borderColor = `${scoreColor}77`;
-    score.style.boxShadow = scoreGlow;
-    score.classList.remove('expert-score-pop');
-    void score.offsetWidth;
-    score.classList.add('expert-score-pop');
+    score.style.borderColor = `${scoreColor}55`;
+    score.style.boxShadow = 'none';
   }
   const dotEl = document.getElementById(`expertDataDomsDot_${safeId}`);
   if (dotEl) {
-    dotEl.style.background = level > 0 ? scoreColor : 'rgba(167,139,250,0.4)';
-    dotEl.style.boxShadow = level > 0 ? `0 0 8px ${scoreColor}` : 'none';
+    dotEl.style.background = level > 0 ? scoreColor : 'rgba(16,185,129,0.4)';
+    dotEl.style.boxShadow = 'none';
   }
   const cardEl = document.getElementById(`expertDataDomsCard_${safeId}`);
   if (cardEl) {
@@ -44653,7 +44727,7 @@ window.expertDataDomsGridRangeChange = function(muscleId, value, input) {
       tick.classList.toggle('is-active', isCurrent);
       if (isCurrent) {
         tick.style.color = scoreColor;
-        tick.style.textShadow = `0 0 6px ${scoreColor}`;
+        tick.style.textShadow = 'none';
         tick.style.fontWeight = '850';
       } else {
         tick.style.color = '';
@@ -44664,9 +44738,17 @@ window.expertDataDomsGridRangeChange = function(muscleId, value, input) {
   }
   if (input) {
     input.setAttribute('aria-valuetext', `${level}/5`);
-    const pct = (level / 5) * 100;
+    const pct = (floatVal / 5) * 100;
     input.style.background = `linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%)`;
+    input.style.setProperty('--thumb-color', scoreColor);
   }
+};
+
+window.expertDataDomsSnapRange = function(inputEl, muscleId) {
+  if (!inputEl) return;
+  const snapped = Math.round(Math.max(0, Math.min(5, Number(inputEl.value) || 0)));
+  inputEl.value = snapped;
+  window.expertDataDomsGridRangeChange(muscleId, snapped, inputEl);
 };
 
 if (!window.__expertDataDomsSliderBound) {
@@ -44680,26 +44762,31 @@ if (!window.__expertDataDomsSliderBound) {
 }
 
 window.expertDataDomsEditRangeChange = function(value, inputEl) {
-  const level = Math.max(0, Math.min(5, Number(value) || 0));
+  const floatVal = Math.max(0, Math.min(5, Number(value) || 0));
+  const level = Math.round(floatVal);
   const score = document.getElementById('expertDataDomsEditScore');
   const input = inputEl || document.getElementById('expertDataDomsEditSeverity');
   const severityDesc = ['Yok', 'Çok Hafif', 'Hafif', 'Orta', 'Belirgin', 'Şiddetli'];
-  const neonColors = ['#a78bfa', '#22d3ee', '#34d399', '#fbbf24', '#fb923c', '#f43f5e'];
-  const scoreColor = neonColors[level] || '#a78bfa';
-  const scoreGlow = `0 0 14px ${scoreColor}66`;
+  const neonColors = ['#10b981', '#34d399', '#86efac', '#fca5a5', '#f87171', '#ef4444'];
+  const scoreColor = neonColors[level] || '#10b981';
   if (score) {
     score.textContent = `${level}/5 · ${severityDesc[level]}`;
     score.style.color = scoreColor;
-    score.style.borderColor = `${scoreColor}77`;
-    score.style.boxShadow = scoreGlow;
-    score.classList.remove('expert-score-pop');
-    void score.offsetWidth;
-    score.classList.add('expert-score-pop');
+    score.style.borderColor = `${scoreColor}55`;
+    score.style.boxShadow = 'none';
   }
   if (input) {
-    const pct = (level / 5) * 100;
+    const pct = (floatVal / 5) * 100;
     input.style.background = `linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%)`;
+    input.style.setProperty('--thumb-color', scoreColor);
   }
+};
+
+window.expertDataDomsEditSnapRange = function(inputEl) {
+  if (!inputEl) return;
+  const snapped = Math.round(Math.max(0, Math.min(5, Number(inputEl.value) || 0)));
+  inputEl.value = snapped;
+  window.expertDataDomsEditRangeChange(snapped, inputEl);
 };
 
 window.expertDataStartAddDoms = function() {
