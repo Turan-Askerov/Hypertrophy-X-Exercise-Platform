@@ -1,6 +1,6 @@
 """Hypertrophy-X merkezi Pydantic istek ve veri modelleri."""
 from typing import Optional, List, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ── Auth Modelleri ──
@@ -220,10 +220,24 @@ class ExpertDomsDataRequest(BaseModel):
     severity: int
     notes: Optional[str] = ""
 
+    @field_validator("severity", mode="before")
+    def parse_severity(cls, v):
+        try:
+            return round(float(v))
+        except (ValueError, TypeError):
+            return 0
+
 
 class ExpertDomsEntryUpdateRequest(BaseModel):
     severity: int
     notes: Optional[str] = ""
+
+    @field_validator("severity", mode="before")
+    def parse_severity(cls, v):
+        try:
+            return round(float(v))
+        except (ValueError, TypeError):
+            return 0
 
 
 class ExpertGymDataRequest(BaseModel):

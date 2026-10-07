@@ -9120,6 +9120,138 @@ tr:hover td { background: var(--bg-card-hover); }
 .db-migration-btn-purple { width:100%; height:44px; }
 .db-migration-btn-cyan { width:100%; height:44px; }
 
+/* ═══ DB SYNC CONFIRMATION MODAL (POSTGRESQL -> SQLITE) ═══ */
+.db-sync-modal-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(8, 11, 22, 0.82);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.db-sync-modal-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.db-sync-modal-box {
+  background: linear-gradient(160deg, rgba(16, 24, 39, 0.98) 0%, rgba(11, 17, 30, 0.99) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.38);
+  border-radius: 20px;
+  padding: 24px 22px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(56, 189, 248, 0.20);
+  transform: scale(0.92) translateY(12px);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+.db-sync-modal-overlay.is-visible .db-sync-modal-box {
+  transform: scale(1) translateY(0);
+}
+.db-sync-modal-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(2, 132, 199, 0.12) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+}
+.db-sync-modal-title {
+  margin: 0 0 8px;
+  font-size: 17.5px;
+  font-weight: 850;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+.db-sync-modal-desc {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.55;
+}
+.db-sync-modal-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 10px;
+  font-size: 11.5px;
+  color: #bae6fd;
+  margin-bottom: 18px;
+  text-align: left;
+  line-height: 1.45;
+  width: 100%;
+  box-sizing: border-box;
+}
+.db-sync-modal-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.db-sync-modal-btn {
+  flex: 1;
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-user-select: none;
+  user-select: none;
+  box-sizing: border-box;
+}
+.db-sync-modal-btn.cancel {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #cbd5e1;
+}
+.db-sync-modal-btn.cancel:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+.db-sync-modal-btn.confirm {
+  flex: 1.25;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid rgba(56, 189, 248, 0.55);
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
+}
+.db-sync-modal-btn.confirm:hover {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5);
+  transform: translateY(-1px);
+}
+
 /* ═══ DB DRY-RUN SWITCH SELECT BUTTON ═══ */
 .db-dryrun-select {
   display: inline-flex;
@@ -19157,10 +19289,40 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .profile-danger-reset-btn {
     width: 100% !important;
-    min-height: 42px !important;
-    font-size: 12.5px !important;
+    min-height: 44px !important;
+    font-size: 13px !important;
     font-weight: 750 !important;
-    padding: 10px 14px !important;
+    padding: 11px 16px !important;
+  }
+  .profile-danger-item-btn {
+    width: 100% !important;
+    min-height: 44px !important;
+    font-size: 13.5px !important;
+    font-weight: 750 !important;
+    padding: 11px 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+  .expert-reset-actions {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .expert-reset-btn {
+    width: 100% !important;
+    min-height: 48px !important;
+    height: 48px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    padding: 12px 18px !important;
+    border-radius: 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
   }
 }
 
@@ -19360,10 +19522,17 @@ tr:hover td { background: var(--bg-card-hover); }
     gap: 12px !important;
     padding: 14px 12px !important;
   }
-  .profile-danger-action-item .profile-danger-item-btn {
+  .profile-danger-action-item .profile-danger-item-btn,
+  .profile-danger-item-btn {
     width: 100% !important;
     justify-content: center !important;
-    min-height: 40px !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    font-size: 13.5px !important;
+    font-weight: 750 !important;
+    padding: 12px 16px !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
   }
   .profile-tabs-wrapper {
     width: 100% !important;
@@ -19422,20 +19591,28 @@ tr:hover td { background: var(--bg-card-hover); }
     font-size: 11px;
   }
   .expert-reset-input {
-    height: 38px;
-    font-size: 12.5px;
-    padding: 0 10px;
+    height: 42px;
+    font-size: 13px;
+    padding: 0 12px;
     margin-bottom: 14px;
   }
   .expert-reset-actions {
-    flex-direction: column-reverse;
-    gap: 8px;
+    flex-direction: column-reverse !important;
+    gap: 10px !important;
+    width: 100% !important;
   }
   .expert-reset-btn {
-    width: 100%;
-    height: 40px;
-    font-size: 12.5px;
-    padding: 0 12px;
+    width: 100% !important;
+    min-height: 48px !important;
+    height: 48px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    padding: 12px 18px !important;
+    border-radius: 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
   }
 }
 
@@ -39829,26 +40006,89 @@ async function dbMigratePostgresToSqlite() {
     pgUrl = '';
   }
 
-  if (!confirm('PostgreSQL\'deki kayıtlar yerel SQLite (hypertrophy.db) dosyasına çekilecektir. Devam etmek istiyor musunuz?')) return;
+  const existingModal = document.getElementById('dbConfirmPullOverlay');
+  if (existingModal) existingModal.remove();
 
-  dbAddMigrationLog('INFO', 'PostgreSQL ➔ SQLite aktarım işlemi başlatılıyor...');
-  dbAddMigrationLog('INFO', pgUrl ? 'Özel girilen PostgreSQL bağlantısı kullanılıyor...' : '.env dosyasındaki Neon PostgreSQL bağlantısı otomatik kullanılıyor...');
+  const overlay = document.createElement('div');
+  overlay.id = 'dbConfirmPullOverlay';
+  overlay.className = 'db-sync-modal-overlay';
+  overlay.innerHTML = `
+    <div class="db-sync-modal-box" role="dialog" aria-modal="true">
+      <div class="db-sync-modal-icon-wrap">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+          <polyline points="12 11 12 17 9 14"></polyline>
+          <polyline points="12 17 15 14"></polyline>
+        </svg>
+      </div>
+      <h3 class="db-sync-modal-title">Bulut Verilerini SQLite'a Aktar</h3>
+      <p class="db-sync-modal-desc">
+        Bulut <strong>PostgreSQL</strong> sunucusundaki kullanıcı hesapları, antrenman kayıtları ve uzman profilleri yerel <strong>hypertrophy.db</strong> dosyasına çekilecek ve eşitlenecektir.
+      </p>
+      
+      <div class="db-sync-modal-info-box">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" style="flex-shrink:0; margin-top:1px;">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>Yerel veritabanınızdaki mevcut kayıtlar korunur, buluttan gelen yeni ve güncel veriler çakışma kontrolüyle birleştirilir.</span>
+      </div>
 
-  try {
-    const res = await apiPost('/api/admin/db/migrate/postgres-to-sqlite', {
-      database_url: pgUrl || undefined
-    });
+      <div class="db-sync-modal-actions">
+        <button type="button" class="db-sync-modal-btn cancel" id="dbConfirmPullCancelBtn">
+          Vazgeç
+        </button>
+        <button type="button" class="db-sync-modal-btn confirm" id="dbConfirmPullExecuteBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Evet, Verileri Çek</span>
+        </button>
+      </div>
+    </div>
+  `;
 
-    if (res.logs && Array.isArray(res.logs)) {
-      res.logs.forEach(l => dbAddMigrationLog(l.includes('Hata') ? 'ERROR' : 'SUCCESS', l));
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => {
+    overlay.classList.add('is-visible');
+  });
+
+  const closeModal = () => {
+    overlay.classList.remove('is-visible');
+    setTimeout(() => {
+      if (document.body.contains(overlay)) overlay.remove();
+    }, 260);
+  };
+
+  overlay.querySelector('#dbConfirmPullCancelBtn').onclick = closeModal;
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  overlay.querySelector('#dbConfirmPullExecuteBtn').onclick = async () => {
+    closeModal();
+    dbAddMigrationLog('INFO', 'PostgreSQL ➔ SQLite aktarım işlemi başlatılıyor...');
+    dbAddMigrationLog('INFO', pgUrl ? 'Özel girilen PostgreSQL bağlantısı kullanılıyor...' : '.env dosyasındaki Neon PostgreSQL bağlantısı otomatik kullanılıyor...');
+
+    try {
+      const res = await apiPost('/api/admin/db/migrate/postgres-to-sqlite', {
+        database_url: pgUrl || undefined
+      });
+
+      if (res.logs && Array.isArray(res.logs)) {
+        res.logs.forEach(l => dbAddMigrationLog(l.includes('Hata') ? 'ERROR' : 'SUCCESS', l));
+      }
+
+      toast(`PostgreSQL verileri SQLite'a çekildi (${res.added_users || 0} yeni kullanıcı, ${res.added_workouts || 0} yeni seans)`, 'success');
+      loadDbManagementPage();
+    } catch(e) {
+      dbAddMigrationLog('ERROR', 'Aktarım başarısız: ' + e.message);
+      toast('Aktarım başarısız: ' + e.message, 'error');
     }
-
-    toast(`PostgreSQL verileri SQLite'a çekildi (${res.added_users || 0} yeni kullanıcı, ${res.added_workouts || 0} yeni seans)`, 'success');
-    loadDbManagementPage();
-  } catch(e) {
-    dbAddMigrationLog('ERROR', 'Aktarım başarısız: ' + e.message);
-    toast('Aktarım başarısız: ' + e.message, 'error');
-  }
+  };
 }
 
 
@@ -40541,7 +40781,7 @@ function expertDataUnifiedDomsBoard(history) {
 
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
           ${isActive
-            ? '<span class="injury-state-badge active"><span class="state-dot"></span>Aktif DOMS</span>'
+            ? `<span class="injury-state-badge active" style="background:${sevMeta.color}22;color:${sevMeta.color};border:1px solid ${sevMeta.color}66;box-shadow:0 0 12px ${sevMeta.glow};"><span class="state-dot" style="background:${sevMeta.color};box-shadow:0 0 8px ${sevMeta.color};"></span>Aktif DOMS</span>`
             : '<span class="injury-state-badge passive"><span class="passive-dot"></span>Toparlandı</span>'}
           ${isEditing ? '<span class="injury-state-badge editing">Düzenleniyor</span>' : ''}
         </div>
@@ -40606,7 +40846,7 @@ function expertDataDomsLevelInput(muscle, entry) {
   const ticksHtml = [0, 1, 2, 3, 4, 5].map(i => {
     const isCurrent = i === severity;
     const tickColorStyle = isCurrent ? `color:${scoreColor};font-weight:850;` : '';
-    return `<span class="doms-tick ${isCurrent ? 'is-active' : ''}" style="${tickColorStyle}" onclick="expertDataDomsSetTick(${muscleId}, ${i})" title="${severityLevels[i].label}">${i}</span>`;
+    return `<span class="doms-tick ${isCurrent ? 'is-active' : ''}" style="${tickColorStyle}" onclick='expertDataDomsSetTick(${muscleId}, ${i})' title="${severityLevels[i].label}">${i}</span>`;
   }).join('');
 
   return `<div id="expertDataDomsCard_${safeId}" class="expert-data-doms-input ${isActive ? 'is-active-doms' : ''}">
@@ -40618,7 +40858,7 @@ function expertDataDomsLevelInput(muscle, entry) {
       <span id="expertDataDomsScore_${safeId}" class="expert-data-doms-input-score" style="color:${scoreColor};border-color:${scoreBorder};box-shadow:${scoreGlow};transition:all 0.25s ease;">${severity}/5 · ${sevMeta.short}</span>
     </div>
     <div class="expert-data-doms-bar-container">
-      <input class="expertDataDomsMuscleInput" data-muscle="${expertDataEscape(muscle.id)}" type="range" min="0" max="5" step="0.01" value="${severity}" style="background:linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput="expertDataDomsGridRangeChange(${muscleId}, this.value, this)" onchange="expertDataDomsSnapRange(this, ${muscleId})">
+      <input class="expertDataDomsMuscleInput" data-muscle="${expertDataEscape(muscle.id)}" type="range" min="0" max="5" step="0.01" value="${severity}" style="background:linear-gradient(to right, ${scoreColor} 0%, ${scoreColor} ${pct}%, rgba(127,146,175,0.18) ${pct}%, rgba(127,146,175,0.18) 100%);" oninput='expertDataDomsGridRangeChange(${muscleId}, this.value, this)' onchange='expertDataDomsSnapRange(this, ${muscleId})'>
       <div class="expert-data-doms-ticks">
         ${ticksHtml}
       </div>
@@ -44864,7 +45104,7 @@ window.expertDataSaveDomsGrid = async function() {
   const existing = new Map(expertDataDomsTodayEntries().map(entry => [entry.muscle_group, entry]));
   const values = [...document.querySelectorAll('.expertDataDomsMuscleInput')].map(input => ({
     muscle_group: input.dataset.muscle,
-    severity: Number(input.value || 0),
+    severity: Math.round(Math.max(0, Math.min(5, Number(input.value || 0)))),
     notes: '',
   }));
   const changedOrExisting = values.filter(item => item.severity > 0 || existing.has(item.muscle_group));
@@ -44906,8 +45146,9 @@ window.expertDataCancelDomsEdit = function() {
 window.expertDataSaveDomsEdit = async function() {
   const draft = expertDataDomsEditDraft;
   if (!draft) return;
+  const rawSev = Number(document.getElementById('expertDataDomsEditSeverity')?.value || 0);
   const payload = {
-    severity: Number(document.getElementById('expertDataDomsEditSeverity')?.value || 0),
+    severity: Math.round(Math.max(0, Math.min(5, rawSev))),
     notes: '',
   };
   try {
@@ -44997,7 +45238,7 @@ window.expertDataOpenDomsDeleteModal = function(reportDate, muscleGroup) {
           </div>
           <div>
             ${isActive
-              ? '<span class="injury-state-badge active"><span class="state-dot"></span>Aktif DOMS</span>'
+              ? `<span class="injury-state-badge active" style="background:${sevMeta.color}22;color:${sevMeta.color};border:1px solid ${sevMeta.color}66;box-shadow:0 0 12px ${sevMeta.glow};"><span class="state-dot" style="background:${sevMeta.color};box-shadow:0 0 8px ${sevMeta.color};"></span>Aktif DOMS</span>`
               : '<span class="injury-state-badge passive"><span class="passive-dot"></span>Toparlandı</span>'}
           </div>
         </div>
