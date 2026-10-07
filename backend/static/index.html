@@ -19365,6 +19365,28 @@ tr:hover td { background: var(--bg-card-hover); }
     justify-content: center !important;
     min-height: 40px !important;
   }
+  .profile-tabs-wrapper {
+    width: 100% !important;
+    display: flex !important;
+    gap: 6px !important;
+    margin-top: 8px !important;
+  }
+  .profile-tabs-wrapper .profile-tab-btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    padding: 9px 8px !important;
+    font-size: 11.5px !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .profile-danger-action-card {
+    padding: 12px 10px !important;
+    border-radius: 12px !important;
+    gap: 8px !important;
+  }
   .expert-reset-modal-box,
   .expert-doms-delete-box {
     padding: 20px 14px;
@@ -19429,6 +19451,10 @@ tr:hover td { background: var(--bg-card-hover); }
   }
   .profile-card-title {
     font-size: 12.5px;
+  }
+  .profile-tabs-wrapper .profile-tab-btn {
+    font-size: 10.5px !important;
+    padding: 8px 4px !important;
   }
 }
 
@@ -24213,6 +24239,13 @@ tr:hover td { background: var(--bg-card-hover); }
   }
 }
 /* Profile Tabs */
+.profile-tabs-wrapper {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
 .profile-tab-btn {
   background: transparent;
   color: #94a3b8;
@@ -24223,6 +24256,9 @@ tr:hover td { background: var(--bg-card-hover); }
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  text-align: center;
+  box-sizing: border-box;
 }
 .profile-tab-btn:hover {
   background: rgba(255, 255, 255, 0.05);
@@ -26210,7 +26246,7 @@ tr:hover td { background: var(--bg-card-hover); }
                     </div>
                   </div>
                   
-                  <div class="profile-tabs-wrapper" style="display: flex; gap: 8px; margin-top: 4px;">
+                  <div class="profile-tabs-wrapper">
                     <button class="profile-tab-btn active" onclick="switchProfileTab('security', this)">Hesap & Güvenlik</button>
                     <button class="profile-tab-btn" onclick="switchProfileTab('danger', this)">Kritik İşlemler</button>
                   </div>
