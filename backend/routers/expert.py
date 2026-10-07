@@ -542,11 +542,19 @@ def get_expert_data_analysis(user: dict = Depends(_resolve_current_user)):
 
 
 @router.post("/api/expert-data/recommendation/generate")
-def generate_expert_recommendation(user: dict = Depends(_resolve_current_user)):
+def generate_expert_recommendation(payload: dict = Body(default={}), user: dict = Depends(_resolve_current_user)):
     """Kullanıcının profilindeki gün sayısı ve uzman verileriyle taslak üretir."""
     fresh_user = get_user_by_id(user["id"]) or user
+    duration_weeks = None
+    if isinstance(payload, dict):
+        raw_weeks = payload.get("duration_weeks") or payload.get("weeks")
+        if raw_weeks is not None:
+            try:
+                duration_weeks = max(1, min(12, int(raw_weeks)))
+            except (ValueError, TypeError):
+                duration_weeks = None
     try:
-        recommendation = _build_expert_recommendation(fresh_user)
+        recommendation = _build_expert_recommendation(fresh_user, duration_weeks=duration_weeks)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     preferences = _save_expert_recommendation(fresh_user, recommendation)

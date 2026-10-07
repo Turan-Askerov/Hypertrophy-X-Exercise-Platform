@@ -618,7 +618,7 @@ def recommendation_days_per_week(user: dict) -> int:
     return max(1, min(7, days))
 
 
-def build_expert_recommendation(user: dict) -> dict:
+def build_expert_recommendation(user: dict, duration_weeks: int | None = None) -> dict:
     conn = get_db()
     try:
         profile = expert_data_profile(conn, user["id"])
@@ -665,6 +665,7 @@ def build_expert_recommendation(user: dict) -> dict:
     )
     recommendation = build_recommendation_program(
         dynamic_program, context, days_per_week, context.get("rpe_summary"),
+        duration_weeks=duration_weeks,
     )
     recommendation.update({key: context.get(key) for key in ("equipment_source", "equipment_source_label", "default_gym_name", "preferred_equipment")})
     recommendation.update(movement_preferences)

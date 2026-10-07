@@ -158,10 +158,14 @@ def build_recommendation_program(
     context: dict[str, Any],
     days_per_week: int,
     rpe_summary: dict[str, Any] | None,
+    duration_weeks: int | None = None,
 ) -> dict[str, Any]:
     """Dinamik uzman motoru sonucunu kullanıcıya düzenlenebilir takvime çevirir."""
     safe_days = max(1, min(7, int(days_per_week)))
-    duration = recommended_duration_weeks(context, rpe_summary, safe_days)
+    if duration_weeks is not None:
+        duration = max(1, min(12, int(duration_weeks)))
+    else:
+        duration = recommended_duration_weeks(context, rpe_summary, safe_days)
     selected = (dynamic_program.get("program") or {}) if isinstance(dynamic_program, dict) else {}
     split = (dynamic_program.get("split") or {}) if isinstance(dynamic_program, dict) else {}
     generated_at = datetime.now().astimezone().isoformat(timespec="seconds")
