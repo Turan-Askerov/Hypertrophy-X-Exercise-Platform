@@ -121,17 +121,17 @@ EXERCISE_POOL = [
 
     _exercise("barbell-row", "Barbell Row", "Back", "compound", False,
               family="row", variation="barbell_bent_over", primary_muscles=["lats"],
-              secondary_muscles=["biceps", "rear_delts", "med_trap", "spinal_erectors"], movement_pattern="horizontal_pull",
+              secondary_muscles=["biceps", "med_trap", "spinal_erectors"], movement_pattern="horizontal_pull",
               equipment=["barbell"], load_mode="external_load", fatigue_cost="high"),
 
     _exercise("lat-pull-down", "Lat Pull Down", "Back", "compound", False,
               family="lat_pulldown", variation="cable", primary_muscles=["lats"],
-              secondary_muscles=["biceps", "upper_back", "rear_delts"], movement_pattern="vertical_pull",
+              secondary_muscles=["biceps"], movement_pattern="vertical_pull",
               equipment=["lat_pulldown_machine"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("single-arm-low-row", "Single-Arm Low Row (90-90)", "Back", "compound", False,
-              family="row", variation="single_arm_low", primary_muscles=["upper_back", "rear_delts"],
-              secondary_muscles=["biceps", "mid_trap"], movement_pattern="horizontal_pull",
+              family="row", variation="single_arm_low", primary_muscles=["upper_back"],
+              secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
               equipment=["cable_machine_or_machine", "single_handle"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("single-arm-pulldown", "Single-Arm Pulldown", "Back", "compound", False,
@@ -151,13 +151,13 @@ EXERCISE_POOL = [
               minimum_level="intermediate", fatigue_cost="high"),
 
     _exercise("chin-ups-bw", "Chin Ups", "Back", "compound", True,
-              family="chin_up", variation="bodyweight_supinated", primary_muscles=["lats", "biceps"],
-              secondary_muscles=["upper_back", "erector_spinae"], movement_pattern="vertical_pull",
+              family="chin_up", variation="bodyweight_supinated", primary_muscles=["biceps", "lats"],
+              secondary_muscles=["upper_back"], movement_pattern="vertical_pull",
               equipment=["pull_up_bar", "bodyweight"], load_mode="bodyweight", fatigue_cost="medium"),
 
     _exercise("chin-ups-weighted", "Chin Ups", "Back", "compound", False,
-              family="chin_up", variation="weighted_supinated", primary_muscles=["lats", "biceps"],
-              secondary_muscles=["upper_back", "erector_spinae"], movement_pattern="vertical_pull",
+              family="chin_up", variation="weighted_supinated", primary_muscles=["biceps", "lats"],
+              secondary_muscles=["upper_back"], movement_pattern="vertical_pull",
               equipment=["pull_up_bar", "bodyweight", "dip_belt"], load_mode="bodyweight_plus_external",
               minimum_level="intermediate", fatigue_cost="high"),
 
@@ -167,13 +167,13 @@ EXERCISE_POOL = [
               equipment=["barbell_or_dumbbell"], load_mode="external_load", fatigue_cost="high"),
 
     _exercise("chest-supported-cable-row", "Chest-Supported Cable Row", "Back", "compound", False,
-              family="row", variation="chest_supported_cable", primary_muscles=["mid_traps"],
-              secondary_muscles=["rhomboids", "lats", "biceps"], movement_pattern="horizontal_pull",
+              family="row", variation="chest_supported_cable", primary_muscles=["lats", "mid_traps"],
+              secondary_muscles=["biceps"], movement_pattern="horizontal_pull",
               equipment=["cable_machine", "bench", "single_handle"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("dumbbell-row", "Dumbbell Row", "Back", "compound", False,
               family="row", variation="dumbbell_low", primary_muscles=["lats"],
-              secondary_muscles=["upper_back", "biceps"], movement_pattern="horizontal_pull",
+              secondary_muscles=["biceps"], movement_pattern="horizontal_pull",
               equipment=["dumbbells"], load_mode="external_load", fatigue_cost="high"),
 
     _exercise("seated-row", "Seated Row", "Back", "compound", False,
@@ -188,17 +188,17 @@ EXERCISE_POOL = [
 
     _exercise("t-bar-row", "T-Bar Row", "Back", "compound", False,
               family="row", variation="t_bar", primary_muscles=["upper_back", "lats"],
-              secondary_muscles=["biceps", "rear_delts", "spinal_erectors"], movement_pattern="horizontal_pull",
+              secondary_muscles=["biceps"], movement_pattern="horizontal_pull",
               equipment=["t_bar_row_machine_or_landmine"], load_mode="external_load", fatigue_cost="medium"),
 
     _exercise("inverted-row-bw", "Inverted Row", "Back", "compound", True,
               family="inverted_row", variation="bodyweight", primary_muscles=["upper_back", "lats"],
-              secondary_muscles=["biceps", "rear_delts"], movement_pattern="horizontal_pull",
+              secondary_muscles=["biceps"], movement_pattern="horizontal_pull",
               equipment=["bar_or_suspension_trainer", "bodyweight"], load_mode="bodyweight", fatigue_cost="low"),
 
     _exercise("deadlift", "Deadlift", "Back", "compound", False,
               family="deadlift", variation="barbell_conventional", primary_muscles=["spinal_erectors"],
-              secondary_muscles=["glutes", "hamstrings"], movement_pattern="hip_hinge",
+              secondary_muscles=["lower_back"], movement_pattern="hip_hinge",
               equipment=["barbell"], load_mode="external_load", minimum_level="intermediate", fatigue_cost="high"),
 
     # --- İzolasyon (Isolation) Egzersizleri ---
@@ -220,7 +220,7 @@ EXERCISE_POOL = [
 
     _exercise("hyperextension-weighted", "Hyperextension", "Back", "isolation", False,
               family="hyperextension", variation="weighted", primary_muscles=["spinal_erectors"],
-              secondary_muscles=["glutes", "hamstrings"], movement_pattern="spinal_extension",
+              secondary_muscles=["lower_back"], movement_pattern="spinal_extension",
               equipment=["hyperextension_bench", "dumbbell_or_plate"], load_mode="bodyweight_plus_external",
               fatigue_cost="medium"),
 
