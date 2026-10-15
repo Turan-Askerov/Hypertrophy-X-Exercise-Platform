@@ -173,30 +173,30 @@ canvas {
 
 /* LIGHT MODE DESIGN SYSTEM */
 .light-mode {
-  --bg-primary: #f4f6fb;
-  --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f1f5f9;
-  --border: #e2e8f0;
+  --bg-primary: #ebedf2;
+  --bg-secondary: #f4f6fa;
+  --bg-card: #f8fafc;
+  --bg-card-hover: #edf2f7;
+  --border: #d5dce6;
   --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+  --text-secondary: #334155;
+  --text-muted: #526177;
+  --shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
 }
 
 .light-mode body {
-  background-color: #f4f6fb !important;
+  background-color: #ebedf2 !important;
   color: #0f172a !important;
 }
 
 /* ═══ LIGHT MODE: PLATFORM NAVIGATION & SHELL ═══ */
 .light-mode .sidebar {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
-  border-right: 1px solid rgba(226, 232, 240, 0.95) !important;
+  background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%) !important;
+  border-right: 1px solid rgba(213, 220, 230, 0.95) !important;
   box-shadow: 4px 0 24px rgba(15, 23, 42, 0.05) !important;
 }
 .light-mode .sidebar-header {
-  border-bottom-color: rgba(226, 232, 240, 0.9) !important;
+  border-bottom-color: rgba(213, 220, 230, 0.9) !important;
   background: rgba(108, 99, 255, 0.02) !important;
 }
 .light-mode .sidebar-brand .brand-name {
@@ -236,38 +236,108 @@ canvas {
   border-color: rgba(124, 58, 237, 0.25) !important;
 }
 .light-mode .topbar {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.95) !important;
+  background: rgba(248, 250, 252, 0.94) !important;
+  border-bottom: 1px solid rgba(213, 220, 230, 0.95) !important;
   box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04) !important;
 }
 .light-mode .topbar-title {
   color: #0f172a !important;
 }
+.light-mode .hamburger-btn {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  color: #1e293b !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+}
+.light-mode .hamburger-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: rgba(124, 58, 237, 0.4) !important;
+  color: #6d28d9 !important;
+}
+.light-mode .theme-toggle {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  color: #d97706 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+}
+.light-mode .theme-toggle:hover {
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+  color: #b45309 !important;
+}
+/* Topbar User Profile Button & Dropdown in Light Mode */
+.light-mode .user-dropdown-btn {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(203, 213, 225, 0.95) !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+}
+.light-mode .user-dropdown-btn:hover {
+  background: #f8fafc !important;
+  border-color: rgba(124, 58, 237, 0.5) !important;
+  color: #5b21b6 !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.12) !important;
+}
+.light-mode #userDropdownName {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+.light-mode .user-dropdown-btn > svg {
+  color: #64748b !important;
+  stroke: #475569 !important;
+}
+.light-mode .user-avatar {
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 3.5px rgba(124, 58, 237, 0.45), 0 2px 8px rgba(124, 58, 237, 0.3) !important;
+}
 .light-mode .dropdown-menu {
   background: #ffffff !important;
-  border: 1px solid rgba(203, 213, 225, 0.8) !important;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12) !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14) !important;
   color: #0f172a !important;
 }
 .light-mode .dropdown-header {
-  border-bottom-color: rgba(226, 232, 240, 0.8) !important;
+  border-bottom-color: rgba(226, 232, 240, 0.9) !important;
 }
 .light-mode .dropdown-header .dd-name {
   color: #0f172a !important;
+  font-weight: 850 !important;
 }
-.light-mode .dropdown-header .dd-email {
-  color: #64748b !important;
+.light-mode .dropdown-header .dd-role {
+  color: #6d28d9 !important;
+  font-weight: 700 !important;
+}
+.light-mode .dropdown-header .dd-date-badge {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: #047857 !important;
+  box-shadow: none !important;
 }
 .light-mode .dropdown-item {
-  color: #334155 !important;
+  color: #1e293b !important;
+  font-weight: 700 !important;
+}
+.light-mode .dropdown-item svg {
+  color: #64748b !important;
 }
 .light-mode .dropdown-item:hover {
   background: #f1f5f9 !important;
   color: #0f172a !important;
 }
+.light-mode .dropdown-item.danger {
+  color: #dc2626 !important;
+}
+.light-mode .dropdown-item.danger svg {
+  color: #dc2626 !important;
+}
+.light-mode .dropdown-item.danger:hover {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+}
 .light-mode .mobile-bottom-nav {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-top: 1px solid rgba(226, 232, 240, 0.9) !important;
+  background: rgba(248, 250, 252, 0.94) !important;
+  border-top: 1px solid rgba(213, 220, 230, 0.9) !important;
   box-shadow: 0 -4px 24px rgba(15, 23, 42, 0.06) !important;
 }
 .light-mode .mobile-bottom-nav .nav-bottom-item {
@@ -312,8 +382,8 @@ canvas {
 .light-mode .expert-reset-modal-box,
 .light-mode .expert-confirm-modal-box {
   background: #ffffff !important;
-  border-color: rgba(203, 213, 225, 0.8) !important;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(203, 213, 225, 0.9) !important;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
   color: #0f172a !important;
 }
 
@@ -324,12 +394,392 @@ canvas {
 .light-mode .admin-overview-metric:hover,
 .light-mode .db-migration-card:hover,
 .light-mode .cust-day-card:hover {
-  border-color: rgba(124, 58, 237, 0.4) !important;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08), 0 0 16px rgba(124, 58, 237, 0.08) !important;
+  border-color: rgba(124, 58, 237, 0.45) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08), 0 0 16px rgba(124, 58, 237, 0.09) !important;
 }
 
 .light-mode .stat-card::after {
   opacity: 0.05 !important;
+}
+
+/* ═══ LIGHT MODE: DASHBOARD GENEL BAKIŞ DETAYLI STİLLERİ ═══ */
+/* Stat Kartları Renk Varyasyonları & Metinler */
+.light-mode .stat-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+}
+.light-mode .stat-card .stat-value {
+  color: #0f172a !important;
+  font-weight: 850 !important;
+}
+.light-mode .stat-card .stat-label {
+  color: #475569 !important;
+  font-weight: 750 !important;
+}
+.light-mode .stat-card .stat-detail {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+.light-mode .stat-card .stat-detail strong {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+.light-mode .stat-card.accent .stat-icon {
+  background: rgba(124, 58, 237, 0.14) !important;
+  color: #6d28d9 !important;
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.2) !important;
+}
+.light-mode .stat-card.green .stat-icon {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #047857 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2) !important;
+}
+.light-mode .stat-card.orange .stat-icon {
+  background: rgba(245, 158, 11, 0.16) !important;
+  color: #b45309 !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2) !important;
+}
+.light-mode .stat-card.blue .stat-icon {
+  background: rgba(14, 165, 233, 0.16) !important;
+  color: #0369a1 !important;
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.2) !important;
+}
+
+/* Dashboard Hibrit Bölüm Başlıkları ve İkonlar */
+.light-mode .dash-card {
+  background: #ffffff !important;
+  border-color: rgba(213, 220, 230, 0.95) !important;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05) !important;
+}
+.light-mode .dash-card h3,
+.light-mode .dash-card .card-title {
+  color: #0f172a !important;
+}
+.light-mode .dash-card-icon {
+  background: rgba(124, 58, 237, 0.12) !important;
+  border-color: rgba(124, 58, 237, 0.3) !important;
+  color: #6d28d9 !important;
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.15) !important;
+}
+
+/* RPG Seviye Kartı (Gelişim Seviyesi) */
+.light-mode .dash-rpg-card {
+  background: #ffffff !important;
+  border-color: rgba(213, 220, 230, 0.95) !important;
+}
+.light-mode #rpgCurrentXp {
+  color: #0f172a !important;
+  font-weight: 850 !important;
+}
+.light-mode #rpgTargetXp {
+  color: #0284c7 !important;
+  font-weight: 800 !important;
+}
+.light-mode .rpg-xp-progress-bg {
+  background: #e2e8f0 !important;
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+}
+.light-mode #rpgSubtitle {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+.light-mode #rpgTitle {
+  color: #6d28d9 !important;
+  font-weight: 800 !important;
+}
+.light-mode #rpgNextLevelText {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+.light-mode #rpgLevelBadge {
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%) !important;
+  color: #ffffff !important;
+  font-weight: 850 !important;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35) !important;
+}
+
+/* RPG Kilitli / Kalibrasyon Paneli */
+.light-mode #rpgLockPanel {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+  border-color: rgba(148, 163, 184, 0.6) !important;
+}
+.light-mode #rpgLockPanel span {
+  color: #0f172a !important;
+}
+.light-mode #rpgLockProgressText {
+  color: #0284c7 !important;
+  font-weight: 850 !important;
+}
+.light-mode .rpg-lock-chip.pending {
+  background: #ffffff !important;
+  border-color: rgba(203, 213, 225, 0.95) !important;
+  color: #475569 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+.light-mode .rpg-lock-chip.done {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  color: #047857 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 1px 6px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* RPG Mini Metrik Kartları (Neon Renklerin Açık Modda Güçlendirilmesi) */
+.light-mode .rpg-metric-card-purple {
+  background: rgba(124, 58, 237, 0.08) !important;
+  border: 1.5px solid rgba(124, 58, 237, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08) !important;
+}
+.light-mode .rpg-metric-card-purple div:first-child {
+  color: #6d28d9 !important;
+  font-weight: 800 !important;
+}
+.light-mode #rpgLastGain {
+  color: #5b21b6 !important;
+  font-weight: 900 !important;
+}
+.light-mode .rpg-metric-card-amber {
+  background: rgba(245, 158, 11, 0.1) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.35) !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.08) !important;
+}
+.light-mode .rpg-metric-card-amber div:first-child {
+  color: #b45309 !important;
+  font-weight: 800 !important;
+}
+.light-mode #rpgBonusMultiplier {
+  color: #b45309 !important;
+  font-weight: 900 !important;
+}
+.light-mode .rpg-metric-card-cyan {
+  background: rgba(14, 165, 233, 0.1) !important;
+  border: 1.5px solid rgba(14, 165, 233, 0.35) !important;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.08) !important;
+}
+.light-mode .rpg-metric-card-cyan div:first-child {
+  color: #0369a1 !important;
+  font-weight: 800 !important;
+}
+.light-mode #rpgNextTitle {
+  color: #0284c7 !important;
+  font-weight: 900 !important;
+}
+
+/* Split Takvimi & Gün Kartları */
+.light-mode .split-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.85) !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
+}
+.light-mode .split-card:hover {
+  background: #f8fafc !important;
+  border-color: rgba(124, 58, 237, 0.45) !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+}
+.light-mode .split-card .split-day,
+.light-mode .split-card > div:first-child span:first-child {
+  color: #5b21b6 !important;
+  font-weight: 800 !important;
+}
+.light-mode .split-card > div:first-child span:last-child {
+  color: #64748b !important;
+  font-weight: 700 !important;
+}
+.light-mode .split-title-text {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+.light-mode .split-subtitle-text {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+/* Canlı Yapıldı (Done) Kartı */
+.light-mode .split-card.split-done {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.45) !important;
+  box-shadow: 0 3px 12px rgba(16, 185, 129, 0.1) !important;
+}
+.light-mode .split-card.split-done .split-done-pill {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+}
+.light-mode .split-card.split-done .split-done-label {
+  color: #047857 !important;
+  font-weight: 800 !important;
+}
+.light-mode .split-card.split-done .split-pill-date {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+}
+.light-mode .split-card.split-done .split-status-icon-circle {
+  background: rgba(16, 185, 129, 0.22) !important;
+  border: 1px solid rgba(16, 185, 129, 0.5) !important;
+}
+.light-mode .split-card.split-done .split-status-icon-circle svg {
+  color: #059669 !important;
+}
+/* Canlı Yapılmadı (Missed) Kartı */
+.light-mode .split-card.split-missed {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.12) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+  border: 1.5px solid rgba(239, 68, 68, 0.45) !important;
+  box-shadow: 0 3px 12px rgba(239, 68, 68, 0.1) !important;
+}
+.light-mode .split-card.split-missed .split-missed-pill {
+  background: rgba(239, 68, 68, 0.14) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+}
+.light-mode .split-card.split-missed .split-missed-label {
+  color: #b91c1c !important;
+  font-weight: 800 !important;
+}
+.light-mode .split-card.split-missed .split-pill-date {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+}
+.light-mode .split-card.split-missed .split-status-icon-circle {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+}
+.light-mode .split-card.split-missed .split-status-icon-circle svg {
+  color: #dc2626 !important;
+}
+/* Canlı Dinlenme (Rest Day) Kartı */
+.light-mode .split-card.split-restday {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.12) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.45) !important;
+  box-shadow: 0 3px 12px rgba(245, 158, 11, 0.08) !important;
+}
+.light-mode .split-card.split-restday .split-rest-pill {
+  background: rgba(245, 158, 11, 0.16) !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+}
+.light-mode .split-card.split-restday .split-rest-label {
+  color: #b45309 !important;
+  font-weight: 800 !important;
+}
+.light-mode .split-card.split-restday .split-pill-date {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+}
+.light-mode .split-card.split-restday .split-status-icon-circle {
+  background: rgba(245, 158, 11, 0.2) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+}
+.light-mode .split-card.split-restday .split-status-icon-circle svg {
+  color: #d97706 !important;
+}
+/* Canlı Bugün Kartı */
+.light-mode .split-card.split-today {
+  background: linear-gradient(90deg, rgba(124, 58, 237, 0.12) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+  border: 1.5px solid rgba(124, 58, 237, 0.5) !important;
+  box-shadow: 0 4px 18px rgba(124, 58, 237, 0.15) !important;
+}
+.light-mode .split-card.split-today .split-today-pill {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3) !important;
+}
+/* Canlı Plan Öncesi (Neutral) Kartı */
+.light-mode .split-card.split-neutral {
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+}
+.light-mode .split-card.split-neutral .split-neutral-pill {
+  background: rgba(148, 163, 184, 0.16) !important;
+  border: 1px solid rgba(148, 163, 184, 0.4) !important;
+}
+.light-mode .split-card.split-neutral .split-neutral-label {
+  color: #334155 !important;
+  font-weight: 800 !important;
+}
+.light-mode .split-card.split-neutral .split-pill-date {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+.light-mode .split-card.split-neutral .split-status-icon-circle {
+  background: rgba(148, 163, 184, 0.2) !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+}
+.light-mode .split-card.split-neutral .split-status-icon-circle svg {
+  color: #475569 !important;
+}
+.light-mode .split-fg-row:hover {
+  background: rgba(15, 23, 42, 0.04) !important;
+}
+.light-mode .drag-handle {
+  color: rgba(100, 116, 139, 0.6) !important;
+}
+
+/* Güç Hedefleri (PR) Listesi */
+.light-mode .pr-item {
+  background: #ffffff !important;
+  border: 1px solid rgba(213, 220, 230, 0.95) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+.light-mode .pr-item:hover {
+  background: #ffffff !important;
+  border-color: rgba(124, 58, 237, 0.45) !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07) !important;
+}
+.light-mode .pr-title-text {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+.light-mode .pr-values {
+  color: #334155 !important;
+  font-weight: 700 !important;
+}
+.light-mode .pr-values strong {
+  color: #6d28d9 !important;
+  font-weight: 850 !important;
+  text-shadow: none !important;
+}
+.light-mode .pr-values .pr-sep {
+  color: #64748b !important;
+  font-weight: 600 !important;
+}
+.light-mode .pr-values .pr-target-val {
+  color: #0284c7 !important;
+  font-weight: 800 !important;
+}
+.light-mode .pr-percent-label {
+  color: #6d28d9 !important;
+  font-weight: 800 !important;
+}
+.light-mode .pr-edit-current-label {
+  color: #475569 !important;
+}
+.light-mode .pr-edit-current-label strong {
+  color: #6d28d9 !important;
+}
+.light-mode .pr-edit-target-label {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+.light-mode .pr-progress-bg {
+  background: #e2e8f0 !important;
+  border: 1px solid rgba(203, 213, 225, 0.7) !important;
+}
+.light-mode .pr-input {
+  background: #f1f5f9 !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+.light-mode .dash-pr-action-btn {
+  background: rgba(124, 58, 237, 0.1) !important;
+  border-color: rgba(124, 58, 237, 0.3) !important;
+  color: #5b21b6 !important;
+  font-weight: 750 !important;
+}
+.light-mode .dash-pr-action-btn:hover {
+  background: rgba(124, 58, 237, 0.18) !important;
+  border-color: rgba(124, 58, 237, 0.5) !important;
+  color: #4338ca !important;
 }
 
 /* ═══ LIGHT MODE: HERO BANNERS ═══ */
@@ -548,7 +998,931 @@ canvas {
   color: #b45309 !important;
 }
 
-/* ═══ LIGHT MODE: SQL EDITOR & TERMINAL ═══ */
+/* ═══ LIGHT MODE: SAYFA 2 - ANTRENMAN KAYDI (#page-workout) ÖZEL STİLLERİ ═══ */
+.light-mode #workoutLiveSummaryBadge {
+  background: rgba(124, 58, 237, 0.1) !important;
+  color: #6d28d9 !important;
+  border: 1px solid rgba(124, 58, 237, 0.3) !important;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.08) !important;
+}
+.light-mode #workoutLiveSummaryBadge strong {
+  color: #0f172a !important;
+}
+.light-mode #workoutLiveSummaryBadge strong:nth-of-type(2) {
+  color: #0284c7 !important;
+}
+
+.light-mode .workout-main-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(213, 220, 230, 0.95) !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+.light-mode .workout-section-icon {
+  background: rgba(124, 58, 237, 0.1) !important;
+  border: 1px solid rgba(124, 58, 237, 0.25) !important;
+  color: #7c3aed !important;
+  box-shadow: none !important;
+}
+.light-mode .workout-section-head h3 {
+  color: #0f172a !important;
+}
+.light-mode .workout-section-head p {
+  color: #64748b !important;
+}
+
+.light-mode .workout-meta-grid label,
+.light-mode .workout-notes-group label {
+  color: #334155 !important;
+}
+.light-mode .workout-meta-grid label svg,
+.light-mode .workout-notes-group label svg {
+  stroke: #7c3aed !important;
+}
+
+.light-mode .workout-date-picker-btn {
+  background: #f8fafc !important;
+  border: 1.5px solid rgba(203, 213, 225, 0.9) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+.light-mode .workout-date-picker-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #7c3aed !important;
+}
+.light-mode #workoutDateDisplay {
+  color: #0f172a !important;
+}
+.light-mode #workoutDateBadge {
+  background: rgba(124, 58, 237, 0.12) !important;
+  border: 1px solid rgba(124, 58, 237, 0.3) !important;
+  color: #6d28d9 !important;
+}
+.light-mode .workout-date-picker-btn svg {
+  stroke: #7c3aed !important;
+}
+
+.light-mode #workoutType,
+.light-mode #workoutGym,
+.light-mode #workoutNotes {
+  background: #f8fafc !important;
+  border: 1.5px solid rgba(203, 213, 225, 0.9) !important;
+  color: #0f172a !important;
+}
+.light-mode #workoutType:focus,
+.light-mode #workoutGym:focus,
+.light-mode #workoutNotes:focus {
+  background: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12) !important;
+}
+
+.light-mode .workout-selector-box {
+  background: #f8fafc !important;
+  border: 1px solid rgba(213, 220, 230, 0.9) !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+}
+.light-mode .workout-selector-header h4 {
+  color: #0f172a !important;
+}
+.light-mode .workout-selector-header p {
+  color: #64748b !important;
+}
+.light-mode .workout-search-wrap input {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(203, 213, 225, 0.9) !important;
+  color: #0f172a !important;
+}
+.light-mode .workout-search-wrap input:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12) !important;
+}
+.light-mode .workout-search-wrap svg {
+  color: #64748b !important;
+}
+
+.light-mode .muscle-list-label,
+.light-mode .exercise-list-label {
+  color: #5b21b6 !important;
+  font-weight: 850 !important;
+}
+
+.light-mode .exercise-option {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
+  color: #0f172a !important;
+}
+.light-mode .exercise-option:hover {
+  background: #f1f5f9 !important;
+  border-color: rgba(124, 58, 237, 0.5) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06) !important;
+}
+.light-mode .exercise-option span {
+  color: #0f172a !important;
+}
+.light-mode .exercise-option .bw-badge {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border: 1px solid rgba(16, 185, 129, 0.45) !important;
+  color: #047857 !important;
+  font-weight: 800 !important;
+}
+
+.light-mode #selectedExercises .empty-state {
+  background: #f8fafc !important;
+  border: 1.5px dashed rgba(203, 213, 225, 0.95) !important;
+}
+.light-mode #selectedExercises .empty-state div:nth-child(2) {
+  color: #0f172a !important;
+}
+.light-mode #selectedExercises .empty-state div:nth-child(3) {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+.light-mode .selected-exercises-title {
+  color: #0f172a !important;
+}
+.light-mode .workout-header-neon-stats {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(2, 132, 199, 0.12) 100%) !important;
+  border: 1.5px solid rgba(124, 58, 237, 0.35) !important;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.08) !important;
+}
+.light-mode .workout-header-neon-stats .stat-item {
+  color: #1e293b !important;
+  font-weight: 750 !important;
+}
+.light-mode .workout-header-neon-stats .stat-item span {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+.light-mode .workout-header-neon-stats .neon-stat-dot {
+  color: #64748b !important;
+  font-weight: 900 !important;
+}
+.light-mode #workoutStatExCount strong {
+  color: #0f172a !important;
+  font-weight: 850 !important;
+}
+.light-mode #workoutStatSetCount strong {
+  color: #6d28d9 !important;
+  font-weight: 850 !important;
+  text-shadow: none !important;
+}
+.light-mode #workoutStatTotalVolume strong {
+  color: #0284c7 !important;
+  font-weight: 850 !important;
+  text-shadow: none !important;
+}
+
+.light-mode .selected-exercise-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(213, 220, 230, 0.95) !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+}
+.light-mode .selected-ex-name {
+  color: #0f172a !important;
+}
+.light-mode .ex-drag-handle {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+}
+.light-mode .ex-drag-handle:hover {
+  background: rgba(124, 58, 237, 0.12) !important;
+  color: #6d28d9 !important;
+}
+
+.light-mode .sets-table thead tr {
+  background: #f1f5f9 !important;
+}
+.light-mode .sets-table thead th {
+  color: #475569 !important;
+  font-weight: 800 !important;
+}
+.light-mode .sets-table tbody tr {
+  background: #f8fafc !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+.light-mode .sets-table tbody tr:hover {
+  background: #f1f5f9 !important;
+}
+
+.light-mode .workout-set-input,
+.light-mode .workout-set-select {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(203, 213, 225, 0.9) !important;
+  color: #0f172a !important;
+  font-weight: 750 !important;
+}
+.light-mode .workout-set-input:focus,
+.light-mode .workout-set-select:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15) !important;
+}
+
+.light-mode .set-action-btn.btn-secondary {
+  background: rgba(14, 165, 233, 0.12) !important;
+  border-color: rgba(14, 165, 233, 0.35) !important;
+  color: #0284c7 !important;
+}
+.light-mode .set-action-btn.btn-secondary:hover {
+  background: rgba(14, 165, 233, 0.22) !important;
+  color: #0369a1 !important;
+}
+.light-mode .set-action-btn.btn-danger,
+.light-mode .ex-remove-btn {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #dc2626 !important;
+}
+.light-mode .set-action-btn.btn-danger:hover,
+.light-mode .ex-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #b91c1c !important;
+}
+
+.light-mode .nutri-cal-nav {
+  background: #f1f5f9 !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+}
+.light-mode .nutri-cal-month-label {
+  color: #0f172a !important;
+}
+.light-mode .nutri-cal-nav-btn {
+  background: #ffffff !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+  color: #334155 !important;
+}
+.light-mode .nutri-cal-nav-btn:hover:not(:disabled) {
+  background: rgba(124, 58, 237, 0.12) !important;
+  color: #6d28d9 !important;
+}
+.light-mode .nutri-cal-day {
+  background: #f8fafc !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+  color: #1e293b !important;
+}
+.light-mode .nutri-cal-day:hover:not(.disabled):not(.selected) {
+  background: rgba(124, 58, 237, 0.12) !important;
+  color: #5b21b6 !important;
+}
+.light-mode .nutri-cal-quick-btn {
+  background: #f1f5f9 !important;
+  border-color: rgba(203, 213, 225, 0.9) !important;
+  color: #334155 !important;
+}
+.light-mode .nutri-cal-quick-btn:hover {
+  background: rgba(124, 58, 237, 0.12) !important;
+  color: #6d28d9 !important;
+}
+.light-mode .nutri-cal-footer {
+  border-top-color: rgba(226, 232, 240, 0.9) !important;
+}
+
+/* ═══ LIGHT MODE: SAYFA 3 - GEÇMİŞ VE DETAYLAR (#page-history) ÖZEL STİLLERİ ═══ */
+/* Sekme Değiştirici ve Üst Sayaç Rozeti */
+.light-mode .hist-tabs-wrapper .prog-segmented-group {
+  background: #f1f5f9 !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+}
+.light-mode .hist-badge-total-count {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(2, 132, 199, 0.1) 100%) !important;
+  border: 1.5px solid rgba(124, 58, 237, 0.35) !important;
+  color: #1e293b !important;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.08) !important;
+}
+.light-mode .hist-badge-total-count #histCountLabel {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+.light-mode .hist-count-val {
+  color: #6d28d9 !important;
+  font-weight: 850 !important;
+}
+.light-mode .hist-count-dot {
+  background: #7c3aed !important;
+  box-shadow: 0 0 6px #7c3aed !important;
+}
+
+/* Geçmiş Kartları (Antrenman ve Beslenme) */
+.light-mode .history-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  box-shadow: 0 3px 14px rgba(15, 23, 42, 0.05) !important;
+}
+.light-mode .history-card:hover {
+  background: #ffffff !important;
+  border-color: rgba(124, 58, 237, 0.5) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08), 0 0 16px rgba(124, 58, 237, 0.1) !important;
+}
+
+.light-mode .hist-card-title {
+  color: #0f172a !important;
+  font-weight: 850 !important;
+}
+.light-mode .hist-card-sub {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+.light-mode .hist-card-sub svg {
+  color: #6d28d9 !important;
+}
+
+/* Rozetler: Hareket Sayısı, Set Sayısı, Hacim ve Kalori */
+.light-mode .hist-badge-purple {
+  background: rgba(124, 58, 237, 0.12) !important;
+  border: 1px solid rgba(124, 58, 237, 0.35) !important;
+  color: #6d28d9 !important;
+  font-weight: 800 !important;
+}
+.light-mode .hist-badge-cyan {
+  background: rgba(14, 165, 233, 0.14) !important;
+  border: 1px solid rgba(14, 165, 233, 0.4) !important;
+  color: #0284c7 !important;
+  font-weight: 800 !important;
+}
+.light-mode .hist-badge-volume {
+  background: rgba(124, 58, 237, 0.1) !important;
+  border: 1.5px solid rgba(124, 58, 237, 0.35) !important;
+  color: #5b21b6 !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+.light-mode .hist-volume-dot {
+  background: #7c3aed !important;
+  box-shadow: 0 0 6px #7c3aed !important;
+}
+.light-mode .hist-badge-cal.green {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.45) !important;
+  color: #047857 !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+.light-mode .hist-badge-cal.amber {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.45) !important;
+  color: #b45309 !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+
+/* İşlem Butonları (Düzenle, Genel Düzenle, Sil, Kaydet) */
+.light-mode .hist-action-btn.edit {
+  background: rgba(124, 58, 237, 0.1) !important;
+  border-color: rgba(124, 58, 237, 0.35) !important;
+  color: #6d28d9 !important;
+  box-shadow: none !important;
+}
+.light-mode .hist-action-btn.edit:hover {
+  background: #7c3aed !important;
+  border-color: #6d28d9 !important;
+  color: #ffffff !important;
+}
+.light-mode .hist-action-btn.blue {
+  background: rgba(14, 165, 233, 0.12) !important;
+  border-color: rgba(14, 165, 233, 0.35) !important;
+  color: #0284c7 !important;
+  box-shadow: none !important;
+}
+.light-mode .hist-action-btn.blue:hover {
+  background: #0284c7 !important;
+  border-color: #0369a1 !important;
+  color: #ffffff !important;
+}
+.light-mode .hist-action-btn.delete {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #dc2626 !important;
+  box-shadow: none !important;
+}
+.light-mode .hist-action-btn.delete:hover {
+  background: #ef4444 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+.light-mode .hist-save-btn {
+  background: #059669 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3) !important;
+}
+
+/* İpucu Barı ve Özet Satırları */
+.light-mode .hist-hint-bar {
+  color: #64748b !important;
+  font-weight: 700 !important;
+}
+.light-mode .history-card:hover .hist-hint-bar {
+  color: #6d28d9 !important;
+}
+.light-mode .hist-summary-item {
+  background: #f8fafc !important;
+  border: 1px solid rgba(226, 232, 240, 0.95) !important;
+}
+.light-mode .hist-summary-item:hover {
+  background: #f1f5f9 !important;
+  border-color: rgba(124, 58, 237, 0.35) !important;
+}
+.light-mode .hist-ex-name {
+  color: #0f172a !important;
+  font-weight: 750 !important;
+}
+
+/* Detaylı Setler Kartı & Tablosu */
+.light-mode .hist-sets-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+.light-mode .hist-sets-header {
+  color: #5b21b6 !important;
+  font-weight: 850 !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+  padding-bottom: 6px !important;
+}
+.light-mode .hist-table-wrap,
+.light-mode .hist-sets-card .prog-table-wrap {
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  background: #ffffff !important;
+}
+.light-mode .hist-table thead tr th {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  font-weight: 850 !important;
+  border-bottom: 1.5px solid rgba(203, 213, 225, 0.95) !important;
+}
+.light-mode .hist-table tbody tr {
+  background: #ffffff !important;
+}
+.light-mode .hist-table tbody tr:nth-child(even) {
+  background: #f8fafc !important;
+}
+.light-mode .hist-table tbody tr td {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+  color: #0f172a !important;
+  font-weight: 650 !important;
+}
+.light-mode .hist-table tbody tr td:first-child {
+  color: #475569 !important;
+  font-weight: 800 !important;
+}
+.light-mode .hist-rir-badge {
+  background: rgba(245, 158, 11, 0.16) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  color: #b45309 !important;
+  font-weight: 850 !important;
+}
+.light-mode .prog-pr-weight-badge {
+  background: #f1f5f9 !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  color: #0f172a !important;
+  font-weight: 850 !important;
+}
+.light-mode .prog-pr-reps-badge {
+  background: rgba(124, 58, 237, 0.12) !important;
+  border: 1px solid rgba(124, 58, 237, 0.35) !important;
+  color: #5b21b6 !important;
+  font-weight: 850 !important;
+}
+
+/* Düzenleme Giriş Alanları (Edit Input & Set Düzenleme Kutuları) */
+.light-mode .edit-input {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(203, 213, 225, 0.95) !important;
+  color: #0f172a !important;
+  font-weight: 750 !important;
+}
+.light-mode .edit-input:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15) !important;
+}
+
+/* LIGHT MODE: Geçmiş Düzenleme Kutuları */
+.light-mode .hist-edit-pill {
+  background: #ffffff !important;
+}
+.light-mode .hist-edit-input {
+  color: #0f172a !important;
+  font-weight: 850 !important;
+}
+
+.light-mode .hist-edit-pill-weight {
+  border: 1.5px solid #059669 !important;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.2) !important;
+}
+.light-mode .hist-edit-pill-weight .hist-edit-unit {
+  color: #047857 !important;
+}
+.light-mode .hist-edit-pill-weight:focus-within {
+  border-color: #047857 !important;
+  box-shadow: 0 0 0 2.5px rgba(5, 150, 105, 0.25) !important;
+}
+
+.light-mode .hist-edit-pill-reps {
+  border: 1.5px solid #0284c7 !important;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.2) !important;
+}
+.light-mode .hist-edit-pill-reps .hist-edit-unit {
+  color: #0369a1 !important;
+}
+.light-mode .hist-edit-pill-reps:focus-within {
+  border-color: #0369a1 !important;
+  box-shadow: 0 0 0 2.5px rgba(2, 132, 199, 0.25) !important;
+}
+
+.light-mode .hist-edit-pill-rir {
+  border: 1.5px solid #d97706 !important;
+  box-shadow: 0 1px 3px rgba(217, 119, 6, 0.2) !important;
+}
+.light-mode .hist-edit-pill-rir .hist-edit-input::placeholder {
+  color: #92400e !important;
+}
+.light-mode .hist-edit-pill-rir .hist-edit-unit {
+  color: #b45309 !important;
+}
+.light-mode .hist-edit-pill-rir:focus-within {
+  border-color: #b45309 !important;
+  box-shadow: 0 0 0 2.5px rgba(217, 119, 6, 0.25) !important;
+}
+
+/* Not Kutuları & Daha Fazla Butonu */
+.light-mode .hist-notes-box {
+  background: #f8fafc !important;
+  border-left: 3.5px solid #7c3aed !important;
+  border-top: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-right: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+}
+.light-mode .hist-notes-title {
+  color: #6d28d9 !important;
+  font-weight: 850 !important;
+}
+.light-mode .hist-notes-box span {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+.light-mode .hist-btn-more {
+  background: #f1f5f9 !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  color: #5b21b6 !important;
+  font-weight: 800 !important;
+}
+.light-mode .hist-btn-more:hover {
+  background: rgba(124, 58, 237, 0.12) !important;
+  border-color: #7c3aed !important;
+  color: #4338ca !important;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.12) !important;
+}
+
+/* Beslenme Makro Çubukları ve İsimleri */
+.light-mode #historyContainer_nutrition .smooth-collapse-inner span[style*="color:#34d399"] {
+  color: #047857 !important;
+  font-weight: 800 !important;
+}
+.light-mode #historyContainer_nutrition .smooth-collapse-inner span[style*="color:#fbbf24"] {
+  color: #b45309 !important;
+  font-weight: 800 !important;
+}
+.light-mode #historyContainer_nutrition .smooth-collapse-inner span[style*="color:#38bdf8"] {
+  color: #0284c7 !important;
+  font-weight: 800 !important;
+}
+.light-mode #historyContainer_nutrition .nutri-view {
+  color: #0f172a !important;
+  font-weight: 850 !important;
+}
+.light-mode #historyContainer_nutrition [class*="nutri-view-"] {
+  color: #0f172a !important;
+  font-weight: 850 !important;
+}
+.light-mode #historyContainer_nutrition div[style*="background:rgba(255,255,255,0.06)"] {
+  background: #e2e8f0 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LIGHT MODE: SAYFA 5 - İLERLEME VE PR TAKİBİ (#page-progress)
+══════════════════════════════════════════════════════════════════════════ */
+/* Hero Banner */
+.light-mode #page-progress .prog-hero-banner {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+}
+.light-mode #page-progress .prog-hero-title {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+.light-mode #page-progress .prog-hero-desc {
+  color: #475569 !important;
+}
+.light-mode #page-progress .prog-hero-icon-box {
+  background: rgba(124, 58, 237, 0.1) !important;
+  border: 1.5px solid rgba(124, 58, 237, 0.45) !important;
+  color: #6d28d9 !important;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.15) !important;
+}
+.light-mode #page-progress .prog-badge-purple {
+  background: rgba(124, 58, 237, 0.12) !important;
+  border: 1px solid rgba(124, 58, 237, 0.4) !important;
+  color: #5b21b6 !important;
+  box-shadow: none !important;
+}
+
+/* Sekmeler (Subtabs Switcher) */
+.light-mode #page-progress .prog-subtabs {
+  border-bottom: 2px solid rgba(203, 213, 225, 0.85) !important;
+}
+.light-mode #page-progress .prog-subtab {
+  color: #64748b !important;
+}
+.light-mode #page-progress .prog-subtab:hover {
+  color: #0f172a !important;
+  background: rgba(241, 245, 249, 0.9) !important;
+  border-bottom-color: rgba(124, 58, 237, 0.4) !important;
+}
+.light-mode #page-progress .prog-subtab.active {
+  color: #5b21b6 !important;
+  background: #ffffff !important;
+  border-bottom-color: #7c3aed !important;
+  box-shadow: 0 2px 0 #7c3aed !important;
+}
+.light-mode #page-progress .prog-tab-dot {
+  background: #7c3aed !important;
+  box-shadow: 0 0 6px rgba(124, 58, 237, 0.5) !important;
+}
+
+/* Glass Cards */
+.light-mode #page-progress .prog-glass-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05) !important;
+}
+.light-mode #page-progress .prog-card-header {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+}
+.light-mode #page-progress .prog-card-title {
+  color: #0f172a !important;
+}
+.light-mode #page-progress .prog-card-subtitle {
+  color: #64748b !important;
+}
+
+/* Card Icon Kutuları */
+.light-mode #page-progress .prog-card-icon-box.purple {
+  background: rgba(124, 58, 237, 0.12) !important;
+  border: 1px solid rgba(124, 58, 237, 0.4) !important;
+  color: #6d28d9 !important;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15) !important;
+}
+.light-mode #page-progress .prog-card-icon-box.gold {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  color: #b45309 !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15) !important;
+}
+.light-mode #page-progress .prog-card-icon-box.emerald {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  color: #047857 !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Toplam PR Rozeti */
+.light-mode #page-progress .prog-badge-pr-total {
+  background: #fef3c7 !important;
+  border: 1px solid #fcd34d !important;
+  box-shadow: 0 1px 4px rgba(245, 158, 11, 0.1) !important;
+}
+.light-mode #page-progress .prog-badge-pr-label {
+  color: #92400e !important;
+  font-weight: 750 !important;
+}
+.light-mode #page-progress .prog-badge-pr-val {
+  color: #b45309 !important;
+  font-weight: 900 !important;
+}
+.light-mode #page-progress .prog-badge-pr-dot {
+  background: #f59e0b !important;
+  box-shadow: 0 0 6px #f59e0b !important;
+}
+
+/* En İyi İlerlemeler (Top Gains) Kartları */
+.light-mode #page-progress .prog-gain-card {
+  background: #f8fafc !important;
+  border: 1px solid rgba(226, 232, 240, 0.95) !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03) !important;
+}
+.light-mode #page-progress .prog-gain-card:hover {
+  background: #ffffff !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+}
+.light-mode #page-progress .prog-gain-title {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+.light-mode #page-progress .prog-gain-progression-row {
+  background: #f1f5f9 !important;
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+}
+.light-mode #page-progress .gain-from {
+  color: #64748b !important;
+  font-weight: 700 !important;
+}
+.light-mode #page-progress .gain-arrow {
+  color: #0284c7 !important;
+  font-weight: 900 !important;
+}
+.light-mode #page-progress .gain-to {
+  color: #0f172a !important;
+  font-weight: 850 !important;
+}
+.light-mode #page-progress .prog-gain-delta-badge {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border: 1px solid rgba(16, 185, 129, 0.45) !important;
+  box-shadow: none !important;
+}
+.light-mode #page-progress .gain-diff {
+  color: #047857 !important;
+  font-weight: 850 !important;
+}
+.light-mode #page-progress .gain-pct {
+  color: #065f46 !important;
+  font-weight: 800 !important;
+}
+.light-mode #page-progress .prog-gain-footer {
+  color: #64748b !important;
+}
+.light-mode #page-progress .prog-gain-date-range {
+  color: #64748b !important;
+}
+.light-mode #page-progress .prog-gain-inspect-hint {
+  color: #0284c7 !important;
+  font-weight: 750 !important;
+}
+
+/* Zaman Dilimi & Görünüm Segmented Hapları */
+.light-mode #page-progress .prog-segmented-group {
+  background: #f1f5f9 !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+}
+.light-mode #page-progress .prog-segmented-group .tf-pill {
+  color: #475569 !important;
+}
+.light-mode #page-progress .prog-segmented-group .tf-pill:hover:not(.active) {
+  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+.light-mode #page-progress .prog-segmented-group .tf-pill.active {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35) !important;
+}
+
+/* Arama Kutusu ve Dropdown */
+.light-mode #page-progress .prog-search-box .prog-search-input {
+  background: #f8fafc !important;
+  border: 1.5px solid rgba(203, 213, 225, 0.95) !important;
+  color: #0f172a !important;
+}
+.light-mode #page-progress .prog-search-box .prog-search-input::placeholder {
+  color: #94a3b8 !important;
+}
+.light-mode #page-progress .prog-search-box .prog-search-input:focus {
+  background: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15) !important;
+}
+.light-mode #page-progress .prog-search-icon {
+  color: #7c3aed !important;
+}
+.light-mode #page-progress .custom-dropdown-menu,
+.light-mode #exerciseDropdownList {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12) !important;
+}
+.light-mode #exerciseDropdownList .dropdown-item,
+.light-mode #exerciseDropdownList > div {
+  color: #1e293b !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7) !important;
+}
+.light-mode #exerciseDropdownList .dropdown-item:hover,
+.light-mode #exerciseDropdownList > div:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+.light-mode #exerciseDropdownList .dropdown-group-header {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  font-weight: 850 !important;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.8) !important;
+}
+
+/* Grafik Lejantı */
+.light-mode #page-progress .prog-chart-legend-item {
+  color: #334155 !important;
+  font-weight: 650 !important;
+}
+
+/* Kişisel Rekorlar (PR) Tablosu */
+.light-mode #page-progress .prog-table-wrap {
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+.light-mode #page-progress .prog-table thead th {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  font-weight: 850 !important;
+  border-bottom: 1.5px solid rgba(203, 213, 225, 0.95) !important;
+}
+.light-mode #page-progress .prog-table tbody tr.prog-pr-row {
+  background: #ffffff !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+}
+.light-mode #page-progress .prog-table tbody tr.prog-pr-row:nth-child(even) {
+  background: #f8fafc !important;
+}
+.light-mode #page-progress .prog-table tbody tr.prog-pr-row:hover {
+  background: rgba(124, 58, 237, 0.06) !important;
+}
+.light-mode #page-progress .prog-td-exercise {
+  color: #0f172a !important;
+  font-weight: 750 !important;
+}
+.light-mode #page-progress .prog-pr-weight-badge {
+  background: #ecfdf5 !important;
+  border: 1px solid #a7f3d0 !important;
+  color: #047857 !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+.light-mode #page-progress .prog-pr-reps-badge {
+  background: #f0f9ff !important;
+  border: 1px solid #bae6fd !important;
+  color: #0284c7 !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+.light-mode #page-progress .prog-pr-date {
+  color: #64748b !important;
+  font-weight: 650 !important;
+}
+.light-mode #page-progress .prog-bw-text {
+  color: #047857 !important;
+  font-weight: 800 !important;
+}
+
+/* Bölüm Başlıkları (Kategori Satırları: Compound, Göğüs, Sırt vb.) */
+.light-mode #page-progress tr.prog-pr-section-header {
+  background: #f1f5f9 !important;
+}
+.light-mode #page-progress tr.prog-pr-section-header td.prog-td-section {
+  color: #1e293b !important;
+  font-weight: 900 !important;
+}
+
+/* Canlı Neon Kas Rozetleri (Light Mode'da okunur, doygun ve kontrastlı) */
+.light-mode #page-progress .prog-muscle-badge {
+  box-shadow: none !important;
+}
+
+/* PR Hedef Barları (Dashboard & Progress PR listeleri) */
+.light-mode .pr-item {
+  background: #f8fafc !important;
+  border: 1px solid rgba(226, 232, 240, 0.95) !important;
+}
+.light-mode .pr-item:hover {
+  background: #ffffff !important;
+  border-color: rgba(124, 58, 237, 0.4) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+}
+.light-mode .pr-title-text {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+.light-mode .pr-values {
+  color: #475569 !important;
+}
+.light-mode .pr-values strong {
+  color: #6d28d9 !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+.light-mode .pr-progress-bg {
+  background: #e2e8f0 !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+.light-mode .pr-input {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(203, 213, 225, 0.95) !important;
+  color: #0f172a !important;
+}
+
+
 .light-mode .db-sql-editor-container {
   background: #ffffff !important;
   border-color: rgba(203, 213, 225, 0.9) !important;
@@ -1709,23 +3083,38 @@ tr:hover td { background: var(--bg-card-hover); }
 /* ═══════════════════════════════════════════════
    SATIR İÇİ DÜZENLEME INPUT TASARIMLARI
 ═══════════════════════════════════════════════ */
+/* Sayı oklarını gizle (Chrome, Safari, Edge, Opera, Firefox) */
+input[type="number"].hist-edit-input::-webkit-outer-spin-button,
+input[type="number"].hist-edit-input::-webkit-inner-spin-button,
+input[type="number"].edit-input::-webkit-outer-spin-button,
+input[type="number"].edit-input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+input[type="number"].hist-edit-input,
+input[type="number"].edit-input {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}
+
 .edit-input {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--border);
-  color: var(--accent);
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  color: #ffffff;
   border-radius: 6px;
   padding: 4px;
   outline: none;
   font-size: 13px;
-  font-weight: bold;
+  font-weight: 750;
   text-align: center;
-  transition: 0.3s;
+  transition: 0.2s ease;
 }
 
 .edit-input:focus {
-  border-color: var(--accent);
-  background: rgba(0, 0, 0, 0.6);
-  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+  border-color: #a78bfa;
+  background: rgba(15, 23, 42, 0.98);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.25);
+  color: #ffffff;
 }
 
 
@@ -4238,6 +5627,128 @@ tr:hover td { background: var(--bg-card-hover); }
   color: #fbbf24;
   background: rgba(245, 158, 11, 0.12);
   border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   GEÇMİŞ SAYFASI HIZLI SET DÜZENLEME (QUICK SET EDIT) MODERN CHIP TASARIMI
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.hist-edit-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  height: 27px;
+  border-radius: 7px;
+  box-sizing: border-box;
+  padding: 0 5px 0 3px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  cursor: text;
+  max-width: 100%;
+}
+
+.hist-edit-input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-family: inherit;
+  font-weight: 850 !important;
+  font-size: 12.5px !important;
+  text-align: center;
+  color: #ffffff !important;
+  padding: 0 1px !important;
+  height: 100% !important;
+  line-height: 27px !important;
+  box-sizing: border-box;
+}
+
+.hist-edit-unit {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.2px;
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+  line-height: 1;
+  margin-left: 2px;
+  text-transform: none;
+}
+
+/* 1. Ağırlık Düzenleme Kutusu (Emerald Neon) */
+.hist-edit-pill-weight {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(15, 23, 42, 0.96) 100%);
+  border: 1.5px solid rgba(52, 211, 153, 0.65);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.hist-edit-pill-weight .hist-edit-input {
+  width: 38px;
+  color: #ffffff !important;
+  caret-color: #34d399;
+}
+.hist-edit-pill-weight .hist-edit-unit {
+  color: #34d399;
+}
+.hist-edit-pill-weight:hover {
+  border-color: #34d399;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.3);
+}
+.hist-edit-pill-weight:focus-within {
+  border-color: #34d399;
+  background: rgba(15, 23, 42, 1);
+  box-shadow: 0 0 0 2.5px rgba(52, 211, 153, 0.35), 0 0 16px rgba(16, 185, 129, 0.45);
+}
+
+/* 2. Tekrar Düzenleme Kutusu (Sky Blue Neon) */
+.hist-edit-pill-reps {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(15, 23, 42, 0.96) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.65);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.hist-edit-pill-reps .hist-edit-input {
+  width: 34px;
+  color: #ffffff !important;
+  caret-color: #38bdf8;
+}
+.hist-edit-pill-reps .hist-edit-unit {
+  color: #38bdf8;
+}
+.hist-edit-pill-reps:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+.hist-edit-pill-reps:focus-within {
+  border-color: #38bdf8;
+  background: rgba(15, 23, 42, 1);
+  box-shadow: 0 0 0 2.5px rgba(56, 189, 248, 0.35), 0 0 16px rgba(56, 189, 248, 0.45);
+}
+
+/* 3. RIR Düzenleme Kutusu (Amber Neon) */
+.hist-edit-pill-rir {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(15, 23, 42, 0.96) 100%);
+  border: 1.5px solid rgba(251, 191, 36, 0.65);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.hist-edit-pill-rir .hist-edit-input {
+  width: 24px;
+  color: #ffffff !important;
+  caret-color: #fbbf24;
+}
+.hist-edit-pill-rir .hist-edit-input::placeholder {
+  color: rgba(251, 191, 36, 0.75) !important;
+  font-weight: 800;
+}
+.hist-edit-pill-rir .hist-edit-unit {
+  color: #fbbf24;
+}
+.hist-edit-pill-rir:hover {
+  border-color: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+}
+.hist-edit-pill-rir:focus-within {
+  border-color: #fbbf24;
+  background: rgba(15, 23, 42, 1);
+  box-shadow: 0 0 0 2.5px rgba(245, 158, 11, 0.35), 0 0 16px rgba(245, 158, 11, 0.45);
 }
 
 .hist-btn-more {
@@ -18245,6 +19756,28 @@ tr:hover td { background: var(--bg-card-hover); }
     padding: 2px 2px !important;
     border-radius: 5px !important;
   }
+  .hist-table .hist-edit-pill {
+    height: 25px !important;
+    padding: 0 3px 0 1px !important;
+    border-radius: 6px !important;
+  }
+  .hist-table .hist-edit-input {
+    font-size: 11px !important;
+    line-height: 25px !important;
+    padding: 0 1px !important;
+  }
+  .hist-table .hist-edit-unit {
+    font-size: 9.5px !important;
+  }
+  .hist-table .hist-edit-pill-weight .hist-edit-input {
+    width: 32px !important;
+  }
+  .hist-table .hist-edit-pill-reps .hist-edit-input {
+    width: 25px !important;
+  }
+  .hist-table .hist-edit-pill-rir .hist-edit-input {
+    width: 19px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -18326,6 +19859,28 @@ tr:hover td { background: var(--bg-card-hover); }
     padding: 2px 3px !important;
     white-space: nowrap !important;
     letter-spacing: -0.1px !important;
+  }
+  .hist-table .hist-edit-pill {
+    height: 23px !important;
+    padding: 0 2px 0 1px !important;
+    border-radius: 5px !important;
+  }
+  .hist-table .hist-edit-input {
+    font-size: 10px !important;
+    line-height: 23px !important;
+    padding: 0 !important;
+  }
+  .hist-table .hist-edit-unit {
+    font-size: 8.5px !important;
+  }
+  .hist-table .hist-edit-pill-weight .hist-edit-input {
+    width: 28px !important;
+  }
+  .hist-table .hist-edit-pill-reps .hist-edit-input {
+    width: 20px !important;
+  }
+  .hist-table .hist-edit-pill-rir .hist-edit-input {
+    width: 17px !important;
   }
 }
 
@@ -29678,6 +31233,24 @@ function toggleTheme() {
   const isLight = document.body.classList.toggle('light-mode');
   localStorage.setItem('hx_theme', isLight ? 'light' : 'dark');
   updateThemeIcon();
+
+  // Dashboard grafikleri açıksa renkleri anında güncelle
+  if (window._muscleChart) {
+    if (window._muscleChart.options?.plugins?.legend?.labels) {
+      window._muscleChart.options.plugins.legend.labels.color = isLight ? '#334155' : '#9ca3b4';
+      window._muscleChart.update();
+    }
+  }
+  if (typeof renderXpTrendChart === 'function' && document.getElementById('xpTrendChart')) {
+    const activePill = document.querySelector('#rpgTimeframePills .tf-pill.active');
+    const tf = activePill ? (activePill.textContent.includes('Hafta') ? 'weekly' : (activePill.textContent.includes('Ay') ? 'monthly' : 'all')) : 'all';
+    renderXpTrendChart(tf, false);
+  }
+
+  // İlerleme sayfası egzersiz grafiği açıksa renkleri anında güncelle
+  if (window._exerciseProgressChart && typeof renderExerciseProgressChart === 'function' && window._progExercise) {
+    renderExerciseProgressChart(window._progExercise, null);
+  }
 }
 function loadTheme() {
   const theme = localStorage.getItem('hx_theme');
@@ -30559,11 +32132,11 @@ function renderXpTrendChart(timeframe = 'all', forceReanimate = true) {
       scales: {
         x: {
           grid: {
-            color: 'rgba(255, 255, 255, 0.04)',
+            color: document.body.classList.contains('light-mode') ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.04)',
             drawBorder: false
           },
           ticks: {
-            color: '#94a3b8',
+            color: document.body.classList.contains('light-mode') ? '#64748b' : '#94a3b8',
             font: { size: 10 },
             maxRotation: 0,
             autoSkip: true,
@@ -30572,11 +32145,11 @@ function renderXpTrendChart(timeframe = 'all', forceReanimate = true) {
         },
         y: {
           grid: {
-            color: 'rgba(255, 255, 255, 0.05)',
+            color: document.body.classList.contains('light-mode') ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)',
             drawBorder: false
           },
           ticks: {
-            color: '#94a3b8',
+            color: document.body.classList.contains('light-mode') ? '#64748b' : '#94a3b8',
             font: { size: 9.5 },
             maxTicksLimit: 4,
             callback: function(val) {
@@ -31462,26 +33035,26 @@ function renderPRList(username) {
           <div class="pr-header" style="margin-bottom:0;">
             <div class="pr-title-text">${ex.icon} ${ex.name}</div>
             <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-size:11.5px; color:#94a3b8; font-weight:600;">Mevcut: <strong style="color:#c084fc; font-weight:800;">${currentMax}kg</strong></span>
-              <span style="font-size:12px; color:#cbd5e1; font-weight:600;">Hedef:</span>
+              <span class="pr-edit-current-label" style="font-size:11.5px; color:#94a3b8; font-weight:600;">Mevcut: <strong style="color:#c084fc; font-weight:800;">${currentMax}kg</strong></span>
+              <span class="pr-edit-target-label" style="font-size:12px; color:#cbd5e1; font-weight:600;">Hedef:</span>
               <input type="number" id="pr_input_${ex.key}" class="pr-input" value="${target}">
             </div>
           </div>
         </div>
       `;
     } else {
-      const targetText = target > 0 ? `<span style="color:#cbd5e1; font-weight:700;">${target}kg</span>` : '<span style="font-size:10.5px; color:#f87171; font-weight:600; background:rgba(239, 68, 68, 0.1); padding:2px 7px; border-radius:6px; border:1px solid rgba(239, 68, 68, 0.25);">Hedef Belirle</span>';
+      const targetText = target > 0 ? `<span class="pr-target-val" style="color:#cbd5e1; font-weight:700;">${target}kg</span>` : '<span class="pr-target-empty" style="font-size:10.5px; color:#f87171; font-weight:600; background:rgba(239, 68, 68, 0.1); padding:2px 7px; border-radius:6px; border:1px solid rgba(239, 68, 68, 0.25);">Hedef Belirle</span>';
 
       html += `
         <div class="pr-item pr-item-animated" style="--pr-index: ${idx};">
           <div class="pr-header">
             <div class="pr-title-text">${ex.icon} ${ex.name}</div>
-            <div class="pr-values"><strong>${currentMax}kg</strong> <span style="color:#64748b; font-weight:500;">/</span> ${targetText}</div>
+            <div class="pr-values"><strong>${currentMax}kg</strong> <span class="pr-sep" style="color:#64748b; font-weight:500;">/</span> ${targetText}</div>
           </div>
           <div class="pr-progress-bg">
             <div class="pr-progress-fill" style="width: 0%;" data-target-width="${percentage}%"></div>
           </div>
-          ${target > 0 ? `<div style="text-align:right; font-size:10px; font-weight:700; color:#a78bfa; margin-top:4px; letter-spacing:0.2px;">%${percentage} Tamamlandı</div>` : ''}
+          ${target > 0 ? `<div class="pr-percent-label" style="text-align:right; font-size:10px; font-weight:700; color:#a78bfa; margin-top:4px; letter-spacing:0.2px;">%${percentage} Tamamlandı</div>` : ''}
         </div>
       `;
     }
@@ -32277,7 +33850,7 @@ function renderMuscleChart(labels, data, details = {}) {
         legend: {
           position: 'right',
           labels: {
-            color: '#9ca3b4',
+            color: document.body.classList.contains('light-mode') ? '#334155' : '#9ca3b4',
             font: { size: isMobile ? 10 : 11 },
             boxWidth: isMobile ? 10 : 12,
             padding: isMobile ? 5 : 10
@@ -33480,7 +35053,10 @@ async function loadHistory(username) {
             const wKg = parseFloat(s.weight_kg) || 0;
             weightCellHTML = `
               <span class="view-mode-${index} prog-pr-weight-badge" style="font-size:11.5px; padding:2.5px 6px;">${wKg} kg</span>
-              <input type="number" step="0.5" class="edit-mode-${index} edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="weight_kg" value="${s.weight_kg || 0}" style="display:none; width:52px; font-size:11px;">
+              <div class="edit-mode-${index} hist-edit-pill hist-edit-pill-weight" style="display:none;" onclick="const i=this.querySelector('input');if(i&&document.activeElement!==i)i.focus();" title="Ağırlık düzenle (kg)">
+                <input type="number" step="0.5" min="0" max="999" class="hist-edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="weight_kg" value="${s.weight_kg || 0}" onfocus="this.select()" aria-label="${ex.exercise_name || 'Egzersiz'} ${sIdx + 1}. set ağırlık (kg)" placeholder="0">
+                <span class="hist-edit-unit hist-edit-unit-weight">kg</span>
+              </div>
             `;
           }
 
@@ -33492,11 +35068,17 @@ async function loadHistory(username) {
               </td>
               <td>
                 <span class="view-mode-${index} prog-pr-reps-badge" style="font-size:11.5px; padding:2.5px 6px;">${s.reps || 0}<span class="desktop-txt">&nbsp;Tekrar</span><span class="mobile-txt">&nbsp;Tkr</span></span>
-                <input type="number" class="edit-mode-${index} edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="reps" value="${s.reps || 0}" style="display:none; width:48px; font-size:11px;">
+                <div class="edit-mode-${index} hist-edit-pill hist-edit-pill-reps" style="display:none;" onclick="const i=this.querySelector('input');if(i&&document.activeElement!==i)i.focus();" title="Tekrar sayısı düzenle">
+                  <input type="number" step="1" min="0" max="999" class="hist-edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="reps" value="${s.reps || 0}" onfocus="this.select()" aria-label="${ex.exercise_name || 'Egzersiz'} ${sIdx + 1}. set tekrar" placeholder="0">
+                  <span class="hist-edit-unit hist-edit-unit-reps"><span class="desktop-txt">Tekrar</span><span class="mobile-txt">Tkr</span></span>
+                </div>
               </td>
               <td>
                 <span class="view-mode-${index} hist-rir-badge">${s.rir === 0 || s.rir ? `${s.rir} RIR` : '—'}</span>
-                <input type="number" min="0" max="5" class="edit-mode-${index} edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="rir" value="${s.rir === 0 || s.rir ? s.rir : ''}" placeholder="—" style="display:none; width:44px; font-size:11px;">
+                <div class="edit-mode-${index} hist-edit-pill hist-edit-pill-rir" style="display:none;" onclick="const i=this.querySelector('input');if(i&&document.activeElement!==i)i.focus();" title="RIR düzenle (0-5)">
+                  <input type="number" min="0" max="5" step="1" class="hist-edit-input" data-ex="${exIdx}" data-set="${sIdx}" data-field="rir" value="${s.rir === 0 || s.rir ? s.rir : ''}" onfocus="this.select()" aria-label="${ex.exercise_name || 'Egzersiz'} ${sIdx + 1}. set RIR (0-5)" placeholder="—">
+                  <span class="hist-edit-unit hist-edit-unit-rir">RIR</span>
+                </div>
               </td>
             </tr>
           `;
@@ -33584,7 +35166,7 @@ async function loadHistory(username) {
 }
 
 function handleCardClick(index, event) {
-  if (event.target.closest('button, input, textarea')) return;
+  if (event.target.closest('button, input, textarea, select, .hist-edit-pill')) return;
   const summaryWrap = document.getElementById(`summary-wrapper-${index}`);
   const fullWrap = document.getElementById(`full-wrapper-${index}`);
   const hint = document.getElementById(`hint-${index}`);
@@ -33606,7 +35188,7 @@ function handleCardClick(index, event) {
 }
 
 function handleDetailsClick(index, event) {
-  if (event.target.closest('button, input, textarea')) return;
+  if (event.target.closest('button, input, textarea, select, .hist-edit-pill')) return;
   event.stopPropagation();
   const hint = document.getElementById(`hint-${index}`);
   if(hint) hint.textContent = 'Özeti kapatmak için tıkla';
@@ -33664,7 +35246,13 @@ function toggleEditMode(index, event) {
   const views = document.querySelectorAll(`.view-mode-${index}`);
   const edits = document.querySelectorAll(`.edit-mode-${index}`);
   views.forEach(el => el.style.display = 'none');
-  edits.forEach(el => el.style.display = 'inline-block');
+  edits.forEach(el => {
+    if (el.classList.contains('hist-edit-pill')) {
+      el.style.display = 'inline-flex';
+    } else {
+      el.style.display = 'inline-block';
+    }
+  });
 
   document.getElementById(`edit-btn-${index}`).style.display = 'none';
   document.getElementById(`save-btn-${index}`).style.display = 'inline-block';
@@ -33758,15 +35346,17 @@ async function saveEdit(index, workoutId, event) {
   const workout = globalHistoryWorkouts[index];
   let exercises = typeof workout.exercises === 'string' ? JSON.parse(workout.exercises) : workout.exercises;
 
-  const inputs = document.querySelectorAll(`input.edit-mode-${index}, select.edit-mode-${index}`);
+  const inputs = document.querySelectorAll(`.edit-mode-${index} input, input.edit-mode-${index}, select.edit-mode-${index}, .edit-mode-${index} select`);
   inputs.forEach(input => {
     const exIdx = input.getAttribute('data-ex');
     const setIdx = input.getAttribute('data-set');
     const field = input.getAttribute('data-field');
-    const val = parseFloat(input.value);
-    if (field === 'weight_kg') { exercises[exIdx].sets_data[setIdx].weight_kg = val; }
-    else if (field === 'reps') { exercises[exIdx].sets_data[setIdx].reps = val; }
-    else if (field === 'rir') { exercises[exIdx].sets_data[setIdx].rir = Number.isInteger(val) && val >= 0 && val <= 5 ? val : null; }
+    if (!field || exIdx === null || setIdx === null) return;
+    const rawVal = String(input.value || '').trim();
+    const val = parseFloat(rawVal);
+    if (field === 'weight_kg') { exercises[exIdx].sets_data[setIdx].weight_kg = isNaN(val) ? 0 : Math.max(0, val); }
+    else if (field === 'reps') { exercises[exIdx].sets_data[setIdx].reps = isNaN(val) ? 0 : Math.max(0, Math.round(val)); }
+    else if (field === 'rir') { exercises[exIdx].sets_data[setIdx].rir = (rawVal !== '' && Number.isInteger(val) && val >= 0 && val <= 5) ? val : null; }
   });
 
   try {
@@ -35321,6 +36911,9 @@ function renderExerciseProgressChart(exName, raw) {
   const titleFontSize = isMobileChart ? 11 : 13;
   const pRadius = isMobileChart ? 4.5 : 6;
   const pBorder = isMobileChart ? 1.5 : 2;
+  const isLight = document.body.classList.contains('light-mode');
+  const chartGridColor = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.05)';
+  const chartAxisTextColor = isLight ? '#475569' : '#9ca3b4';
   const points = _progFilteredPoints();
   const scrollWrap = document.getElementById('progChartScrollWrap');
   const innerEl = document.getElementById('progChartInner');
@@ -35448,7 +37041,7 @@ function renderExerciseProgressChart(exName, raw) {
           x: {
             grid: { display: false },
             ticks: {
-              color: '#9ca3b4',
+              color: chartAxisTextColor,
               maxRotation: 0,
               minRotation: 0,
               autoSkip: !isScrollable,
@@ -35456,19 +37049,19 @@ function renderExerciseProgressChart(exName, raw) {
               font: { size: tickFontSize },
               padding: 8
             },
-            title: { display: true, text: 'Tarih', color: '#9ca3b4', font: { size: titleFontSize, weight: '700' } },
+            title: { display: true, text: 'Tarih', color: chartAxisTextColor, font: { size: titleFontSize, weight: '700' } },
           },
           yWeight: {
             type: 'linear', position: 'left', beginAtZero: false,
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#a9a6ff', callback: value => `${value} kg`, font: { size: tickFontSize } },
-            title: { display: true, text: 'Ağırlık (kg)', color: '#a9a6ff', font: { size: titleFontSize, weight: '700' } },
+            grid: { color: chartGridColor },
+            ticks: { color: isLight ? '#4338ca' : '#a9a6ff', callback: value => `${value} kg`, font: { size: tickFontSize } },
+            title: { display: true, text: 'Ağırlık (kg)', color: isLight ? '#4338ca' : '#a9a6ff', font: { size: titleFontSize, weight: '700' } },
           },
           yReps: {
             type: 'linear', position: 'right', beginAtZero: false,
             grid: { drawOnChartArea: false },
             ticks: {
-              color: '#86efac',
+              color: isLight ? '#047857' : '#86efac',
               precision: 0,
               stepSize: 1,
               callback: function(value) {
@@ -35479,7 +37072,7 @@ function renderExerciseProgressChart(exName, raw) {
               },
               font: { size: tickFontSize }
             },
-            title: { display: true, text: 'Tekrar', color: '#86efac', font: { size: titleFontSize, weight: '700' } },
+            title: { display: true, text: 'Tekrar', color: isLight ? '#047857' : '#86efac', font: { size: titleFontSize, weight: '700' } },
           },
         },
       },
@@ -35607,9 +37200,9 @@ function renderExerciseProgressChart(exName, raw) {
       scales: {
         y: {
           beginAtZero: false,
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          grid: { color: chartGridColor },
           ticks: {
-            color: isBodyweight ? '#86efac' : '#9ca3b4',
+            color: isBodyweight ? (isLight ? '#047857' : '#86efac') : chartAxisTextColor,
             precision: isBodyweight ? 0 : undefined,
             stepSize: isBodyweight ? 1 : undefined,
             callback: function(value) {
@@ -35626,14 +37219,14 @@ function renderExerciseProgressChart(exName, raw) {
           title: {
             display: true,
             text: isBodyweight ? 'Tekrar' : 'Ağırlık (kg)',
-            color: isBodyweight ? '#86efac' : '#a9a6ff',
+            color: isBodyweight ? (isLight ? '#047857' : '#86efac') : (isLight ? '#4338ca' : '#a9a6ff'),
             font: { size: titleFontSize, weight: '700' }
           }
         },
         x: {
           grid: { display: false },
           ticks: {
-            color: '#9ca3b4',
+            color: chartAxisTextColor,
             maxRotation: 0,
             minRotation: 0,
             autoSkip: !isScrollable,
@@ -35641,7 +37234,7 @@ function renderExerciseProgressChart(exName, raw) {
             font: { size: tickFontSize },
             padding: 8
           },
-          title: { display: true, text: 'Tarih', color: '#9ca3b4', font: { size: titleFontSize, weight: '700' } }
+          title: { display: true, text: 'Tarih', color: chartAxisTextColor, font: { size: titleFontSize, weight: '700' } }
         }
       }
     }
