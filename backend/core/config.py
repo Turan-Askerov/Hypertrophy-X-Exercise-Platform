@@ -44,9 +44,9 @@ if not CORS_ORIGINS:
     CORS_ORIGINS = ["*"]
 
 ENABLE_HSTS = os.getenv("ENABLE_HSTS", "false").strip().lower() in {"1", "true", "yes"}
-LOGIN_RATE_LIMIT_MAX = max(1, int(os.getenv("LOGIN_RATE_LIMIT_MAX", "99999")))
+LOGIN_RATE_LIMIT_MAX = max(1, int(os.getenv("LOGIN_RATE_LIMIT_MAX", "25")))
 LOGIN_RATE_LIMIT_WINDOW_SECONDS = max(60, int(os.getenv("LOGIN_RATE_LIMIT_WINDOW_SECONDS", "900")))
-TRUST_PROXY_HEADERS = os.getenv("TRUST_PROXY_HEADERS", "false").strip().lower() in {"1", "true", "yes"}
+TRUST_PROXY_HEADERS = os.getenv("TRUST_PROXY_HEADERS", "true").strip().lower() in {"1", "true", "yes"}
 BCRYPT_ROUNDS = 12
 
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com").strip()
