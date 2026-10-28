@@ -192,6 +192,10 @@ class AuthRateLimitMiddleware(BaseHTTPMiddleware):
         return request.client.host if request.client else "unknown"
 
     async def dispatch(self, request: Request, call_next):
+        # GEÇİCİ OLARAK KAPATILDI: Render ve geliştirme/test ortamında kilitlenmeleri önlemek için.
+        # İleride tekrar aktifleştirmek için aşağıdaki return satırını yoruma almanız yeterlidir.
+        return await call_next(request)
+
         if request.method in {"POST", "DELETE"} and request.url.path in self.protected_paths:
             identifier = self._client_identifier(request)
             key = f"{request.url.path}:{identifier}"
