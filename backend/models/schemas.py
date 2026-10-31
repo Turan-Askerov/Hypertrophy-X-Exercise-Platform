@@ -63,9 +63,15 @@ class UserProfile(BaseModel):
     new_password: Optional[str] = None
 
 
+class RequestDeleteAccountRequest(BaseModel):
+    password: str
+
+
 class DeleteAccountRequest(BaseModel):
     password: str
-    confirmation: str
+    token: Optional[str] = None
+    code: Optional[str] = None
+    confirmation: Optional[str] = None
 
 
 

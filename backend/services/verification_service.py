@@ -274,12 +274,17 @@ def create_security_verification(
 
     send_security_code_email(target_email, username, code, action_type=action)
 
-    return {
+    res_data = {
         "success": True,
         "token": token,
         "masked_email": mask_email(target_email),
         "message": f"{mask_email(target_email)} adresine 6 haneli doğrulama kodu gönderildi.",
     }
+    from core.config import APP_ENV
+    if APP_ENV == "test":
+        res_data["test_code"] = code
+
+    return res_data
 
 
 def verify_security_code(

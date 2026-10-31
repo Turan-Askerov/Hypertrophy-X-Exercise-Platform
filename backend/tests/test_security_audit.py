@@ -319,4 +319,65 @@ def test_delete_account_security_flow(client, admin_headers):
     assert row is None
 
 
+def test_delete_account_email_otp_flow(client):
+    """Hesap silme işleminde e-postaya gelen 6 haneli OTP kodu ile silme akışını test eder."""
+    username = "otp_delete_victim"
+    password = "MySecurePassword123!"
+    email = "delete_otp_test@example.com"
+    reg_res = client.post("/api/auth/register", json={
+        "username": username,
+        "password": password,
+        "email": email,
+    })
+    if reg_res.status_code == 200:
+        d = reg_res.json()
+        client.post("/api/auth/register/confirm", json={"token": d["token"], "code": d["test_code"]})
+    login_res = client.post("/api/auth/login", json={"username": username, "password": password})
+    token_jwt = login_res.json().get("token")
+    headers = {"Authorization": f"Bearer {token_jwt}", "Content-Type": "application/json"}
+
+    # 1. Yanlış şifre ile talep başlatılamaz
+    fail_req = client.post("/api/user/delete-account/request", headers=headers, json={
+        "password": "WrongPassword999!"
+    })
+    assert fail_req.status_code == 401
+
+    # 2. Doğru şifre ile OTP başlat
+    req_res = client.post("/api/user/delete-account/request", headers=headers, json={
+        "password": password
+    })
+    assert req_res.status_code == 200
+    req_data = req_res.json()
+    assert req_data["success"] is True
+    otp_token = req_data["token"]
+    real_code = req_data["test_code"]
+
+    # 3. Hatalı kod ile silinemez
+    fail_del = client.post("/api/user/delete-account", headers=headers, json={
+        "password": password,
+        "token": otp_token,
+        "code": "000000" if real_code != "000000" else "111111"
+    })
+    assert fail_del.status_code == 400
+
+    # 4. Doğru kod ve doğru şifre ile başarılı silme
+    del_res = client.post("/api/user/delete-account", headers=headers, json={
+        "password": password,
+        "token": otp_token,
+        "code": real_code
+    })
+    assert del_res.status_code == 200
+    assert del_res.json()["success"] is True
+
+    # 5. Artık login olunamamalı ve DB'de olmamalı
+    login_again = client.post("/api/auth/login", json={"username": username, "password": password})
+    assert login_again.status_code == 401
+
+    conn = get_db()
+    row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    conn.close()
+    assert row is None
+
+
+
 

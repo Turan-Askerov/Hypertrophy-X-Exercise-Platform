@@ -45,6 +45,11 @@ def send_security_code_email(
             "header": "ŞİFRE SIFIRLAMA",
             "message": "Hesabınız için şifre sıfırlama talebinde bulundunuz. Aşağıdaki 6 haneli tek kullanımlık doğrulama kodunu kullanarak yeni şifrenizi belirleyebilirsiniz:",
         },
+        "delete_account": {
+            "subject": f"Hypertrophy-X Hesap Silme Onay Kodu: {code}",
+            "header": "HESAP SİLME ONAYI",
+            "message": "Hypertrophy-X hesabınızı kalıcı olarak silmek için bir talepte bulundunuz. Hesabınızı ve tüm antrenman verilerinizi kalıcı olarak silmek için aşağıdaki 6 haneli güvenlik kodunu girin:",
+        },
     }
 
     cfg = action_configs.get(action_type, action_configs["password_reset"])

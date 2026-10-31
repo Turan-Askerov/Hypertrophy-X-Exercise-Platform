@@ -13,6 +13,7 @@ from models.schemas import (
     DeleteAccountRequest,
     EmailConfirmRequest,
     EmailUpdateRequest,
+    RequestDeleteAccountRequest,
     UserProfile,
 )
 from services.user_service import update_user_profile
@@ -140,13 +141,12 @@ def confirm_email_update(
     }
 
 
-@router.post("/delete-account")
-@router.delete("/me")
-def delete_my_account(
-    data: DeleteAccountRequest = Body(...),
+@router.post("/delete-account/request")
+def request_delete_account(
+    data: RequestDeleteAccountRequest = Body(...),
     current_user: dict = Depends(_resolve_current_user),
 ):
-    """Kullanıcının kendi hesabını ve tüm ilişkili verilerini parola doğrulamasıyla kalıcı olarak siler."""
+    """Hesap silme işlemi için parola doğrulaması yapıp kullanıcının e-posta adresine 6 haneli OTP kodu gönderir."""
     password = str(data.password or "").strip()
     if not password:
         raise HTTPException(
@@ -154,11 +154,93 @@ def delete_my_account(
             detail="Hesabınızı silmek için mevcut şifrenizi girmelisiniz.",
         )
 
-    confirmation = str(data.confirmation or "").strip()
-    if confirmation != "HESABIMI KALICI OLARAK SİL":
+    user_id = current_user["id"]
+    conn = get_db()
+    try:
+        user_row = conn.execute(
+            "SELECT password_hash, password_salt, is_admin, username, email FROM users WHERE id = ?",
+            (user_id,),
+        ).fetchone()
+        if not user_row:
+            raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı.")
+
+        if (
+            user_row["is_admin"]
+            or current_user.get("is_admin")
+            or str(user_row["username"] or "").lower() == ADMIN_USERNAME.lower()
+            or str(current_user.get("username") or "").lower() == ADMIN_USERNAME.lower()
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="Sistem yöneticisi (admin) hesabı silinemez.",
+            )
+
+        if not _verify_password(password, user_row["password_hash"], user_row["password_salt"]):
+            raise HTTPException(
+                status_code=401,
+                detail="Mevcut şifrenizi hatalı girdiniz.",
+            )
+
+        email = user_row["email"]
+        if not email:
+            prof_row = conn.execute(
+                "SELECT email FROM athlete_profiles WHERE user_id = ?", (user_id,)
+            ).fetchone()
+            if prof_row and prof_row["email"]:
+                email = prof_row["email"]
+
+        if not email:
+            raise HTTPException(
+                status_code=400,
+                detail="Kayıtlı e-posta adresiniz bulunamadı. Lütfen önce profilinizden e-posta adresinizi güncelleyin.",
+            )
+    finally:
+        conn.close()
+
+    return create_security_verification(
+        user_id=user_id,
+        username=user_row["username"],
+        target_email=email,
+        action="delete_account",
+        payload="delete_account",
+    )
+
+
+@router.post("/delete-account")
+@router.delete("/me")
+def delete_my_account(
+    data: DeleteAccountRequest = Body(...),
+    current_user: dict = Depends(_resolve_current_user),
+):
+    """Kullanıcının kendi hesabını ve tüm ilişkili verilerini parola ve e-posta doğrulama kodu ile kalıcı olarak siler."""
+    password = str(data.password or "").strip()
+    if not password:
         raise HTTPException(
             status_code=400,
-            detail="Onay metni eşleşmiyor. Lütfen 'HESABIMI KALICI OLARAK SİL' yazın.",
+            detail="Hesabınızı silmek için mevcut şifrenizi girmelisiniz.",
+        )
+
+    user_id = current_user["id"]
+
+    # Doğrulama kodu kontrolü
+    if data.token or data.code:
+        _v_rec, v_conn = verify_security_code(
+            token=data.token or "",
+            code=data.code or "",
+            action="delete_account",
+            user_id=user_id,
+        )
+        v_conn.close()
+    elif data.confirmation:
+        if str(data.confirmation).strip() != "HESABIMI KALICI OLARAK SİL":
+            raise HTTPException(
+                status_code=400,
+                detail="Onay metni eşleşmiyor. Lütfen 'HESABIMI KALICI OLARAK SİL' yazın.",
+            )
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Hesabınızı silmek için e-postanıza gönderilen 6 haneli doğrulama kodunu girmelisiniz.",
         )
 
     user_id = current_user["id"]
