@@ -297,6 +297,11 @@ EXERCISE_POOL = [
               secondary_muscles=["triceps", "side_delts"], movement_pattern="vertical_press",
               equipment=["shoulder_press_machine"], load_mode="external_load", fatigue_cost="low"),
 
+    _exercise("behind-the-neck-press", "Behind-the-Neck Press", "Shoulders", "compound", False,
+              family="shoulder_press", variation="barbell_behind_neck", primary_muscles=["front_delts"],
+              secondary_muscles=["side_delts", "triceps"], movement_pattern="vertical_press",
+              equipment=["barbell"], load_mode="external_load", fatigue_cost="medium"),
+
     # --- İzolasyon (Isolation) Egzersizleri ---
     _exercise("face-pulls", "Face Pulls", "Shoulders", "isolation", False,
               family="face_pull", variation="cable_rope", primary_muscles=["rear_delts", "upper_back"],
