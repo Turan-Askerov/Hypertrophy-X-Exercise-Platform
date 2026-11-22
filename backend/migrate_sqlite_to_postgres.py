@@ -30,7 +30,7 @@ USER_COLUMNS = (
     "is_admin", "created_at", "updated_at",
 )
 WORKOUT_COLUMNS = (
-    "date", "session_type", "notes", "gym_id", "gym_name", "total_volume", "exercises", "created_at",
+    "date", "session_type", "notes", "gym_id", "gym_name", "duration_seconds", "rest_time_seconds", "entry_mode", "total_volume", "exercises", "created_at",
 )
 PROFILE_COLUMNS = (
     "target_muscles_json", "doms_daily_json", "gym_equipment_json", "injuries_json",
@@ -45,7 +45,7 @@ DEFAULTS: dict[str, Any] = {
     "height": 170.0, "weight": 70.0, "fitness_level": "Beginner", "goal": "bulk",
     "days_per_week": 4, "session_time_mins": 60, "stagnation_detected": 0,
     "custom_split": "[]", "dashboard_preferences": "{}", "daily_nutrition": "{}",
-    "is_admin": 0, "notes": "", "gym_id": None, "gym_name": "", "total_volume": 0.0, "exercises": "[]",
+    "is_admin": 0, "notes": "", "gym_id": None, "gym_name": "", "duration_seconds": 0, "rest_time_seconds": 0, "entry_mode": "live", "total_volume": 0.0, "exercises": "[]",
     "target_muscles_json": "{}", "doms_daily_json": "{}",
     "gym_equipment_json": "[]", "injuries_json": "[]", "rpe_checkins_json": "[]",
 }

@@ -93,6 +93,7 @@ class SetData(BaseModel):
     reps: int
     weight_kg: float = 0
     rir: Optional[int] = None
+    rest_seconds: Optional[int] = None
 
 
 class ExerciseEntry(BaseModel):
@@ -103,6 +104,7 @@ class ExerciseEntry(BaseModel):
     is_bodyweight: bool = False
     canonical_exercise_id: Optional[str] = None
     exercise_meta_version: int = 1
+    superset_id: Optional[str] = None
 
 
 class WorkoutCreate(BaseModel):
@@ -112,6 +114,9 @@ class WorkoutCreate(BaseModel):
     exercises: List[ExerciseEntry]
     gym_id: Optional[str] = None
     gym_name: Optional[str] = None
+    duration_seconds: Optional[int] = 0
+    rest_time_seconds: Optional[int] = 0
+    entry_mode: Optional[str] = "live"
 
 
 class WorkoutUpdate(BaseModel):
@@ -121,6 +126,9 @@ class WorkoutUpdate(BaseModel):
     exercises: Optional[List[ExerciseEntry]] = None
     gym_id: Optional[str] = None
     gym_name: Optional[str] = None
+    duration_seconds: Optional[int] = None
+    rest_time_seconds: Optional[int] = None
+    entry_mode: Optional[str] = None
 
 
 # ── Admin & Veritabanı Modelleri ──

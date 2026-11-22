@@ -298,22 +298,25 @@ def create_workout(user_id: int, data: dict) -> dict:
         data.get("notes", ""),
         data.get("gym_id"),
         str(data.get("gym_name") or "")[:80],
+        int(data.get("duration_seconds") or 0),
+        int(data.get("rest_time_seconds") or 0),
+        str(data.get("entry_mode") or "live")[:30],
         total_volume,
         json.dumps(exercises, ensure_ascii=False),
     )
     conn = get_db()
     if DATABASE_BACKEND == "postgresql":
         row = conn.execute(
-            """INSERT INTO workouts (user_id, date, session_type, notes, gym_id, gym_name, total_volume, exercises)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id""",
+            """INSERT INTO workouts (user_id, date, session_type, notes, gym_id, gym_name, duration_seconds, rest_time_seconds, entry_mode, total_volume, exercises)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id""",
             values,
         ).fetchone()
         new_id = row["id"]
     else:
         cur = conn.cursor()
         cur.execute(
-            """INSERT INTO workouts (user_id, date, session_type, notes, gym_id, gym_name, total_volume, exercises)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            """INSERT INTO workouts (user_id, date, session_type, notes, gym_id, gym_name, duration_seconds, rest_time_seconds, entry_mode, total_volume, exercises)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             values,
         )
         new_id = cur.lastrowid
@@ -364,6 +367,15 @@ def update_workout(workout_id: int, data: dict, user_id: int) -> dict:
     if "gym_name" in data:
         fields.append("gym_name=?")
         values.append(str(data["gym_name"] or "")[:80])
+    if "duration_seconds" in data and data["duration_seconds"] is not None:
+        fields.append("duration_seconds=?")
+        values.append(int(data["duration_seconds"]))
+    if "rest_time_seconds" in data and data["rest_time_seconds"] is not None:
+        fields.append("rest_time_seconds=?")
+        values.append(int(data["rest_time_seconds"]))
+    if "entry_mode" in data and data["entry_mode"] is not None:
+        fields.append("entry_mode=?")
+        values.append(str(data["entry_mode"])[:30])
     if "exercises" in data and data["exercises"] is not None:
         exercises = _normalize_workout_exercises(data["exercises"])
         total_vol = 0.0

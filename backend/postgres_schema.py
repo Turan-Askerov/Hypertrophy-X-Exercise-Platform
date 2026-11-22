@@ -39,6 +39,9 @@ POSTGRES_SCHEMA_STATEMENTS = (
         notes TEXT DEFAULT '',
         gym_id TEXT DEFAULT NULL,
         gym_name TEXT DEFAULT '',
+        duration_seconds INTEGER NOT NULL DEFAULT 0,
+        rest_time_seconds INTEGER NOT NULL DEFAULT 0,
+        entry_mode TEXT NOT NULL DEFAULT 'live',
         total_volume DOUBLE PRECISION NOT NULL DEFAULT 0,
         exercises TEXT NOT NULL DEFAULT '[]',
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -53,6 +56,9 @@ POSTGRES_SCHEMA_STATEMENTS = (
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active INTEGER NOT NULL DEFAULT 1",
     "ALTER TABLE workouts ADD COLUMN IF NOT EXISTS gym_id TEXT DEFAULT NULL",
     "ALTER TABLE workouts ADD COLUMN IF NOT EXISTS gym_name TEXT DEFAULT ''",
+    "ALTER TABLE workouts ADD COLUMN IF NOT EXISTS duration_seconds INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE workouts ADD COLUMN IF NOT EXISTS rest_time_seconds INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE workouts ADD COLUMN IF NOT EXISTS entry_mode TEXT NOT NULL DEFAULT 'live'",
     "ALTER TABLE athlete_profiles ADD COLUMN IF NOT EXISTS email TEXT NOT NULL DEFAULT ''",
     """
     CREATE TABLE IF NOT EXISTS password_resets (

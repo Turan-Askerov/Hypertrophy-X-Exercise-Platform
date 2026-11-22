@@ -16,7 +16,7 @@ USER_COLUMNS = (
     "is_admin", "created_at", "updated_at",
 )
 WORKOUT_COLUMNS = (
-    "date", "session_type", "notes", "gym_id", "gym_name", "total_volume", "exercises", "created_at",
+    "date", "session_type", "notes", "gym_id", "gym_name", "duration_seconds", "rest_time_seconds", "entry_mode", "total_volume", "exercises", "created_at",
 )
 PROFILE_COLUMNS = (
     "target_muscles_json", "doms_daily_json", "gym_equipment_json", "injuries_json",
