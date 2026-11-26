@@ -1,4 +1,5 @@
 """Hypertrophy-X merkezi Pydantic istek ve veri modelleri."""
+import re
 from typing import Optional, List, Any
 from pydantic import BaseModel, Field, field_validator
 
@@ -50,17 +51,54 @@ class EmailConfirmRequest(BaseModel):
 
 # ── Kullanıcı & Profil Modelleri ──
 class UserProfile(BaseModel):
-    username: str
+    username: Optional[str] = None
+    nickname: Optional[str] = Field(default=None, max_length=24)
+    avatar_url: Optional[str] = None
     email: Optional[str] = None
     age: Optional[int] = None
     gender: Optional[str] = None
     height: Optional[float] = None
     weight: Optional[float] = None
+    target_weight: Optional[float] = Field(default=None, ge=0, le=500)
     fitness_level: Optional[str] = None
     goal: Optional[str] = None
     days_per_week: Optional[int] = None
     session_time_mins: Optional[int] = None
     new_password: Optional[str] = None
+
+    @field_validator("nickname")
+    @classmethod
+    def _validate_nickname(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        cleaned = str(v).strip()
+        if cleaned == "":
+            return ""
+        if len(cleaned) < 2:
+            raise ValueError("Takma ad en az 2 karakter olmalıdır")
+        if len(cleaned) > 24:
+            raise ValueError("Takma ad en fazla 24 karakter olabilir")
+        return cleaned
+
+    @field_validator("avatar_url")
+    @classmethod
+    def _validate_avatar_url(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        cleaned = str(v).strip()
+        if cleaned == "":
+            return ""
+        if len(cleaned) > 2_800_000:
+            raise ValueError("Profil fotoğrafı boyutu çok büyük (maksimum ~2 MB).")
+        if cleaned.startswith(("https://", "http://")):
+            return cleaned
+        if re.match(r"^data:image/(jpeg|jpg|png|webp|gif);base64,", cleaned, re.IGNORECASE):
+            prefix, payload = cleaned.split(",", 1)
+            compact = re.sub(r"\s+", "", payload)
+            if not compact or not re.fullmatch(r"[A-Za-z0-9+/=]+", compact):
+                raise ValueError("Geçersiz profil fotoğrafı verisi")
+            return f"{prefix},{compact}"
+        raise ValueError("Geçersiz profil fotoğrafı formatı")
 
 
 class RequestDeleteAccountRequest(BaseModel):
@@ -77,10 +115,12 @@ class DeleteAccountRequest(BaseModel):
 
 class AdminEditUser(BaseModel):
     user_id: int
+    nickname: Optional[str] = Field(default=None, max_length=24)
     age: Optional[int] = None
     gender: Optional[str] = None
     height: Optional[float] = None
     weight: Optional[float] = None
+    target_weight: Optional[float] = Field(default=None, ge=0, le=500)
     fitness_level: Optional[str] = None
     goal: Optional[str] = None
     days_per_week: Optional[int] = None
@@ -154,7 +194,7 @@ class CustomDay(BaseModel):
 
 
 class CustomProgramRequest(BaseModel):
-    username: str
+    username: Optional[str] = None
     program: List[List[CustomDay]]
 
 
@@ -288,7 +328,7 @@ class ExpertLegacyResetRequest(BaseModel):
 
 # ── Beslenme Modelleri ──
 class NutritionLogSchema(BaseModel):
-    username: str
+    username: Optional[str] = None
     log_date: str = ""
     calories: float = 0
     protein: float = 0

@@ -150,6 +150,7 @@ def run_sqlite_to_postgres_migration(data: AdminMigrateRequest) -> Dict[str, Any
 
                 for row in users:
                     target_user_id, action = m_sq2pg.upsert_user(cursor, row)
+                    m_sq2pg.upsert_athlete_profile(cursor, target_user_id, row)
                     user_id_map[int(row["id"])] = target_user_id
                     m_sq2pg.increment(summary, "users", action)
 
@@ -169,6 +170,7 @@ def run_sqlite_to_postgres_migration(data: AdminMigrateRequest) -> Dict[str, Any
                     action = m_sq2pg.upsert_profile(cursor, user_id_map[source_user_id], row)
                     m_sq2pg.increment(summary, "profiles", action)
 
+                m_sq2pg.sync_postgres_sequences(cursor)
                 cursor.execute("SELECT COUNT(*) FROM users")
                 target_users = int(cursor.fetchone()[0])
                 cursor.execute("SELECT COUNT(*) FROM workouts")

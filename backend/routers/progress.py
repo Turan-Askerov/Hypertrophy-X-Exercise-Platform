@@ -490,7 +490,7 @@ def save_custom_program(
     data: CustomProgramRequest,
     current_user: dict = Depends(_resolve_current_user),
 ):
-    if data.username != current_user["username"]:
+    if data.username is not None and data.username != current_user["username"]:
         raise HTTPException(status_code=403, detail="Başkası için program kaydedilemez")
 
     fixed_days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]

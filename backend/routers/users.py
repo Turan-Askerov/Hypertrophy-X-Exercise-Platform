@@ -41,7 +41,10 @@ def save_user(
 ):
     try:
         # Token'daki kullanıcı sadece KENDİ profilini düzenleyebilir
-        if data.username.strip().lower() != current_user["username"].strip().lower():
+        if (
+            data.username is not None
+            and data.username.strip().lower() != current_user["username"].strip().lower()
+        ):
             raise HTTPException(status_code=403, detail="Başkasının profili düzenlenemez")
 
         dump = data.model_dump()
@@ -52,7 +55,7 @@ def save_user(
         if current_email and new_email and new_email != current_email:
             dump.pop("email", None)
 
-        result = update_user_profile(dump, current_user["username"])
+        result = update_user_profile(dump, current_user["id"])
         if not result:
             raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
         result.pop("password_hash", None)
@@ -61,7 +64,7 @@ def save_user(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.exception(f"save_user error for {data.username}: {exc}")
+        logger.exception(f"save_user error for user_id={current_user['id']}: {exc}")
         raise HTTPException(status_code=500, detail="Profil güncellenirken hata oluştu")
 
 

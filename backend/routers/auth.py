@@ -71,8 +71,8 @@ def confirm_user_registration(data: RegisterConfirmRequest = Body(...)):
     """2. Adım: E-postaya gönderilen 6 haneli OTP kodunu onaylayarak kullanıcıyı oluşturur ve JWT döner."""
     result = confirm_registration(data.token, data.code)
     username = result["username"]
-    token = _create_access_token(username, is_admin=False)
     user_info = get_user_by_username(username) or {"username": username, "role": "athlete"}
+    token = _create_access_token(username, is_admin=False, user_id=user_info.get("id"))
     user_info.pop("password_hash", None)
     user_info.pop("password_salt", None)
     return {
@@ -89,7 +89,12 @@ def login(data: AuthRequest = Body(...)):
     # ─── Admin giriş ───
     if data.username == ADMIN_USERNAME:
         if ADMIN_PASSWORD_HASH and _verify_admin_password(data.password, ADMIN_PASSWORD_HASH):
-            token = _create_access_token(ADMIN_USERNAME, is_admin=True)
+            admin_row = get_user_by_username(ADMIN_USERNAME)
+            token = _create_access_token(
+                ADMIN_USERNAME,
+                is_admin=True,
+                user_id=admin_row.get("id") if admin_row else None,
+            )
             return {"username": ADMIN_USERNAME, "is_admin": True, "token": token}
         raise HTTPException(status_code=401, detail="Admin şifresi hatalı")
 
@@ -107,7 +112,11 @@ def login(data: AuthRequest = Body(...)):
     conn.close()
 
     # JWT token üret
-    token = _create_access_token(data.username, is_admin=False)
+    token = _create_access_token(
+        user["username"],
+        is_admin=False,
+        user_id=user.get("id") if isinstance(user, dict) else None,
+    )
 
     user.pop("password_hash", None)
     user.pop("password_salt", None)

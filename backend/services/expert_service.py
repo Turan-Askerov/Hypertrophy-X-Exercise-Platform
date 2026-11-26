@@ -814,6 +814,7 @@ def expert_data_state(user: dict) -> dict:
         "user": {
             "id": account["id"],
             "username": account.get("username"),
+            "nickname": account.get("nickname", ""),
             "created_at": str(account.get("created_at", "")),
         },
         "sessions": sessions_data,

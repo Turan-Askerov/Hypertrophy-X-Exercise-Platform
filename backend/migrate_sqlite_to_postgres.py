@@ -24,10 +24,10 @@ except ImportError as exc:
 from postgres_schema import POSTGRES_SCHEMA_STATEMENTS
 
 USER_COLUMNS = (
-    "username", "password_hash", "password_salt", "age", "gender", "height",
-    "weight", "fitness_level", "goal", "days_per_week", "session_time_mins",
-    "stagnation_detected", "custom_split", "dashboard_preferences", "daily_nutrition",
-    "is_admin", "created_at", "updated_at",
+    "username", "nickname", "avatar_url", "email", "password_hash", "password_salt",
+    "age", "gender", "height", "weight", "target_weight", "fitness_level", "goal",
+    "days_per_week", "session_time_mins", "stagnation_detected", "custom_split",
+    "dashboard_preferences", "daily_nutrition", "is_admin", "created_at", "updated_at",
 )
 WORKOUT_COLUMNS = (
     "date", "session_type", "notes", "gym_id", "gym_name", "duration_seconds", "rest_time_seconds", "entry_mode", "total_volume", "exercises", "created_at",
@@ -41,8 +41,10 @@ USER_COMPARE_COLUMNS = tuple(column for column in USER_COLUMNS if column not in 
 WORKOUT_COMPARE_COLUMNS = tuple(column for column in WORKOUT_COLUMNS if column != "created_at")
 PROFILE_COMPARE_COLUMNS = tuple(column for column in PROFILE_COLUMNS if column not in {"created_at", "updated_at"})
 DEFAULTS: dict[str, Any] = {
+    "nickname": "", "avatar_url": "", "email": "",
     "password_hash": "", "password_salt": "", "age": 0, "gender": "male",
-    "height": 170.0, "weight": 70.0, "fitness_level": "Beginner", "goal": "bulk",
+    "height": 170.0, "weight": 70.0, "target_weight": None,
+    "fitness_level": "Beginner", "goal": "bulk",
     "days_per_week": 4, "session_time_mins": 60, "stagnation_detected": 0,
     "custom_split": "[]", "dashboard_preferences": "{}", "daily_nutrition": "{}",
     "is_admin": 0, "notes": "", "gym_id": None, "gym_name": "", "duration_seconds": 0, "rest_time_seconds": 0, "entry_mode": "live", "total_volume": 0.0, "exercises": "[]",
@@ -179,6 +181,63 @@ def upsert_user(cursor, row: dict[str, Any]) -> tuple[int, str]:
     update_values = tuple(row[c] for c in USER_COLUMNS if c != "username") + (target["id"],)
     cursor.execute(f"UPDATE users SET {assignments} WHERE id = %s", update_values)
     return int(target["id"]), "updated"
+
+
+ATHLETE_SYNC_COLUMNS = (
+    "nickname", "avatar_url", "email", "age", "gender", "height", "weight",
+    "target_weight", "fitness_level", "goal", "days_per_week", "session_time_mins",
+    "stagnation_detected", "custom_split", "dashboard_preferences", "daily_nutrition",
+)
+
+
+def upsert_athlete_profile(cursor, target_user_id: int, row: dict[str, Any]) -> str:
+    """Kullanıcı tablosundaki sporcu profil alanlarını athlete_profiles ile senkronlar."""
+    if int(row.get("is_admin") or 0) == 1:
+        return "unchanged"
+    cursor.execute(
+        f"SELECT {', '.join(ATHLETE_SYNC_COLUMNS)} FROM athlete_profiles WHERE user_id = %s",
+        (target_user_id,),
+    )
+    existing = cursor.fetchone()
+    if not existing:
+        cols = ("user_id",) + ATHLETE_SYNC_COLUMNS
+        placeholders = ", ".join(["%s"] * len(cols))
+        cursor.execute(
+            f"INSERT INTO athlete_profiles ({', '.join(cols)}) VALUES ({placeholders})",
+            (target_user_id,) + tuple(row.get(c, DEFAULTS.get(c)) for c in ATHLETE_SYNC_COLUMNS),
+        )
+        return "inserted"
+
+    target = dict(zip(ATHLETE_SYNC_COLUMNS, existing))
+    if values_equal(target, row, ATHLETE_SYNC_COLUMNS):
+        return "unchanged"
+
+    assignments = ", ".join(f"{col} = %s" for col in ATHLETE_SYNC_COLUMNS)
+    cursor.execute(
+        f"UPDATE athlete_profiles SET {assignments}, updated_at = CURRENT_TIMESTAMP WHERE user_id = %s",
+        tuple(row.get(c, DEFAULTS.get(c)) for c in ATHLETE_SYNC_COLUMNS) + (target_user_id,),
+    )
+    return "updated"
+
+
+def sync_postgres_sequences(cursor) -> None:
+    """IDENTITY / SERIAL dizilerini mevcut MAX(id) değerleriyle hizalar."""
+    for table in (
+        "users",
+        "workouts",
+        "pending_registrations",
+        "password_resets",
+        "security_verifications",
+    ):
+        cursor.execute("SELECT pg_get_serial_sequence(%s, 'id')", (table,))
+        seq_row = cursor.fetchone()
+        if not seq_row or not seq_row[0]:
+            continue
+        seq_name = seq_row[0]
+        cursor.execute(f"SELECT COALESCE(MAX(id), 0) FROM {table}")
+        max_id = int(cursor.fetchone()[0] or 0)
+        if max_id > 0:
+            cursor.execute("SELECT setval(%s, %s, true)", (seq_name, max_id))
 
 
 def upsert_profile(cursor, target_user_id: int, row: dict[str, Any]) -> str:
@@ -325,6 +384,7 @@ def main() -> int:
 
             for row in users:
                 target_user_id, action = upsert_user(cursor, row)
+                upsert_athlete_profile(cursor, target_user_id, row)
                 user_id_map[int(row["id"])] = target_user_id
                 increment(summary, "users", action)
 
@@ -348,6 +408,7 @@ def main() -> int:
                 action = upsert_profile(cursor, user_id_map[source_user_id], row)
                 increment(summary, "profiles", action)
 
+            sync_postgres_sequences(cursor)
             cursor.execute("SELECT COUNT(*) FROM users")
             target_users = int(cursor.fetchone()[0])
             cursor.execute("SELECT COUNT(*) FROM workouts")

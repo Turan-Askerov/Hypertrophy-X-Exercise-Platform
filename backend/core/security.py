@@ -5,6 +5,7 @@ import time
 from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
 from threading import Lock
+from typing import Optional, Union
 
 import bcrypt
 from fastapi import Header, HTTPException, Request
@@ -76,10 +77,20 @@ def _upgrade_to_bcrypt_if_needed(conn, user_id: int, plain: str):
         )
 
 
-def _create_access_token(username: str, is_admin: bool = False) -> str:
+def _create_access_token(
+    username: str,
+    is_admin: bool = False,
+    user_id: Optional[int] = None,
+) -> str:
     now_utc = datetime.now(timezone.utc)
     expire = now_utc + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    payload = {"sub": username, "is_admin": is_admin, "exp": expire}
+    payload: dict = {
+        "sub": str(user_id) if user_id is not None else username,
+        "is_admin": is_admin,
+        "exp": expire,
+    }
+    if user_id is not None:
+        payload["uid"] = int(user_id)
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
@@ -95,14 +106,14 @@ def _decode_token(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Geçersiz oturum")
 
 
-_USER_LAST_SEEN: dict[str, float] = {}
+_USER_LAST_SEEN: dict[Union[int, str], float] = {}
 
 
 def _resolve_current_user(
     authorization: str = Header(None),
     authorization_alt: str = Header(None, alias="Authorization"),
 ) -> dict:
-    from services.user_service import get_user_by_username
+    from services.user_service import get_user_by_id, get_user_by_username
 
     token_raw = authorization or authorization_alt
     if not token_raw:
@@ -110,24 +121,35 @@ def _resolve_current_user(
     token = token_raw.replace("Bearer ", "").strip()
     payload = _decode_token(token)
 
-    username = payload.get("sub")
-    if not username:
+    raw_uid = payload.get("uid")
+    sub = payload.get("sub")
+    if raw_uid is not None:
+        try:
+            user = get_user_by_id(int(raw_uid))
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=401, detail="Geçersiz oturum bilgisi")
+    elif sub:
+        # Geriye dönük uyumluluk: uid içermeyen eski tokenlar için kullanıcı adıyla çözümleme
+        user = get_user_by_username(str(sub))
+    else:
         raise HTTPException(status_code=401, detail="Geçersiz oturum bilgisi")
 
-    user = get_user_by_username(username)
     if not user:
         raise HTTPException(status_code=401, detail="Kullanıcı bulunamadı")
 
-    if payload.get("is_admin") and username != ADMIN_USERNAME:
+    is_token_admin = bool(payload.get("is_admin"))
+    resolved_username = str(user.get("username") or "")
+    if is_token_admin and resolved_username != ADMIN_USERNAME:
         raise HTTPException(status_code=401, detail="Geçersiz oturum")
-    if not payload.get("is_admin") and username == ADMIN_USERNAME:
+    if not is_token_admin and resolved_username == ADMIN_USERNAME:
         raise HTTPException(status_code=401, detail="Geçersiz oturum")
 
     db_is_admin = bool(user.get("is_admin", False))
-    if payload.get("is_admin") != db_is_admin:
+    if is_token_admin != db_is_admin:
         raise HTTPException(status_code=401, detail="Geçersiz oturum")
 
-    _USER_LAST_SEEN[username] = time.time()
+    if user.get("id") is not None:
+        _USER_LAST_SEEN[int(user["id"])] = time.time()
     user_clean = dict(user)
     user_clean.pop("password_hash", None)
     user_clean.pop("password_salt", None)

@@ -1,5 +1,6 @@
 """Kullanıcı CRUD ve profil yönetim servisleri."""
 import sqlite3
+from typing import Union
 from fastapi import HTTPException
 
 from core.database import PostgreSQLIntegrityError, get_db
@@ -9,11 +10,15 @@ from core.security import _hash_password
 def get_user_by_username(username: str):
     conn = get_db()
     row = conn.execute("""
-        SELECT u.id, u.username, COALESCE(u.email, ap.email, '') as email, u.password_hash, u.password_salt, u.role, u.is_active, u.is_admin, u.created_at, u.updated_at,
+        SELECT u.id, u.username, COALESCE(u.email, ap.email, '') as email,
+               COALESCE(NULLIF(u.nickname, ''), NULLIF(ap.nickname, ''), '') as nickname,
+               COALESCE(NULLIF(u.avatar_url, ''), NULLIF(ap.avatar_url, ''), '') as avatar_url,
+               u.password_hash, u.password_salt, u.role, u.is_active, u.is_admin, u.created_at, u.updated_at,
                COALESCE(ap.age, u.age) as age,
                COALESCE(ap.gender, u.gender) as gender,
                COALESCE(ap.height, u.height) as height,
                COALESCE(ap.weight, u.weight) as weight,
+               COALESCE(ap.target_weight, u.target_weight) as target_weight,
                COALESCE(ap.fitness_level, u.fitness_level) as fitness_level,
                COALESCE(ap.goal, u.goal) as goal,
                COALESCE(ap.days_per_week, u.days_per_week) as days_per_week,
@@ -35,6 +40,7 @@ def get_user_by_username(username: str):
             d["age"] = None
             d["height"] = None
             d["weight"] = None
+            d["target_weight"] = None
             d["fitness_level"] = None
             d["goal"] = None
         return d
@@ -44,11 +50,15 @@ def get_user_by_username(username: str):
 def get_user_by_id(user_id: int):
     conn = get_db()
     row = conn.execute("""
-        SELECT u.id, u.username, COALESCE(u.email, ap.email, '') as email, u.password_hash, u.password_salt, u.role, u.is_active, u.is_admin, u.created_at, u.updated_at,
+        SELECT u.id, u.username, COALESCE(u.email, ap.email, '') as email,
+               COALESCE(NULLIF(u.nickname, ''), NULLIF(ap.nickname, ''), '') as nickname,
+               COALESCE(NULLIF(u.avatar_url, ''), NULLIF(ap.avatar_url, ''), '') as avatar_url,
+               u.password_hash, u.password_salt, u.role, u.is_active, u.is_admin, u.created_at, u.updated_at,
                COALESCE(ap.age, u.age) as age,
                COALESCE(ap.gender, u.gender) as gender,
                COALESCE(ap.height, u.height) as height,
                COALESCE(ap.weight, u.weight) as weight,
+               COALESCE(ap.target_weight, u.target_weight) as target_weight,
                COALESCE(ap.fitness_level, u.fitness_level) as fitness_level,
                COALESCE(ap.goal, u.goal) as goal,
                COALESCE(ap.days_per_week, u.days_per_week) as days_per_week,
@@ -70,6 +80,7 @@ def get_user_by_id(user_id: int):
             d["age"] = None
             d["height"] = None
             d["weight"] = None
+            d["target_weight"] = None
             d["fitness_level"] = None
             d["goal"] = None
         return d
@@ -146,31 +157,43 @@ def create_user(username: str, password: str, email: str = ""):
         conn.close()
 
 
-def update_user_profile(data: dict, username: str):
+def update_user_profile(data: dict, user_ref: Union[int, str]):
     conn = get_db()
-    user_row = conn.execute(
-        "SELECT id, username, role, is_admin FROM users WHERE username=? OR LOWER(username)=LOWER(?)",
-        (username, username)
-    ).fetchone()
+    if isinstance(user_ref, int) and not isinstance(user_ref, bool):
+        user_row = conn.execute(
+            "SELECT id, username, role, is_admin FROM users WHERE id=?",
+            (user_ref,),
+        ).fetchone()
+    else:
+        user_row = conn.execute(
+            "SELECT id, username, role, is_admin FROM users WHERE username=? OR LOWER(username)=LOWER(?)",
+            (str(user_ref), str(user_ref)),
+        ).fetchone()
     if not user_row:
         conn.close()
         return None
     user_dict = dict(user_row)
     user_id = user_dict["id"]
-    canonical_username = user_dict["username"]
     is_admin = bool(user_dict.get("is_admin") or user_dict.get("role") == "admin")
     if is_admin:
         conn.close()
-        return get_user_by_username(canonical_username)
+        return get_user_by_id(user_id)
 
     fields = []
     values = []
-    allowed = ['age', 'gender', 'height', 'weight', 'fitness_level', 'goal',
-               'days_per_week', 'session_time_mins', 'stagnation_detected', 'email']
+    allowed = [
+        'nickname', 'avatar_url', 'age', 'gender', 'height', 'weight',
+        'target_weight', 'fitness_level', 'goal', 'days_per_week',
+        'session_time_mins', 'stagnation_detected', 'email',
+    ]
     for key, val in data.items():
         if key in allowed and val is not None:
             fields.append(f"{key}=?")
-            values.append(val)
+            if key == "target_weight":
+                num_val = float(val)
+                values.append(None if num_val <= 0 else round(num_val, 2))
+            else:
+                values.append(val)
     if fields:
         cur = conn.cursor()
         ap_exists = conn.execute("SELECT user_id FROM athlete_profiles WHERE user_id=?", (user_id,)).fetchone()
@@ -180,8 +203,8 @@ def update_user_profile(data: dict, username: str):
             col_names = [f.split('=')[0] for f in fields]
             placeholders = ', '.join(['?'] * len(values))
             cur.execute(f"INSERT INTO athlete_profiles (user_id, {', '.join(col_names)}) VALUES (?, {placeholders})", [user_id] + values)
-        # Geriye dönük uyumluluk için users tablosunu da güncelle
-        cur.execute(f"UPDATE users SET {', '.join(fields)}, updated_at=CURRENT_TIMESTAMP WHERE username=?", values + [canonical_username])
+        # Geriye dönük uyumluluk için users tablosunu da değişmez id üzerinden güncelle
+        cur.execute(f"UPDATE users SET {', '.join(fields)}, updated_at=CURRENT_TIMESTAMP WHERE id=?", values + [user_id])
         conn.commit()
     conn.close()
-    return get_user_by_username(canonical_username)
+    return get_user_by_id(user_id)

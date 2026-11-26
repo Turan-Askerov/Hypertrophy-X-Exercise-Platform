@@ -123,12 +123,15 @@ def init_db():
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
+                nickname TEXT NOT NULL DEFAULT '',
+                avatar_url TEXT NOT NULL DEFAULT '',
                 password_hash TEXT NOT NULL DEFAULT '',
                 password_salt TEXT NOT NULL DEFAULT '',
                 age INTEGER NOT NULL DEFAULT 0,
                 gender TEXT NOT NULL DEFAULT 'male',
                 height REAL NOT NULL DEFAULT 170.0,
                 weight REAL NOT NULL DEFAULT 70.0,
+                target_weight REAL DEFAULT NULL,
                 fitness_level TEXT NOT NULL DEFAULT 'Beginner',
                 goal TEXT NOT NULL DEFAULT 'bulk',
                 days_per_week INTEGER NOT NULL DEFAULT 4,
@@ -175,6 +178,9 @@ def init_db():
                 gender TEXT NOT NULL DEFAULT 'male',
                 height REAL NOT NULL DEFAULT 170.0,
                 weight REAL NOT NULL DEFAULT 70.0,
+                target_weight REAL DEFAULT NULL,
+                nickname TEXT NOT NULL DEFAULT '',
+                avatar_url TEXT NOT NULL DEFAULT '',
                 fitness_level TEXT NOT NULL DEFAULT 'Beginner',
                 goal TEXT NOT NULL DEFAULT 'bulk',
                 days_per_week INTEGER NOT NULL DEFAULT 4,
@@ -249,7 +255,13 @@ def init_db():
             "ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'athlete'",
             "ALTER TABLE users ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1",
             "ALTER TABLE users ADD COLUMN email TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN nickname TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN avatar_url TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN target_weight REAL DEFAULT NULL",
             "ALTER TABLE athlete_profiles ADD COLUMN email TEXT DEFAULT ''",
+            "ALTER TABLE athlete_profiles ADD COLUMN nickname TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE athlete_profiles ADD COLUMN avatar_url TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE athlete_profiles ADD COLUMN target_weight REAL DEFAULT NULL",
             "ALTER TABLE workouts ADD COLUMN gym_id TEXT DEFAULT NULL",
             "ALTER TABLE workouts ADD COLUMN gym_name TEXT DEFAULT ''",
             "ALTER TABLE workouts ADD COLUMN duration_seconds INTEGER NOT NULL DEFAULT 0",
@@ -288,11 +300,13 @@ def init_db():
         if DATABASE_BACKEND == "postgresql":
             cur.execute("""
                 INSERT INTO athlete_profiles (
-                    user_id, age, gender, height, weight, fitness_level, goal,
+                    user_id, age, gender, height, weight, target_weight,
+                    nickname, avatar_url, fitness_level, goal,
                     days_per_week, session_time_mins, stagnation_detected,
                     custom_split, dashboard_preferences, daily_nutrition, created_at, updated_at
                 )
-                SELECT id, age, gender, height, weight, fitness_level, goal,
+                SELECT id, age, gender, height, weight, target_weight,
+                       nickname, avatar_url, fitness_level, goal,
                        days_per_week, session_time_mins, stagnation_detected,
                        custom_split, dashboard_preferences, daily_nutrition, created_at, updated_at
                 FROM users
@@ -303,11 +317,13 @@ def init_db():
         else:
             cur.execute("""
                 INSERT OR IGNORE INTO athlete_profiles (
-                    user_id, age, gender, height, weight, fitness_level, goal,
+                    user_id, age, gender, height, weight, target_weight,
+                    nickname, avatar_url, fitness_level, goal,
                     days_per_week, session_time_mins, stagnation_detected,
                     custom_split, dashboard_preferences, daily_nutrition, created_at, updated_at
                 )
-                SELECT id, age, gender, height, weight, fitness_level, goal,
+                SELECT id, age, gender, height, weight, target_weight,
+                       nickname, avatar_url, fitness_level, goal,
                        days_per_week, session_time_mins, stagnation_detected,
                        custom_split, dashboard_preferences, daily_nutrition, created_at, updated_at
                 FROM users

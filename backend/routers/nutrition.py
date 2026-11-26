@@ -52,7 +52,7 @@ def save_nutrition_log(
     data: NutritionLogSchema,
     current_user: dict = Depends(_resolve_current_user),
 ):
-    if data.username != current_user["username"]:
+    if data.username is not None and data.username != current_user["username"]:
         raise HTTPException(status_code=403, detail="Başkası için kayıt yapılamaz")
 
     raw_nutri = current_user.get("daily_nutrition", "{}")
@@ -80,8 +80,8 @@ def save_nutrition_log(
 
     conn = get_db()
     conn.execute(
-        "UPDATE users SET daily_nutrition = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?",
-        (json.dumps(history_dict, ensure_ascii=False), current_user["username"]),
+        "UPDATE users SET daily_nutrition = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (json.dumps(history_dict, ensure_ascii=False), current_user["id"]),
     )
     conn.commit()
     conn.close()
@@ -93,7 +93,7 @@ def update_nutrition_log(
     data: NutritionLogUpdateSchema,
     current_user: dict = Depends(_resolve_current_user),
 ):
-    if data.username != current_user["username"]:
+    if data.username is not None and data.username != current_user["username"]:
         raise HTTPException(status_code=403, detail="Başkası için kayıt güncellenemez")
 
     original_date = str(data.original_date or "")[:10]
@@ -134,8 +134,8 @@ def update_nutrition_log(
     conn = get_db()
     try:
         conn.execute(
-            "UPDATE users SET daily_nutrition = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?",
-            (json.dumps(history_dict, ensure_ascii=False), current_user["username"]),
+            "UPDATE users SET daily_nutrition = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (json.dumps(history_dict, ensure_ascii=False), current_user["id"]),
         )
         conn.commit()
     finally:
@@ -158,8 +158,8 @@ def delete_nutrition_log(
         del history_dict[log_date]
         conn = get_db()
         conn.execute(
-            "UPDATE users SET daily_nutrition = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?",
-            (json.dumps(history_dict, ensure_ascii=False), user["username"]),
+            "UPDATE users SET daily_nutrition = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (json.dumps(history_dict, ensure_ascii=False), user["id"]),
         )
         conn.commit()
         conn.close()

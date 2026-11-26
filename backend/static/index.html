@@ -27863,6 +27863,19 @@ input[type="number"].edit-input {
                     </div>
                   </div>
                 </div>
+
+                <div class="profile-field-group" style="grid-column: 1 / -1;">
+                  <label class="profile-field-label" for="profTargetWeight">
+                    <span>Hedef Kilo</span>
+                    <span class="profile-unit-tag">kg (Opsiyonel)</span>
+                  </label>
+                  <div class="profile-input-wrap">
+                    <input type="number" id="profTargetWeight" min="30" max="250" step="0.5" placeholder="Örn: 78.0" />
+                    <div class="profile-input-icon">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1.5"></circle></svg>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <!-- PROFİL ALT BÖLÜM: ANTRENMAN VE HEDEF DÜZENİ -->
@@ -38707,6 +38720,7 @@ async function loadProfile(username) {
     if (document.getElementById('profGender')) document.getElementById('profGender').value = user.gender || 'male';
     if (document.getElementById('profHeight')) document.getElementById('profHeight').value = user.height || '';
     if (document.getElementById('profWeight')) document.getElementById('profWeight').value = user.weight || '';
+    if (document.getElementById('profTargetWeight')) document.getElementById('profTargetWeight').value = (user.target_weight != null && user.target_weight > 0) ? user.target_weight : '';
     if (document.getElementById('profLevel')) document.getElementById('profLevel').value = user.fitness_level || 'Beginner';
     if (document.getElementById('profGoal')) document.getElementById('profGoal').value = user.goal || 'bulk';
     if (document.getElementById('profDays')) document.getElementById('profDays').value = user.days_per_week || '4';
@@ -38714,21 +38728,37 @@ async function loadProfile(username) {
     if (document.getElementById('profEmail')) document.getElementById('profEmail').value = user.email || '';
     updateProfileEmailDisplays(user.email || '');
 
-    const rawName = user.full_name || user.name || user.username || _currentUser?.username || username || 'Sporcu';
+    const rawName = (user.nickname && String(user.nickname).trim()) || user.full_name || user.name || user.username || _currentUser?.username || username || 'Sporcu';
     const uname = String(rawName).toUpperCase();
     const heroUname = document.getElementById('profHeroUsername');
     if (heroUname) heroUname.textContent = `${uname} — SPORCU PROFİLİ`;
 
+    const avatarUrl = user.avatar_url ? String(user.avatar_url).trim() : '';
+    const applyAvatarEl = (el, fallbackText) => {
+      if (!el) return;
+      el.innerHTML = '';
+      if (avatarUrl) {
+        const img = document.createElement('img');
+        img.src = avatarUrl;
+        img.alt = rawName;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '50%';
+        el.appendChild(img);
+      } else {
+        el.textContent = fallbackText;
+      }
+    };
+
     const avatarCircle = document.getElementById('profAvatarCircle');
-    if (avatarCircle) {
-      avatarCircle.textContent = getProfileInitials(rawName);
-    }
+    applyAvatarEl(avatarCircle, getProfileInitials(rawName));
 
     // Mobil çekmece kimlik kartını senkronize et
     const smpName = document.getElementById('smpName');
     if (smpName) smpName.textContent = rawName;
     const smpAvatar = document.getElementById('smpAvatar');
-    if (smpAvatar) smpAvatar.textContent = String(rawName).charAt(0).toUpperCase();
+    applyAvatarEl(smpAvatar, String(rawName).charAt(0).toUpperCase());
     const smpLevel = document.getElementById('smpLevel');
     if (smpLevel && !_isAdmin && user.fitness_level) {
       const levelMap = { 'Beginner': 'Başlangıç', 'Intermediate': 'Orta Seviye', 'Advanced': 'İleri Seviye' };
@@ -38992,6 +39022,7 @@ async function saveProfile() {
     gender: document.getElementById('profGender').value,
     height: parseFloat(document.getElementById('profHeight').value) || 170,
     weight: parseFloat(document.getElementById('profWeight').value) || 70,
+    target_weight: parseFloat(document.getElementById('profTargetWeight')?.value) || 0,
     fitness_level: document.getElementById('profLevel').value,
     goal: document.getElementById('profGoal').value,
     days_per_week: parseInt(document.getElementById('profDays').value) || 4,

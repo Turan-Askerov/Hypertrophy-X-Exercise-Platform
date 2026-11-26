@@ -10,10 +10,10 @@ except ImportError:
     raise SystemExit("psycopg required")
 
 USER_COLUMNS = (
-    "username", "password_hash", "password_salt", "age", "gender", "height",
-    "weight", "fitness_level", "goal", "days_per_week", "session_time_mins",
-    "stagnation_detected", "custom_split", "dashboard_preferences", "daily_nutrition",
-    "is_admin", "created_at", "updated_at",
+    "username", "nickname", "avatar_url", "email", "password_hash", "password_salt",
+    "age", "gender", "height", "weight", "target_weight", "fitness_level", "goal",
+    "days_per_week", "session_time_mins", "stagnation_detected", "custom_split",
+    "dashboard_preferences", "daily_nutrition", "is_admin", "created_at", "updated_at",
 )
 WORKOUT_COLUMNS = (
     "date", "session_type", "notes", "gym_id", "gym_name", "duration_seconds", "rest_time_seconds", "entry_mode", "total_volume", "exercises", "created_at",
@@ -23,7 +23,8 @@ PROFILE_COLUMNS = (
     "created_at", "updated_at",
 )
 ATHLETE_PROFILE_COLUMNS = [
-    "age", "gender", "height", "weight", "fitness_level", "goal", "days_per_week"
+    "nickname", "avatar_url", "email", "age", "gender", "height", "weight",
+    "target_weight", "fitness_level", "goal", "days_per_week"
 ]
 
 ADMIN_ROLE_COLUMNS = [

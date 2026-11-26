@@ -57,8 +57,10 @@ def admin_list_users(admin_user: dict = Depends(_resolve_current_user)):
     conn = get_db()
     try:
         rows = conn.execute("""
-            SELECT u.id, u.username, u.role, u.is_active, u.created_at,
-                   ap.age, ap.gender, ap.height, ap.weight,
+            SELECT u.id, u.username,
+                   COALESCE(NULLIF(u.nickname, ''), NULLIF(ap.nickname, ''), '') as nickname,
+                   u.role, u.is_active, u.created_at,
+                   ap.age, ap.gender, ap.height, ap.weight, ap.target_weight,
                    ap.fitness_level, ap.goal, ap.days_per_week, ap.session_time_mins,
                    COUNT(w.id) as workout_count,
                    MAX(w.date) as last_workout_date
@@ -66,9 +68,9 @@ def admin_list_users(admin_user: dict = Depends(_resolve_current_user)):
             LEFT JOIN athlete_profiles ap ON u.id = ap.user_id
             LEFT JOIN workouts w ON u.id = w.user_id
             WHERE u.role = 'athlete' AND u.is_admin = 0 AND u.username != ?
-            GROUP BY u.id, u.username, u.role, u.is_active, u.created_at,
-                     ap.user_id, ap.age, ap.gender, ap.height, ap.weight,
-                     ap.fitness_level, ap.goal, ap.days_per_week, ap.session_time_mins
+            GROUP BY u.id, u.username, u.nickname, u.role, u.is_active, u.created_at,
+                     ap.user_id, ap.nickname, ap.age, ap.gender, ap.height, ap.weight,
+                     ap.target_weight, ap.fitness_level, ap.goal, ap.days_per_week, ap.session_time_mins
             ORDER BY u.id ASC
         """, (ADMIN_USERNAME,)).fetchall()
         now_ts = time.time()
@@ -76,7 +78,12 @@ def admin_list_users(admin_user: dict = Depends(_resolve_current_user)):
         for r in rows:
             u = dict(r)
             uname = u.get("username", "")
-            last_ts = _USER_LAST_SEEN.get(uname, 0)
+            uid = u.get("id")
+            last_ts = (
+                _USER_LAST_SEEN[uid]
+                if uid is not None and uid in _USER_LAST_SEEN
+                else _USER_LAST_SEEN.get(uname, 0)
+            )
             is_online = (now_ts - last_ts < 900)
             u["is_online"] = is_online
             u["last_active_ts"] = last_ts if last_ts > 0 else None
@@ -104,8 +111,16 @@ def admin_list_administrators(admin_user: dict = Depends(_resolve_current_user))
         for r in rows:
             a = dict(r)
             uname = a.get("username", "")
-            last_ts = _USER_LAST_SEEN.get(uname, 0)
-            a["is_online"] = (now_ts - last_ts < 900) or (uname == admin_user.get("username"))
+            aid = a.get("id")
+            last_ts = (
+                _USER_LAST_SEEN[aid]
+                if aid is not None and aid in _USER_LAST_SEEN
+                else _USER_LAST_SEEN.get(uname, 0)
+            )
+            is_self = (aid is not None and aid == admin_user.get("id")) or (
+                uname == admin_user.get("username")
+            )
+            a["is_online"] = (now_ts - last_ts < 900) or is_self
             admins.append(a)
         return admins
     finally:
@@ -553,9 +568,12 @@ def admin_create_user(data: dict = Body(...),
     if existing:
         raise HTTPException(status_code=400, detail="Bu kullanıcı adı zaten mevcut")
 
+    nickname = str(data.get("nickname") or "").strip()[:24]
     age = int(data.get("age") or 24)
     height = float(data.get("height") or 175)
     weight = float(data.get("weight") or 75)
+    raw_tw = data.get("target_weight")
+    target_weight = round(float(raw_tw), 2) if raw_tw is not None and float(raw_tw) > 0 else None
     fitness_level = str(data.get("fitness_level") or "Beginner")
     goal = str(data.get("goal") or "bulk")
     days_per_week = int(data.get("days_per_week") or 4)
@@ -565,9 +583,9 @@ def admin_create_user(data: dict = Body(...),
     try:
         cur = conn.cursor()
         cur.execute(
-            """INSERT INTO users (username, password_hash, password_salt, role, is_active, is_admin, age, height, weight, fitness_level, goal, days_per_week, session_time_mins)
-               VALUES (?, ?, '', 'athlete', 1, 0, ?, ?, ?, ?, ?, ?, ?)""",
-            (username, _hash_password(password), age, height, weight, fitness_level, goal, days_per_week, session_time_mins)
+            """INSERT INTO users (username, nickname, password_hash, password_salt, role, is_active, is_admin, age, height, weight, target_weight, fitness_level, goal, days_per_week, session_time_mins)
+               VALUES (?, ?, ?, '', 'athlete', 1, 0, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (username, nickname, _hash_password(password), age, height, weight, target_weight, fitness_level, goal, days_per_week, session_time_mins)
         )
         new_id = getattr(cur, "lastrowid", None)
         if not new_id:
@@ -576,9 +594,9 @@ def admin_create_user(data: dict = Body(...),
                 new_id = u_row["id"] if isinstance(u_row, dict) else u_row[0]
         if new_id:
             cur.execute(
-                """INSERT OR IGNORE INTO athlete_profiles (user_id, age, height, weight, fitness_level, goal, days_per_week, session_time_mins)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                (new_id, age, height, weight, fitness_level, goal, days_per_week, session_time_mins)
+                """INSERT OR IGNORE INTO athlete_profiles (user_id, nickname, age, height, weight, target_weight, fitness_level, goal, days_per_week, session_time_mins)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (new_id, nickname, age, height, weight, target_weight, fitness_level, goal, days_per_week, session_time_mins)
             )
         conn.commit()
     finally:
@@ -609,11 +627,19 @@ def admin_edit_user(data: AdminEditUser = Body(...),
         if not is_admin_target:
             profile_fields = []
             profile_vals = []
-            allowed = ['age', 'gender', 'height', 'weight', 'fitness_level', 'goal', 'days_per_week', 'session_time_mins']
+            allowed = [
+                'nickname', 'age', 'gender', 'height', 'weight',
+                'target_weight', 'fitness_level', 'goal', 'days_per_week',
+                'session_time_mins',
+            ]
             for key in allowed:
                 if key in update_data and update_data[key] is not None:
                     profile_fields.append(f"{key}=?")
-                    profile_vals.append(update_data[key])
+                    if key == "target_weight":
+                        num_val = float(update_data[key])
+                        profile_vals.append(None if num_val <= 0 else round(num_val, 2))
+                    else:
+                        profile_vals.append(update_data[key])
             if profile_fields:
                 cur = conn.cursor()
                 ap_exists = conn.execute("SELECT user_id FROM athlete_profiles WHERE user_id=?", (data.user_id,)).fetchone()
